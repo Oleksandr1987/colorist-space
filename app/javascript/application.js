@@ -3,16 +3,24 @@ import "@hotwired/turbo-rails"
 import "controllers"
 
 if ("serviceWorker" in navigator) {
-    // Register a service worker hosted at the root of the
-    // application using the default scope.
-    navigator.serviceWorker.register("/service-worker.js").then(
-        (registration) => {
-            console.log("Service Worker registration succeeded:", registration);
-        },
-        (error) => {
-            console.error('Service Worker registration failed: ${error}');
-        }
-    );
-  } else {
-    console.log("Service workers are not supported.");
-  }
+  navigator.serviceWorker
+    .register("/service-worker.js")
+    .then((registration) => {
+      registration.addEventListener("updatefound", () => {
+        // If updatefound is fired, it means that there's
+        // a new service worker being installed.
+        const installingWorker = registration.installing;
+        console.log(
+          "A new service worker is being installed:",
+          installingWorker,
+        );
+        // You can listen for changes to the installing service worker's
+        // state via installingWorker.onstatechange
+      });
+    })
+    .catch((error) => {
+      console.error(`Service worker registration failed: ${error}`);
+    });
+} else {
+  console.error("Service workers are not supported.");
+}
