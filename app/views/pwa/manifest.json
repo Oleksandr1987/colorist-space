@@ -1,0 +1,33 @@
+{
+  "id": "colorist-space",
+  "name": "ColoristSpace",
+  "short_name": "ColoristSpace",
+  "start_url": "/",
+  "display": "standalone",
+  "scope": "/",
+  "description": "ColoristSpace.",
+  "theme_color": "#000000",
+  "background_color": "white",
+  "icons": [
+    {
+      "src": "logo-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screen-1.png",
+      "sizes": "2050x1366",
+      "form_factor": "wide",
+      "label": "Hello PWA"
+    },
+    {
+      "src": "screen-2.png",
+      "sizes": "858x1256",
+      "form_factor": "narrow",
+      "label": "Mobile view showing weekly meal calendar"
+    }
+  ]
+}
