@@ -1,28 +1,52 @@
-<h2>Log in</h2>
+<div class="container">
+  <div class="screen">
+    <div class="screen__content">
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "login" }) do |f| %>
+        <div class="login__field">
+          <i class="login__icon fas fa-user"></i>
+          <%= f.email_field :email, class: "login__input", placeholder: "Email", autofocus: true, autocomplete: "email" %>
+        </div>
 
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+        <div class="login__field">
+          <i class="login__icon fas fa-lock"></i>
+          <%= f.password_field :password, class: "login__input", placeholder: "Password", autocomplete: "current-password" %>
+        </div>
 
-  <div class="field">
-    <%= f.label :password %><br />
-    <%= f.password_field :password, autocomplete: "current-password" %>
-  </div>
+        <% if devise_mapping.rememberable? %>
+          <div class="login__field">
+            <%= f.check_box :remember_me %>
+            <%= f.label :remember_me %>
+          </div>
+        <% end %>
 
-  <% if devise_mapping.rememberable? %>
-    <div class="field">
-      <%= f.check_box :remember_me %>
-      <%= f.label :remember_me %>
+        <div class="actions">
+          <%= f.submit "Log In Now", class: "button login__submit" %>
+        </div>
+      <% end %>
+
+      <div class='social-login'>
+        <h3> log in via</h3>
+        <div class="social-icons">
+          <%- if devise_mapping.omniauthable? %>
+            <%- resource_class.omniauth_providers.each do |provider| %>
+              <%= button_to omniauth_authorize_path(resource_name, provider), data: { turbo: false } do %>
+                <%= image_tag("social_icons/#{provider}.png", alt: "{provider.capitalize", class: "social-login__icon") %>
+              <% end %>
+            <% end %>
+          <% end%>
+        </div>
+      </div>
     </div>
-  <% end %>
-
-  <div class="actions">
-    <%= f.submit "Log in" %>
+    <div class="screen__background">
+      <span class="screen__background__shape screen__background__shape4"></span>
+      <span class="screen__background__shape screen__background__shape3"></span>
+      <span class="screen__background__shape screen__background__shape2"></span>
+      <span class="screen__background__shape screen__background__shape1"></span>
+    </div>
+    <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+    <div>
+      <%= link_to "Forgot your password?", new_password_path(resource_name), class: "forgot-password" %>
+    </div>
+    <% end%>
   </div>
-<% end %>
-
-<p><%= link_to "Відновити пароль?", new_password_path(resource_name) %></p>
-
-<%= render "devise/shared/links" %>
+</div>

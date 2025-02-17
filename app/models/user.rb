@@ -5,6 +5,8 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :omniauthable, omniauth_providers: %i[facebook google_oauth2 instagram]
 
+  validates_acceptance_of :tos_agreement, allow_nil: false, on: :create
+
   def self.from_omniauth(auth)
     if where(email: auth.info.email).exists?
       return_user = where(email: auth.info.email).first

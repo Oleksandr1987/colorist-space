@@ -4,4 +4,7 @@ class StaticController < ApplicationController
 
   def terms
   end
+
+  def about_us
+  end
 end

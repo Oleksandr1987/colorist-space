@@ -30,15 +30,15 @@
     <%= f.label :password_confirmation %><br />
     <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
   </div>
+  
+  <div class="field">
+  <%= f.check_box :tos_agreement %>
+  <%= f.label :tos_agreement, "I agree to #{link_to 'Terms of Service', terms_path, target: '_blank'}".html_safe %>
+  </div>
 
   <div class="actions">
     <%= f.submit "Sign up" %>
   </div>
 <% end %>
-
-<p>або увійдіть через:</p>
-<%= link_to "Facebook", user_facebook_omniauth_authorize_path %>
-<%= link_to "Google", user_google_oauth2_omniauth_authorize_path %>
-<%= link_to "Instagram", user_instagram_omniauth_authorize_path%>
 
 <%= render "devise/shared/links" %>
