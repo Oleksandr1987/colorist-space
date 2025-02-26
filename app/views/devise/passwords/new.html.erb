@@ -1,0 +1,16 @@
+<div class="container">
+  <div class="screen">
+    <div class="screen__content">
+      <h2>Reset Password</h2>
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+        <div class="login__field">
+          <%= f.email_field :email, class: "login__input", placeholder: "Email", autofocus: true, autocomplete: "email" %>
+        </div>
+        <div class="actions">
+          <%= f.submit "Send reset link", class: "button reset__submit" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

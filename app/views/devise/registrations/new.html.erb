@@ -1,0 +1,57 @@
+<div class="container">
+  <div class="screen">
+    <div class="screen__content">
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+        <div class="login__field">
+          <%= f.label :name%><br />
+          <%= f.text_field :name, class: "login__input", autofocus: true, autocomplete: "name" %>
+        </div>
+        
+        <div class="login__field">
+          <%= f.label :email %><br />
+          <%= f.email_field :email, class: "login__input", autofocus: true, autocomplete: "email" %>
+        </div>
+
+        <div class="login__field">
+          <%= f.label :phone%><br />
+          <%= f.phone_field :phone, class: "login__input", autofocus: true, autocomplete: "phone" %>
+        </div>
+
+        <div class="login__field">
+          <%= f.label :password %>
+          <% if @minimum_password_length %>
+          <em>(<%= @minimum_password_length %> characters minimum)</em>
+          <% end %><br />
+          <%= f.password_field :password, class: "login__input", autocomplete: "new-password" %>
+        </div>
+
+        <div class="login__field">
+          <%= f.label :password_confirmation %><br />
+          <%= f.password_field :password_confirmation, class: "login__input", autocomplete: "new-password" %>
+        </div>
+        
+        <div class="login__field">
+        <%= f.check_box :tos_agreement %>
+        <%= f.label :tos_agreement, "I agree to #{link_to 'Terms of Service', terms_path, target: '_blank'}".html_safe %>
+        </div>
+
+        <div class="actions">
+          <%= f.submit "Sign up", class: "button signup__submit" %>
+        </div>
+      <% end %>
+      <div class='social-signup'>
+        <h3> SIGN UP FASTER WITH</h3>
+        <div class="social-icons">
+          <%- if devise_mapping.omniauthable? %>
+            <%- resource_class.omniauth_providers.each do |provider| %>
+              <%= button_to omniauth_authorize_path(resource_name, provider), data: { turbo: false } do %>
+                <%= image_tag("social_icons/#{provider}.png", alt: "{provider.capitalize", class: "social-login__icon") %>
+              <% end %>
+            <% end %>
+          <% end%>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
