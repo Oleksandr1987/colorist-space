@@ -1,85 +1,83 @@
 .home-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    text-align: center;
-    background-color: #f5f3ff;
-  }
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  background-color: #f5f3ff;
+}
+
+.home-page__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 350px; /* Ensures consistent container size */
+}
+
+.home-page__title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #481f9a;
+}
+
+.home-page__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #ebebf3;
+  background-color: #481f9a;
+  border: 1px solid #D4D3E8;
+  border-radius: 10px;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+  width: 100%;
+  max-width: 300px; /* Ensures buttons are equal in width */
+}
+
+.button:hover {
+  background-color: #6a1b9a;
+}
+
+/* Logo styles */
+.home-page__logo {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.logo-img {
+  width: 200px;
+  height: auto;
+}
+
+/* Mobile Adaptation */
+@media (max-width: 600px) {
   .home-page__content {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 20px;
-    border-radius: 10px;
+    width: 90%;
   }
 
-  .signup__link {
-    background: #481f9a;
-    font-size: 14px;
-    margin-top: 20px;
-    padding: 16px 20px;
-    /* border-radius: 10px; */
-    border: 1px solid #D4D3E8;
-    text-transform: uppercase;
-    font-weight: 700;
-    width: 100%;
-    /* display: flex
-; */
-    align-items: center;
-    width: 87%;
-    color: #ebebf3;
-    /* box-shadow: 0px 2px 2px #5C5696; */
-    cursor: pointer;
-    transition: .2s;
-}
-.login__link {
-  background: #481f9a;
-  font-size: 14px;
-  margin-top: 20px;
-  padding: 16px 20px;
-  /* border-radius: 10px; */
-  border: 1px solid #D4D3E8;
-  text-transform: uppercase;
-  font-weight: 700;
-  width: 100%;
-  /* display: flex
-; */
-  align-items: center;
-  width: 87%;
-  color: #ebebf3;
-  /* box-shadow: 0px 2px 2px #5C5696; */
-  cursor: pointer;
-  transition: .2s;
-}
   .button {
-    display: inline-block;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: #ebebf3;
-    background-color: #481f9a;
-    border: none;
-    border-radius: 10px;
-    text-decoration: none;
-    text-align: center;
-    transition: background 0.3s ease-in-out;
+    width: 100%;
+    max-width: 280px; /* Slightly smaller for better fit */
   }
-  
-  .button:hover {
-    background-color: #6a1b9a;
+
+  .logo-img {
+    width: 120px; /* Adjust logo size for smaller screens */
   }
-  
-  /* Адаптація для мобільних пристроїв */
-  @media (max-width: 600px) {
-    .home-page__content {
-      width: 90%;
-    }
-  
-    .button {
-      width: 100%;
-    }
-  }
-  
+}

@@ -1,13 +1,14 @@
 <div class="container">
   <div class="home-page">
     <div class="home-page__content">
-      <h2>Create your account</h2>
-      <ul>
-        <%= link_to "Sign Up", new_user_registration_path, class: "button signup__link" %>
-      </ul>
-      <ul>
-        <%= link_to "Log In", new_user_session_path, class: "button login__link" %>
-      </ul>
+      <h2 class="home-page__title">Create account</h2>
+      <div class="home-page__buttons">
+        <%= link_to "Sign up", new_user_registration_path, class: "button signup__link" %>
+        <%= link_to "Login", new_user_session_path, class: "button login__link" %>
+      </div>
+      <div class="home-page__logo">
+        <%= image_tag("logo_full_transpr.png", alt: "Colorist.Space", class: "logo-img") %>
+      </div>
     </div>
   </div>
 </div>
