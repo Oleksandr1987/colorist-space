@@ -12,7 +12,8 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
   border-radius: 10px;
   width: 100%;
   max-width: 350px; /* Ensures consistent container size */
@@ -47,7 +48,6 @@
   text-align: center;
   cursor: pointer;
   transition: background 0.3s ease-in-out;
-  width: 100%;
   max-width: 300px; /* Ensures buttons are equal in width */
 }
 
@@ -66,18 +66,3 @@
   height: auto;
 }
 
-/* Mobile Adaptation */
-@media (max-width: 600px) {
-  .home-page__content {
-    width: 90%;
-  }
-
-  .button {
-    width: 100%;
-    max-width: 280px; /* Slightly smaller for better fit */
-  }
-
-  .logo-img {
-    width: 120px; /* Adjust logo size for smaller screens */
-  }
-}
