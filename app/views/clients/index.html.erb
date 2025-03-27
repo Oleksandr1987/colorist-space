@@ -1,0 +1,26 @@
+<h1>Clients</h1>
+<%= link_to "New Client", new_client_path, class: "button" %>
+
+<div data-controller="client-search">
+  <input type="text" data-client-search-target="input" placeholder="Search..." class="search-input">
+
+  <div class="client-list">
+    <% if @clients.any? %>
+      <% @clients.group_by { |client| client.first_name[0].upcase }.sort.each do |letter, clients| %>
+        <div class="client-group" data-client-search-target="group">
+          <h2 class="client-group-letter"><%= letter %></h2>
+          <% clients.each do |client| %>
+            <div class="client-item" data-client-search-target="item">
+              <a href="<%= client_path(client) %>" class="client-link">
+                <%= client.first_name %> <%= client.last_name %>
+              </a>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <p>No clients found.</p>
+    <% end %>
+  </div>
+</div>
+<%= link_to "Back", root_path, class: "button" %>

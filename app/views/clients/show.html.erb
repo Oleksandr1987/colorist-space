@@ -1,0 +1,24 @@
+<h1><%= "#{@client.first_name} #{@client.last_name}" %></h1>
+<p><strong>Phone:</strong> <%= @client.phone %></p>
+<p><strong>Birthdate:</strong> <%= @client.birthdate&.strftime('%d.%m.%Y') %></p>
+
+<h3>Hair Info</h3>
+<p><strong>Hair Type:</strong> <%= @client.hair_type %></p>
+<p><strong>Hair Length:</strong> <%= @client.hair_length %></p>
+<p><strong>Hair Structure:</strong> <%= @client.hair_structure %></p>
+<p><strong>Hair Density:</strong> <%= @client.hair_density %></p>
+<p><strong>Scalp Condition:</strong> <%= @client.scalp_condition %></p>
+<p><strong>Note:</strong> <%= @client.note %></p>
+
+<h3>Photos</h3>
+<% if @client.photos.attached? %>
+  <div class="client-photos">
+    <% @client.photos.each do |photo| %>
+      <%= image_tag(photo, class: "client-photo") %>
+    <% end %>
+  </div>
+<% else %>
+  <p>No photos available.</p>
+<% end %>
+<%= link_to "Edit", edit_client_path(@client), class: "button" %> |
+<%= link_to "Back", clients_path, class: "button" %>
