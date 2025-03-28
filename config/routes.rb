@@ -15,7 +15,6 @@ Rails.application.routes.draw do
   resources :clients do
     collection do
       get :search
-      post :import_contacts
     end
   end
 

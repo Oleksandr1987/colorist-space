@@ -47,23 +47,6 @@ class ClientsController < ApplicationController
     redirect_to clients_path, notice: 'Client was successfully deleted.'
   end
 
-  def import_contacts
-    contacts = params[:contacts]
-
-    if contacts.present?
-      contacts.each do |contact|
-        current_user.clients.create(
-          first_name: contact[:first_name],
-          last_name: contact[:last_name],
-          phone: contact[:phone]
-        )
-      end
-      render json: { message: 'Contacts imported successfully' }
-    else
-      render json: { message: 'No contacts to import' }, status: :unprocessable_entity
-    end
-  end
-
   private
 
   def set_client
