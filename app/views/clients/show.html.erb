@@ -1,23 +1,109 @@
-<h1><%= "#{@client.first_name} #{@client.last_name}" %></h1>
-<p><strong>Phone:</strong> <%= @client.phone %></p>
+<div data-controller="client-profile photo" class="client-profile-container">
+  <!-- Header -->
+  <div class="client-header">
+    <div>
+      <h1><%= @client.full_name %></h1>
+    </div>
 
-<h3>Hair Info</h3>
-<p><strong>Hair Type:</strong> <%= @client.hair_type %></p>
-<p><strong>Hair Length:</strong> <%= @client.hair_length %></p>
-<p><strong>Hair Structure:</strong> <%= @client.hair_structure %></p>
-<p><strong>Hair Density:</strong> <%= @client.hair_density %></p>
-<p><strong>Scalp Condition:</strong> <%= @client.scalp_condition %></p>
-<p><strong>Note:</strong> <%= @client.note %></p>
+    <div class="menu-wrapper">
+      <button class="menu-button" data-action="click->client-profile#toggleMenu">⋮</button>
+      <div data-client-profile-target="menu" class="menu hidden">
+        <%= link_to "Edit Client", edit_client_path(@client), class: "menu-item" %>
+        <a href="#client-info" class="menu-item" data-action="click->client-profile#toggleInfo">Info</a>
+        <%= button_to "Delete Client", client_path(@client),
+                      method: :delete,
+                      data: { turbo_confirm: "Are you sure you want to delete this client and all their appointments?" },
+                      class: "menu-item delete" %>
+      </div>
+    </div>
+  </div>
 
-<h3>Photos</h3>
-<% if @client.photos.attached? %>
-  <div class="client-photos">
-    <% @client.photos.each do |photo| %>
-      <%= image_tag(photo, class: "client-photo") %>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-button active"
+            data-client-profile-target="tab"
+            data-tab-name="styles"
+            data-action="click->client-profile#showTab">
+      Styles
+    </button>
+    <button class="tab-button"
+            data-client-profile-target="tab"
+            data-tab-name="photos"
+            data-action="click->client-profile#showTab">
+      Photos
+    </button>
+  </div>
+
+  <!-- Styles Tab -->
+  <div id="styles-tab" data-client-profile-target="tabContent" class="tab-content active">
+    <% @client.photos.order(created_at: :desc).group_by { |photo| photo.created_at.to_date }.each do |date, photos| %>
+      <div class="style-group">
+        <h3><%= date.strftime('%B %d') %></h3>
+        <div class="photos-grid">
+          <% photos.each do |photo| %>
+            <div class="photo-wrapper" data-action="click->photo#show touchstart->photo#touchStart touchend->photo#touchEnd"">
+              <%= image_tag photo, class: "client-photo", data: { photo_url: url_for(photo) } %>
+              <%= button_to delete_photo_client_path(@client, photo.id),
+                            method: :delete,
+                            data: { turbo_confirm: "Delete this photo?" },
+                            class: "photo-delete-btn" do %>
+                🗑
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
     <% end %>
   </div>
-<% else %>
-  <p>No photos available.</p>
-<% end %>
-<%= link_to "Edit", edit_client_path(@client), class: "button" %> |
-<%= link_to "Back", clients_path, class: "button" %>
+
+  <!-- Photos Tab -->
+  <div id="photos-tab" data-client-profile-target="tabContent" class="tab-content hidden">
+    <div class="photos-grid">
+      <% @client.photos.each do |photo| %>
+        <div class="photo-wrapper" data-action="click->photo#show touchstart->photo#touchStart touchend->photo#touchEnd">
+          <%= image_tag photo, class: "client-photo", data: { photo_url: url_for(photo) } %>
+          <%= button_to delete_photo_client_path(@client, photo.id),
+                        method: :delete,
+                        data: { turbo_confirm: "Delete this photo?" },
+                        class: "photo-delete-btn" do %>
+            🗑
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @client.photos.attached? %>
+      <%= button_to delete_all_photos_client_path(@client),
+                    method: :delete,
+                    data: { turbo_confirm: "Delete ALL photos?" },
+                    class: "button delete-all" do %>
+        Delete All Photos
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Client Info Section -->
+  <div id="client-info" data-client-profile-target="info" class="client-info hidden">
+    <p><strong>Phone:</strong> <%= @client.phone %></p>
+    <p><strong>Hair Type:</strong> <%= @client.hair_type %></p>
+    <p><strong>Hair Length:</strong> <%= @client.hair_length %></p>
+    <p><strong>Hair Structure:</strong> <%= @client.hair_structure %></p>
+    <p><strong>Hair Density:</strong> <%= @client.hair_density %></p>
+    <p><strong>Scalp Condition:</strong> <%= @client.scalp_condition %></p>
+    <p><strong>Note:</strong> <%= @client.note %></p>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="actions">
+    <%= link_to "New Appointment", new_appointment_path(client_id: @client.id), class: "button" %>
+    <%= link_to "Back", clients_path, class: "button secondary" %>
+  </div>
+
+  <!-- Modal for photo viewer -->
+  <div data-photo-target="modal" class="modal hidden">
+    <button class="carousel-button left" data-action="click->photo#prev">←</button>
+    <img data-photo-target="modalImage" class="modal-img" />
+    <button class="carousel-button right" data-action="click->photo#next">→</button>
+    <button class="carousel-close" data-action="click->photo#close">✕</button>
+  </div>
+</div>

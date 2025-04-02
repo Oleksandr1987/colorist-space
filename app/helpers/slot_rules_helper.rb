@@ -1,0 +1,2 @@
+module SlotRulesHelper
+end

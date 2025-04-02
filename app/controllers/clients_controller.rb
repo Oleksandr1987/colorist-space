@@ -47,6 +47,23 @@ class ClientsController < ApplicationController
     redirect_to clients_path, notice: 'Client was successfully deleted.'
   end
 
+  def autocomplete
+    term = params[:term].downcase
+    clients = current_user.clients.where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?", "%#{term}%", "%#{term}%")
+    render json: clients.select(:id, :first_name, :last_name, :phone)
+  end
+
+  def delete_photo
+    photo = @client.photos.find(params[:photo_id])
+    photo.purge
+    redirect_to @client, notice: "Photo deleted."
+  end
+  
+  def delete_all_photos
+    @client.photos.purge
+    redirect_to @client, notice: "All photos deleted."
+  end
+
   private
 
   def set_client

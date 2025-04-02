@@ -10,7 +10,7 @@
 
   <div class="field">
     <%= f.label :phone %><br />
-    <%= f.phone_field :phone, autofocus: true, autocomplete: "phone"  %>
+    <%= f.telephone_field :phone, class: "login__input", autofocus: true, autocomplete: "phone", data: { controller: "phone-mask" } %>
   </div>
 
   <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>

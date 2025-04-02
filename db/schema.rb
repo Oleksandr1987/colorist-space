@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_28_151630) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_01_151201) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -39,6 +39,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_28_151630) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "appointments", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "client_id", null: false
+    t.string "service_name"
+    t.date "appointment_date"
+    t.time "appointment_time"
+    t.string "status"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.time "end_time"
+    t.index ["client_id"], name: "index_appointments_on_client_id"
+    t.index ["user_id"], name: "index_appointments_on_user_id"
+  end
+
   create_table "clients", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "first_name", null: false
@@ -53,6 +68,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_28_151630) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_clients_on_user_id"
+  end
+
+  create_table "slot_rules", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.time "start_time", null: false
+    t.time "end_time", null: false
+    t.string "weekdays", null: false
+    t.text "rule", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_slot_rules_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -75,5 +101,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_28_151630) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "appointments", "clients"
+  add_foreign_key "appointments", "users"
   add_foreign_key "clients", "users"
+  add_foreign_key "slot_rules", "users"
 end

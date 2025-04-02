@@ -1,5 +1,5 @@
 <%= form_with model: @client, local: true, html: { multipart: true } do |f| %>
-  <%# <%= render 'shared/error_messages', resource: client %> %>
+  <<%= render 'shared/error_messages', resource: client %>
 
   <div class="login__field">
     <%= f.label :first_name, "First Name" %>
@@ -13,7 +13,7 @@
 
   <div class="login__field">
     <%= f.label :phone, "Phone Number" %>
-    <%= f.telephone_field :phone, class: "login__input" %>
+    <%= f.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
   </div>
 
   <div class="login__field">

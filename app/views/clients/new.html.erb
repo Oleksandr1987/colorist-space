@@ -15,7 +15,7 @@
 
   <div class="login__field">
     <%= f.label :phone, "Phone Number" %>
-    <%= f.telephone_field :phone, class: "login__input" %>
+    <%= f.telephone_field :phone, class: "login__input", autofocus: true, autocomplete: "phone", data: { controller: "phone-mask" } %>
   </div>
 
   <div class="actions">

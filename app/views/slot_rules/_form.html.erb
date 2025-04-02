@@ -1,0 +1,24 @@
+<%= form_with model: slot_rule, url: slot_rule.persisted? ? slot_rule_path(slot_rule) : slot_rules_path, local: true do |f| %>
+  <div class="form-section">
+    <%= f.label :start_time %><br>
+    <%= f.time_field :start_time, class: "form-input" %>
+  </div>
+
+  <div class="form-section">
+    <%= f.label :end_time %><br>
+    <%= f.time_field :end_time, class: "form-input" %>
+  </div>
+
+  <div class="form-section">
+    <%= f.label :weekdays, "Weekdays" %><br>
+    <% Date::DAYNAMES.each do |day| %>
+      <label>
+        <%= check_box_tag "slot_rule[weekdays][]", day.downcase, slot_rule.weekdays&.include?(day.downcase) %> <%= day %>
+      </label>
+    <% end %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit slot_rule.persisted? ? "Update Rule" : "Create Rule", class: "button primary" %>
+  </div>
+<% end %>
