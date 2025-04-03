@@ -1,0 +1,342 @@
+/* === Категорії на index (/services) === */
+.category-wrapper {
+  max-width: 500px;
+  margin: 100px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between; /* вирівнює назву вліво, крапки вправо */
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+  gap: 12px;
+}
+
+.category-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.category-header .back {
+  font-size: 1.3rem;
+  text-decoration: none;
+  color: #7e3af2;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.category-item {
+  padding: 20px;
+  border-radius: 16px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: capitalize;
+  text-decoration: none;
+  color: #111;
+  transition: all 0.2s ease-in-out;
+  background-color: #e8dcff; /* базовий фіолетовий */
+}
+
+.category-item:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* Для дефолтних — індивідуальні кольори */
+.category-coloring  { background-color: #e8dcff; }
+.category-styling   { background-color: #d9f5f6; }
+.category-haircut   { background-color: #ffeac8; }
+.category-treatment { background-color: #ffdada; }
+.category-new {
+  background-color: #7e3af2 !important;
+  color: white;
+}
+
+/* === Список сервісів у категорії === */
+.service-wrapper {
+  max-width: 500px;
+  margin: 60px auto 100px;
+  padding: 32px 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+.service-header {
+  display: flex;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.service-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9f9;
+  padding: 14px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.service-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.service-info {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.service-actions {
+  position: relative;
+}
+
+.service-actions button {
+  background: none;
+  border: none;
+  color: #7e3af2;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* === Кнопка створення === */
+.create-button {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.create-button .button.primary.full {
+  width: auto;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: #7e3af2;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: none;
+  letter-spacing: 0.5px;
+}
+
+.create-button .button.primary.full:hover {
+  background-color: #5f2ac0;
+}
+
+/* === Попап ✏️ === */
+.popover {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 4px 8px;
+  top: 28px;
+  right: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+.popover.hidden {
+  display: none;
+}
+
+.popover-item {
+  display: block;
+  padding: 4px 6px;
+  font-size: 0.9rem;
+  color: #333;
+  text-decoration: none;
+}
+
+/* === Назад із категорії === */
+.back-button-wrapper {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.back-button {
+  color: #6a6a6a;
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+/* === Форма створення/редагування === */
+.service-form-wrapper {
+  max-width: 500px;
+  margin: 80px auto 120px;
+  padding: 32px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+.service-form-wrapper .form-section {
+  margin-bottom: 20px;
+}
+
+.service-form-wrapper .form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.service-form-wrapper .form-actions {
+  text-align: center;
+}
+
+.service-form-wrapper .button.primary.full {
+  width: auto;
+  padding: 10px 22px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: #7e3af2;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.service-form-wrapper .button.primary.full:hover {
+  background-color: #5f2ac0;
+}
+
+/* === Мобільна адаптація === */
+@media (max-width: 768px) {
+  .category-wrapper {
+    margin-top: 40px;
+    padding: 16px;
+  }
+
+  .category-item {
+    font-size: 1.1rem;
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .service-wrapper {
+    margin: 40px auto 80px;
+    padding: 24px 16px;
+  }
+
+  .service-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .service-actions {
+    margin-top: 6px;
+  }
+
+  .create-button {
+    margin-top: 24px;
+  }
+
+  .create-button .button.primary.full {
+    font-size: 0.85rem;
+    padding: 10px 18px;
+  }
+
+  .service-form-wrapper {
+    margin: 40px auto 100px;
+    padding: 24px 16px;
+  }
+
+  .service-form-wrapper .form-input {
+    font-size: 0.95rem;
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+.mt-2 {
+  margin-top: 8px;
+}
+
+.menu-wrapper {
+  position: relative;
+  margin-left: auto;
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7e3af2;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 200px;
+}
+
+.menu-dropdown input,
+.menu-dropdown select {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+}
+
+.menu-dropdown.hidden {
+  display: none;
+}
+
+.dots-icon {
+  display: inline-block;
+  width: 6px;
+  height: 20px;
+  background-image: radial-gradient(currentColor 2px, transparent 0),
+                    radial-gradient(currentColor 2px, transparent 0),
+                    radial-gradient(currentColor 2px, transparent 0);
+  background-size: 100% 6px;
+  background-repeat: no-repeat;
+  background-position: center top, center center, center bottom;
+}

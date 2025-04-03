@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_01_151201) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_02_134314) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -70,6 +70,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_01_151201) do
     t.index ["user_id"], name: "index_clients_on_user_id"
   end
 
+  create_table "services", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "price", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "category"
+    t.string "subtype"
+    t.index ["user_id", "category", "subtype"], name: "index_services_on_user_id_and_category_and_subtype", unique: true
+    t.index ["user_id"], name: "index_services_on_user_id"
+  end
+
   create_table "slot_rules", force: :cascade do |t|
     t.integer "user_id", null: false
     t.time "start_time", null: false
@@ -104,5 +116,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_01_151201) do
   add_foreign_key "appointments", "clients"
   add_foreign_key "appointments", "users"
   add_foreign_key "clients", "users"
+  add_foreign_key "services", "users"
   add_foreign_key "slot_rules", "users"
 end
