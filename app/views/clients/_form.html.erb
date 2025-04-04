@@ -53,9 +53,11 @@
     <%= f.text_area :note, class: "login__input" %>
   </div>
 
-  <div class="login__field">
-    <%= f.label :photos, "Add Photos" %>
-    <%= f.file_field :photos, multiple: true, accept: "image/*", class: "login__input" %>
+  <div class="login__field photo-upload">
+    <label class="custom-upload-button">
+     Add Photos
+      <%= f.file_field :photos, multiple: true, accept: "image/*", class: "hidden-upload", direct_upload: true %>
+    </label>
   </div>
 
   <div class="actions">

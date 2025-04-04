@@ -6,7 +6,7 @@
     </div>
 
     <div data-controller="menu" class="menu-wrapper">
-      <button class="menu-button" data-action="click->menu#toggleMenu">⋮</button>
+      <button class="vertical-menu-toggle" data-action="click->menu#toggleMenu">≡</button>
       <div data-menu-target="menu" class="menu hidden">
         <%= link_to "New Appointment", new_appointment_path(client_id: @client.id), class: "menu-item"%>
         <%= link_to "Edit Client", edit_client_path(@client), class:  "menu-item"%>
