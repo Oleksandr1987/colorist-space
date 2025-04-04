@@ -1,23 +1,13 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
- @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
- /* General Page Styles */
+/* ==== General Page Styles ==== */
 body {
-    margin: 0;
-    padding: 0;
-    font-family: "Montserrat", serif;
-  }
+  margin: 0;
+  padding: 0;
+  font-family: "Montserrat", serif;
+}
 
-/* HEADER STYLES */
+/* ==== Header ==== */
 .header-bar {
   position: relative;
   width: 90%;
@@ -35,7 +25,6 @@ body {
   background: rgba(0, 0, 0, 0.3);
 }
 
-/* Fancy effect on top right */
 .header-bar::after {
   content: '';
   position: absolute;
@@ -49,7 +38,6 @@ body {
   transition: 0.3s linear all;
 }
 
-/* Logo */
 .header-bar > .logo {
   position: absolute;
   top: calc(50% - 20px);
@@ -67,7 +55,6 @@ body {
   text-decoration: none;
 }
 
-/* Hover effect */
 .header-bar a:hover {
   color: #faa !important;
 }
@@ -84,7 +71,7 @@ body {
   color: #faa !important;
 }
 
-/* Navigation menu */
+/* ==== Navigation Menu ==== */
 .slider-menu {
   position: absolute;
   top: 0;
@@ -96,7 +83,6 @@ body {
   z-index: 1;
 }
 
-/* Menu items */
 .slider-menu > li {
   display: inline-flex;
   padding: 14px;
@@ -108,24 +94,22 @@ body {
   user-select: none;
 }
 
-/* Hover effect */
 .slider-menu > li:hover {
   color: #faa;
   box-shadow: 0 50px 5px rgba(0, 0, 0, 0.15) inset;
 }
 
 .slider-menu a {
-  color: white !important;  /* Ensure links are white */
-  text-decoration: none; /* Remove underline */
-  transition: color 0.3s ease-in-out; /* Smooth transition */
+  color: white !important;
+  text-decoration: none;
+  transition: color 0.3s ease-in-out;
 }
 
-/* Change color on hover */
 .slider-menu a:hover {
-  color: #faa !important; /* Light pink hover effect */
+  color: #faa !important;
 }
-  
-/* MOBILE MENU TOGGLE */
+
+/* ==== Mobile Menu Toggle ==== */
 .menu-toggle {
   display: none;
   background: none;
@@ -135,7 +119,7 @@ body {
   cursor: pointer;
 }
 
-/* MOBILE VIEW */
+/* ==== Mobile View ==== */
 @media (max-width: 768px) {
   .slider-menu {
     display: none;
@@ -163,20 +147,131 @@ body {
     justify-content: space-between;
   }
 }
-  
-  /* Footer Styles */
-  .footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    text-align: center;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
+
+/* ==== Footer ==== */
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+}
+
+.footer .footer-link {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+/* ==== Bottom Navigation Bar ==== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #e0e0e0;
+  z-index: 9999;
+  font-family: "Montserrat", sans-serif;
+}
+
+.nav-item {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  text-decoration: none;
+  flex-grow: 1;
+  padding-top: 4px;
+}
+
+.nav-item .icon {
+  display: block;
+  font-size: 20px;
+}
+
+.nav-item .label {
+  font-size: 11px;
+}
+
+.nav-item.active {
+  color: #7c3aed;
+  font-weight: bold;
+}
+
+/* ==== Vertical Menu ==== */
+.vertical-menu-wrapper {
+  position: relative;
+  max-width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px 0; /* трохи нижче кнопка ≡ */
+}
+
+.vertical-menu-toggle {
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #7e3af2;
+  padding: 6px;
+  z-index: 1001;
+}
+
+.vertical-menu {
+  position: absolute;
+  top: 50px; /* трохи нижче кнопки */
+  right: 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  z-index: 1000;
+  min-width: max-content;
+  max-width: 90vw;
+  white-space: nowrap;
+}
+
+.vertical-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vertical-menu li {
+  margin: 6px 0;
+}
+
+.vertical-menu a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  display: block;
+  padding: 6px 0;
+  transition: background 0.2s ease;
+}
+
+.vertical-menu a:hover {
+  background: #eeeaff;
+  color: #7e3af2;
+  border-radius: 6px;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .vertical-menu {
+    top: 50px;
+    right: 12px;
+    left: auto;
+    max-width: 85vw;
   }
-  
-  .footer .footer-link {
-    color: white;
-    text-decoration: none;
-    margin: 0 10px;
-  }
+}

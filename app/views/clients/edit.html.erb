@@ -1,46 +1,47 @@
 <h1>Additional Hair Information for <%= @client.first_name %></h1>
+<div class="client-form-wrapper">
+  <%= form_with model: @client, local: true do |f| %>
+    <%= render 'shared/error_messages', resource: @client %>
 
-<%= form_with model: @client, local: true do |f| %>
-  <%= render 'shared/error_messages', resource: @client %>
+    <h3>Optional Hair Information</h3>
 
-  <h3>Optional Hair Information</h3>
+    <div class="login__field">
+      <%= f.label :hair_type, "Hair Type" %>
+      <%= f.select :hair_type, ['Straight', 'Wavy', 'Curly', 'Coily'], { include_blank: 'Select Hair Type' }, class: "login__input" %>
+    </div>
 
-  <div class="login__field">
-    <%= f.label :hair_type, "Hair Type" %>
-    <%= f.select :hair_type, ['Straight', 'Wavy', 'Curly', 'Coily'], { include_blank: 'Select Hair Type' }, class: "login__input" %>
-  </div>
+    <div class="login__field">
+      <%= f.label :hair_length, "Hair Length" %>
+      <%= f.select :hair_length, ['Short', 'Medium', 'Long'], { include_blank: 'Select Hair Length' }, class: "login__input" %>
+    </div>
 
-  <div class="login__field">
-    <%= f.label :hair_length, "Hair Length" %>
-    <%= f.select :hair_length, ['Short', 'Medium', 'Long'], { include_blank: 'Select Hair Length' }, class: "login__input" %>
-  </div>
+    <div class="login__field">
+      <%= f.label :hair_structure, "Hair Structure (Thickness)" %>
+      <%= f.select :hair_structure, ['Thin', 'Medium', 'Thick'], { include_blank: 'Select Hair Structure' }, class: "login__input" %>
+    </div>
 
-  <div class="login__field">
-    <%= f.label :hair_structure, "Hair Structure (Thickness)" %>
-    <%= f.select :hair_structure, ['Thin', 'Medium', 'Thick'], { include_blank: 'Select Hair Structure' }, class: "login__input" %>
-  </div>
+    <div class="login__field">
+      <%= f.label :hair_density, "Hair Density" %>
+      <%= f.select :hair_density, ['Sparse', 'Medium', 'Dense'], { include_blank: 'Select Hair Density' }, class: "login__input" %>
+    </div>
 
-  <div class="login__field">
-    <%= f.label :hair_density, "Hair Density" %>
-    <%= f.select :hair_density, ['Sparse', 'Medium', 'Dense'], { include_blank: 'Select Hair Density' }, class: "login__input" %>
-  </div>
+    <div class="login__field">
+      <%= f.label :scalp_condition, "Scalp Condition" %>
+      <%= f.select :scalp_condition, ['Normal', 'Dry', 'Oily', 'Sensitive'], { include_blank: 'Select Scalp Condition' }, class: "login__input" %>
+    </div>
 
-  <div class="login__field">
-    <%= f.label :scalp_condition, "Scalp Condition" %>
-    <%= f.select :scalp_condition, ['Normal', 'Dry', 'Oily', 'Sensitive'], { include_blank: 'Select Scalp Condition' }, class: "login__input" %>
-  </div>
+    <div class="login__field">
+      <%= f.label :note, "Notes" %>
+      <%= f.text_area :note, class: "login__input" %>
+    </div>
 
-  <div class="login__field">
-    <%= f.label :note, "Notes" %>
-    <%= f.text_area :note, class: "login__input" %>
-  </div>
+    <div class="login__field">
+      <%= f.label :photos, "Add Photos" %>
+      <%= f.file_field :photos, multiple: true, class: "login__input" %>
+    </div>
 
-  <div class="login__field">
-    <%= f.label :photos, "Add Photos" %>
-    <%= f.file_field :photos, multiple: true, class: "login__input" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Save", class: "button" %>
-  </div>
-<% end %>
+    <div class="actions">
+      <%= f.submit "Save", class: "button" %>
+    </div>
+  <% end %>
+</div>

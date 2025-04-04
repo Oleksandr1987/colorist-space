@@ -1,0 +1,16 @@
+<nav class="bottom-nav">
+  <%= link_to calendar_appointments_path, class: "nav-item #{current_page?(calendar_appointments_path) ? 'active' : ''}" do %>
+    <span class="icon">📅</span>
+    <span class="label">Календар</span>
+  <% end %>
+
+  <%= link_to clients_path, class: "nav-item #{current_page?(clients_path) ? 'active' : ''}" do %>
+    <span class="icon">⭐</span>
+    <span class="label">Клієнти</span>
+  <% end %>
+
+  <%= link_to services_path, class: "nav-item #{current_page?(services_path) ? 'active' : ''}" do %>
+    <span class="icon">⚙️</span>
+    <span class="label">Адмін</span>
+  <% end %>
+</nav>

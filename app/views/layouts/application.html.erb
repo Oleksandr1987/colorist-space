@@ -29,5 +29,6 @@
       <p class="alert"><%= alert %></p>
       <%= yield %>
     </main>
+    <%= render 'shared/navigation' if user_signed_in? %>
   </body>
 </html>

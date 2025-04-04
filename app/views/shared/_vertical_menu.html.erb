@@ -1,0 +1,30 @@
+<div class="vertical-menu-wrapper" data-controller="menu">
+  <div class="menu-toggle-container">
+    <button class="vertical-menu-toggle" data-action="click->menu#toggleMenu">≡</button>
+  </div>
+
+  <div class="vertical-menu hidden" data-menu-target="menu">
+    <% current_path = request.path %>
+
+    <% if current_path.starts_with?('/appointments') %>
+      <ul>
+        <li><%= link_to 'Календар', calendar_appointments_path %></li>
+        <li><%= link_to 'Всі записи', appointments_path %></li>
+        <li><%= link_to 'Історія', history_appointments_path %></li>
+      </ul>
+    <% elsif current_path.starts_with?('/clients') %>
+      <ul>
+        <li><%= link_to 'Усі клієнти', clients_path %></li>
+        <li><%= link_to 'Додати клієнта', new_client_path %></li>
+        <li><%= link_to 'Пошук', search_clients_path %></li>
+      </ul>
+    <% elsif current_path.starts_with?('/services') || current_path.starts_with?('/slot_rules') %>
+      <ul>
+        <li><%= link_to 'Послуги', services_path %></li>
+        <li><%= link_to 'Розклад', slot_rules_path %></li>
+        <li><%= link_to 'Аналітика', "#" %></li>
+        <li><%= button_to "Log Out", destroy_user_session_path, data:{turbo:"false"}, method: :delete %></li>
+      </ul>
+    <% end %>
+  </div>
+</div>

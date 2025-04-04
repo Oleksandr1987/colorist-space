@@ -4,10 +4,22 @@ export default class extends Controller {
   static targets = ["menu"]
 
   connect() {
-    console.log("MenuController connected");
+    this.outsideClickListener = this.handleOutsideClick.bind(this)
+    document.addEventListener("click", this.outsideClickListener)
   }
 
-  toggle() {
-    this.menuTarget.classList.toggle("show");
+  disconnect() {
+    document.removeEventListener("click", this.outsideClickListener)
+  }
+
+  toggleMenu(event) {
+    event.stopPropagation()
+    this.menuTarget.classList.toggle("hidden")
+  }
+
+  handleOutsideClick(event) {
+    if (!this.element.contains(event.target)) {
+      this.menuTarget.classList.add("hidden")
+    }
   }
 }
