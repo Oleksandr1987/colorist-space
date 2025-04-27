@@ -1,0 +1,12 @@
+<%= render 'shared/vertical_menu' %>
+
+<div class="admin-dashboard">
+  <h1>Admin Panel</h1>
+
+  <div class="admin-cards">
+    <%= link_to "Services", services_path, class: "admin-card admin-card-services" %>
+    <%= link_to "Schedule", slot_rules_path, class: "admin-card admin-card-schedule" %>
+    <%= link_to "Analytics", "#", class: "admin-card admin-card-analytics" %>
+    <%= link_to "Settings", "#", class: "admin-card admin-card-settings" %>
+  </div>
+</div>
