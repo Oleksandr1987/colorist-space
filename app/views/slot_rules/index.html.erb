@@ -1,40 +1,33 @@
-<h2>Slot Rules</h2>
+<div class="slot-rules-container">
+  <div class="slot-rules-scrollable">
+    <%= render "form", slot_rule: @slot_rule %>
 
-<%= render "form", slot_rule: @slot_rule %>
+    <h3>Your Rules</h3>
+    <% if @slot_rules.any? %>
+      <div data-controller="popover">
+        <% @slot_rules.each do |rule| %>
+          <div class="slot-rule-item">
+            <div class="slot-rule-content">
+              <strong><%= rule.start_time.strftime("%H:%M") %>–<%= rule.end_time.strftime("%H:%M") %></strong>,
+              <%= rule.weekdays.map(&:capitalize).join(", ") %>
+            </div>
 
-<hr>
-
-<h3>Your Rules</h3>
-<% if @slot_rules.any? %>
-  <ul>
-    <% @slot_rules.each do |rule| %>
-      <li>
-        <strong><%= rule.start_time.strftime("%H:%M") %>–<%= rule.end_time.strftime("%H:%M") %></strong>,
-        <%= rule.weekdays.map(&:capitalize).join(", ") %>
-
-        <%= link_to edit_slot_rule_path(rule), class: "edit-icon" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-pencil-icon">
-            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
-            <path d="m15 5 4 4"/>
-          </svg>
+            <div class="slot-rule-actions">
+              <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">✎</button>
+              <div class="popover-menu hidden" data-popover-target="menu">
+                <%= link_to "Edit", edit_slot_rule_path(rule), class: "menu-item" %>
+                <%= button_to slot_rule_path(rule), method: :delete,
+                      form: { data: { turbo_confirm: "Are you sure?" } },
+                      class: "menu-item delete-button" do %>
+                  Delete
+                <% end %>
+              </div>
+            </div>
+          </div>
         <% end %>
-
-        <%= button_to slot_rule_path(rule), method: :delete, data: { confirm: "Are you sure?" } do %>
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-trash2-icon">
-            <path d="M3 6h18"/>
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-            <line x1="10" x2="10" y1="11" y2="17"/>
-            <line x1="14" x2="14" y1="11" y2="17"/>
-          </svg>
-        <% end %>
-      </li>
+      </div>
+    <% else %>
+      <p>No slot rules defined.</p>
     <% end %>
-  </ul>
-<% else %>
-  <p>No slot rules defined.</p>
-<% end %>
+  </div>
+</div>

@@ -340,3 +340,109 @@
   background-repeat: no-repeat;
   background-position: center top, center center, center bottom;
 }
+
+/* === Slot Rules Form === */
+
+.slot-rules-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1rem;
+  box-sizing: border-box;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.slot-rules-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 7rem;
+}
+
+.form-section {
+  margin-bottom: 1rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.form-actions {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+/* Rules list styles */
+.slot-rule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+.slot-rule-content {
+  flex: 1;
+}
+
+.slot-rule-actions {
+  margin-left: 0.5rem;
+  position: relative;
+}
+
+.slot-rule-actions .popover-toggle {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0.2rem;
+}
+
+.popover-menu {
+  position: absolute;
+  right: 0;
+  top: 1.6rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 10;
+  padding: 0.3rem 0;
+  display: flex;
+  flex-direction: column;
+  min-width: max-content;
+  max-width: 160px;
+}
+
+.popover-menu a,
+.popover-menu form button {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.95rem;
+  text-wrap: nowrap;
+  display: block;
+  color: #333;
+  text-decoration: none;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+
+.popover-menu form {
+  margin: 0;
+}
+
+.popover-menu .delete-button {
+  color: red;
+}
+
+.popover-menu.hidden {
+  display: none;
+}
