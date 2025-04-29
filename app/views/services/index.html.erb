@@ -1,64 +1,11 @@
 <%= render 'shared/vertical_menu' %>
-<% if params[:category].present? %>
-  <div class="category-wrapper" data-controller="service">
-    <div class="category-header">
-      <div class="category-title">
-        <%= link_to "←", services_path, class: "back" %>
-        <%= @category %> Services
-      </div>
 
-      <div class="menu-wrapper">
-        <button class="menu-toggle" data-action="click->service#toggleMenu">
-          <span class="dots-icon" aria-hidden="true"></span>
-        </button>
-        <div class="menu-dropdown hidden" data-service-target="menu">
-          <input
-            type="text"
-            placeholder="Search services..."
-            data-action="input->service#filter"
-            data-service-target="search"
-          >
+<div class="category-wrapper">
+  <div class="category-header">Service Management</div>
 
-          <select data-action="change->service#sort" data-service-target="sort">
-            <option value="">Sort by…</option>
-            <option value="name">Sort by name A-Z</option>
-            <option value="price_asc">Sort by price ↑</option>
-            <option value="price_desc">Sort by price ↓</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <div id="service-list" class="service-list" data-service-target="list">
-      <% @services.each do |service| %>
-        <div class="service-item" data-name="<%= service.subtype.downcase %>" data-price="<%= service.price %>">
-          <div class="service-info">
-            <strong><%= service.subtype %></strong> — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
-          </div>
-          <div class="service-actions">
-            <button class="popover-trigger" data-action="click->service#togglePopover" data-service-id="<%= service.id %>">✏️</button>
-            <div class="popover hidden" data-service-id="<%= service.id %>">
-              <%= link_to "Edit", edit_service_path(service), class: "popover-item" %>
-              <%= button_to "Delete", service_path(service), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "popover-item" %>
-            </div>
-          </div>
-        </div>
-      <% end %>
-    </div>
-
-    <div class="create-button">
-      <%= link_to "+ New in #{@category}", new_service_path(category: @category), class: "button primary full" %>
-    </div>
+  <div class="category-list">
+    <%= link_to "Services", main_services_path, class: "category-item" %>
+    <%= link_to "Preparations", preparations_services_path, class: "category-item" %>
+    <%= link_to "Care Products", care_products_services_path, class: "category-item" %>
   </div>
-<% else %>
-  <div class="category-wrapper">
-    <div class="category-header">Service Categories</div>
-    <div class="category-list">
-      <% @categories.each do |category| %>
-        <% slug = category.parameterize %>
-        <%= link_to category, services_path(category: category), class: "category-item category-#{slug}" %>
-      <% end %>
-      <%= link_to "+ New Service", new_service_path, class: "category-item category-new" %>
-    </div>
-  </div>
-<% end %>
+</div>

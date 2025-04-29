@@ -12,23 +12,23 @@
   </div>
 
   <div class="form-section">
-  <%= f.label :subtype, "Service Type" %>
-  <%= f.text_field :subtype,
-        class: "form-input",
-        list: "subtypes",
-        placeholder: "Enter or select type",
-        data: { service_target: "subtype" },
-        required: true %>
+    <%= f.label :subtype, "Service Type" %>
+    <%= f.text_field :subtype, class: "form-input", list: "subtypes", placeholder: "Enter or select type", data: { service_target: "subtype" }, required: true %>
 
-  <datalist id="subtypes">
-  </datalist>
-</div>
-
+    <datalist id="subtypes"></datalist>
+  </div>
 
   <div class="form-section">
     <%= f.label :price, "Price (₴)" %>
     <%= f.number_field :price, class: "form-input", required: true %>
   </div>
+
+  <div class="form-section" style="<%= service.service_type == "preparation" || service.service_type == "care_product" ? '' : 'display:none;' %>" data-service-target="unitField">
+    <%= f.label :unit, "Unit (e.g., g, ml)" %>
+    <%= f.text_field :unit, class: "form-input", placeholder: "g, ml, etc." %>
+  </div>
+
+  <%= f.hidden_field :service_type, value: service.service_type, data: { service_target: "typeSelect" } %>
 
   <div class="form-actions">
     <%= f.submit "Save", class: "button primary full" %>

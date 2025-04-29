@@ -35,7 +35,11 @@ Rails.application.routes.draw do
 
   resources :services, except: [:show] do
     collection do
+      get :main
+      get :section
       get :filter
+      get :preparations
+      get :care_products
     end
   end
 

@@ -55,11 +55,6 @@
   opacity: 0.9;
 }
 
-/* Для дефолтних — індивідуальні кольори */
-.category-coloring  { background-color: #e8dcff; }
-.category-styling   { background-color: #d9f5f6; }
-.category-haircut   { background-color: #ffeac8; }
-.category-treatment { background-color: #ffdada; }
 .category-new {
   background-color: #7e3af2 !important;
   color: white;
