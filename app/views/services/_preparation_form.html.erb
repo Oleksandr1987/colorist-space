@@ -1,0 +1,25 @@
+ <div class="service-form-wrapper">
+  <%= form_with(model: service, url: create_preparation_services_path, local: true) do |f| %>
+    <%= f.hidden_field :service_type, value: "preparation" %>
+
+    <div class="form-section">
+      <%= f.label :subtype, "Preparation Name" %>
+      <%= f.text_field :subtype, class: "form-input", required: true %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :price, "Price per Unit (₴)" %>
+      <%= f.number_field :price, class: "form-input", required: true %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :unit, "Unit of Measurement" %>
+      <%= f.select :unit, options_for_select([["Gram (g)", "g"], ["Milliliter (ml)", "ml"], ["Liter (l)", "l"]]), {}, class: "form-input", required: true %>
+    </div>
+
+    <div class="form-actions-row">
+      <%= f.submit "Save", class: "form-button primary" %>
+      <%= link_to "Cancel", preparations_services_path, class: "form-button cancel", data: { turbo: false } %>
+    </div>
+  <% end %>
+</div>

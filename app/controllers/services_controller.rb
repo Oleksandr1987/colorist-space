@@ -22,12 +22,14 @@ class ServicesController < ApplicationController
   end
 
   def preparations
+    @service = Service.new if params[:new] == "true"
     @preparations = current_user.services
                                  .where(service_type: "preparation")
                                  .order(:subtype)
   end
 
   def care_products
+    @service = Service.new if params[:new] == "true"
     @care_products = current_user.services
                                   .where(service_type: "care_product")
                                   .order(:subtype)
@@ -46,6 +48,32 @@ class ServicesController < ApplicationController
       redirect_to redirect_path_for(@service), notice: "Service created successfully."
     else
       render :new, status: :unprocessable_entity
+    end
+  end
+
+  def create_preparation
+    @service = current_user.services.build(service_params)
+    @service.name = @service.subtype
+    @service.service_type = "preparation"
+
+    if @service.save
+      redirect_to preparations_services_path, notice: "Preparation created successfully."
+    else
+      @preparations = current_user.services.where(service_type: "preparation").order(:subtype)
+      render :preparations, status: :unprocessable_entity
+    end
+  end
+
+  def create_care_product
+    @service = current_user.services.build(service_params)
+    @service.name = @service.subtype
+    @service.service_type = "care_product"
+
+    if @service.save
+      redirect_to care_products_services_path, notice: "Care product created successfully."
+    else
+      @care_products = current_user.services.where(service_type: "care_product").order(:subtype)
+      render :care_products, status: :unprocessable_entity
     end
   end
 
@@ -80,11 +108,11 @@ class ServicesController < ApplicationController
   def redirect_path_for(service)
     case service.service_type
     when "service"
-      services_section_path(category: service.category)
+      section_services_path(category: service.category)
     when "preparation"
-      services_preparations_path
+      preparations_services_path
     when "care_product"
-      services_care_products_path
+      care_products_services_path
     else
       services_path
     end
@@ -93,11 +121,11 @@ class ServicesController < ApplicationController
   def redirect_path_for_open(service_type, category)
     case service_type
     when "service"
-      services_section_path(category: category)
+      section_services_path(category: category)
     when "preparation"
-      services_preparations_path
+      preparations_services_path
     when "care_product"
-      services_care_products_path
+      care_products_services_path
     else
       services_path
     end

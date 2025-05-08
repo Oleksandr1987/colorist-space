@@ -40,6 +40,9 @@ Rails.application.routes.draw do
       get :filter
       get :preparations
       get :care_products
+
+      post :create_preparation
+      post :create_care_product
     end
   end
 

@@ -1,22 +1,28 @@
-<%= render 'shared/vertical_menu' %>
-
-<div class="category-wrapper" data-controller="service">
-  <div class="category-header">
+<div class="service-wrapper" data-controller="service">
+  <div class="category-header with-search">
     <div class="category-title">
-      <%= link_to "← Back", services_path, class: "back" %>
-      Care Products
+      <%= link_to "←", services_path, class: "back" %>
+      <span>Care Products</span>
     </div>
 
-    <%= render "services/menu" %>
+    <div class="header-right">
+      <div class="service-search-wrapper inline-search">
+        <input type="text"
+               placeholder="Search..."
+               class="service-search-input"
+               data-service-target="search"
+               data-action="input->service#filter">
+      </div>
+
+      <%= link_to raw('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>'), care_products_services_path(new: true), class: "plus-icon" %>
+    </div>
   </div>
 
-  <div id="service-list" class="service-list" data-service-target="list">
-    <% @care_products.each do |care_product| %>
-      <%= render "services/service_item", service: care_product %>
-    <% end %>
-  </div>
+  <% if @service.present? %>
+    <%= render "services/care_product_form", service: @service %>
+  <% end %>
 
-  <div class="create-button">
-    <%= link_to "+ New Care Product", new_service_path(service_type: "care_product"), class: "button primary full" %>
+  <div class="service-list" data-service-target="list">
+    <%= render partial: "services/service_item", collection: @care_products, as: :service %>
   </div>
 </div>
