@@ -18,7 +18,7 @@
         <div class="time">
           <%= appointment.appointment_date.strftime("%d %B %Y") %>
         </div>
-        <div class="text"><%= appointment.client.full_name %> — <%= appointment.service_name %></div>
+        <div class="text"><%= appointment.client.full_name %> — <%= appointment.combined_service_name.presence || appointment.service_name %></div>
       </div>
 
       <div data-controller="popover" class="slot-icon-wrapper">

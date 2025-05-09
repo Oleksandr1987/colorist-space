@@ -16,7 +16,7 @@
       </div>
     <% end %>
 
-    <!-- 🔹 Обов'язкові поля -->
+    <!-- Required fields -->
     <div class="form-section">
       <label>Client Name <span class="required-asterisk">*</span></label>
       <%= text_field_tag "appointment[client_name]", @appointment.client&.full_name || "",
@@ -65,7 +65,7 @@
       </div>
     </div>
 
-    <!-- 🔸 Необов'язкові -->
+    <!-- Optional fields-->
     <div class="form-section">
       <label>Препарати</label>
       <div class="fake-input" data-action="click->appointment#open" data-type="preparation">
@@ -80,7 +80,9 @@
       </div>
     </div>
 
-    <input type="hidden" name="appointment[service_ids][]" data-appointment-target="hiddenInput">
+    <!-- <input type="hidden" name="appointment[service_ids]" value="<%= @appointment.service_ids.join(',') %>" data-appointment-target="hiddenInput"> -->
+    <input type="hidden" data-appointment-target="hiddenInput" value="<%= @appointment.service_ids.join(',') %>">
+
 
     <div class="form-section">
       <%= f.label :notes, "Notes" %>

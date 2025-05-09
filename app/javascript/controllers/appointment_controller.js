@@ -13,6 +13,24 @@ export default class extends Controller {
       preparation: [],
       care_product: []
     }
+
+    //  Read value from hiddenInput
+    const existingIds = this.hiddenInputTarget.value.split(',').map(id => parseInt(id)).filter(Boolean)
+    if (existingIds.length > 0) {
+        document.querySelectorAll('input[type=checkbox][name="appointment[modal_dummy][]"]').forEach((checkbox) => {
+        const id = parseInt(checkbox.value)
+        const type = checkbox.dataset.type
+        if (existingIds.includes(id)) {
+          checkbox.checked = true
+          this.selected[type].push({
+          id: checkbox.value,
+          subtype: checkbox.dataset.subtype,
+          price: checkbox.dataset.price
+          })
+        }
+      })
+    }
+    
     this.recalculate()
     this.updateSelected()
   }
@@ -57,12 +75,28 @@ export default class extends Controller {
 
   updateSelected() {
     const all = [...this.selected.service, ...this.selected.preparation, ...this.selected.care_product]
-    this.hiddenInputTarget.value = all.map(s => s.id).join(",")
-
+  
+    // 🔁 Очистити всі існуючі inputs
+    const container = this.hiddenInputTarget.parentElement
+    container.querySelectorAll("input[name='appointment[service_ids][]']").forEach(e => e.remove())
+  
+    // 🔄 Додати окремі hidden поля для кожного id
+    all.forEach(s => {
+      const input = document.createElement("input")
+      input.type = "hidden"
+      input.name = "appointment[service_ids][]"
+      input.value = s.id
+      container.appendChild(input)
+    })
+  
+    // 🧹 Очистити hiddenInputTarget.value, бо воно більше не використовується
+    this.hiddenInputTarget.value = ""
+  
+    // 🔄 Оновити UI
     this.updateTargetContent("serviceSelected", this.selected.service)
     this.updateTargetContent("preparationSelected", this.selected.preparation)
     this.updateTargetContent("careProductSelected", this.selected.care_product)
-  }
+  }  
 
   updateTargetContent(targetName, items) {
     const el = this[`${targetName}Target`]
