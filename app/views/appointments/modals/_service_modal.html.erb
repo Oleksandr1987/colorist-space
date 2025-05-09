@@ -1,0 +1,31 @@
+<div class="modal hidden" data-type="service">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Оберіть основні послуги</h3>
+      <button class="close" type="button" data-action="click->appointment#close">×</button>
+    </div>
+
+    <input type="text" placeholder="Пошук послуги" class="form-input" data-action="input->appointment#search" />
+
+    <div class="modal-list" data-appointment-target="list">
+      <% current_user.services.where(service_type: "service").order(:subtype).each do |service| %>
+        <label class="checkbox-item service-option">
+          <%= check_box_tag "appointment[modal_dummy][]", service.id, false,
+            {
+              data: {
+                subtype: service.subtype,
+                price: service.price,
+                type: "service"
+              },
+              "data-action": "change->appointment#toggleService"
+            } %>
+          <%= service.subtype %> — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
+        </label>
+      <% end %>
+    </div>
+
+    <div class="modal-footer">
+      <button class="button primary full" type="button" data-action="click->appointment#close">Застосувати</button>
+    </div>
+  </div>
+</div>

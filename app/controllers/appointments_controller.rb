@@ -71,6 +71,7 @@ class AppointmentsController < ApplicationController
     date = params[:date]&.to_date || Date.today
 
     @appointments = current_user.appointments
+      .includes(:client, :services)
       .where(appointment_date: date)
       .order(:appointment_time)
 
@@ -81,7 +82,7 @@ class AppointmentsController < ApplicationController
       {
         id: a.id,
         client_name: a.client.full_name,
-        service: a.service_name,
+        service: a.combined_service_name,
         phone: a.client.phone,
         start: "#{a.appointment_date}T#{start_time}",
         end: "#{a.appointment_date}T#{end_time}",
@@ -131,8 +132,10 @@ class AppointmentsController < ApplicationController
 
   def appointment_params
     params.require(:appointment).permit(
-      :service_name, :appointment_date, :appointment_time,
-      :status, :notes, :end_time
+      :service_name, :appointment_date,
+      :appointment_time,
+      :notes, :end_time,
+      service_ids: []
     )
   end
 end

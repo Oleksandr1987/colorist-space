@@ -1,6 +1,9 @@
 class Service < ApplicationRecord
   belongs_to :user, optional: true
 
+  has_many :appointment_services_relations, inverse_of: :service, dependent: :destroy
+  has_many :appointments, through: :appointment_services_relations
+
   validates :name, presence: true
   validates :category, presence: true, if: -> { service_type == "service" }
   validates :subtype, presence: true
