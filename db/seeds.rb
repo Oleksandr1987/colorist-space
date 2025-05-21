@@ -63,3 +63,28 @@ alphabet.each do |letter|
 end
 
 puts "✅ Done creating test clients."
+
+puts "🌱 Seeding sample expenses by month..."
+
+require 'faker'
+
+categories = Expense::CATEGORIES
+today = Date.today
+
+12.times do |i|
+  month_date = today << i # віднімаємо i місяців назад
+  start_date = month_date.beginning_of_month
+  end_date = [month_date.end_of_month, today].min # якщо це поточний місяць — обмежимо сьогоднішнім днем
+
+  20.times do
+    Expense.create!(
+      user: user,
+      category: categories.sample,
+      amount: rand(100..2500),
+      spent_on: rand(start_date..end_date),
+      note: Faker::Commerce.product_name
+    )
+  end
+end
+
+puts "✅ Done creating expenses."

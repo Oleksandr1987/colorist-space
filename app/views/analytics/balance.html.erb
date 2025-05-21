@@ -1,0 +1,15 @@
+<h1>Сальдо (дохід – витрати)</h1>
+
+<%= render 'shared/period_filter' %>
+
+<ul class="balance-summary">
+  <li><strong>Дохід:</strong> <%= @total_income %> ₴</li>
+  <li><strong>Витрати:</strong> <%= @total_expenses %> ₴</li>
+  <li><strong>Сальдо:</strong>
+    <% if @balance >= 0 %>
+      <span style="color: green"><%= @balance %> ₴</span>
+    <% else %>
+      <span style="color: red"><%= @balance %> ₴</span>
+    <% end %>
+  </li>
+</ul>

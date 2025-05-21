@@ -1,13 +1,13 @@
 <%= render 'shared/vertical_menu' %>
 
-<div class="category-wrapper">
-  <div class="category-header">Service Categories</div>
+<div class="admin-dashboard">
+  <h1>Service Categories</h1>
 
-  <div class="category-list">
+
     <% @categories.each do |category| %>
-      <%= link_to category, section_services_path(category: category), class: "category-item" %>
+      <%= link_to category, section_services_path(category: category), class: "admin-card" %>
     <% end %>
 
     <%= link_to "+ New Service", new_service_path(service_type: "service"), class: "category-item category-new" %>
-  </div>
+
 </div>

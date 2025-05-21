@@ -1,0 +1,40 @@
+<div class="service-form-wrapper">
+  <div class="form-errors">
+    <% if expense.errors.any? %>
+      <div class="error-box">
+        <h4>Помилки при збереженні:</h4>
+        <ul>
+          <% expense.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+  <%= form_with(model: expense, local: true) do |f| %>
+    <div class="form-section">
+      <%= f.label :category, "Категорія витрати" %>
+      <%= f.select :category, Expense::CATEGORIES, {}, class: "form-input", required: true %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :note, "Опис" %>
+      <%= f.text_field :note, class: "form-input" %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :spent_on, "Дата витрати" %>
+      <%= f.date_field :spent_on, class: "form-input", required: true, max: Date.today %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :amount, "Сума (₴)" %>
+      <%= f.number_field :amount, class: "form-input", required: true %>
+    </div>
+
+    <div class="form-actions-row">
+      <%= f.submit "Save", class: "form-button primary" %>
+      <%= link_to "Cancel", expenses_path, class: "form-button cancel", data: { turbo: false } %>
+    </div>
+  <% end %>
+</div>
