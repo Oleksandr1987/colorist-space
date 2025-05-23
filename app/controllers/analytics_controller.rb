@@ -19,7 +19,37 @@ class AnalyticsController < ApplicationController
   end
 
   def income
-    @total_income = Service.income_total_for_user_between(current_user, @from, @to)
+    @service_type_filter = params[:service_type]
+    @category_filter = params[:category]
+    @subtype_filter = params[:subtype]
+
+    @services = Service
+      .joins(:appointments)
+      .where(appointments: { user_id: current_user.id, appointment_date: @from..@to })
+
+    @services = @services.where(service_type: @service_type_filter) if @service_type_filter.present?
+    @services = @services.where(category: @category_filter) if @category_filter.present? && @service_type_filter == "service"
+    @services = @services.where(subtype: @subtype_filter) if @subtype_filter.present? && @service_type_filter == "service"
+
+    @total_income = @services.sum(:price)
+
+    if @service_type_filter.present?
+      if @service_type_filter == 'service'
+        @grouped_income = @services.group(:subtype).sum(:price)
+      else
+        @grouped_income = @services.group(:name).sum(:price)
+      end
+    else
+      @grouped_income = @services.group(:service_type).sum(:price)
+    end
+
+    @monthly_income_grouped = @services
+      .select("appointments.appointment_date AS date, services.*")
+      .order("appointments.appointment_date DESC")
+      .group_by { |s| s.service_type }
+      .transform_values do |group|
+        group.group_by { |s| Date.parse(s.date.to_s).strftime('%B %Y') }
+      end
   end
 
   def balance
@@ -31,8 +61,10 @@ class AnalyticsController < ApplicationController
   private
 
   def set_period
-    @from = (params[:from].presence || Date.today.beginning_of_month).to_date
-    @to = (params[:to].presence || Date.today).to_date
+    from = (params[:from].presence || Date.today.beginning_of_month).to_date
+    to = (params[:to].presence || Date.today).to_date
+    @from = [ from, to ].min
+    @to = [ from, to ].max
   rescue ArgumentError
     @from = Date.today.beginning_of_month
     @to = Date.today

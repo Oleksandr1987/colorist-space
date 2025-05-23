@@ -45,7 +45,7 @@
 
       <div class="form-section">
         <%= label_tag :to, "До", class: "form-label" %>
-        <%= date_field_tag :to, params[:to], class: "form-input small", required: true, max: Date.today %>
+        <%= date_field_tag :to, params[:to], class: "form-input small", required: true, max: Date.today, min: params[:from] %>
       </div>
 
       <div class="form-section">
