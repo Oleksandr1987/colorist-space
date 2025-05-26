@@ -31,6 +31,7 @@
   font-weight: bold;
 }
 
+/* Dropdowns */
 .dropdown {
   position: relative;
 }
@@ -42,7 +43,7 @@
   background: white;
   border: 1px solid #ccc;
   border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   z-index: 100;
   padding: 0.3rem 0;
   min-width: 140px;
@@ -61,27 +62,45 @@
   background-color: #f0f0f0;
 }
 
-.custom-range {
+/* Custom date range */
+/* .custom-range {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   align-items: center;
   justify-content: center;
   margin-bottom: 1rem;
+} */
+
+/* .custom-range .form-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+} */
+
+.custom-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem; /* 🔽 Було 1rem */
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem; /* 🔽 Було 1rem */
 }
 
 .custom-range .form-section {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  margin-bottom: 0.25rem; /* ✅ додано, щоб ущільнити між інпутами і кнопкою */
 }
+
 
 .form-input {
   width: 140px;
 }
 
 .form-input.small {
-  max-width: 160px;
+  max-width: 120px; /* ✅ narrower input */
 }
 
 .form-button.primary {
@@ -98,12 +117,15 @@
 .form-button.primary.full-width {
   width: 100%;
   max-width: 160px;
+  display: block;
+  margin: 0 auto; /* ✅ center align */
 }
 
 .form-button.primary:hover {
   opacity: 0.9;
 }
 
+/* Analytics header */
 .analytics-header-bar {
   display: flex;
   justify-content: space-between;
@@ -134,6 +156,7 @@
   margin-left: -0.5rem;
 }
 
+/* Category summary */
 .category-summary {
   text-align: center;
   font-size: 1.2rem;
@@ -142,15 +165,7 @@
   margin-bottom: 1.5rem;
 }
 
-/* Center all main content */
-/* body main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  max-width: 600px;
-} */
-
+/* Center main content */
 body main {
   display: block;
   padding: 1rem;
@@ -160,7 +175,6 @@ body main {
 
 /* Responsive */
 @media (max-width: 600px) {
-
   html, body {
     height: auto;
     min-height: 100vh;
@@ -173,13 +187,14 @@ body main {
   }
 
   .custom-range {
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .form-input {
     width: 100%;
-    max-width: 240px;
+    max-width: 140px;
   }
 
   .form-button.primary {
@@ -205,6 +220,7 @@ body main {
   }
 }
 
+/* Balance colors */
 .category-amount.green,
 .month-header-amount.green {
   color: #2a6d2d;

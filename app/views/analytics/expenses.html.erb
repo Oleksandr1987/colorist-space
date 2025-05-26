@@ -31,7 +31,7 @@
             </div>
           </div>
 
-          <ul class="expenses-list collapsible open" data-collapse-target="content">
+          <ul class="expenses-list collapsible hidden" data-collapse-target="content">
             <% expenses.sort_by(&:spent_on).reverse.each do |expense| %>
               <li class="expense-item" data-controller="popover">
                 <div class="expense-info">

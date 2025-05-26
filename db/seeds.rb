@@ -131,4 +131,41 @@ else
   end
 
   puts "✅ Done creating appointments for analytics testing."
+
+
+  puts "🌱 Seeding future appointments for calendar UI test..."
+
+start_date = Date.today
+end_date = start_date + 4.months
+
+(start_date..end_date).each do |date|
+  rand(3..4).times do
+    client = clients.sample
+    base_hour = rand(9..16)
+    base_minute = [0, 15, 30, 45].sample
+    start_time = Time.zone.parse("#{base_hour}:#{base_minute}")
+
+    appt = user.appointments.build(
+      client: client,
+      appointment_date: date,
+      appointment_time: start_time
+    )
+
+    selected_main = main_services.sample
+    selected_others = other_services.sample(rand(0..2))
+
+    appt.services << selected_main
+    appt.services << selected_others
+
+    if appt.save
+      appt.update_column(:service_name, appt.combined_service_name)
+      puts "📅 Created future appointment on #{date} at #{start_time.strftime('%H:%M')}"
+    else
+      puts "⚠️ Error for #{client.full_name} on #{date}: #{appt.errors.full_messages.join(', ')}"
+    end
+  end
+end
+
+puts "✅ Done creating future appointments."
+
 end

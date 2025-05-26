@@ -246,3 +246,14 @@
   white-space: nowrap;
   font-weight: bold;
 }
+
+.textarea-auto {
+  resize: vertical;
+  min-height: 60px;
+  max-height: 240px;
+  line-height: 1.4;
+}
+
+.expenses-category-header-aligned .category-header-amount.green {
+  color: #2a6d2d;
+}

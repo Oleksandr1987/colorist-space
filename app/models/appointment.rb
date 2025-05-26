@@ -17,6 +17,35 @@ class Appointment < ApplicationRecord
 
   scope :by_date, ->(date) { where(appointment_date: date) }
 
+  scope :past, -> {
+    today = Date.current
+    now = Time.zone.now.strftime("%H:%M")
+
+    where(
+      arel_table[:appointment_date].lt(today)
+      .or(
+        arel_table[:appointment_date].eq(today).and(
+          arel_table[:end_time].lt(now)
+        )
+      )
+    )
+  }
+
+  scope :future, -> {
+    today = Date.current
+    now = Time.zone.now.strftime("%H:%M")
+
+    where(
+      arel_table[:appointment_date].gt(today)
+      .or(
+        arel_table[:appointment_date].eq(today).and(
+          arel_table[:end_time].gteq(now)
+          .or(arel_table[:end_time].eq(nil))
+        )
+      )
+    )
+  }
+
   def start_time
     "#{appointment_date}T#{appointment_time.strftime('%H:%M:%S')}"
   end
@@ -31,6 +60,14 @@ class Appointment < ApplicationRecord
 
   def combined_service_name
     services.pluck(:subtype).join(" + ")
+  end
+
+  class << self
+    def grouped_by_month(relation)
+      relation.group_by { |a| a.appointment_date.strftime('%B %Y') }
+              .sort_by { |month, appointments| appointments.first.appointment_date.beginning_of_month }
+              .to_h
+    end
   end
 
   private
