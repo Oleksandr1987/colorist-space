@@ -1,0 +1,2 @@
+class AppointmentPolicy < ApplicationPolicy
+end

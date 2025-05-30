@@ -2,6 +2,9 @@ class SlotRulesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_slot_rule, only: %i[edit update destroy]
 
+  auto_authorize :slot_rule, only: %i[create edit update destroy]
+  after_action :verify_authorized, only: %i[create edit update destroy]
+
   def index
     @slot_rules = current_user.slot_rules.order(:start_time)
     @slot_rule = SlotRule.new

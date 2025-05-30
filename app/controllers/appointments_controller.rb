@@ -1,6 +1,9 @@
 class AppointmentsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_appointment, only: %i[show edit update destroy]
+  auto_authorize :appointment, only: %i[new create edit update destroy show]
+
+  after_action :verify_authorized, except: %i[index history calendar by_date free_slots]
 
   def index
     @future_appointments = current_user.appointments.future.includes(:client)
@@ -25,9 +28,10 @@ class AppointmentsController < ApplicationController
   end
 
   def create
+    @appointment = current_user.appointments.build(appointment_params)
+
     client_name = params[:appointment][:client_name].strip
     client_phone = params[:appointment][:phone]
-
     client = current_user.clients.find_by("CONCAT(first_name, ' ', last_name) = ?", client_name)
 
     if client.nil?
@@ -39,22 +43,21 @@ class AppointmentsController < ApplicationController
       )
     end
 
-    @appointment = current_user.appointments.build(appointment_params)
     @appointment.client = client
 
     if @appointment.save
       @appointment.update(service_name: @appointment.combined_service_name)
-
       redirect_to @appointment, notice: 'Appointment was successfully created.'
     else
       render :new, status: :unprocessable_entity
     end
   end
 
+  def edit; end
+
   def update
     client_name = params[:appointment][:client_name].strip
     client_phone = params[:appointment][:phone]
-
     client = current_user.clients.find_by("CONCAT(first_name, ' ', last_name) = ?", client_name)
 
     if client.nil?
@@ -75,10 +78,6 @@ class AppointmentsController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
-  end
-
-  def edit
-    # end_time already assigned — just pass to form
   end
 
   def destroy

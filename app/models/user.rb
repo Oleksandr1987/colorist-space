@@ -30,4 +30,30 @@ class User < ApplicationRecord
     end
     return_user
   end
+
+  def has_active_subscription?
+    subscription_expires_at.present? && subscription_expires_at >= Date.today
+  end
+
+  def subscription_will_expire_soon?
+    subscription_expires_at.present? &&
+      subscription_expires_at <= 3.days.from_now.to_date &&
+      subscription_expires_at >= Date.today
+  end
+
+  def on_trial?
+    plan_name == "trial" && created_at >= 7.days.ago && !has_active_subscription?
+  end
+
+  def trial_days_left
+    [ (created_at.to_date + 7.days - Date.today).to_i, 0 ].max
+  end
+
+  def has_write_access?
+    has_active_subscription? || on_trial?
+  end
+
+  def superadmin?
+    role == "superadmin"
+  end
 end

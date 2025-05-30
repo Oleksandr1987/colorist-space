@@ -1,6 +1,9 @@
 class ClientsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_client, only: %i[show edit update destroy]
+  before_action :set_client, only: %i[show edit update destroy delete_photo delete_all_photos]
+
+  auto_authorize :client, only: %i[show new create edit update destroy delete_photo delete_all_photos]
+  after_action :verify_authorized, only: %i[show new create edit update destroy delete_photo delete_all_photos]
 
   def index
     @clients = current_user.clients.alphabetical
@@ -11,8 +14,7 @@ class ClientsController < ApplicationController
     render :index
   end
 
-  def show
-  end
+  def show; end
 
   def new
     @client = current_user.clients.build
@@ -27,8 +29,7 @@ class ClientsController < ApplicationController
     end
   end
 
-  def edit
-  end
+  def edit; end
 
   def update
     if client_params[:photos].present?
@@ -58,7 +59,7 @@ class ClientsController < ApplicationController
     photo.purge
     redirect_to @client, notice: "Photo deleted."
   end
-  
+
   def delete_all_photos
     @client.photos.purge
     redirect_to @client, notice: "All photos deleted."

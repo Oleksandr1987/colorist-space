@@ -1,0 +1,52 @@
+<div class="settings-page compact">
+  <h1 class="settings-title">Особистий кабінет</h1>
+
+  <div class="settings-block">
+    <h2 class="settings-heading">Мій акаунт</h2>
+    <p><strong>Ім’я:</strong> <%= @user.name.presence || "—" %></p>
+    <p><strong>Email:</strong> <%= @user.email %></p>
+    <p><strong>Телефон:</strong> <%= @user.phone.presence || "—" %></p>
+
+    <div class="mt-2">
+      <%= link_to "Редагувати профіль", edit_user_registration_path, class: "link-row" %>
+      <%= link_to "Змінити пароль", edit_user_registration_path, class: "link-row" %>
+      <%= link_to "Вийти", destroy_user_session_path, method: :delete, class: "link-row logout" %>
+      <%= button_to "Видалити обліковий запис", registration_path(@user),
+          method: :delete,
+          data: { confirm: "Ви впевнені?", turbo_confirm: "Ви впевнені?" },
+          class: "link-row danger" %>
+    </div>
+  </div>
+
+  <div class="settings-block">
+    <h2 class="settings-heading">Підписка</h2>
+    <% plan =
+        if @user.superadmin?
+          "superadmin"
+        elsif @user.on_trial?
+          "trial"
+        elsif @user.plan_name.present?
+          @user.plan_name
+        else
+          "none"
+        end %>
+
+    <p><strong>Тариф:</strong> <%= plan %></p>
+
+    <% if @user.subscription_expires_at.present? %>
+      <p><strong>Дійсна до:</strong> <%= @user.subscription_expires_at.strftime("%d.%m.%Y") %></p>
+    <% elsif @user.on_trial? %>
+      <p><strong>Залишилось:</strong> <%= pluralize(@user.trial_days_left, 'день') %> пробного доступу</p>
+    <% else %>
+      <p><strong>Дійсна до:</strong> —</p>
+    <% end %>
+
+    <% if @user.subscription_will_expire_soon? %>
+      <p class="warning">⚠️ Залишилось менше 3 днів</p>
+    <% elsif !@user.has_active_subscription? && !@user.superadmin? && !@user.on_trial? %>
+      <p class="warning">⚠️ Підписка завершилась</p>
+    <% end %>
+
+    <%= link_to "Керувати підпискою", settings_subscription_path, class: "link-row primary" %>
+  </div>
+</div>

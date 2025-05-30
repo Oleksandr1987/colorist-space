@@ -33,7 +33,7 @@ Rails.application.routes.draw do
 
   resources :slot_rules
 
-  resources :services, except: [:show] do
+  resources :services, except: [ :show ] do
     collection do
       get :main
       get :section
@@ -46,11 +46,22 @@ Rails.application.routes.draw do
     end
   end
 
+  resource :subscription, only: [] do
+    get :wayforpay, to: "subscriptions#wayforpay_form"
+    post :monthly,  to: "subscriptions#activate_monthly"
+    post :yearly,   to: "subscriptions#activate_yearly"
+    post :payment_callback, to: "subscriptions#payment_callback"
+    delete :cancel, to: "subscriptions#cancel"
+  end
+
   get '/admin', to: 'admin#index', as: :admin
 
-  resources :expenses, except: [:show]
+  get "/settings", to: "settings#show"
+  get "/settings/subscription", to: "settings#subscription", as: :settings_subscription
 
-  resource :analytics, only: [:show], controller: 'analytics' do
+  resources :expenses, except: [ :show ]
+
+  resource :analytics, only: [ :show ], controller: 'analytics' do
     get :expenses
     get :income
     get :balance
