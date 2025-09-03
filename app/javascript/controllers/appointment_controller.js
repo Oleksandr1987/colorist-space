@@ -14,23 +14,29 @@ export default class extends Controller {
       care_product: []
     }
 
-    //  Read value from hiddenInput
-    const existingIds = this.hiddenInputTarget.value.split(',').map(id => parseInt(id)).filter(Boolean)
-    if (existingIds.length > 0) {
+    // ✅ Перевірка на існування hiddenInputTarget
+    if (this.hasHiddenInputTarget && this.hiddenInputTarget.value) {
+      const existingIds = this.hiddenInputTarget.value
+        .split(',')
+        .map(id => parseInt(id))
+        .filter(Boolean)
+
+      if (existingIds.length > 0) {
         document.querySelectorAll('input[type=checkbox][name="appointment[modal_dummy][]"]').forEach((checkbox) => {
-        const id = parseInt(checkbox.value)
-        const type = checkbox.dataset.type
-        if (existingIds.includes(id)) {
-          checkbox.checked = true
-          this.selected[type].push({
-          id: checkbox.value,
-          subtype: checkbox.dataset.subtype,
-          price: checkbox.dataset.price
-          })
-        }
-      })
+          const id = parseInt(checkbox.value)
+          const type = checkbox.dataset.type
+          if (existingIds.includes(id)) {
+            checkbox.checked = true
+            this.selected[type].push({
+              id: checkbox.value,
+              subtype: checkbox.dataset.subtype,
+              price: checkbox.dataset.price
+            })
+          }
+        })
+      }
     }
-    
+
     this.recalculate()
     this.updateSelected()
   }
@@ -75,28 +81,30 @@ export default class extends Controller {
 
   updateSelected() {
     const all = [...this.selected.service, ...this.selected.preparation, ...this.selected.care_product]
-  
+
     // 🔁 Очистити всі існуючі inputs
-    const container = this.hiddenInputTarget.parentElement
-    container.querySelectorAll("input[name='appointment[service_ids][]']").forEach(e => e.remove())
-  
-    // 🔄 Додати окремі hidden поля для кожного id
-    all.forEach(s => {
-      const input = document.createElement("input")
-      input.type = "hidden"
-      input.name = "appointment[service_ids][]"
-      input.value = s.id
-      container.appendChild(input)
-    })
-  
-    // 🧹 Очистити hiddenInputTarget.value, бо воно більше не використовується
-    this.hiddenInputTarget.value = ""
-  
+    if (this.hasHiddenInputTarget) {
+      const container = this.hiddenInputTarget.parentElement
+      container.querySelectorAll("input[name='appointment[service_ids][]']").forEach(e => e.remove())
+
+      // 🔄 Додати окремі hidden поля для кожного id
+      all.forEach(s => {
+        const input = document.createElement("input")
+        input.type = "hidden"
+        input.name = "appointment[service_ids][]"
+        input.value = s.id
+        container.appendChild(input)
+      })
+
+      // 🧹 Очистити hiddenInputTarget.value, бо воно більше не використовується
+      this.hiddenInputTarget.value = ""
+    }
+
     // 🔄 Оновити UI
     this.updateTargetContent("serviceSelected", this.selected.service)
     this.updateTargetContent("preparationSelected", this.selected.preparation)
     this.updateTargetContent("careProductSelected", this.selected.care_product)
-  }  
+  }
 
   updateTargetContent(targetName, items) {
     const el = this[`${targetName}Target`]
@@ -123,5 +131,19 @@ export default class extends Controller {
       if (!isNaN(price)) total += price
     })
     if (this.hasTotalTarget) this.totalTarget.textContent = total
+  }
+
+  roundToNearestFive(event) {
+    const input = event.target
+    const value = input.value
+
+    if (!value.match(/^\d{2}:\d{2}$/)) return
+
+    const [hours, minutes] = value.split(":").map(Number)
+    const roundedMinutes = Math.round(minutes / 5) * 5
+    const formattedMinutes = String(roundedMinutes % 60).padStart(2, "0")
+    const formattedHours = String((hours + Math.floor(roundedMinutes / 60)) % 24).padStart(2, "0")
+
+    input.value = `${formattedHours}:${formattedMinutes}`
   }
 }

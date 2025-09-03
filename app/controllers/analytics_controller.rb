@@ -2,10 +2,12 @@ class AnalyticsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_period
 
+  helper_method :permitted_params
+
   def show; end
 
   def expenses
-    @category_filter = params[:category]
+    @category_filter = permitted_params[:category]
     @expenses = current_user.expenses.where(spent_on: @from..@to)
     @expenses = @expenses.where(category: @category_filter) if @category_filter.present?
     @grouped_expenses = @expenses.group(:category).sum(:amount)
@@ -19,9 +21,9 @@ class AnalyticsController < ApplicationController
   end
 
   def income
-    @service_type_filter = params[:service_type]
-    @category_filter = params[:category]
-    @subtype_filter = params[:subtype]
+    @service_type_filter = permitted_params[:service_type]
+    @category_filter = permitted_params[:category]
+    @subtype_filter = permitted_params[:subtype]
 
     @services = Service
       .joins(:appointments)
@@ -61,12 +63,16 @@ class AnalyticsController < ApplicationController
   private
 
   def set_period
-    from = (params[:from].presence || Date.today.beginning_of_month).to_date
-    to = (params[:to].presence || Date.today).to_date
-    @from = [ from, to ].min
-    @to = [ from, to ].max
+    from = (permitted_params[:from].presence || Date.today.beginning_of_month).to_date
+    to = (permitted_params[:to].presence || Date.today).to_date
+    @from = [from, to].min
+    @to = [from, to].max
   rescue ArgumentError
     @from = Date.today.beginning_of_month
     @to = Date.today
+  end
+
+  def permitted_params
+    params.permit(:from, :to, :category, :service_type, :subtype, :commit)
   end
 end

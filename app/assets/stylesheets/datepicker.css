@@ -1,0 +1,49 @@
+/* @media (max-width: 600px) {
+
+  .litepicker .container__months,
+  .litepicker .container__years {
+    min-width: 240px;
+    max-height: 400px;
+    font-size: 20px !important;
+    padding: 10px 0;
+  }
+
+
+  .litepicker .month-item,
+  .litepicker .year-item {
+    font-size: 20px !important;
+    padding: 14px 20px !important;
+    line-height: 1.4;
+    cursor: pointer;
+  }
+
+
+  .litepicker .month-item.is-selected,
+  .litepicker .year-item.is-selected {
+    font-weight: bold;
+    background-color: #eee;
+    color: #000;
+  }
+
+
+  .litepicker .month-item:hover,
+  .litepicker .year-item:hover {
+    background-color: #ddd;
+  }
+} */
+
+@media (max-width: 600px) {
+  /* Селектори місяців і років */
+  .litepicker select.month-item-name,
+  .litepicker select.month-item-year {
+    font-size: 20px;
+    padding: 12px;
+    height: auto;
+  }
+
+  .litepicker select.month-item-name option,
+  .litepicker select.month-item-year option {
+    font-size: 20px;
+    padding: 10px;
+  }
+}

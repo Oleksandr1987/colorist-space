@@ -11,6 +11,7 @@
       </div>
     <% end %>
   </div>
+
   <%= form_with(model: expense, local: true) do |f| %>
     <div class="form-section">
       <%= f.label :category, "Категорія витрати" %>
@@ -19,12 +20,21 @@
 
     <div class="form-section">
       <%= f.label :note, "Опис" %>
-      <%= f.text_field :note, class: "form-input" %>
+      <%= f.text_area :note,
+            class: "form-input textarea-auto",
+            maxlength: 256,
+            rows: 2,
+            placeholder: "До 256 символів..." %>
     </div>
 
     <div class="form-section">
       <%= f.label :spent_on, "Дата витрати" %>
-      <%= f.date_field :spent_on, class: "form-input", required: true, max: Date.today %>
+      <%= text_field_tag "expense[spent_on]",
+        expense.spent_on&.to_date || Date.today,
+        class: "form-input",
+        required: true,
+        max: Date.today,
+        data: { controller: "datepicker", datepicker_target: "input" } %>
     </div>
 
     <div class="form-section">

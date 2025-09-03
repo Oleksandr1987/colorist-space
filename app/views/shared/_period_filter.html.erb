@@ -1,51 +1,74 @@
-<div class="period-filter">
+<div class="period-filter sticky-period-filter">
+
+  <% from_date = Date.parse(permitted_params[:from]) rescue nil %>
+  <% to_date = Date.parse(permitted_params[:to]) rescue nil %>
+  <% period_label = "Період" %>
+  <% if from_date && to_date %>
+    <% days_diff = (to_date - from_date).to_i %>
+    <% period_label =
+      case days_diff
+      when 7 then "7 днів"
+      when 14 then "14 днів"
+      when 30 then "1 місяць"
+      when 90 then "3 місяці"
+      when 180 then "6 місяців"
+      when 270 then "9 місяців"
+      when 365 then "1 рік"
+      else "#{from_date.strftime('%d.%m.%Y')} - #{to_date.strftime('%d.%m.%Y')}"
+      end
+    %>
+  <% end %>
+
   <div class="quick-filters">
-    <% [
-      ['7 днів', 7],
-      ['14 днів', 14],
-      ['1 місяць', 30],
-      ['3 місяці', 90],
-      ['6 місяців', 180],
-      ['9 місяців', 270],
-      ['1 рік', 365]
-    ].each do |label, days| %>
-      <% from_date = days.days.ago.to_date.to_s %>
-      <% to_date = Date.today.to_s %>
-      <% is_active = params[:from].to_s == from_date && params[:to].to_s == to_date %>
-
-      <%= link_to label,
-        url_for(request.query_parameters.merge(from: from_date, to: to_date)),
-        class: "filter-button #{'active' if is_active}" %>
-    <% end %>
-
-    <%# ⬇️ Категорія-фільтр %>
-    <% category_label = params[:category].presence || "Категорія" %>
-    <% is_category_active = params[:category].present? %>
     <div class="dropdown" data-controller="dropdown">
-      <button class="filter-button <%= 'active' if is_category_active %>" data-action="click->dropdown#toggle">
-        <%= category_label %>
+      <button class="filter-button <%= 'active' if from_date && to_date %>" data-action="click->dropdown#toggle">
+        <%= period_label %>
       </button>
       <div class="dropdown-menu hidden" data-dropdown-target="menu">
-        <%= link_to "Всі категорії", expenses_analytics_path(from: params[:from], to: params[:to]), class: "dropdown-item" %>
-        <% Expense::CATEGORIES.each do |cat| %>
-          <%= link_to cat,
-              expenses_analytics_path(from: params[:from], to: params[:to], category: cat),
+        <% [
+          ['7 днів', 7], ['14 днів', 14], ['1 місяць', 30],
+          ['3 місяці', 90], ['6 місяців', 180],
+          ['9 місяців', 270], ['1 рік', 365]
+        ].each do |label, days| %>
+          <% from_val = days.days.ago.to_date.to_s %>
+          <% to_val = Date.today.to_s %>
+          <%= link_to label,
+              url_for(permitted_params.merge(from: from_val, to: to_val)),
               class: "dropdown-item" %>
         <% end %>
       </div>
     </div>
+
+    <% show_category = local_assigns[:show_category].nil? ? true : local_assigns[:show_category] %>
+    <% if show_category %>
+      <div class="dropdown" data-controller="dropdown">
+        <button class="filter-button <%= 'active' if permitted_params[:category].present? %>" data-action="click->dropdown#toggle">
+          <%= permitted_params[:category].presence || "Категорія" %>
+        </button>
+        <div class="dropdown-menu hidden" data-dropdown-target="menu">
+          <%= link_to "Всі категорії", expenses_analytics_path(from: permitted_params[:from], to: permitted_params[:to]), class: "dropdown-item" %>
+          <% Expense::CATEGORIES.each do |cat| %>
+            <%= link_to cat,
+                expenses_analytics_path(from: permitted_params[:from], to: permitted_params[:to], category: cat),
+                class: "dropdown-item" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <div class="custom-range">
     <%= form_with url: request.path, method: :get, local: true do %>
-      <div class="form-section">
-        <%= label_tag :from, "Від", class: "form-label" %>
-        <%= date_field_tag :from, params[:from], class: "form-input small", required: true, max: Date.today %>
-      </div>
+      <div class="custom-range">
+        <div class="form-section">
+          <%= label_tag :from, "Від", class: "form-label" %>
+          <%= text_field_tag :from, permitted_params[:from], id: "from-date", class: "form-input small", required: true, max: Date.today, data: { controller: "datepicker", datepicker_target: "input" } %>
+        </div>
 
-      <div class="form-section">
-        <%= label_tag :to, "До", class: "form-label" %>
-        <%= date_field_tag :to, params[:to], class: "form-input small", required: true, max: Date.today, min: params[:from] %>
+        <div class="form-section">
+          <%= label_tag :to, "До", class: "form-label" %>
+          <%= text_field_tag :to, permitted_params[:to], id: "to-date", class: "form-input small", required: true, max: Date.today, data: { controller: "datepicker", datepicker_target: "input" } %>
+        </div>
       </div>
 
       <div class="form-section">

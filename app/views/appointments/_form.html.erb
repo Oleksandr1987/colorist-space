@@ -44,17 +44,38 @@
 
     <div class="form-section">
       <label>Date <span class="required-asterisk">*</span></label>
-      <%= f.date_field :appointment_date, class: "form-input", min: Date.today.to_s %>
+      <%= text_field_tag "appointment[appointment_date]",
+        (@appointment.appointment_date || Date.today).strftime("%d.%m.%Y"),
+        class: "form-input",
+        data: {
+           controller: "datepicker",
+            datepicker_target: "input",
+            min: Date.today.strftime("%Y-%m-%d")
+           },
+        readonly: true,
+        id: "appointment_date" %>
     </div>
 
     <div class="form-section double">
       <div>
         <%= f.label :appointment_time, "Start Time" %><span class="required-asterisk">*</span>
-        <%= f.time_field :appointment_time, step: 300, class: "form-input" %>
+        <%= f.time_field :appointment_time,
+          step: 300,
+          class: "form-input",
+          data: {
+            controller: "appointment",
+            action: "blur->appointment#roundToNearestFive"
+          } %>
       </div>
       <div>
-        <label>End Time <span class="required-asterisk">*</span></label>
-        <%= f.time_field :end_time, step: 300, class: "form-input" %>
+        <%= f.label :end_time, "End Time" %><span class="required-asterisk">*</span>
+        <%= f.time_field :end_time,
+          step: 300,
+          class: "form-input",
+          data: {
+            controller: "appointment",
+            action: "blur->appointment#roundToNearestFive"
+          } %>
       </div>
     </div>
 
@@ -86,7 +107,11 @@
 
     <div class="form-section">
       <%= f.label :notes, "Notes" %>
-      <%= f.text_area :notes, class: "form-input", placeholder: "Optional notes" %>
+      <%= f.text_area :notes,
+        class: "form-input textarea-auto",
+        maxlength: 256,
+        rows: 2,
+        placeholder: "До 256 символів..." %>
     </div>
 
     <div class="total-price">

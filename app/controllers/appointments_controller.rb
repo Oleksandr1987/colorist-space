@@ -3,7 +3,13 @@ class AppointmentsController < ApplicationController
   before_action :set_appointment, only: %i[show edit update destroy]
 
   def index
-    @appointments = current_user.appointments
+    @future_appointments = current_user.appointments.future.includes(:client)
+    @appointments_by_month = Appointment.grouped_by_month(@future_appointments)
+  end
+
+  def history
+    @past_appointments = current_user.appointments.past.includes(:client)
+    @appointments_by_month = Appointment.grouped_by_month(@past_appointments).reverse_each.to_h
   end
 
   def new
@@ -21,7 +27,6 @@ class AppointmentsController < ApplicationController
   def create
     client_name = params[:appointment][:client_name].strip
     client_phone = params[:appointment][:phone]
-    duration = params[:appointment][:duration].to_i.minutes
 
     client = current_user.clients.find_by("CONCAT(first_name, ' ', last_name) = ?", client_name)
 
@@ -36,7 +41,6 @@ class AppointmentsController < ApplicationController
 
     @appointment = current_user.appointments.build(appointment_params)
     @appointment.client = client
-    @appointment.end_time = @appointment.appointment_time + duration
 
     if @appointment.save
       @appointment.update(service_name: @appointment.combined_service_name)
@@ -47,14 +51,7 @@ class AppointmentsController < ApplicationController
     end
   end
 
-  def edit
-    # end_time already assigned — just pass to form
-  end
-
   def update
-    duration = params[:appointment][:duration].to_i.minutes
-    @appointment.end_time = @appointment.appointment_time + duration
-
     client_name = params[:appointment][:client_name].strip
     client_phone = params[:appointment][:phone]
 
@@ -78,6 +75,10 @@ class AppointmentsController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def edit
+    # end_time already assigned — just pass to form
   end
 
   def destroy
@@ -109,13 +110,6 @@ class AppointmentsController < ApplicationController
         appointment_time: start_time
       }
     }
-  end
-
-  def history
-    now = Time.zone.now
-    @appointments = current_user.appointments
-      .where("appointment_date < ? OR (appointment_date = ? AND end_time < ?)", Date.today, Date.today, now.strftime("%H:%M"))
-      .order(appointment_date: :desc, appointment_time: :desc)
   end
 
   def free_slots
