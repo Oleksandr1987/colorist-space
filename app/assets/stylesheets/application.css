@@ -8,3 +8,175 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+ @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+ /* General Page Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Montserrat", serif;
+  }
+
+/* HEADER STYLES */
+.header-bar {
+  position: relative;
+  width: 90%;
+  max-width: 500px;
+  height: 60px;
+  border: 10px solid transparent;
+  border-top: 10px solid rgba(255, 255, 255, 0.9);
+  border-left: 10px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.25) inset;
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Fancy effect on top right */
+.header-bar::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 30%;
+  height: 49px;
+  border: 10px solid transparent;
+  border-bottom: 10px solid rgba(255, 255, 255, 0.9);
+  border-right: 10px solid rgba(255, 255, 255, 0.9);
+  transition: 0.3s linear all;
+}
+
+/* Logo */
+.header-bar > .logo {
+  position: absolute;
+  top: calc(50% - 20px);
+  left: 10px;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Parisienne', cursive;
+  font-size: 24px;
+  cursor: default;
+  user-select: none;
+}
+
+.header-bar a {
+  color: white !important;
+  text-decoration: none;
+}
+
+/* Hover effect */
+.header-bar a:hover {
+  color: #faa !important;
+}
+
+.header-bar button {
+  background: none;
+  border: none;
+  color: white !important;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.header-bar button:hover {
+  color: #faa !important;
+}
+
+/* Navigation menu */
+.slider-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+/* Menu items */
+.slider-menu > li {
+  display: inline-flex;
+  padding: 14px;
+  margin-left: 2px;
+  font-family: "Montserrat", serif;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s linear all;
+  user-select: none;
+}
+
+/* Hover effect */
+.slider-menu > li:hover {
+  color: #faa;
+  box-shadow: 0 50px 5px rgba(0, 0, 0, 0.15) inset;
+}
+
+.slider-menu a {
+  color: white !important;  /* Ensure links are white */
+  text-decoration: none; /* Remove underline */
+  transition: color 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Change color on hover */
+.slider-menu a:hover {
+  color: #faa !important; /* Light pink hover effect */
+}
+  
+/* MOBILE MENU TOGGLE */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* MOBILE VIEW */
+@media (max-width: 768px) {
+  .slider-menu {
+    display: none;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.8);
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 200px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .slider-menu.show {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .header-bar {
+    width: 90%;
+    height: 60px;
+    justify-content: space-between;
+  }
+}
+  
+  /* Footer Styles */
+  .footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+  }
+  
+  .footer .footer-link {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+  }

@@ -1,2 +1,14 @@
-<h1>Hello, PWA</h1>
-<p>Find me in app/views/home/index.html.erb</p>
+<div class="container">
+  <div class="home-page">
+    <div class="home-page__content">
+      <h2 class="home-page__title">Create account</h2>
+      <div class="home-page__buttons">
+        <%= link_to "Sign up", new_user_registration_path, class: "button signup__link" %>
+        <%= link_to "Login", new_user_session_path, class: "button login__link" %>
+      </div>
+      <div class="home-page__logo">
+        <%= image_tag("logo_full_transpr.png", alt: "Colorist.Space", class: "logo-img") %>
+      </div>
+    </div>
+  </div>
+</div>
