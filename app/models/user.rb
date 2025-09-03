@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  include PhoneValidator
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -6,6 +8,8 @@ class User < ApplicationRecord
          :omniauthable, omniauth_providers: %i[facebook google_oauth2 instagram]
 
   validates_acceptance_of :tos_agreement, allow_nil: false, on: :create
+
+  has_many :clients, dependent: :destroy
 
   def self.from_omniauth(auth)
     if where(email: auth.info.email).exists?
