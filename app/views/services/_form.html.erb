@@ -1,0 +1,36 @@
+<%= form_with(model: service, local: true, data: { controller: "service" }) do |f| %>
+  <div class="form-section">
+    <%= f.label :category, "Service Category" %>
+    <%= f.text_field :category, class: "form-input", list: "categories", placeholder: "Enter or select category", required: true, data: { action: "input->service#updateSubtypeOptions", service_target: "categorySelect" } %>
+
+    <datalist id="categories">
+      <option value="Haircut">
+      <option value="Coloring">
+      <option value="Styling">
+      <option value="Treatment">
+    </datalist>
+  </div>
+
+  <div class="form-section">
+  <%= f.label :subtype, "Service Type" %>
+  <%= f.text_field :subtype,
+        class: "form-input",
+        list: "subtypes",
+        placeholder: "Enter or select type",
+        data: { service_target: "subtype" },
+        required: true %>
+
+  <datalist id="subtypes">
+  </datalist>
+</div>
+
+
+  <div class="form-section">
+    <%= f.label :price, "Price (₴)" %>
+    <%= f.number_field :price, class: "form-input", required: true %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit "Save", class: "button primary full" %>
+  </div>
+<% end %>
