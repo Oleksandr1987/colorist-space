@@ -1,0 +1,12 @@
+<h2>Past Appointments</h2>
+
+<div class="appointment-list">
+  <% @appointments.each do |appointment| %>
+    <div class="appointment-item">
+      <div class="appointment-info">
+        <div class="time"><%= appointment.appointment_time.strftime("%H:%M") %></div>
+        <div class="text"><%= appointment.client.full_name %> — <%= appointment.service_name %></div>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -16,7 +16,22 @@ Rails.application.routes.draw do
     collection do
       get :search
     end
+    member do
+      delete 'photos/:photo_id', to: 'clients#delete_photo', as: 'delete_photo'
+      delete 'delete_all_photos', to: 'clients#delete_all_photos'
+    end
   end
+
+  resources :appointments do
+    collection do
+      get :calendar
+      get :by_date
+      get :history
+      get :free_slots
+    end
+  end
+
+  resources :slot_rules
 
   root to: "home#index"
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

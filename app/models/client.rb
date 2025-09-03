@@ -3,6 +3,7 @@ class Client < ApplicationRecord
 
   belongs_to :user
   has_many_attached :photos
+  has_many :appointments, dependent: :destroy
 
   validates :first_name, :last_name, presence: true
 
@@ -11,4 +12,8 @@ class Client < ApplicationRecord
   }
 
   scope :alphabetical, -> { order("LOWER(first_name)") }
+
+  def full_name
+    "#{first_name} #{last_name}".strip
+  end
 end

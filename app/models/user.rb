@@ -10,6 +10,8 @@ class User < ApplicationRecord
   validates_acceptance_of :tos_agreement, allow_nil: false, on: :create
 
   has_many :clients, dependent: :destroy
+  has_many :appointments, dependent: :destroy
+  has_many :slot_rules, dependent: :destroy
 
   def self.from_omniauth(auth)
     if where(email: auth.info.email).exists?

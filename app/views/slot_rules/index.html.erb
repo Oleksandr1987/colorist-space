@@ -1,0 +1,21 @@
+<h2>Slot Rules</h2>
+
+<%= render "form", slot_rule: @slot_rule %>
+
+<hr>
+
+<h3>Your Rules</h3>
+<% if @slot_rules.any? %>
+  <ul>
+    <% @slot_rules.each do |rule| %>
+      <li>
+        <strong><%= rule.start_time.strftime("%H:%M") %>–<%= rule.end_time.strftime("%H:%M") %></strong>,
+        <%= rule.weekdays.map(&:capitalize).join(", ") %>
+        <%= link_to "✏️", edit_slot_rule_path(rule), class: "edit-icon" %>
+        <%= button_to "🗑️", slot_rule_path(rule), method: :delete, data: { confirm: "Are you sure?" } %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No slot rules defined.</p>
+<% end %>

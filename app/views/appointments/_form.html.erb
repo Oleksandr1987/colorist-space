@@ -1,0 +1,82 @@
+<div class="appointment-container">
+  <div class="appointment-header">
+    <%= link_to "← Back", appointments_path, class: "back-link" %>
+    <h2>New Appointment</h2>
+  </div>
+
+  <%= form_with model: @appointment, local: true, data: { controller: "calendar" } do |f| %>
+    <% if @appointment.errors.any? %>
+      <div class="error-messages">
+        <h4><%= pluralize(@appointment.errors.count, "error") %> prevented the appointment from being saved:</h4>
+        <ul>
+          <% @appointment.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-section">
+      <%= label_tag "appointment[client_name]", "Client Name" %>
+      <%= text_field_tag "appointment[client_name]",
+          @appointment.client&.full_name || "",
+          class: "form-input",
+          data: {
+            "calendar-target": "clientName",
+            action: "input->calendar#updateClientInfo"
+          },
+          placeholder: "Enter or select client name",
+          list: "client-list",
+          autocomplete: "off" %>
+
+      <datalist id="client-list" data-calendar-target="clientList">
+        <% current_user.clients.each do |client| %>
+          <option value="<%= client.full_name %>" data-phone="<%= client.phone %>">
+        <% end %>
+      </datalist>
+    </div>
+
+    <div class="form-section">
+      <%= label_tag "appointment[phone]", "Phone" %>
+      <%= telephone_field_tag "appointment[phone]",
+          @appointment.client&.phone || "",
+          class: "form-input",
+          data: { "calendar-target": "clientPhone" } %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :service_name, "Service" %>
+      <%= f.text_field :service_name, class: "form-input", placeholder: "Service name" %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :appointment_date, "Date" %>
+      <%= f.date_field :appointment_date, class: "form-input", min: Date.today.to_s %>
+    </div>
+
+    <div class="form-section double">
+      <div>
+        <%= f.label :appointment_time, "Start Time" %>
+        <%= f.time_field :appointment_time, step: 300, class: "form-input" %>
+      </div>
+      <div>
+        <%= f.label :end_time, "End Time" %>
+        <%= f.time_field :end_time, step: 300, class: "form-input" %>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :status, "Status" %>
+      <%= f.select :status, ["planned", "completed", "canceled"], {}, class: "form-input" %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :notes, "Notes" %>
+      <%= f.text_area :notes, class: "form-input", placeholder: "Optional notes" %>
+    </div>
+
+    <div class="form-actions">
+      <%= f.submit "Save", class: "button primary full" %>
+    </div>
+  <% end %> 
+</div>

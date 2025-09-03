@@ -1,0 +1,28 @@
+.error-messages, #error_explanation {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+  }
+  
+  .error-messages h2,
+  .error-messages h4,
+  #error_explanation h2 {
+    margin-top: 0;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+  .error-messages ul,
+  #error_explanation ul {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+  
+  .error-messages li,
+  #error_explanation li {
+    margin-bottom: 0.2rem;
+  }
+  

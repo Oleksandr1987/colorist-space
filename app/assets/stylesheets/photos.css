@@ -1,0 +1,89 @@
+.photo-wrapper {
+    position: relative;
+  }
+  
+  .photo-delete-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(255, 0, 0, 0.8);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+  }
+  
+  .delete-all {
+    background-color: #b00020;
+    margin-top: 1rem;
+  }
+  
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-img {
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 10px;
+  }
+  
+  .modal.hidden {
+    display: none;
+  }
+  
+  .carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.6);
+    border: none;
+    font-size: 2rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    z-index: 1001;
+    border-radius: 50%;
+  }
+  
+  .carousel-button.left {
+    left: 1rem;
+  }
+  
+  .carousel-button.right {
+    right: 1rem;
+  }
+  
+  .carousel-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    z-index: 1001;
+    border-radius: 50%;
+  }
+  
+  .photo-delete-btn {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+  }
+  
+  .photo-wrapper:hover .photo-delete-btn,
+  .photo-wrapper.long-press .photo-delete-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
