@@ -25,8 +25,10 @@
   <body>
 
     <main>
-      <p class="notice"><%= notice %></p>
-      <p class="alert"><%= alert %></p>
+      <% flash.each do |type, message| %>
+        <div class="flash <%= type %>"><%= message.html_safe %></div>
+      <% end %>
+
       <%= yield %>
     </main>
     <%= render 'shared/navigation' if user_signed_in? %>

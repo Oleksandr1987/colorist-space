@@ -1,12 +1,15 @@
 class AnalyticsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_period
+  # auto_authorize :analytics, only: %i[expenses income balance]
+  # after_action :verify_authorized, only: %i[expenses income balance]
 
   helper_method :permitted_params
 
   def show; end
 
   def expenses
+    # authorize :analytics, :access?
     @category_filter = permitted_params[:category]
     @expenses = current_user.expenses.where(spent_on: @from..@to)
     @expenses = @expenses.where(category: @category_filter) if @category_filter.present?
@@ -21,6 +24,7 @@ class AnalyticsController < ApplicationController
   end
 
   def income
+    # authorize :analytics, :access?
     @service_type_filter = permitted_params[:service_type]
     @category_filter = permitted_params[:category]
     @subtype_filter = permitted_params[:subtype]
@@ -55,6 +59,7 @@ class AnalyticsController < ApplicationController
   end
 
   def balance
+    # authorize :analytics, :access?
     @total_income = Service.income_total_for_user_between(current_user, @from, @to)
     @total_expenses = current_user.expenses.where(spent_on: @from..@to).sum(:amount)
     @balance = @total_income - @total_expenses

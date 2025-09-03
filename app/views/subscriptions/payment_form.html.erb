@@ -1,0 +1,13 @@
+<%= form_tag "https://secure.wayforpay.com/pay", method: :post do %>
+  <% @form_data.each do |key, value| %>
+    <% if value.is_a?(Array) %>
+      <% value.each do |v| %>
+        <%= hidden_field_tag "#{key}[]", v %>
+      <% end %>
+    <% else %>
+      <%= hidden_field_tag key, value %>
+    <% end %>
+  <% end %>
+
+  <%= submit_tag "✅ Перейти до оплати", class: "button primary full" %>
+<% end %>

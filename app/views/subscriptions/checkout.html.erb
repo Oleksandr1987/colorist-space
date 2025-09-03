@@ -1,0 +1,23 @@
+<div class="subscription-checkout-page">
+  <h1>Підтвердження оплати</h1>
+  <p>Ви обрали тариф: <strong><%= @plan == "yearly" ? "Річний" : "Місячний" %></strong></p>
+  <p>Сума до оплати: <strong><%= @form_data[:amount] %> грн</strong></p>
+
+  <%= form_tag "https://secure.wayforpay.com/pay", method: :post do %>
+    <% @form_data.each do |key, value| %>
+      <% if value.is_a?(Array) %>
+        <% value.each do |v| %>
+          <%= hidden_field_tag "#{key}[]", v %>
+        <% end %>
+      <% else %>
+        <%= hidden_field_tag key, value %>
+      <% end %>
+    <% end %>
+
+    <%= submit_tag "✅ Перейти до оплати", class: "button primary full" %>
+  <% end %>
+
+  <div class="mt-3">
+    <%= link_to "← Назад", settings_subscription_path, class: "button link" %>
+  </div>
+</div>

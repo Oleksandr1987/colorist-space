@@ -7,7 +7,7 @@ module PhoneValidator
     validates :phone, presence: true,
                       format: {
                         with: /\A\+380\d{9}\z/,
-                        message: 'must start with +380 and contain 9 digits after, e.g. +380931234567'
+                        message: 'must start with +380 and contain 9 digits after, e.g. +380123456789'
                       }
   end
 

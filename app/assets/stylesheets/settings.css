@@ -1,0 +1,53 @@
+.settings-page.compact {
+    padding: 20px;
+    max-width: 480px;
+    margin: auto;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .settings-title {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 24px;
+  }
+  
+  .settings-block {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  .settings-heading {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: #481f9a;
+  }
+  
+  .link-row {
+    display: block;
+    margin: 8px 0;
+    color: #481f9a;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  
+  .link-row.primary {
+    font-weight: 600;
+  }
+  
+  .link-row.logout {
+    color: #999;
+  }
+  
+  .link-row.danger {
+    color: red;
+  }
+  
+  .warning {
+    color: #c00;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  

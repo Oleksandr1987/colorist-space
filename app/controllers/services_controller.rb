@@ -2,6 +2,9 @@ class ServicesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_service, only: %i[edit update destroy]
 
+  auto_authorize :service, only: %i[new create create_preparation create_care_product edit update destroy]
+  after_action :verify_authorized, only: %i[new create create_preparation create_care_product edit update destroy]
+
   def index
     # На /services показуються три кнопки: Services, Preparations, Care Products
   end
@@ -77,8 +80,7 @@ class ServicesController < ApplicationController
     end
   end
 
-  def edit
-  end
+  def edit; end
 
   def update
     if @service.update(service_params)
