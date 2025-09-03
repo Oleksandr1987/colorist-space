@@ -1,0 +1,28 @@
+<div class="service-wrapper" data-controller="service">
+  <div class="category-header with-search">
+    <div class="category-title">
+      <%= link_to "← ", services_path, class: "back" %>
+      <span>Preparations</span>
+    </div>
+
+    <div class="header-right">
+      <div class="service-search-wrapper inline-search">
+        <input type="text"
+               placeholder="Search..."
+               class="service-search-input"
+               data-service-target="search"
+               data-action="input->service#filter">
+      </div>
+
+      <%= link_to raw('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>'), preparations_services_path(new: true), class: "plus-icon" %>
+    </div>
+  </div>
+
+  <% if @service.present? %>
+    <%= render "services/preparation_form", service: @service %>
+  <% end %>
+
+  <div class="service-list" data-service-target="list">
+    <%= render partial: "services/service_item", collection: @preparations, as: :service %>
+  </div>
+</div>

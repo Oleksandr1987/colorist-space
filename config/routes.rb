@@ -35,9 +35,18 @@ Rails.application.routes.draw do
 
   resources :services, except: [:show] do
     collection do
+      get :main
+      get :section
       get :filter
+      get :preparations
+      get :care_products
+
+      post :create_preparation
+      post :create_care_product
     end
   end
+
+  get '/admin', to: 'admin#index', as: :admin
 
   root to: "home#index"
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

@@ -5,10 +5,11 @@
       <h1><%= @client.full_name %></h1>
     </div>
 
-    <div class="menu-wrapper">
-      <button class="menu-button" data-action="click->client-profile#toggleMenu">⋮</button>
-      <div data-client-profile-target="menu" class="menu hidden">
-        <%= link_to "Edit Client", edit_client_path(@client), class: "menu-item" %>
+    <div data-controller="menu" class="menu-wrapper">
+      <button class="vertical-menu-toggle" data-action="click->menu#toggleMenu">≡</button>
+      <div data-menu-target="menu" class="menu hidden">
+        <%= link_to "New Appointment", new_appointment_path(client_id: @client.id), class: "menu-item"%>
+        <%= link_to "Edit Client", edit_client_path(@client), class:  "menu-item"%>
         <a href="#client-info" class="menu-item" data-action="click->client-profile#toggleInfo">Info</a>
         <%= button_to "Delete Client", client_path(@client),
                       method: :delete,
@@ -41,7 +42,7 @@
         <h3><%= date.strftime('%B %d') %></h3>
         <div class="photos-grid">
           <% photos.each do |photo| %>
-            <div class="photo-wrapper" data-action="click->photo#show touchstart->photo#touchStart touchend->photo#touchEnd"">
+            <div class="photo-wrapper" data-action="click->photo#show touchstart->photo#touchStart touchend->photo#touchEnd">
               <%= image_tag photo, class: "client-photo", data: { photo_url: url_for(photo) } %>
               <%= button_to delete_photo_client_path(@client, photo.id),
                             method: :delete,
@@ -95,7 +96,6 @@
 
   <!-- Action Buttons -->
   <div class="actions">
-    <%= link_to "New Appointment", new_appointment_path(client_id: @client.id), class: "button" %>
     <%= link_to "Back", clients_path, class: "button secondary" %>
   </div>
 

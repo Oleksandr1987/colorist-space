@@ -1,21 +1,28 @@
-<h1>Clients</h1>
-<%= link_to "+ Add New", new_client_path, class: "button" %>
+<div class="clients-header">
+  <h1 class="clients-title">Clients</h1>
+  <div class="clients-actions">
+    <%= link_to "+ Add New", new_client_path, class: "button small" %>
+    <%= render 'shared/vertical_menu' %>
+  </div>
+</div>
 
 <div data-controller="client-search">
-  <input type="text" data-client-search-target="input" placeholder="Search..." class="search-input">
+  <input type="text" data-client-search-target="input" placeholder="Search..." class="search-input compact">
 
-  <div class="client-list">
+  <div class="client-list indexed">
     <% if @clients.any? %>
       <% @clients.group_by { |client| client.first_name[0].upcase }.sort.each do |letter, clients| %>
         <div class="client-group" data-client-search-target="group">
-          <h2 class="client-group-letter"><%= letter %></h2>
-          <% clients.each do |client| %>
-            <div class="client-item" data-client-search-target="item">
-              <a href="<%= client_path(client) %>" class="client-link">
-                <%= client.first_name %> <%= client.last_name %>
-              </a>
-            </div>
-          <% end %>
+          <div class="letter-index"><%= letter %></div>
+          <div class="letter-names">
+            <% clients.each do |client| %>
+              <div class="client-item" data-client-search-target="item">
+                <a href="<%= client_path(client) %>" class="client-link">
+                  <strong><%= client.first_name %> <%= client.last_name %></strong>
+                </a>
+              </div>
+            <% end %>
+          </div>
         </div>
       <% end %>
     <% else %>
@@ -23,4 +30,5 @@
     <% end %>
   </div>
 </div>
-<%= link_to "Back", root_path, class: "button" %>
+
+<%= link_to "Back", root_path, class: "button secondary full-width" %>

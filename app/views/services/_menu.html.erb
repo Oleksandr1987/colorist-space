@@ -1,0 +1,15 @@
+<div class="menu-wrapper">
+  <button class="menu-toggle" data-action="click->service#toggleMenu">
+    <span class="dots-icon" aria-hidden="true"></span>
+  </button>
+  <div class="menu-dropdown hidden" data-service-target="menu">
+    <input type="text" placeholder="Search services..." data-action="input->service#filter" data-service-target="search">
+
+    <select data-action="change->service#sort" data-service-target="sort">
+      <option value="">Sort by…</option>
+      <option value="name">Sort by name A-Z</option>
+      <option value="price_asc">Sort by price ↑</option>
+      <option value="price_desc">Sort by price ↓</option>
+    </select>
+  </div>
+</div>

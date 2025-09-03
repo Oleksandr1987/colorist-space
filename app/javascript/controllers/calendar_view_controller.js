@@ -109,19 +109,47 @@ export default class extends Controller {
               ${startTime}–${endTime} — ${slot.data.service} (${slot.data.client_name})
             </div>
             <div class="slot-icon-wrapper">
-              <button class="popover-toggle" data-id="${slot.data.id}">✎</button>
+              <button class="popover-toggle" data-id="${slot.data.id}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="lucide lucide-pencil-icon">
+                  <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                  <path d="m15 5 4 4"/>
+                </svg>
+              </button>
               <div class="popover-menu hidden" id="popover-${slot.data.id}">
-                <a href="/appointments/${slot.data.id}/edit">✏️ Edit</a>
+                <a href="/appointments/${slot.data.id}/edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                       class="lucide lucide-pencil-icon">
+                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                    <path d="m15 5 4 4"/>
+                  </svg>
+                  Edit
+                </a>
                 <form action="/appointments/${slot.data.id}" method="post" data-turbo-confirm="Are you sure you want to delete this appointment?">
                   <input type="hidden" name="_method" value="delete" />
                   <input type="hidden" name="authenticity_token" value="${this.csrfToken()}" />
-                  <button type="submit" class="menu-item delete-button">🗑 Delete</button>
+                  <button type="submit" class="menu-item delete-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="lucide lucide-trash2-icon">
+                      <path d="M3 6h18"/>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                      <line x1="10" x2="10" y1="11" y2="17"/>
+                      <line x1="14" x2="14" y1="11" y2="17"/>
+                    </svg>
+                    Delete
+                  </button>
                 </form>
               </div>
             </div>
           </div>
         `
-      } else {
+      }
+
+      else {
         el.classList.add("slot-free")
         el.innerHTML = `
           <div class="slot-content slot-free">
@@ -142,29 +170,6 @@ export default class extends Controller {
       })
     })
   }
-
-  // mergeFreeSlots(slots) {
-  //   if (slots.length === 0) return []
-  //   const sorted = [...slots].sort((a, b) => new Date(a.start) - new Date(b.start))
-
-  //   const merged = []
-  //   let current = { ...sorted[0] }
-
-  //   for (let i = 1; i < sorted.length; i++) {
-  //     const prevEnd = new Date(current.end)
-  //     const currStart = new Date(sorted[i].start)
-
-  //     if (prevEnd.getTime() === currStart.getTime()) {
-  //       current.end = sorted[i].end
-  //     } else {
-  //       merged.push(current)
-  //       current = { ...sorted[i] }
-  //     }
-  //   }
-
-  //   merged.push(current)
-  //   return merged
-  // }
 
   mergeFreeSlots(freeSlots, appointments = []) {
     if (freeSlots.length === 0) return []

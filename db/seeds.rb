@@ -41,3 +41,25 @@ default_services.each do |attrs|
 end
 
 puts "✅ Done seeding default services for #{user.name}."
+
+
+puts "🌱 Seeding clients for user..."
+
+alphabet = ('A'..'Z').to_a
+existing_clients = user.clients.to_a
+
+alphabet.each do |letter|
+  existing_for_letter = existing_clients.select { |client| client.first_name.starts_with?(letter) }
+
+  if existing_for_letter.count < 15
+    (15 - existing_for_letter.count).times do
+      FactoryBot.create(:client,
+        user: user,
+        first_name: "#{letter}#{Faker::Name.first_name}",
+        last_name: Faker::Name.last_name
+      )
+    end
+  end
+end
+
+puts "✅ Done creating test clients."

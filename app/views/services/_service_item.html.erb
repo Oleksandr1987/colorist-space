@@ -1,0 +1,28 @@
+<div class="service-item"
+    data-controller="popover"
+    data-name="<%= [service.subtype, service.unit, service.price].compact.join(' ').downcase %>">
+  <div class="service-info">
+    <strong><%= service.subtype %></strong> — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
+    <% if service.unit.present? %>
+      (<%= service.unit %>)
+    <% end %>
+  </div>
+
+  <div class="service-actions">
+    <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">
+      <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z" />
+        <path d="M16 5l3 3" />
+      </svg>
+    </button>
+
+    <div class="popover-menu hidden" data-popover-target="menu">
+      <%= link_to "Edit", edit_service_path(service), class: "popover-item" %>
+      <%= button_to service_path(service), method: :delete,
+            data: { turbo_confirm: "Are you sure?" },
+            class: "popover-item delete-button" do %>
+        Delete
+      <% end %>
+    </div>
+  </div>
+</div>

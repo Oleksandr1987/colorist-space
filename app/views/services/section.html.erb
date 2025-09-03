@@ -1,0 +1,22 @@
+<%= render 'shared/vertical_menu' %>
+
+<div class="category-wrapper" data-controller="service">
+  <div class="category-header">
+    <div class="category-title">
+      <%= link_to "←", services_path, class: "back" %>
+      <%= @category %> Services
+    </div>
+
+    <%= render "services/menu" %>
+  </div>
+
+  <div id="service-list" class="service-list" data-service-target="list">
+    <% @services.each do |service| %>
+      <%= render "services/service_item", service: service %>
+    <% end %>
+  </div>
+
+  <div class="create-button">
+    <%= link_to "+ New #{@category.singularize}", new_service_path(service_type: "service", category: @category), class: "button primary full" %>
+  </div>
+</div>
