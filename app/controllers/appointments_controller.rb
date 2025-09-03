@@ -39,6 +39,8 @@ class AppointmentsController < ApplicationController
     @appointment.end_time = @appointment.appointment_time + duration
 
     if @appointment.save
+      @appointment.update(service_name: @appointment.combined_service_name)
+
       redirect_to @appointment, notice: 'Appointment was successfully created.'
     else
       render :new, status: :unprocessable_entity
@@ -53,7 +55,25 @@ class AppointmentsController < ApplicationController
     duration = params[:appointment][:duration].to_i.minutes
     @appointment.end_time = @appointment.appointment_time + duration
 
+    client_name = params[:appointment][:client_name].strip
+    client_phone = params[:appointment][:phone]
+
+    client = current_user.clients.find_by("CONCAT(first_name, ' ', last_name) = ?", client_name)
+
+    if client.nil?
+      first_name, last_name = client_name.split(" ", 2)
+      client = current_user.clients.create(
+        first_name: first_name,
+        last_name: last_name || "",
+        phone: client_phone
+      )
+    end
+
+    @appointment.client = client
+
     if @appointment.update(appointment_params)
+      @appointment.reload
+      @appointment.update_column(:service_name, @appointment.combined_service_name)
       redirect_to @appointment, notice: 'Appointment was successfully updated.'
     else
       render :edit, status: :unprocessable_entity
@@ -71,6 +91,7 @@ class AppointmentsController < ApplicationController
     date = params[:date]&.to_date || Date.today
 
     @appointments = current_user.appointments
+      .includes(:client, :services)
       .where(appointment_date: date)
       .order(:appointment_time)
 
@@ -81,7 +102,7 @@ class AppointmentsController < ApplicationController
       {
         id: a.id,
         client_name: a.client.full_name,
-        service: a.service_name,
+        service: a.combined_service_name,
         phone: a.client.phone,
         start: "#{a.appointment_date}T#{start_time}",
         end: "#{a.appointment_date}T#{end_time}",
@@ -131,8 +152,9 @@ class AppointmentsController < ApplicationController
 
   def appointment_params
     params.require(:appointment).permit(
-      :service_name, :appointment_date, :appointment_time,
-      :status, :notes, :end_time
+      :service_name, :appointment_date,
+      :appointment_time, :notes,
+      :end_time, service_ids: []
     )
   end
 end

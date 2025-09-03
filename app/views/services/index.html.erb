@@ -1,11 +1,45 @@
 <%= render 'shared/vertical_menu' %>
 
-<div class="category-wrapper">
-  <div class="category-header">Service Management</div>
+<div class="admin-dashboard">
+  <h1>Service Management</h1>
 
-  <div class="category-list">
-    <%= link_to "Services", main_services_path, class: "category-item" %>
-    <%= link_to "Preparations", preparations_services_path, class: "category-item" %>
-    <%= link_to "Care Products", care_products_services_path, class: "category-item" %>
-  </div>
+    <%= link_to  main_services_path, class: "admin-card" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="lucide lucide-scissors-icon lucide-scissors">
+        <circle cx="6" cy="6" r="3"/>
+        <path d="M8.12 8.12 12 12"/>
+        <path d="M20 4 8.12 15.88"/>
+        <circle cx="6" cy="18" r="3"/>
+        <path d="M14.8 14.8 20 20"/>
+      </svg>
+      Services
+    <% end %>
+    <%= link_to preparations_services_path, class: "admin-card"  do %>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="lucide lucide-soap-dispenser-droplet-icon lucide-soap-dispenser-droplet">
+      <path d="M10.5 2v4"/><path d="M14 2H7a2 2 0 0 0-2 2"/>
+      <path d="M19.29 14.76A6.67 6.67 0 0 1 17 11a6.6 6.6 0 0 1-2.29 3.76c-1.15.92-1.71 2.04-1.71 3.19 0 2.22 1.8 4.05 4 4.05s4-1.83 4-4.05c0-1.16-.57-2.26-1.71-3.19"/>
+      <path d="M9.607 21H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h7V7a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/>
+    </svg>
+      Preparations
+    <% end %>
+
+    <%= link_to care_products_services_path, class: "admin-card" do %>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="lucide lucide-spray-can-icon lucide-spray-can">
+          <path d="M3 3h.01"/>
+          <path d="M7 5h.01"/>
+          <path d="M11 7h.01"/>
+          <path d="M3 7h.01"/>
+          <path d="M7 9h.01"/>
+          <path d="M3 11h.01"/>
+          <rect width="4" height="4" x="15" y="5"/>
+          <path d="m19 9 2 2v10c0 .6-.4 1-1 1h-6c-.6 0-1-.4-1-1V11l2-2"/>
+          <path d="m13 14 8-2"/><path d="m13 19 8-2"/>
+        </svg>
+      Care Products
+    <% end %>
 </div>

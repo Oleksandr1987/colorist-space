@@ -1,0 +1,60 @@
+<div class="analytics-header-bar">
+  <%= link_to "←", income_analytics_path(from: params[:from], to: params[:to]), class: "back-button-inline", title: "Back" %>
+  <h1>Analytics: Income</h1>
+</div>
+
+<%= render 'shared/period_filter_income' %>
+
+<% if params[:from].present? && params[:to].present? %>
+  <% if params[:service_type].present? %>
+    <div class="expenses-category-header-aligned">
+      <span class="category-header-title"><%= params[:service_type].humanize %></span>
+      <span class="category-header-amount green"><%= @total_income.to_i %> ₴</span>
+    </div>
+
+    <div class="expenses-scroll-wrapper">
+      <% @monthly_income_grouped[params[:service_type]]&.each do |month_name, services| %>
+        <div class="monthly-expense-group" data-controller="collapse">
+          <div class="month-header-aligned" data-action="click->collapse#toggle">
+            <span class="month-header-title"><%= month_name %></span>
+            <div class="month-header-right">
+              <span class="month-header-amount green"><%= services.sum(&:price) %> ₴</span>
+            </div>
+          </div>
+
+          <ul class="expenses-list collapsible open" data-collapse-target="content">
+            <% services.each do |service| %>
+              <li class="expense-item">
+                <div class="expense-info">
+                  <% if service.service_type == 'service' %>
+                    <strong><%= service.category %>: <%= service.subtype %></strong> — <%= service.price %> ₴ (<%= service.name %>)
+                  <% else %>
+                    <strong><%= service.name %></strong> — <%= service.price %> ₴
+                  <% end %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+
+  <% else %>
+    <div class="grouped-expense-list">
+      <% @grouped_income.each do |type, sum| %>
+        <div class="grouped-expense-block">
+          <%= link_to income_analytics_path(service_type: type, from: params[:from], to: params[:to]),
+                      class: "category-summary-link aligned" do %>
+            <span class="category-name-text"><%= type.to_s.titleize %></span>
+            <span class="category-amount green"><%= sum %> ₴</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="grouped-expense-total">
+      <span>Total for period:</span>
+      <strong class="green"><%= @total_income.to_i %> ₴</strong>
+    </div>
+  <% end %>
+<% end %>

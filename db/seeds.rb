@@ -63,3 +63,72 @@ alphabet.each do |letter|
 end
 
 puts "✅ Done creating test clients."
+
+puts "🌱 Seeding sample expenses by month..."
+
+require 'faker'
+
+categories = Expense::CATEGORIES
+today = Date.today
+
+12.times do |i|
+  month_date = today << i # віднімаємо i місяців назад
+  start_date = month_date.beginning_of_month
+  end_date = [month_date.end_of_month, today].min # якщо це поточний місяць — обмежимо сьогоднішнім днем
+
+  20.times do
+    Expense.create!(
+      user: user,
+      category: categories.sample,
+      amount: rand(100..2500),
+      spent_on: rand(start_date..end_date),
+      note: Faker::Commerce.product_name
+    )
+  end
+end
+
+puts "✅ Done creating expenses."
+
+puts "🌱 Seeding appointments with income data..."
+
+require 'faker'
+
+user = User.find(1)
+clients = user.clients.to_a
+services_by_type = user.services.group_by(&:service_type)
+
+main_services = services_by_type["service"] || []
+other_services = (services_by_type["preparation"] || []) + (services_by_type["care_product"] || [])
+
+if main_services.empty?
+  puts "❌ No main services found. Skipping appointment seeding."
+else
+  # Генеруємо 100 записів рівномірно розподілених по останніх 6 місяцях
+  200.times do
+    client = clients.sample
+    days_ago = rand(0..180)
+    date = Date.today - days_ago
+    time = Time.zone.parse("#{rand(9..17)}:#{[0, 30].sample}")
+
+    appt = user.appointments.build(
+      client: client,
+      appointment_date: date,
+      appointment_time: time
+    )
+
+    # Додаємо 1 обов’язковий main service + 0-2 додаткові
+    selected_main = main_services.sample
+    selected_others = other_services.sample(rand(0..2))
+
+    appt.services << selected_main
+    appt.services << selected_others
+
+    if appt.save
+      puts "✅ Created appointment for #{client.full_name} on #{date} at #{time.strftime('%H:%M')}"
+    else
+      puts "⚠️ Failed for #{client.full_name}: #{appt.errors.full_messages.join(', ')}"
+    end
+  end
+
+  puts "✅ Done creating appointments for analytics testing."
+end

@@ -13,6 +13,7 @@ class User < ApplicationRecord
   has_many :appointments, dependent: :destroy
   has_many :slot_rules, dependent: :destroy
   has_many :services, dependent: :destroy
+  has_many :expenses, dependent: :destroy
 
   def self.from_omniauth(auth)
     if where(email: auth.info.email).exists?

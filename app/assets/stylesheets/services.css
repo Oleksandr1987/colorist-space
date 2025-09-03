@@ -248,8 +248,8 @@
     align-items: center;
     flex-wrap: wrap;
     padding: 12px;
-    position: relative; /* ✅ для позиціонування попапа */
-    overflow-x: hidden;  /* ✅ захищає від горизонтального скролу */
+    position: relative;
+    overflow-x: hidden;
   }
 
   .service-info {
@@ -262,7 +262,7 @@
     flex: 0 0 auto;
     margin-top: 0;
     margin-left: auto;
-    position: relative; /* ✅ для локалізації попапа */
+    position: relative;
     z-index: 1;
   }
 
