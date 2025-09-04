@@ -1,0 +1,54 @@
+<div class="formula-content" data-controller="formula">
+  <!-- Збережені кроки -->
+  <% if service_note.formula_steps.any? %>
+    <div class="formula-steps">
+      <% service_note.formula_steps.each do |step| %>
+        <div class="formula-step">
+          <h4><%= step.section %></h4>
+          <div class="formula-ingredients">
+            <% step.formula_ingredients.each do |ingredient| %>
+              <div class="ingredient">
+                <span><%= ingredient.shade %> <em><%= ingredient.brand %></em></span>
+                <span><%= ingredient.amount %>g</span>
+              </div>
+            <% end %>
+          </div>
+          <div class="oxidant-time">
+            <p><strong>Oxidant:</strong> <%= step.oxidant.presence || "—" %></p>
+            <p><strong>Time:</strong> <%= step.time.presence || "—" %> min</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Секції -->
+  <div class="formula-sections">
+    <h5 class="text-center">Create formula for next hair section</h5>
+    <div class="sections-grid">
+      <% ["Roots", "Midshaft", "Length", "Strands", "All Over"].each do |section| %>
+        <a href="#"
+           class="section-icon"
+           data-action="click->formula#showSection"
+           data-section="<%= section %>">
+          <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="7" r="4"/>
+              <path d="M5.5 21a8.38 8.38 0 0 1 13 0"/>
+            </svg>
+          </div>
+          <span><%= section %></span>
+        </a>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Контейнер для форми секції -->
+  <div data-formula-target="container"></div>
+
+  <!-- Шаблон -->
+  <template data-formula-target="template">
+    <%= render("service_notes/formula_section", section: "__SECTION__") %>
+  </template>
+</div>

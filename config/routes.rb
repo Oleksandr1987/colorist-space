@@ -20,6 +20,9 @@ Rails.application.routes.draw do
       delete 'photos/:photo_id', to: 'clients#delete_photo', as: 'delete_photo'
       delete 'delete_all_photos', to: 'clients#delete_all_photos'
     end
+    resources :service_notes do
+      resources :formula_steps, only: [:create, :update, :destroy]
+    end
   end
 
   resources :appointments do

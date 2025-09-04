@@ -37,19 +37,42 @@
 
   <!-- Styles Tab -->
   <div id="styles-tab" data-client-profile-target="tabContent" class="tab-content active">
-    <% @client.photos.order(created_at: :desc).group_by { |photo| photo.created_at.to_date }.each do |date, photos| %>
+    <% @client.service_notes.order(created_at: :desc).group_by { |note| note.created_at.to_date }.each do |date, notes| %>
       <div class="style-group">
         <h3><%= date.strftime('%B %d') %></h3>
         <div class="photos-grid">
-          <% photos.each do |photo| %>
-            <div class="photo-wrapper" data-action="click->photo#show touchstart->photo#touchStart touchend->photo#touchEnd">
-              <%= image_tag photo, class: "client-photo", data: { photo_url: url_for(photo) } %>
-              <%= button_to delete_photo_client_path(@client, photo.id),
-                            method: :delete,
-                            data: { turbo_confirm: "Delete this photo?" },
-                            class: "photo-delete-btn" do %>
-                🗑
+          <% notes.each do |note| %>
+            <div class="service-note-thumb">
+              <%= link_to client_service_note_path(@client, note) do %>
+                <% if note.photos.attached? %>
+                  <%= image_tag note.photos.first, class: "client-photo" %>
+                <% else %>
+                  <div class="no-photo">No photo</div>
+                <% end %>
               <% end %>
+
+              <div class="note-actions">
+                <%= link_to edit_client_service_note_path(@client, note), class: "edit-icon" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z" />
+                    <path d="M16 5l3 3" />
+                  </svg>
+                <% end %>
+
+                <div data-controller="popover" class="popover">
+                  <button class="popover-toggle" data-action="click->popover#toggle">
+                    ⋮
+                  </button>
+                  <div class="popover-menu hidden" data-popover-target="menu">
+                    <%= button_to client_service_note_path(@client, note),
+                          method: :delete,
+                          data: { turbo_confirm: "Delete this note?" },
+                          class: "popover-item delete-button" do %>
+                      Delete this style
+                    <% end %>
+                  </div>
+                </div>
+              </div>
             </div>
           <% end %>
         </div>
