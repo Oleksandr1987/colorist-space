@@ -4,18 +4,157 @@
     <div class="formula-steps">
       <% service_note.formula_steps.each do |step| %>
         <div class="formula-step">
-          <h4><%= step.section %></h4>
-          <div class="formula-ingredients">
-            <% step.formula_ingredients.each do |ingredient| %>
-              <div class="ingredient">
-                <span><%= ingredient.shade %> <em><%= ingredient.brand %></em></span>
-                <span><%= ingredient.amount %>g</span>
+          <div class="step-header">
+            <h4><%= step.section %></h4>
+            
+
+            <div class="step-actions" data-controller="popover">
+              <button class="popover-toggle" data-action="click->popover#toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="lucide lucide-ellipsis-vertical-icon lucide-ellipsis-vertical">
+                  <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/>
+                  <circle cx="12" cy="19" r="1"/>
+                </svg>
+              </button>
+              <div class="popover-menu hidden" data-popover-target="menu">
+                <%= link_to "#", class: "popover-item" do %>Change section<% end %>
+                <%= link_to "#", class: "popover-item" do %>Change step<% end %>
+                <%= link_to "#", class: "popover-item" do %>Copy<% end %>
+                <%= link_to "#", class: "popover-item delete-button" do %>Delete<% end %>
               </div>
-            <% end %>
+            </div>
           </div>
-          <div class="oxidant-time">
-            <p><strong>Oxidant:</strong> <%= step.oxidant.presence || "—" %></p>
-            <p><strong>Time:</strong> <%= step.time.presence || "—" %> min</p>
+
+          <!-- COLORS -->
+          <div class="colors-block">
+            <div class="block-header">
+              <h5>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-droplet">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                </svg>
+                Colors
+              </h5>
+              <button type="button" class="add-btn" data-action="click->formula#addColor">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                    fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-badge-plus">
+                  <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+                  <line x1="12" x2="12" y1="8" y2="16"/>
+                  <line x1="8" x2="16" y1="12" y2="12"/>
+                </svg>
+              </button>
+            </div>
+
+            <div data-formula-target="colorsList" data-prototype="<div class='ingredient color-row'>
+              <input type='text' name='formula_steps[NEW_RECORD][shade]' placeholder='Shade' class='input small' />
+              <input type='text' name='formula_steps[NEW_RECORD][brand]' placeholder='Brand' class='input small' />
+              <input type='number' name='formula_steps[NEW_RECORD][amount]' placeholder='0' min='0' class='input small' style='width:70px;' /> g
+              <button type='button' class='remove-btn' data-action='click->formula#removeColor'>×</button>
+            </div>">
+              <% if step.formula_ingredients.any? %>
+                <% step.formula_ingredients.each do |ingredient| %>
+                  <div class="ingredient color-row">
+                    <span><%= ingredient.shade %> <em><%= ingredient.brand %></em></span>
+                    <span class="amount"><%= ingredient.amount %></span>
+                    <span class="unit">g</span>
+                  <button type="button" class="remove-btn" data-action="click->formula#removeColor">×</button>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- OXIDANT -->
+          <div id="<%= dom_id(step, :oxidant) %>" class="oxidant-block">
+            <div class="block-header">
+              <h5>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-percent">
+                  <line x1="19" x2="5" y1="5" y2="19"/>
+                  <circle cx="6.5" cy="6.5" r="2.5"/>
+                  <circle cx="17.5" cy="17.5" r="2.5"/>
+                </svg>
+                Oxidant
+              </h5>
+              <% unless step.oxidant.present? %>
+                <button type="button" class="add-btn" data-action="click->formula#addOxidant">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                    fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-badge-plus">
+                    <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 
+                    4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74
+                    4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0
+                    4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+                    <line x1="12" x2="12" y1="8" y2="16"/>
+                    <line x1="8" x2="16" y1="12" y2="12"/>
+                  </svg>
+                </button>
+              <% end %>
+            </div>
+
+            <div data-formula-target="oxidant">
+              <% if step.oxidant.present? %>
+                <div class="oxidant-row">
+                  <span>Oxidant</span>
+                  <span class="amount"><%= step.oxidant %></span>
+                  <%= button_to "×",
+                        clear_oxidant_client_service_note_formula_step_path(@client, @service_note, step),
+                        method: :patch,
+                        form: { data: { turbo_stream: true } },
+                        class: "remove-btn" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- TIME -->
+          <div id="<%= dom_id(step, :time) %>" class="time-block">
+            <% if step.time.present? %>
+              <div class="time-row">
+                <span class="label">TIME</span>
+                <span class="amount"><%= step.time %> min</span>
+                <%= button_to "×",
+                      clear_time_client_service_note_formula_step_path(@client, @service_note, step),
+                      method: :patch,
+                      form: { data: { turbo_stream: true } },
+                      class: "remove-btn" %>
+              </div>
+            <% else %>
+              <div class="block-header">
+                <h5>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                      fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"
+                      class="lucide lucide-clock-9">
+                    <path d="M12 6v6H8"/>
+                    <circle cx="12" cy="12" r="10"/>
+                  </svg>
+                  Time
+                </h5>
+                <button type="button" class="add-btn" data-action="click->formula#addTime">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                    fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-badge-plus">
+                    <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 
+                    4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74
+                    4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0
+                    4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+                    <line x1="12" x2="12" y1="8" y2="16"/>
+                    <line x1="8" x2="16" y1="12" y2="12"/>
+                  </svg>
+                </button>
+              </div>
+              <div data-formula-target="time"></div>
+            <% end %>
           </div>
         </div>
       <% end %>
