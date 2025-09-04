@@ -1,0 +1,9 @@
+<%= turbo_stream.replace dom_id(@formula_step, :time) do %>
+  <div id="<%= dom_id(@formula_step, :time) %>" class="time-block">
+    <div class="block-header">
+      <h5>Time</h5>
+      <button type="button" class="add-btn" data-action="click->formula#addTime">+</button>
+    </div>
+    <div data-formula-target="time"></div>
+  </div>
+<% end %>

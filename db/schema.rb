@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_28_090647) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_03_204245) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -90,6 +90,42 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_090647) do
     t.index ["user_id"], name: "index_expenses_on_user_id"
   end
 
+  create_table "formula_ingredients", force: :cascade do |t|
+    t.integer "formula_step_id", null: false
+    t.string "shade", null: false
+    t.string "brand"
+    t.string "amount", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["formula_step_id"], name: "index_formula_ingredients_on_formula_step_id"
+  end
+
+  create_table "formula_steps", force: :cascade do |t|
+    t.integer "service_note_id", null: false
+    t.string "section", null: false
+    t.string "oxidant"
+    t.string "time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["service_note_id"], name: "index_formula_steps_on_service_note_id"
+  end
+
+  create_table "service_notes", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "client_id", null: false
+    t.integer "appointment_id"
+    t.string "service_type", null: false
+    t.json "data", default: {}, null: false
+    t.text "notes"
+    t.integer "price"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["appointment_id"], name: "index_service_notes_on_appointment_id"
+    t.index ["client_id", "created_at"], name: "index_service_notes_on_client_id_and_created_at"
+    t.index ["client_id"], name: "index_service_notes_on_client_id"
+    t.index ["user_id"], name: "index_service_notes_on_user_id"
+  end
+
   create_table "services", force: :cascade do |t|
     t.string "name", null: false
     t.integer "price", null: false
@@ -144,6 +180,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_090647) do
   add_foreign_key "appointments", "users"
   add_foreign_key "clients", "users"
   add_foreign_key "expenses", "users"
+  add_foreign_key "formula_ingredients", "formula_steps"
+  add_foreign_key "formula_steps", "service_notes"
+  add_foreign_key "service_notes", "appointments"
+  add_foreign_key "service_notes", "clients"
+  add_foreign_key "service_notes", "users"
   add_foreign_key "services", "users"
   add_foreign_key "slot_rules", "users"
 end

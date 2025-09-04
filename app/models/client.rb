@@ -4,6 +4,7 @@ class Client < ApplicationRecord
   belongs_to :user
   has_many_attached :photos
   has_many :appointments, dependent: :destroy
+  has_many :service_notes, dependent: :destroy
 
   validates :first_name, :last_name, presence: true
 

@@ -1,0 +1,9 @@
+<%= turbo_stream.replace dom_id(@formula_step, :oxidant) do %>
+  <div id="<%= dom_id(@formula_step, :oxidant) %>" class="oxidant-block">
+    <div class="block-header">
+      <h5>Oxidant</h5>
+      <button type="button" class="add-btn" data-action="click->formula#addOxidant">+</button>
+    </div>
+    <div data-formula-target="oxidant"></div>
+  </div>
+<% end %>

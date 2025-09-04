@@ -1,0 +1,23 @@
+<%= form_with(model: [@client, @service_note], local: true) do |f| %>
+  <div class="field">
+    <%= f.label :service_type %>
+    <%= f.text_field :service_type, class: "input" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :notes, "General notes" %>
+    <%= f.text_area :notes, class: "textarea" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :price, "Final price" %>
+    <%= f.number_field :price, class: "input" %>
+  </div>
+
+  <h3>Formula</h3>
+  <%= render "form_formula", f: f %>
+
+  <div class="actions">
+    <%= f.submit class: "button primary" %>
+  </div>
+<% end %>

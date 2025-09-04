@@ -1,0 +1,42 @@
+<%= form_with(model: [@client, @service_note, FormulaStep.new], local: true, html: { data: { controller: "formula" } }) do |step_form| %>
+  <div class="formula-section-form" data-formula-target="sectionForm">
+    <h3><%= section %></h3>
+
+    <%= step_form.hidden_field :section, value: section %>
+
+    <!-- Colors -->
+    <div class="colors-list"
+      data-formula-target="colorsList"
+      data-prototype="<%= step_form.fields_for(:formula_ingredients, FormulaIngredient.new, child_index: 'NEW_RECORD') do |ingredient_form|
+        render('service_notes/formula_ingredient_fields', f: ingredient_form)
+      end.to_s.gsub('"', '&quot;').html_safe %>">
+      <%= step_form.fields_for :formula_ingredients do |ingredient_form| %>
+        <%= render "service_notes/formula_ingredient_fields", f: ingredient_form %>
+      <% end %>
+    </div>
+
+
+
+    <!-- Add color -->
+    <button type="button"
+            class="button small"
+            data-action="click->formula#addColor">+ Add Color</button>
+
+    <!-- Oxidant -->
+    <div class="field">
+      <%= step_form.label :oxidant %>
+      <%= step_form.text_field :oxidant, placeholder: "20 vol.", class: "input" %>
+    </div>
+
+    <!-- Time -->
+    <div class="field">
+      <%= step_form.label :time %>
+      <%= step_form.text_field :time, placeholder: "30", class: "input" %> min
+    </div>
+
+    <!-- Save -->
+    <div class="actions">
+      <%= step_form.submit "Save", class: "button primary" %>
+    </div>
+  </div>
+<% end %>

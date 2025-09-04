@@ -16,11 +16,21 @@ Rails.application.routes.draw do
     collection do
       get :search
     end
+
     member do
       delete 'photos/:photo_id', to: 'clients#delete_photo', as: 'delete_photo'
       delete 'delete_all_photos', to: 'clients#delete_all_photos'
     end
-  end
+  
+    resources :service_notes do
+      resources :formula_steps, only: [:create, :update, :destroy] do
+        member do
+          patch :clear_oxidant   # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_oxidant
+          patch :clear_time      # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_time
+        end
+      end
+    end
+  end  
 
   resources :appointments do
     collection do

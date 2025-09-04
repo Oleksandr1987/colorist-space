@@ -1,0 +1,31 @@
+<div class="formula-steps">
+  <%= f.fields_for :formula_steps do |step_form| %>
+    <div class="formula-step">
+      <!-- Step Header -->
+      <h4><%= step_form.object.section.presence || "New Step" %></h4>
+
+      <!-- Ingredients -->
+      <div class="formula-ingredients">
+        <%= step_form.fields_for :formula_ingredients do |ingredient_form| %>
+          <div class="formula-ingredient">
+            <%= ingredient_form.text_field :shade, placeholder: "Shade", class: "input" %>
+            <%= ingredient_form.text_field :brand, placeholder: "Brand", class: "input" %>
+            <%= ingredient_form.text_field :amount, placeholder: "Amount (g)", class: "input" %>
+          </div>
+        <% end %>
+        <%= link_to "+ Add ingredient", "#", class: "button small" %>
+      </div>
+
+      <!-- Oxidant & Time -->
+      <div class="oxidant-time">
+        <%= step_form.text_field :oxidant, placeholder: "Oxidant (e.g. 20vol)", class: "input" %>
+        <%= step_form.text_field :time, placeholder: "Time (min)", class: "input" %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Add Step -->
+  <div class="actions">
+    <%= link_to "+ Add Step", "#", class: "button primary" %>
+  </div>
+</div>
