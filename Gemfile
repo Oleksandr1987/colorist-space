@@ -19,22 +19,23 @@ gem "jbuilder"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
-gem 'devise', '~> 4.9', '>= 4.9.4'
+gem "devise", "~> 4.9", ">= 4.9.4"
 gem "omniauth"
-gem 'omniauth-facebook', '~> 10.0'
-gem 'omniauth-google-oauth2', '~> 1.2', '>= 1.2.1'
-gem 'omniauth-instagram-api', '~> 0.1.0'
-gem 'omniauth-rails_csrf_protection'
+gem "omniauth-facebook", "~> 10.0"
+gem "omniauth-google-oauth2", "~> 1.2", ">= 1.2.1"
+gem "omniauth-instagram-api", "~> 0.1.0"
+gem "omniauth-rails_csrf_protection"
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
-gem 'image_processing', '~> 1.14'
-gem 'ice_cube', '~> 0.17.0'
+gem "image_processing", "~> 1.14"
+gem "ice_cube", "~> 0.17.0"
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
-gem 'pundit', '2.5'
+gem "pundit", "2.5"
+gem "rails-i18n", "~> 8.0"
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
@@ -51,9 +52,9 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "brakeman", require: false
   gem "rubocop-rails-omakase", require: false
-  gem 'dotenv-rails'
-  gem 'factory_bot_rails'
-  gem 'faker'
+  gem "dotenv-rails"
+  gem "factory_bot_rails"
+  gem "faker"
 end
 
 group :development do

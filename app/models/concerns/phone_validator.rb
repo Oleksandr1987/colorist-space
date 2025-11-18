@@ -11,23 +11,26 @@ module PhoneValidator
                       }
   end
 
+  def self.normalize(value)
+    return nil if value.blank?
+
+    digits = value.to_s.gsub(/\D/, '')
+
+    if digits.start_with?('0')
+      "+380#{digits[1..]}"
+    elsif digits.start_with?('380')
+      "+#{digits}"
+    elsif digits.start_with?('8') && digits.size == 11
+      "+3#{digits}"
+    else
+      "+#{digits}"
+    end
+  end
+
   private
 
   def normalize_phone
     return if phone.blank?
-
-    # Видаляємо всі символи, крім цифр
-    digits = phone.gsub(/\D/, '')
-
-    # Якщо починається з 0 → замінюємо на +380
-    if digits.start_with?('0')
-      self.phone = "+380#{digits[1..]}"
-    elsif digits.start_with?('380')
-      self.phone = "+#{digits}"
-    elsif digits.start_with?('8') && digits.size == 11 # старі формати типу 8093...
-      self.phone = "+3#{digits}"
-    else
-      self.phone = "+#{digits}"
-    end
+    self.phone = PhoneValidator.normalize(phone)
   end
 end

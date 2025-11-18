@@ -1,0 +1,63 @@
+uk:
+  devise:
+    confirmations:
+      confirmed: "Ваш email успішно підтверджено."
+      send_instructions: "Ви отримаєте лист із інструкціями щодо підтвердження email протягом кількох хвилин."
+      send_paranoid_instructions: "Якщо ваша адреса є в нашій базі, ми надішлемо інструкції з підтвердження email."
+    failure:
+      already_authenticated: "Ви вже увійшли в систему."
+      inactive: "Ваш акаунт ще не активований."
+      invalid: "Невірний %{authentication_keys} або пароль."
+      locked: "Ваш акаунт заблоковано."
+      last_attempt: "У вас залишилась одна спроба перед блокуванням."
+      not_found_in_database: "Невірний %{authentication_keys} або пароль."
+      timeout: "Час сесії вичерпано. Будь ласка, увійдіть знову."
+      unauthenticated: "Потрібно увійти або зареєструватися, щоб продовжити."
+      unconfirmed: "Потрібно підтвердити email, щоб продовжити."
+    mailer:
+      confirmation_instructions:
+        subject: "Інструкції з підтвердження email"
+      reset_password_instructions:
+        subject: "Інструкції з відновлення пароля"
+      unlock_instructions:
+        subject: "Інструкції з розблокування акаунта"
+      email_changed:
+        subject: "Email змінено"
+      password_change:
+        subject: "Пароль змінено"
+    omniauth_callbacks:
+      failure: "Не вдалося авторизуватись через %{kind}: \"%{reason}\"."
+      success: "Успішна авторизація через %{kind}."
+    passwords:
+      no_token: "Не можна отримати доступ до цієї сторінки без переходу з листа щодо скидання пароля."
+      send_instructions: "Ви отримаєте лист з інструкціями щодо відновлення пароля протягом кількох хвилин."
+      send_paranoid_instructions: "Якщо ваш email існує в нашій базі, ми надішлемо інструкції на нього."
+      updated: "Ваш пароль було успішно змінено. Ви увійшли в систему."
+      updated_not_active: "Ваш пароль було успішно змінено."
+    registrations:
+      destroyed: "Ваш акаунт успішно видалено. Будемо раді бачити вас знову!"
+      signed_up: "Ласкаво просимо! Ви успішно зареєструвалися."
+      signed_up_but_inactive: "Ви успішно зареєструвалися, але ваш акаунт ще не активовано."
+      signed_up_but_locked: "Ви успішно зареєструвалися, але ваш акаунт заблоковано."
+      signed_up_but_unconfirmed: "На вашу email-адресу надіслано лист з посиланням для підтвердження."
+      update_needs_confirmation: "Ваш акаунт оновлено, але потрібно підтвердити новий email. Перевірте пошту."
+      updated: "Ваш акаунт успішно оновлено."
+      updated_but_not_signed_in: "Ваш акаунт оновлено, але оскільки пароль змінено — увійдіть знову."
+    sessions:
+      signed_in: "Вхід виконано успішно."
+      signed_out: "Ви вийшли з акаунта."
+      already_signed_out: "Ви вже вийшли з акаунта."
+    unlocks:
+      send_instructions: "Ви отримаєте лист з інструкціями щодо розблокування."
+      send_paranoid_instructions: "Якщо акаунт існує, ми надішлемо інструкції."
+      unlocked: "Ваш акаунт розблоковано. Будь ласка, увійдіть."
+  errors:
+    messages:
+      already_confirmed: "вже підтверджено, спробуйте увійти"
+      confirmation_period_expired: "потрібно підтвердити протягом %{period}, запросіть нове посилання"
+      expired: "прострочено, будь ласка, запросіть нове"
+      not_found: "не знайдено"
+      not_locked: "не було заблоковано"
+      not_saved:
+        one: "1 помилка не дала зберегти %{resource}:"
+        other: "%{count} помилок не дали зберегти %{resource}:"

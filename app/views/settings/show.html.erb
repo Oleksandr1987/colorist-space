@@ -10,7 +10,7 @@
     <div class="mt-2">
       <%= link_to "Редагувати профіль", edit_user_registration_path, class: "link-row" %>
       <%= link_to "Змінити пароль", edit_user_registration_path, class: "link-row" %>
-      <%= link_to "Вийти", destroy_user_session_path, method: :delete, class: "link-row logout" %>
+      <%= link_to "Вийти", destroy_user_session_path, data: { turbo_method: :delete }, class: "link-row logout" %>
       <%= button_to "Видалити обліковий запис", registration_path(@user),
           method: :delete,
           data: { confirm: "Ви впевнені?", turbo_confirm: "Ви впевнені?" },

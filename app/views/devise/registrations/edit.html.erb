@@ -1,5 +1,5 @@
 <div class="service-form-wrapper">
-  <h3>Edit <%= resource_name.to_s.humanize %></h3>
+  <h3><%= t("auth.edit_title") %></h3>
   <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
     <%= render "devise/shared/error_messages", resource: resource %>
 
@@ -23,27 +23,27 @@
     <% end %>
 
     <div class="login__field">
-      <%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br />
+     <%= f.label :password, t("auth.password") %> <i><%= t("auth.leave_blank") %></i><br />
       <%= f.password_field :password, class: "login__input", autocomplete: "new-password" %>
       <% if @minimum_password_length %>
         <br />
-        <em><%= @minimum_password_length %> characters minimum</em>
+        <em><%= t("auth.min_length", count: @minimum_password_length) %></em>
       <% end %>
     </div>
 
     <div class="login__field">
-      <%= f.label :password_confirmation %><br />
+      <%= f.label :password_confirmation, t("auth.password_confirmation") %><br />
       <%= f.password_field :password_confirmation, class: "login__input", autocomplete: "new-password" %>
     </div>
 
     <div class="login__field">
-      <%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br />
+      <%= f.label :current_password, t("auth.current_password") %> <i><%= t("auth.need_current_password") %></i><br />
       <%= f.password_field :current_password, class: "login__input", autocomplete: "current-password" %>
     </div>
 
     <div class="form-actions-row">
-      <%= f.submit "Update", class: "form-button primary", style: "flex: 1;" %>
-      <%= link_to "Cancel", settings_path, class: "form-button cancel", data: { turbo: false } %>
+      <%= f.submit t("auth.update"), class: "form-button primary", style: "flex: 1;" %>
+      <%= link_to t("auth.cancel"), settings_path, class: "form-button cancel", data: { turbo: false } %>
     </div>
   <% end %>
 </div>

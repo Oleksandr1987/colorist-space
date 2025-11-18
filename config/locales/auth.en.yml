@@ -1,0 +1,47 @@
+en:
+  auth:
+    # Titles
+    login_title: "Login"
+    signup_title: "Sign Up"
+    edit_title: "Edit Profile"
+    reset_password_title: "Reset Password"
+    forgot_password_title: "Forgot Password"
+
+    # Labels
+    email_or_phone: "Email or Phone"
+    email: "Email"
+    phone: "Phone"
+    name: "Name"
+    password: "Password"
+    password_confirmation: "Password confirmation"
+    current_password: "Current password"
+    new_password: "New password"
+    remember_me: "Remember me"
+    tos_agreement: "I agree to the"
+
+    # Buttons
+    login: "Login"
+    signup: "Create Account"
+    update: "Update"
+    cancel: "Cancel"
+    send_reset_link: "Send reset link"
+    change_password: "Change my password"
+
+    # Help text
+    leave_blank: "(leave blank if you don't want to change it)"
+    need_current_password: "(we need your current password to confirm your changes)"
+    min_length: "(minimum %{count} characters)"
+
+    # Links
+    forgot_password: "Forgot password?"
+    login_with: "LOGIN WITH"
+    signup_with: "SIGN UP WITH"
+    need_login: "Already have an account?"
+    need_register: "Don't have an account?"
+
+    # Placeholders
+    placeholder_email: "Email"
+    placeholder_phone: "Phone"
+
+    # Social alt
+    social_icon_alt: "%{provider} logo"

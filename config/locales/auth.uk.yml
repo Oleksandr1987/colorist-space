@@ -1,0 +1,47 @@
+uk:
+  auth:
+    # Titles
+    login_title: "Вхід"
+    signup_title: "Реєстрація"
+    edit_title: "Редагування профілю"
+    reset_password_title: "Скидання пароля"
+    forgot_password_title: "Відновлення пароля"
+
+    # Labels
+    email_or_phone: "Email або телефон"
+    email: "Email"
+    phone: "Телефон"
+    name: "Ім’я"
+    password: "Пароль"
+    password_confirmation: "Підтвердження пароля"
+    current_password: "Поточний пароль"
+    new_password: "Новий пароль"
+    remember_me: "Запамʼятати мене"
+    tos_agreement: "Я погоджуюсь із"
+
+    # Buttons
+    login: "Увійти"
+    signup: "Створити акаунт"
+    update: "Оновити"
+    cancel: "Скасувати"
+    send_reset_link: "Продовжити"
+    change_password: "Змінити пароль"
+
+    # Help text
+    leave_blank: "(залиште порожнім, якщо не хочете змінювати)"
+    need_current_password: "(нам потрібен поточний пароль для підтвердження змін)"
+    min_length: "(мінімум %{count} символів)"
+
+    # Links
+    forgot_password: "Забули пароль?"
+    login_with: "УВІЙТИ ЧЕРЕЗ"
+    signup_with: "ЗАРЕЄСТРУВАТИСЯ ЧЕРЕЗ"
+    need_login: "Вже маєте акаунт?"
+    need_register: "Заходити вперше?"
+
+    # Placeholders
+    placeholder_email: "Email"
+    placeholder_phone: "Телефон"
+
+    # Social alt
+    social_icon_alt: "%{provider} логотип"
