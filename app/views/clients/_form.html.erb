@@ -1,66 +1,103 @@
 <%= form_with model: @client, local: true, html: { multipart: true } do |f| %>
-  <<%= render 'shared/error_messages', resource: client %>
+  <%= render 'shared/error_messages', resource: @client %>
 
   <div class="login__field">
-    <%= f.label :first_name, "First Name" %>
+    <%= f.label :first_name, t("clients.form.first_name") %>
     <%= f.text_field :first_name, class: "login__input" %>
   </div>
 
   <div class="login__field">
-    <%= f.label :last_name, "Last Name" %>
+    <%= f.label :last_name, t("clients.form.last_name") %>
     <%= f.text_field :last_name, class: "login__input" %>
   </div>
 
   <div class="login__field">
-    <%= f.label :phone, "Phone Number" %>
+    <%= f.label :phone, t("clients.form.phone") %>
     <%= f.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
   </div>
 
   <div class="login__field">
-    <%= f.label :birthdate, "Date of Birth" %>
+    <%= f.label :birthdate, t("clients.form.birthdate") %>
     <%= f.date_field :birthdate, class: "login__input" %>
   </div>
 
-  <h3>Optional Hair Information</h3>
+  <h3><%= t("clients.form.hair_info_title") %></h3>
 
   <div class="login__field">
-    <%= f.label :hair_type, "Hair Type" %>
-    <%= f.select :hair_type, ['Straight', 'Wavy', 'Curly', 'Coily'], { include_blank: 'Select Hair Type' }, class: "login__input" %>
+    <%= f.label :hair_type, t("clients.form.hair_type") %>
+    <%= f.select :hair_type,
+      [
+        [t("clients.hair.types.straight"), "Straight"],
+        [t("clients.hair.types.wavy"), "Wavy"],
+        [t("clients.hair.types.curly"), "Curly"],
+        [t("clients.hair.types.coily"), "Coily"]
+      ],
+      { include_blank: t("clients.form.select_hair_type") },
+      class: "login__input" %>
   </div>
 
   <div class="login__field">
-    <%= f.label :hair_length, "Hair Length" %>
-    <%= f.select :hair_length, ['Short', 'Medium', 'Long'], { include_blank: 'Select Hair Length' }, class: "login__input" %>
+    <%= f.label :hair_length, t("clients.form.hair_length") %>
+    <%= f.select :hair_length,
+      [
+        [t("clients.hair.lengths.short"), "Short"],
+        [t("clients.hair.lengths.medium"), "Medium"],
+        [t("clients.hair.lengths.long"), "Long"]
+      ],
+      { include_blank: t("clients.form.select_hair_length") },
+      class: "login__input" %>
   </div>
 
   <div class="login__field">
-    <%= f.label :hair_structure, "Hair Structure (Thickness)" %>
-    <%= f.select :hair_structure, ['Thin', 'Medium', 'Thick'], { include_blank: 'Select Hair Structure' }, class: "login__input" %>
+    <%= f.label :hair_structure, t("clients.form.hair_structure") %>
+    <%= f.select :hair_structure,
+      [
+        [t("clients.hair.structures.thin"), "Thin"],
+        [t("clients.hair.structures.medium"), "Medium"],
+        [t("clients.hair.structures.thick"), "Thick"]
+      ],
+      { include_blank: t("clients.form.select_hair_structure") },
+      class: "login__input" %>
   </div>
 
   <div class="login__field">
-    <%= f.label :hair_density, "Hair Density" %>
-    <%= f.select :hair_density, ['Sparse', 'Medium', 'Dense'], { include_blank: 'Select Hair Density' }, class: "login__input" %>
+    <%= f.label :hair_density, t("clients.form.hair_density") %>
+    <%= f.select :hair_density,
+      [
+        [t("clients.hair.density.sparse"), "Sparse"],
+        [t("clients.hair.density.medium"), "Medium"],
+        [t("clients.hair.density.dense"), "Dense"]
+      ],
+      { include_blank: t("clients.form.select_hair_density") },
+      class: "login__input" %>
   </div>
 
   <div class="login__field">
-    <%= f.label :scalp_condition, "Scalp Condition" %>
-    <%= f.select :scalp_condition, ['Normal', 'Dry', 'Oily', 'Sensitive'], { include_blank: 'Select Scalp Condition' }, class: "login__input" %>
+    <%= f.label :scalp_condition, t("clients.form.scalp_condition") %>
+    <%= f.select :scalp_condition,
+      [
+        [t("clients.hair.scalp.normal"), "Normal"],
+        [t("clients.hair.scalp.dry"), "Dry"],
+        [t("clients.hair.scalp.oily"), "Oily"],
+        [t("clients.hair.scalp.sensitive"), "Sensitive"]
+      ],
+      { include_blank: t("clients.form.select_scalp_condition") },
+      class: "login__input" %>
   </div>
 
   <div class="login__field">
-    <%= f.label :note, "Notes" %>
+    <%= f.label :note, t("clients.form.note") %>
     <%= f.text_area :note, class: "login__input" %>
   </div>
 
   <div class="login__field photo-upload">
     <label class="custom-upload-button">
-     Add Photos
+      <%= t("clients.form.add_photos") %>
       <%= f.file_field :photos, multiple: true, accept: "image/*", class: "hidden-upload", direct_upload: true %>
     </label>
   </div>
 
   <div class="actions">
-    <%= f.submit class: "button" %>
+    <%= f.submit t("clients.save"), class: "button" %>
   </div>
 <% end %>

@@ -1,0 +1,88 @@
+en:
+  clients:
+    title: "Clients"
+    new: "New Client"
+    create: "Create Client"
+    edit: "Edit Client"
+    update: "Update"
+    save: "Save"
+    back: "Back"
+    add_new: "+ Add New"
+    search_placeholder: "Search..."
+    none_found: "No clients found."
+
+    # Form fields
+    form:
+      first_name: "First Name"
+      last_name: "Last Name"
+      phone: "Phone Number"
+      birthdate: "Date of Birth"
+      note: "Notes"
+
+      hair_info_title: "Optional Hair Information"
+      hair_type: "Hair Type"
+      hair_length: "Hair Length"
+      hair_structure: "Hair Structure"
+      hair_density: "Hair Density"
+      scalp_condition: "Scalp Condition"
+
+      select_hair_type: "Select Hair Type"
+      select_hair_length: "Select Hair Length"
+      select_hair_structure: "Select Hair Structure"
+      select_hair_density: "Select Hair Density"
+      select_scalp_condition: "Select Scalp Condition"
+
+      add_photos: "Add Photos"
+
+    # Show page
+    show:
+      styles_tab: "Styles"
+      photos_tab: "Photos"
+      info_tab: "Info"
+
+      new_appointment: "New Appointment"
+      edit_client: "Edit Client"
+      delete_client: "Delete Client"
+      delete_client_confirm: "Are you sure you want to delete this client and all their appointments?"
+
+      delete_style: "Delete this style"
+      delete_style_confirm: "Delete this style?"
+
+      no_photo: "No photo"
+      delete_photo: "Delete this photo?"
+      delete_all_photos: "Delete All Photos"
+      delete_all_photos_confirm: "Delete ALL photos?"
+
+      details:
+        phone: "Phone"
+        hair_type: "Hair Type"
+        hair_length: "Hair Length"
+        hair_structure: "Hair Structure"
+        hair_density: "Hair Density"
+        scalp_condition: "Scalp Condition"
+        note: "Notes"
+
+    # Hair params lookup
+    hair:
+      types:
+        straight: "Straight"
+        wavy: "Wavy"
+        curly: "Curly"
+        coily: "Coily"
+      lengths:
+        short: "Short"
+        medium: "Medium"
+        long: "Long"
+      structures:
+        thin: "Thin"
+        medium: "Medium"
+        thick: "Thick"
+      density:
+        sparse: "Sparse"
+        medium: "Medium"
+        dense: "Dense"
+      scalp:
+        normal: "Normal"
+        dry: "Dry"
+        oily: "Oily"
+        sensitive: "Sensitive"

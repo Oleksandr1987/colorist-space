@@ -1,25 +1,5 @@
-<h1>New Client</h1>
+<h1><%= t("clients.new") %></h1>
+
 <div class="client-form-wrapper">
-  <%= form_with model: @client, local: true do |f| %>
-    <%= render 'shared/error_messages', resource: @client %>
-
-    <div class="login__field">
-      <%= f.label :first_name, "First Name" %>
-      <%= f.text_field :first_name, class: "login__input" %>
-    </div>
-
-    <div class="login__field">
-      <%= f.label :last_name, "Last Name" %>
-      <%= f.text_field :last_name, class: "login__input" %>
-    </div>
-
-    <div class="login__field">
-      <%= f.label :phone, "Phone Number" %>
-      <%= f.telephone_field :phone, class: "login__input", autofocus: true, autocomplete: "phone", data: { controller: "phone-mask" } %>
-    </div>
-
-    <div class="actions">
-      <%= f.submit "Create Client", class: "button" %>
-    </div>
-  <% end %>
+  <%= render 'form', client: @client %>
 </div>
