@@ -1,12 +1,80 @@
 <div class="container">
-  <div class="home-page">
-    <div class="home-page__content">
-      <h2 class="home-page__title">Create account</h2>
-      <div class="home-page__buttons">
-        <%= link_to "Sign up", new_user_registration_path, class: "button signup__link" %>
-        <%= link_to "Login", new_user_session_path, class: "button login__link" %>
+  <div class="screen">
+    <div class="screen__content">
+      <div class="language-switcher top-right">
+        <%= form_with url: "/locale", method: :post, data: { turbo: false } do %>
+          <%= select_tag :locale,
+                options_for_select([['Українська', 'uk'], ['English', 'en']], I18n.locale),
+                onchange: "this.form.submit();",
+                class: "language-select" %>
+        <% end %>
       </div>
-      <div class="home-page__logo">
+
+      <h2 class="login-title">Вхід</h2>
+
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "login" }) do |f| %>
+
+        <%= render "devise/shared/error_messages", resource: resource %>
+
+        <!-- Email or Phone -->
+        <div class="login__field">
+          <%= f.label :login, "Email or Phone" %>
+          <%= f.text_field :login, class: "login__input", autofocus: true, autocomplete: "login" %>
+        </div>
+
+        <!-- Password -->
+        <div class="login__field">
+          <%= f.label :password, "Введіть пароль:" %>
+          <%= f.password_field :password, class: "login__input", autocomplete: "current-password" %>
+        </div>
+
+        <!-- Remember me -->
+        <% if devise_mapping.rememberable? %>
+          <div class="login__field remember-me">
+            <%= f.check_box :remember_me %>
+            <%= f.label :remember_me %>
+          </div>
+        <% end %>
+
+        <!-- Login button -->
+        <div class="actions">
+          <%= f.submit "Увійти", class: "button login__submit" %>
+        </div>
+
+      <% end %>
+      <!-- ====================== END FORM ====================== -->
+
+      <!-- Forgot password -->
+      <div class="forgot__password">
+        <%= link_to "Забули пароль?", new_password_path(resource_name), class: "forgot-password" %>
+      </div>
+
+      <!-- Social login -->
+      <div class="social-login">
+        <h3>або увійдіть через:</h3>
+        <div class="social-icons">
+
+          <%= button_to omniauth_authorize_path(:user, :facebook), data: { turbo: false } do %>
+            <%= image_tag("social_icons/facebook.png", class: "social-login__icon") %>
+          <% end %>
+
+          <%= button_to omniauth_authorize_path(:user, :google_oauth2), data: { turbo: false } do %>
+            <%= image_tag("social_icons/google_oauth2.png", class: "social-login__icon") %>
+          <% end %>
+
+          <%= button_to omniauth_authorize_path(:user, :instagram), data: { turbo: false } do %>
+            <%= image_tag("social_icons/instagram.png", class: "social-login__icon") %>
+          <% end %>
+
+        </div>
+      </div>
+
+      <!-- Register -->
+      <p class="home-register-label">Заходите вперше?</p>
+      <%= link_to "Створити акаунт", new_user_registration_path, class: "button signup__link" %>
+
+      <!-- Logo -->
+      <div class="home-logo">
         <%= image_tag("logo_full_transpr.png", alt: "Colorist.Space", class: "logo-img") %>
       </div>
     </div>

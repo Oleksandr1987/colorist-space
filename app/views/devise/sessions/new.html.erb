@@ -4,8 +4,8 @@
       <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "login" }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
         <div class="login__field">
-          <%= f.label :email%>
-          <%= f.email_field :email, class: "login__input", autofocus: true, autocomplete: "email" %>
+          <%= f.label :login, "Email or Phone" %>
+          <%= f.text_field :login, class: "login__input", autofocus: true, autocomplete: "login" %>
         </div>
 
         <div class="login__field">

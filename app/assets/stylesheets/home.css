@@ -66,3 +66,72 @@
   height: auto;
 }
 
+.screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.screen__content {
+  background: #f5f3ff;
+  padding: 20px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+/* Language switcher in the top right corner */
+.language-switcher.top-right {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+/* Select for languages */
+.language-select {
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  background: white;
+  border: 1px solid #d4d3e8;
+}
+
+/* Header ("Вхід", "Login") */
+.login-title {
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.social-login h3 {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #481f9a;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.social-login__icon {
+  width: 45px;
+  height: 45px;
+}
+
+.home-register-label {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.home-logo {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.home-logo .logo-img {
+  width: 160px;
+}
