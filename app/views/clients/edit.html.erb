@@ -1,65 +1,6 @@
-<div class="client-form-container"> 
+<div class="client-form-container">
   <div class="client-form-wrapper">
-    <h1>Hair Information for <%= @client.first_name %></h1>
-
-    <%= form_with model: @client, local: true, html: { multipart: true } do |f| %>
-      <%= render 'shared/error_messages', resource: @client %>
-
-      <div class="login__field">
-        <%= f.label :first_name, "First Name" %>
-        <%= f.text_field :first_name %>
-      </div>
-
-      <div class="login__field">
-        <%= f.label :last_name, "Last Name" %>
-        <%= f.text_field :last_name %>
-      </div>
-
-      <div class="login__field">
-        <%= f.label :phone, "Phone Number" %>
-        <%= f.telephone_field :phone, autofocus: true, autocomplete: "phone", data: { controller: "phone-mask" } %>
-      </div>
-
-      <div class="login__field">
-        <%= f.label :hair_type, "Hair Type" %>
-        <%= f.select :hair_type, ['Straight', 'Wavy', 'Curly', 'Coily'], { include_blank: 'Select Hair Type' } %>
-      </div>
-
-      <div class="login__field">
-        <%= f.label :hair_length, "Hair Length" %>
-        <%= f.select :hair_length, ['Short', 'Medium', 'Long'], { include_blank: 'Select Hair Length' } %>
-      </div>
-
-      <div class="login__field">
-        <%= f.label :hair_structure, "Hair Structure (Thickness)" %>
-        <%= f.select :hair_structure, ['Thin', 'Medium', 'Thick'], { include_blank: 'Select Hair Structure' } %>
-      </div>
-
-      <div class="login__field">
-        <%= f.label :hair_density, "Hair Density" %>
-        <%= f.select :hair_density, ['Sparse', 'Medium', 'Dense'], { include_blank: 'Select Hair Density' } %>
-      </div>
-
-      <div class="login__field">
-        <%= f.label :scalp_condition, "Scalp Condition" %>
-        <%= f.select :scalp_condition, ['Normal', 'Dry', 'Oily', 'Sensitive'], { include_blank: 'Select Scalp Condition' } %>
-      </div>
-
-      <div class="login__field">
-        <%= f.label :note, "Notes" %>
-        <%= f.text_area :note %>
-      </div>
-
-      <div class="login__field photo-upload">
-        <label class="custom-upload-button">
-          Add Photos
-          <%= f.file_field :photos, multiple: true, accept: "image/*", class: "hidden-upload", direct_upload: true %>
-        </label>
-      </div>
-
-      <div class="actions">
-        <%= f.submit "Save", class: "button" %>
-      </div>
-    <% end %>
+    <h1><%= t("clients.edit") %> — <%= @client.full_name %></h1>
+    <%= render 'form', client: @client %>
   </div>
 </div>

@@ -1,34 +1,39 @@
 <div class="clients-header">
-  <h1 class="clients-title">Clients</h1>
+  <h1 class="clients-title"><%= t("clients.title") %></h1>
+
   <div class="clients-actions">
-    <%= link_to "+ Add New", new_client_path, class: "button small" %>
+    <%= link_to t("clients.add_new"), new_client_path, class: "button small" %>
     <%= render 'shared/vertical_menu' %>
   </div>
 </div>
 
 <div data-controller="client-search">
-  <input type="text" data-client-search-target="input" placeholder="Search..." class="search-input compact">
+  <input type="text"
+         data-client-search-target="input"
+         placeholder="<%= t("clients.search_placeholder") %>"
+         class="search-input compact">
 
   <div class="client-list indexed">
     <% if @clients.any? %>
-      <% @clients.group_by { |client| client.first_name[0].upcase }.sort.each do |letter, clients| %>
+      <% @clients.group_by { |c| c.first_name[0].upcase }.sort.each do |letter, list| %>
         <div class="client-group" data-client-search-target="group">
           <div class="letter-index"><%= letter %></div>
+
           <div class="letter-names">
-            <% clients.each do |client| %>
+            <% list.each do |client| %>
               <div class="client-item" data-client-search-target="item">
-                <a href="<%= client_path(client) %>" class="client-link">
-                  <strong><%= client.first_name %> <%= client.last_name %></strong>
-                </a>
+                <%= link_to "#{client.first_name} #{client.last_name}", client_path(client), class: "client-link" %>
               </div>
             <% end %>
           </div>
         </div>
       <% end %>
     <% else %>
-      <p>No clients found.</p>
+      <p><%= t("clients.none_found") %></p>
     <% end %>
   </div>
 </div>
 
-<%= link_to "Back", root_path, class: "button secondary full-width" %>
+<div class="actions">
+  <%= link_to t("clients.back"), root_path, class: "button secondary full-width" %>
+</div>

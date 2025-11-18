@@ -1,0 +1,88 @@
+uk:
+  clients:
+    title: "Клієнти"
+    new: "Новий клієнт"
+    create: "Створити клієнта"
+    edit: "Редагування клієнта"
+    update: "Оновити"
+    save: "Зберегти"
+    back: "Назад"
+    add_new: "+ Додати"
+    search_placeholder: "Пошук..."
+    none_found: "Клієнтів не знайдено."
+
+    # Form fields
+    form:
+      first_name: "Ім’я"
+      last_name: "Прізвище"
+      phone: "Телефон"
+      birthdate: "Дата народження"
+      note: "Нотатки"
+
+      hair_info_title: "Додаткова інформація про волосся"
+      hair_type: "Тип волосся"
+      hair_length: "Довжина волосся"
+      hair_structure: "Структура волосся"
+      hair_density: "Густота волосся"
+      scalp_condition: "Стан шкіри голови"
+
+      select_hair_type: "Оберіть тип волосся"
+      select_hair_length: "Оберіть довжину волосся"
+      select_hair_structure: "Оберіть структуру волосся"
+      select_hair_density: "Оберіть густоту волосся"
+      select_scalp_condition: "Оберіть стан шкіри голови"
+
+      add_photos: "Додати фото"
+
+    # Show page
+    show:
+      styles_tab: "Стилі"
+      photos_tab: "Фото"
+      info_tab: "Інформація"
+
+      new_appointment: "Нова зустріч"
+      edit_client: "Редагувати клієнта"
+      delete_client: "Видалити клієнта"
+      delete_client_confirm: "Ви впевнені, що хочете видалити клієнта та всі його записи?"
+
+      delete_style: "Видалити стиль"
+      delete_style_confirm: "Видалити цей стиль?"
+
+      no_photo: "Немає фото"
+      delete_photo: "Видалити фото?"
+      delete_all_photos: "Видалити всі фото"
+      delete_all_photos_confirm: "Видалити всі фото клієнта?"
+
+      details:
+        phone: "Телефон"
+        hair_type: "Тип волосся"
+        hair_length: "Довжина волосся"
+        hair_structure: "Структура волосся"
+        hair_density: "Густота волосся"
+        scalp_condition: "Стан шкіри голови"
+        note: "Нотатки"
+
+    # Hair params lookup
+    hair:
+      types:
+        straight: "Пряме"
+        wavy: "Хвилясте"
+        curly: "Кучеряве"
+        coily: "Дуже кучеряве"
+      lengths:
+        short: "Коротке"
+        medium: "Середнє"
+        long: "Довге"
+      structures:
+        thin: "Тонке"
+        medium: "Середнє"
+        thick: "Товсте"
+      density:
+        sparse: "Рідке"
+        medium: "Середня"
+        dense: "Густе"
+      scalp:
+        normal: "Нормальна"
+        dry: "Суха"
+        oily: "Жирна"
+        sensitive: "Чутлива"
