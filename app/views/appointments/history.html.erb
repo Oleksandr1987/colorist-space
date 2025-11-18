@@ -1,15 +1,21 @@
-<h2>Past Appointments</h2>
+<h2><%= t("appointments.history.title") %></h2>
 
 <div class="expenses-scroll-wrapper">
   <% @appointments_by_month.each do |month_name, appointments| %>
     <div class="monthly-expense-group" data-controller="collapse">
+
+      <!-- Month header -->
       <div class="month-header-aligned" data-action="click->collapse#toggle">
         <span class="month-header-title"><%= month_name %></span>
+        
         <div class="month-header-right">
-          <span class="month-header-amount"><%= appointments.count %> записів</span>
+          <span class="month-header-amount">
+            <%= appointments.count %> <%= t("appointments.history.records") %>
+          </span>
         </div>
       </div>
 
+      <!-- Appointment list -->
       <ul class="expenses-list collapsible hidden" data-collapse-target="content">
         <% appointments.sort_by { |a| [a.appointment_date, a.appointment_time] }.each do |appointment| %>
           <li class="expense-item">
@@ -17,9 +23,13 @@
               <strong>
                 <%= l(appointment.appointment_date, format: :default) %> /
                 <%= appointment.appointment_time.strftime("%H:%M") %>
-                <% if appointment.end_time.present? %>– <%= appointment.end_time.strftime("%H:%M") %><% end %>
+                <% if appointment.end_time.present? %>
+                  – <%= appointment.end_time.strftime("%H:%M") %>
+                <% end %>
               </strong>
+
               — <%= appointment.client.full_name %>
+
               <% if appointment.service_name.present? %>
                 — <%= appointment.service_name %>
               <% end %>
@@ -27,6 +37,7 @@
           </li>
         <% end %>
       </ul>
+
     </div>
   <% end %>
 </div>

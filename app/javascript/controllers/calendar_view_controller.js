@@ -2,8 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["monthLabel", "calendarDays", "selectedDateLabel", "timeline"]
+  static values = { translations: Object }
 
   connect() {
+    this.t = this.translationsValue
     this.currentDate = new Date()
     this.selectedDate = new Date()
     this.activePopover = null
@@ -24,7 +26,16 @@ export default class extends Controller {
     const firstDay = new Date(year, month, 1).getDay()
     const daysInMonth = new Date(year, month + 1, 0).getDate()
 
-    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    const dayNames = [
+      this.t.days.sun,
+      this.t.days.mon,
+      this.t.days.tue,
+      this.t.days.wed,
+      this.t.days.thu,
+      this.t.days.fri,
+      this.t.days.sat
+    ]
+
     let html = dayNames.map(day => `<div class="day-name">${day}</div>`).join("")
 
     for (let i = 0; i < firstDay; i++) html += `<div class="empty-day"></div>`
@@ -34,17 +45,29 @@ export default class extends Controller {
       const isToday = this.isSameDate(date, new Date())
       const isSelected = this.isSameDate(date, this.selectedDate)
 
-      html += `<div class="day ${isToday ? "today" : ""} ${isSelected ? "selected" : ""}"
-                  data-date="${date.toISOString()}"
-                  data-action="click->calendar-view#selectDate">${day}</div>`
+      html += `
+        <div class="day ${isToday ? "today" : ""} ${isSelected ? "selected" : ""}"
+             data-date="${date.toISOString()}"
+             data-action="click->calendar-view#selectDate">${day}</div>
+      `
     }
 
-    this.monthLabelTarget.textContent = this.currentDate.toLocaleDateString('uk-UA', {
-      year: 'numeric', month: 'long'
+    this.monthLabelTarget.textContent = this.currentDate.toLocaleDateString(this.t.locale, {
+      year: "numeric",
+      month: "long"
     })
 
     this.calendarDaysTarget.innerHTML = html
     this.updateSelectedDateLabel()
+  }
+
+  updateSelectedDateLabel() {
+    this.selectedDateLabelTarget.textContent = this.selectedDate.toLocaleDateString(this.t.locale, {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    })
   }
 
   prevMonth() {
@@ -58,16 +81,9 @@ export default class extends Controller {
   }
 
   selectDate(event) {
-    const iso = event.currentTarget.dataset.date
-    this.selectedDate = new Date(iso)
+    this.selectedDate = new Date(event.currentTarget.dataset.date)
     this.renderCalendar()
     this.loadAppointments(this.selectedDate)
-  }
-
-  updateSelectedDateLabel() {
-    this.selectedDateLabelTarget.textContent = this.selectedDate.toLocaleDateString("uk-UA", {
-      weekday: "long", year: "numeric", month: "long", day: "numeric"
-    })
   }
 
   loadAppointments(date) {
@@ -84,83 +100,59 @@ export default class extends Controller {
   renderTimeline(appointments, slots) {
     if (!this.hasTimelineTarget) return
 
-    const timeline = this.timelineTarget
-    timeline.innerHTML = ""
+    this.timelineTarget.innerHTML = ""
 
     const combinedSlots = [
-      ...appointments.map(app => ({ type: 'booked', data: app })),
-      ...slots.map(slot => ({ type: 'free', data: slot }))
-    ]
-
-    combinedSlots.sort((a, b) => new Date(a.data.start) - new Date(b.data.start))
+      ...appointments.map(app => ({ type: "booked", data: app })),
+      ...slots.map(slot => ({ type: "free", data: slot }))
+    ].sort((a, b) => new Date(a.data.start) - new Date(b.data.start))
 
     combinedSlots.forEach(slot => {
       const el = document.createElement("div")
-      const startTime = new Date(slot.data.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      const endTime = new Date(slot.data.end || slot.data.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      const startTime = new Date(slot.data.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      const endTime = new Date(slot.data.end || slot.data.end_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
 
       el.classList.add("timeline-slot")
 
-      if (slot.type === 'booked') {
+      if (slot.type === "booked") {
         el.classList.add("slot-booked")
         el.innerHTML = `
           <div class="slot-content">
             <div class="slot-text">
               ${startTime}–${endTime} — ${slot.data.service} (${slot.data.client_name})
             </div>
+
             <div class="slot-icon-wrapper">
-              <button class="popover-toggle" data-id="${slot.data.id}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="lucide lucide-pencil-icon">
-                  <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
-                  <path d="m15 5 4 4"/>
-                </svg>
-              </button>
+              <button class="popover-toggle" data-id="${slot.data.id}">✎</button>
+
               <div class="popover-menu hidden" id="popover-${slot.data.id}">
-                <a href="/appointments/${slot.data.id}/edit">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                       class="lucide lucide-pencil-icon">
-                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
-                    <path d="m15 5 4 4"/>
-                  </svg>
-                  Edit
-                </a>
-                <form action="/appointments/${slot.data.id}" method="post" data-turbo-confirm="Are you sure you want to delete this appointment?">
-                  <input type="hidden" name="_method" value="delete" />
-                  <input type="hidden" name="authenticity_token" value="${this.csrfToken()}" />
+                <a href="/appointments/${slot.data.id}/edit">${this.t.edit}</a>
+
+                <form action="/appointments/${slot.data.id}" method="post"
+                      data-turbo-confirm="${this.t.delete_confirm}">
+                  <input type="hidden" name="_method" value="delete">
+                  <input type="hidden" name="authenticity_token" value="${this.csrfToken()}">
+
                   <button type="submit" class="menu-item delete-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="lucide lucide-trash2-icon">
-                      <path d="M3 6h18"/>
-                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                      <line x1="10" x2="10" y1="11" y2="17"/>
-                      <line x1="14" x2="14" y1="11" y2="17"/>
-                    </svg>
-                    Delete
+                    ${this.t.delete}
                   </button>
                 </form>
               </div>
             </div>
           </div>
         `
-      }
-
-      else {
+      } else {
         el.classList.add("slot-free")
         el.innerHTML = `
           <div class="slot-content slot-free">
-            ${startTime}–${endTime} (Available)
+            ${startTime}–${endTime} (${this.t.available})
           </div>
         `
         el.dataset.time = startTime
         el.dataset.action = "click->calendar-view#selectSlot"
       }
 
-      timeline.appendChild(el)
+      this.timelineTarget.appendChild(el)
     })
 
     document.querySelectorAll(".popover-toggle").forEach(button => {
@@ -173,59 +165,53 @@ export default class extends Controller {
 
   mergeFreeSlots(freeSlots, appointments = []) {
     if (freeSlots.length === 0) return []
-  
-    // Перетворення дат для обробки
-    const bookedRanges = appointments
-      .map(a => ({
-        start: new Date(a.start),
-        end: new Date(a.end)
-      }))
-      .filter(a => a.start && a.end)
-  
+
+    const bookedRanges = appointments.map(a => ({
+      start: new Date(a.start),
+      end: new Date(a.end)
+    }))
+
     const merged = []
-  
+
     freeSlots.forEach(slot => {
       let currentStart = new Date(slot.start)
       const currentEnd = new Date(slot.end)
-  
+
       const overlaps = bookedRanges
         .filter(b => b.start < currentEnd && b.end > currentStart)
         .sort((a, b) => a.start - b.start)
-  
+
       for (const b of overlaps) {
         if (currentStart < b.start) {
           merged.push({ start: new Date(currentStart), end: new Date(b.start) })
         }
         currentStart = b.end > currentStart ? b.end : currentStart
       }
-  
+
       if (currentStart < currentEnd) {
-        merged.push({ start: new Date(currentStart), end: currentEnd })
+        merged.push({ start: currentStart, end: currentEnd })
       }
     })
-  
-    // Додатково зливаємо сусідні після вирізання
-    const finalMerged = []
+
+    const sorted = merged.sort((a, b) => a.start - b.start)
+    const final = []
     let current = null
-  
-    for (const slot of merged.sort((a, b) => new Date(a.start) - new Date(b.start))) {
-      if (!current) {
-        current = { ...slot }
-        continue
-      }
-  
-      if (new Date(current.end).getTime() === new Date(slot.start).getTime()) {
+
+    sorted.forEach(slot => {
+      if (!current) current = slot
+      else if (current.end.getTime() === slot.start.getTime()) {
         current.end = slot.end
       } else {
-        finalMerged.push(current)
-        current = { ...slot }
+        final.push(current)
+        current = slot
       }
-    }
-  
-    if (current) finalMerged.push(current)
-  
-    return finalMerged
-  }  
+    })
+
+    if (current) final.push(current)
+
+    return final
+  }
+
 
   togglePopover(id) {
     if (this.activePopover) {
@@ -244,7 +230,7 @@ export default class extends Controller {
     if (
       this.activePopover &&
       !event.target.closest(".popover-menu") &&
-      !event.target.classList.contains("popover-toggle")
+      !event.target.closest(".popover-toggle")
     ) {
       this.activePopover.classList.add("hidden")
       this.activePopover = null
@@ -265,9 +251,11 @@ export default class extends Controller {
   }
 
   isSameDate(d1, d2) {
-    return d1.getFullYear() === d2.getFullYear() &&
-           d1.getMonth() === d2.getMonth() &&
-           d1.getDate() === d2.getDate()
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    )
   }
 
   formatDate(date) {
@@ -276,7 +264,7 @@ export default class extends Controller {
   }
 
   csrfToken() {
-    const meta = document.querySelector('meta[name="csrf-token"]')
+    const meta = document.querySelector("meta[name='csrf-token']")
     return meta ? meta.content : ""
   }
 }

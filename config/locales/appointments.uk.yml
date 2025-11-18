@@ -1,0 +1,101 @@
+uk:
+  appointments:
+    title: "Записи"
+    new: "Новий запис"
+    edit: "Редагувати запис"
+    show: "Деталі запису"
+    calendar: "Календар"
+    back: "Назад до записів"
+    nothing_selected: "Нічого не вибрано"
+
+    form:
+      client_name: "Ім'я клієнта"
+      client_name_placeholder: "Введіть або оберіть ім’я клієнта"
+      phone: "Телефон"
+      date: "Дата"
+      start_time: "Час початку"
+      end_time: "Час завершення"
+
+      services: "Основні послуги"
+      select_services: "Оберіть послуги"
+
+      preparations: "Препарати"
+      select_preparations: "Оберіть препарати"
+
+      care_products: "Засоби догляду"
+      select_care_products: "Оберіть засоби догляду"
+
+      notes: "Нотатки"
+      notes_placeholder: "До 256 символів..."
+      total: "Загальна сума"
+
+      save: "Зберегти"
+
+    modals:
+      service:
+        title: "Оберіть основні послуги"
+        search: "Пошук послуги"
+        apply: "Застосувати"
+      preparation:
+        title: "Оберіть препарати"
+        search: "Пошук препарату"
+        apply: "Застосувати"
+      care_product:
+        title: "Оберіть засоби догляду"
+        search: "Пошук засобу"
+        apply: "Застосувати"
+
+    calendar_view:
+      available: "Доступно"
+      add: "Додати запис"
+      header: "Записи та доступні слоти"
+      today: "Сьогодні"
+      available_slots: "Вільні слоти"
+      days:
+        sun: "Нд"
+        mon: "Пн"
+        tue: "Вт"
+        wed: "Ср"
+        thu: "Чт"
+        fri: "Пт"
+        sat: "Сб"
+
+    confirm:
+      delete: "Ви впевнені, що хочете видалити цей запис?"
+      delete_style: "Видалити цей стиль?"
+      delete_photo: "Видалити фото?"
+      delete_all_photos: "Видалити всі фото?"
+
+    show:
+      title: "Деталі запису"
+      client: "Клієнт"
+      service: "Послуги"
+      date: "Дата"
+      time: "Час"
+      notes: "Нотатки"
+      edit: "Редагувати"
+      delete: "Видалити"
+
+    index:
+      new_appointment: "Новий запис"
+      calendar: "Календар"
+      records:
+        one: "%{count} запис"
+        few: "%{count} записи"
+        many: "%{count} записів"
+
+    history:
+      title: "Минулі записи"
+      records:
+        one: "%{count} запис"
+        few: "%{count} записи"
+        many: "%{count} записів"
+
+  common:
+    save: "Зберегти"
+    edit: "Редагувати"
+    delete: "Видалити"
+    back: "Назад"
+    apply: "Застосувати"
+    search: "Пошук"
+    are_you_sure: "Ви впевнені?"

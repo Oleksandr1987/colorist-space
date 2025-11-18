@@ -1,5 +1,26 @@
 <%= render 'shared/vertical_menu' %>
-<div data-controller="calendar-view" class="calendar-wrapper">
+
+<div
+  data-controller="calendar-view"
+  data-calendar-view-translations-value='{
+    "days": {
+      "sun": "<%= t('appointments.calendar_view.days.sun') %>",
+      "mon": "<%= t('appointments.calendar_view.days.mon') %>",
+      "tue": "<%= t('appointments.calendar_view.days.tue') %>",
+      "wed": "<%= t('appointments.calendar_view.days.wed') %>",
+      "thu": "<%= t('appointments.calendar_view.days.thu') %>",
+      "fri": "<%= t('appointments.calendar_view.days.fri') %>",
+      "sat": "<%= t('appointments.calendar_view.days.sat') %>"
+    },
+    "available": "<%= t('appointments.calendar_view.available') %>",
+    "edit": "<%= t('appointments.index.edit') %>",
+    "delete": "<%= t('appointments.index.delete') %>",
+    "delete_confirm": "<%= t('appointments.confirm.delete') %>",
+    "locale": "<%= I18n.locale %>"
+  }'
+  class="calendar-wrapper"
+>
+
   <div class="calendar-header">
     <button class="nav-btn" data-action="click->calendar-view#prevMonth">←</button>
     <h2 data-calendar-view-target="monthLabel"></h2>
@@ -11,11 +32,13 @@
   <div class="calendar-today-label" data-calendar-view-target="selectedDateLabel"></div>
 
   <div class="add-btn-wrapper">
-    <%= link_to "Add Appointment", new_appointment_path, class: "button purple full" %>
+    <%= link_to t("appointments.calendar_view.add"),
+          new_appointment_path,
+          class: "button purple full" %>
   </div>
 
   <div class="timeline-wrapper">
-    <h4>Appointments & Available Slots</h4>
+    <h4><%= t("appointments.calendar_view.header") %></h4>
     <div data-calendar-view-target="timeline" class="timeline"></div>
   </div>
 </div>

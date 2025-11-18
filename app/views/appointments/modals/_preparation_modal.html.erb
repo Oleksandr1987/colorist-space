@@ -1,29 +1,39 @@
 <div class="modal hidden" data-type="preparation">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>Оберіть препарати</h3>
+      <h3><%= t("appointments.modals.preparation.title") %></h3>
       <button class="close" type="button" data-action="click->appointment#close">×</button>
     </div>
 
-    <input type="text" placeholder="Пошук препарату" class="form-input" data-action="input->appointment#search" />
+    <input
+      type="text"
+      placeholder="<%= t('appointments.modals.preparation.search') %>"
+      class="form-input"
+      data-action="input->appointment#search"
+    />
 
     <div class="modal-list" data-appointment-target="list">
       <% current_user.services.where(service_type: "preparation").order(:subtype).each do |prep| %>
         <label class="checkbox-item service-option">
-          <%= check_box_tag "appointment[modal_dummy][]", prep.id, false,
+          <%= check_box_tag "appointment[modal_dummy][]",
+            prep.id,
+            false,
             data: {
               subtype: prep.subtype,
               price: prep.price,
               type: "preparation",
               action: "change->appointment#toggleService"
-            } %>
+            }
+          %>
           <%= prep.subtype %> — <%= number_to_currency(prep.price, unit: "", precision: 0) %> ₴
         </label>
       <% end %>
     </div>
 
     <div class="modal-footer">
-      <button class="button primary full" type="button" data-action="click->appointment#close">Застосувати</button>
+      <button class="button primary full" type="button" data-action="click->appointment#close">
+        <%= t("appointments.modals.preparation.apply") %>
+      </button>
     </div>
   </div>
 </div>

@@ -19,6 +19,18 @@
   </div>
 
   <div class="settings-block">
+    <h2 class="settings-heading"><%= t("settings.language.title") %></h2>
+
+    <div class="language-select-wrapper">
+      <select class="language-dropdown"
+              onchange="window.location = window.location.pathname + '?locale=' + this.value;">
+        <option value="uk" <%= 'selected' if I18n.locale == :uk %>><%= t("settings.language.uk") %></option>
+        <option value="en" <%= 'selected' if I18n.locale == :en %>><%= t("settings.language.en") %></option>
+      </select>
+    </div>
+  </div>
+
+  <div class="settings-block">
     <h2 class="settings-heading">Підписка</h2>
     <% plan =
         if @user.superadmin?

@@ -1,13 +1,21 @@
 <div class="appointment-container">
   <div class="appointment-header">
     <%= link_to "←", appointments_path, class: "back-link inline" %>
-    <h2>New Appointment</h2>
+    <h2>
+      <%= @appointment.new_record? ?
+            t("appointments.new") :
+            t("appointments.edit") %>
+    </h2>
   </div>
 
   <%= form_with model: @appointment, local: true, data: { controller: "calendar appointment" } do |f| %>
+
     <% if @appointment.errors.any? %>
       <div class="error-messages">
-        <h4><%= pluralize(@appointment.errors.count, "error") %> prevented the appointment from being saved:</h4>
+        <h4>
+          <%= pluralize(@appointment.errors.count, "error") %>
+          prevented the appointment from being saved:
+        </h4>
         <ul>
           <% @appointment.errors.full_messages.each do |message| %>
             <li><%= message %></li>
@@ -16,18 +24,24 @@
       </div>
     <% end %>
 
-    <!-- Required fields -->
+    <!-- Client Name -->
     <div class="form-section">
-      <label>Client Name <span class="required-asterisk">*</span></label>
-      <%= text_field_tag "appointment[client_name]", @appointment.client&.full_name || "",
-          class: "form-input",
-          data: {
-            "calendar-target": "clientName",
-            action: "input->calendar#updateClientInfo"
-          },
-          placeholder: "Enter or select client name",
-          list: "client-list",
-          autocomplete: "off" %>
+      <label>
+        <%= t("appointments.form.client_name") %>
+        <span class="required-asterisk">*</span>
+      </label>
+
+      <%= text_field_tag "appointment[client_name]",
+        @appointment.client&.full_name || "",
+        class: "form-input",
+        placeholder: t("appointments.form.client_name_placeholder"),
+        data: {
+          "calendar-target": "clientName",
+          action: "input->calendar#updateClientInfo"
+        },
+        list: "client-list",
+        autocomplete: "off" %>
+
       <datalist id="client-list" data-calendar-target="clientList">
         <% current_user.clients.each do |client| %>
           <option value="<%= client.full_name %>" data-phone="<%= client.phone %>">
@@ -35,30 +49,43 @@
       </datalist>
     </div>
 
+    <!-- Phone -->
     <div class="form-section">
-      <label>Phone <span class="required-asterisk">*</span></label>
-      <%= telephone_field_tag "appointment[phone]", @appointment.client&.phone || "",
-          class: "form-input",
-          data: { "calendar-target": "clientPhone" } %>
+      <label>
+        <%= t("appointments.form.phone") %>
+        <span class="required-asterisk">*</span>
+      </label>
+
+      <%= telephone_field_tag "appointment[phone]",
+        @appointment.client&.phone || "",
+        class: "form-input",
+        data: { "calendar-target": "clientPhone" } %>
     </div>
 
+    <!-- Date -->
     <div class="form-section">
-      <label>Date <span class="required-asterisk">*</span></label>
+      <label>
+        <%= t("appointments.form.date") %>
+        <span class="required-asterisk">*</span>
+      </label>
+
       <%= text_field_tag "appointment[appointment_date]",
         (@appointment.appointment_date || Date.today).strftime("%d.%m.%Y"),
         class: "form-input",
-        data: {
-           controller: "datepicker",
-            datepicker_target: "input",
-            min: Date.today.strftime("%Y-%m-%d")
-           },
         readonly: true,
-        id: "appointment_date" %>
+        id: "appointment_date",
+        data: {
+          controller: "datepicker",
+          datepicker_target: "input",
+          min: Date.today.strftime("%Y-%m-%d")
+        } %>
     </div>
 
+    <!-- Start / End Time -->
     <div class="form-section double">
       <div>
-        <%= f.label :appointment_time, "Start Time" %><span class="required-asterisk">*</span>
+        <%= f.label :appointment_time, t("appointments.form.start_time") %>
+        <span class="required-asterisk">*</span>
         <%= f.time_field :appointment_time,
           step: 300,
           class: "form-input",
@@ -67,8 +94,10 @@
             action: "blur->appointment#roundToNearestFive"
           } %>
       </div>
+
       <div>
-        <%= f.label :end_time, "End Time" %><span class="required-asterisk">*</span>
+        <%= f.label :end_time, t("appointments.form.end_time") %>
+        <span class="required-asterisk">*</span>
         <%= f.time_field :end_time,
           step: 300,
           class: "form-input",
@@ -79,49 +108,74 @@
       </div>
     </div>
 
+    <!-- Main Services -->
     <div class="form-section">
-      <label>Основні послуги <span class="required-asterisk">*</span></label>
-      <div class="fake-input" data-action="click->appointment#open" data-type="service">
-        <span data-appointment-target="serviceSelected" class="placeholder">Оберіть послуги</span>
+      <label>
+        <%= t("appointments.form.services") %>
+        <span class="required-asterisk">*</span>
+      </label>
+      <div class="fake-input"
+           data-action="click->appointment#open"
+           data-type="service">
+        <span data-appointment-target="serviceSelected"
+              class="placeholder">
+          <%= t("appointments.form.select_services") %>
+        </span>
       </div>
     </div>
 
-    <!-- Optional fields-->
+    <!-- Preparations -->
     <div class="form-section">
-      <label>Препарати</label>
-      <div class="fake-input" data-action="click->appointment#open" data-type="preparation">
-        <span data-appointment-target="preparationSelected" class="placeholder">Оберіть препарати</span>
+      <label><%= t("appointments.form.preparations") %></label>
+      <div class="fake-input"
+           data-action="click->appointment#open"
+           data-type="preparation">
+        <span data-appointment-target="preparationSelected"
+              class="placeholder">
+          <%= t("appointments.form.select_preparations") %>
+        </span>
       </div>
     </div>
 
+    <!-- Care Products -->
     <div class="form-section">
-      <label>Засоби догляду</label>
-      <div class="fake-input" data-action="click->appointment#open" data-type="care_product">
-        <span data-appointment-target="careProductSelected" class="placeholder">Оберіть засоби</span>
+      <label><%= t("appointments.form.care_products") %></label>
+      <div class="fake-input"
+           data-action="click->appointment#open"
+           data-type="care_product">
+        <span data-appointment-target="careProductSelected"
+              class="placeholder">
+          <%= t("appointments.form.select_care_products") %>
+        </span>
       </div>
     </div>
 
-    <!-- <input type="hidden" name="appointment[service_ids]" value="<%= @appointment.service_ids.join(',') %>" data-appointment-target="hiddenInput"> -->
-    <input type="hidden" data-appointment-target="hiddenInput" value="<%= @appointment.service_ids.join(',') %>">
+    <!-- Hidden combined IDs -->
+    <input type="hidden"
+           data-appointment-target="hiddenInput"
+           value="<%= @appointment.service_ids.join(',') %>">
 
-
+    <!-- Notes -->
     <div class="form-section">
-      <%= f.label :notes, "Notes" %>
+      <%= f.label :notes, t("appointments.form.notes") %>
       <%= f.text_area :notes,
         class: "form-input textarea-auto",
         maxlength: 256,
         rows: 2,
-        placeholder: "До 256 символів..." %>
+        placeholder: t("appointments.form.notes_placeholder") %>
     </div>
 
+    <!-- Total -->
     <div class="total-price">
-      <strong>Total:</strong> <span data-appointment-target="total">0</span> ₴
+      <strong><%= t("appointments.form.total") %>:</strong>
+      <span data-appointment-target="total">0</span> ₴
     </div>
 
+    <!-- Submit -->
     <div class="form-actions" style="height: 80px;"></div>
-    <%= f.submit "Save", class: "floating-save-button" %>
+    <%= f.submit t("appointments.form.save"), class: "floating-save-button" %>
 
-    <!-- Модалки -->
+    <!-- Modals -->
     <%= render "appointments/modals/service_modal" %>
     <%= render "appointments/modals/preparation_modal" %>
     <%= render "appointments/modals/care_product_modal" %>
