@@ -1,0 +1,367 @@
+.service-note-container {
+  padding: 1rem;
+}
+
+/* ---------------- POPUP ---------------- */
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.note-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.note-actions .edit-icon svg {
+  cursor: pointer;
+  stroke: #555;
+  transition: stroke 0.2s;
+}
+
+.note-actions .edit-icon svg:hover {
+  stroke: #000;
+}
+
+.note-actions .popover-toggle {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  color: #555;
+}
+
+.note-actions .popover-toggle:hover {
+  color: #000;
+}
+
+.popover-menu {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 100;
+  min-width: 150px;
+}
+
+.popover-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.popover-item:hover {
+  background: #f3f3f3;
+}
+
+.popover-item.delete-button {
+  color: #d33;
+}
+
+.popover-item.delete-button:hover {
+  background: #ffe6e6;
+}
+
+/* ---------------- FORMULA ---------------- */
+.formula-content {
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.formula-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Step card */
+.formula-step {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+/* Step header */
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.step-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4a148c;
+}
+
+.step-actions {
+  position: relative;
+}
+
+.step-actions .popover-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+}
+
+/* ---------------- BLOCK HEADERS ---------------- */
+.block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.4rem 0 0.3rem;
+}
+
+.block-header h5 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #444;
+  flex: 1;
+}
+
+.block-header .add-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.block-header .add-btn svg {
+  width: 28px;
+  height: 28px;
+  stroke: #666;
+  transition: stroke 0.2s;
+}
+
+.block-header .add-btn:hover svg {
+  stroke: #6d28d9;
+}
+
+/* ---------------- INGREDIENTS + VALUES ---------------- */
+.ingredient,
+.oxidant-block .ingredient,
+.time-block .ingredient {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  margin: 0.25rem 0;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ingredient:last-child {
+  border-bottom: none;
+}
+
+.ingredient em {
+  font-style: italic;
+  color: #777;
+  margin-left: 3px;
+}
+
+/* ---------------- COLORS ---------------- */
+.ingredient.color-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  margin: 0.25rem 0;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ingredient.color-row span:first-child {
+  justify-self: start;
+}
+
+.ingredient.color-row span.amount {
+  justify-self: end;
+  min-width: 40px;
+  text-align: right;
+}
+
+.ingredient.color-row span.unit {
+  justify-self: start;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.ingredient.color-row .remove-btn {
+  justify-self: end;
+  margin-left: 0;
+  align-self: center;
+}
+
+/* ---------------- OXIDANT + TIME ---------------- */
+.oxidant-row,
+.time-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  margin: 0.25rem 0;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.oxidant-row .label,
+.time-row .label {
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.oxidant-row .amount,
+.time-row .amount {
+  justify-self: end;
+  min-width: 40px;
+  text-align: right;
+}
+
+.oxidant-row .remove-btn,
+.time-row .remove-btn {
+  justify-self: end;
+  margin-left: 0;
+  align-self: center;
+}
+
+/* ---------------- REMOVE BUTTON ---------------- */
+.remove-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: #d32f2f;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.remove-btn:hover {
+  color: #a00;
+}
+
+/* ---------------- TIME (input mode) ---------------- */
+.time-row input {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.time-row span {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* ---------------- SECTIONS ---------------- */
+.formula-sections {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.sections-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.section-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #444;
+  font-size: 0.85rem;
+}
+
+.section-icon .icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.section-icon:hover .icon {
+  background: #e8dcff;
+  border-color: #6d28d9;
+}
+
+/* ---------------- FORM FIELDS ---------------- */
+.field {
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+  color: #555;
+}
+
+.input,
+.textarea {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+/* ---------------- BUTTONS ---------------- */
+.actions {
+  margin-top: 1.5rem;
+}
+
+.actions .button.primary {
+  background: #6d28d9;
+  color: white;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s ease;
+}
+
+.actions .button.primary:hover {
+  background: #5b21b6;
+}

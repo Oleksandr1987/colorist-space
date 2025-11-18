@@ -1,0 +1,77 @@
+<div class="service-note-container" data-controller="service-note">
+  <!-- Header -->
+  <div class="note-header">
+    <%= link_to "←", client_path(@client), class: "back-button" %>
+    <h1><%= @client.full_name %></h1>
+
+    <div class="note-actions" data-controller="popover">
+      <!-- Pencil -->
+      <%= link_to edit_client_service_note_path(@client, @service_note), class: "edit-icon" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z" />
+          <path d="M16 5l3 3" />
+        </svg>
+      <% end %>
+
+      <!-- Delete -->
+      <button class="popover-toggle" data-action="click->popover#toggle">⋮</button>
+      <div class="popover-menu hidden" data-popover-target="menu">
+        <%= button_to client_service_note_path(@client, @service_note),
+                      method: :delete,
+                      data: { turbo_confirm: "Delete this style?" },
+                      class: "popover-item delete-button" do %>
+          Delete this style
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-button active" data-service-note-target="tab" data-tab-name="formula" data-action="click->service-note#showTab">
+      Formula
+    </button>
+    <button class="tab-button" data-service-note-target="tab" data-tab-name="services" data-action="click->service-note#showTab">Services</button>
+    <button class="tab-button" data-service-note-target="tab" data-tab-name="photos" data-action="click->service-note#showTab">Photos</button>
+    <button class="tab-button" data-service-note-target="tab" data-tab-name="notes" data-action="click->service-note#showTab">Notes</button>
+  </div>
+
+  <!-- Formula -->
+  <div id="formula-tab" data-service-note-target="tabContent" class="tab-content active">
+    <%= render "formula_steps", service_note: @service_note %>
+  </div>
+
+  <!-- Services -->
+  <div id="services-tab" data-service-note-target="tabContent" class="tab-content hidden">
+    <% if @service_note.appointment.present? %>
+      <ul>
+        <% @service_note.appointment.services.each do |service| %>
+          <li><%= service.subtype %> – <%= service.price %>₴</li>
+        <% end %>
+      </ul>
+      <p><strong>Total Price:</strong> <%= @service_note.price || @service_note.appointment.total_price %>₴</p>
+    <% else %>
+      <p>No services linked.</p>
+    <% end %>
+  </div>
+
+  <!-- Photos -->
+  <div id="photos-tab" data-service-note-target="tabContent" class="tab-content hidden">
+    <% if @service_note.photos.attached? %>
+      <div class="photos-grid">
+        <% @service_note.photos.each do |photo| %>
+          <%= image_tag photo, class: "client-photo" %>
+        <% end %>
+      </div>
+    <% else %>
+      <p>No photos uploaded.</p>
+    <% end %>
+  </div>
+
+  <!-- Notes -->
+  <div id="notes-tab" data-service-note-target="tabContent" class="tab-content hidden">
+    <p><strong>Date:</strong> <%= l(@service_note.created_at, format: "%d %B %Y") %></p>
+    <p><strong>Price:</strong> <%= @service_note.price || "—" %>₴</p>
+    <p><strong>Notes:</strong> <%= @service_note.notes.presence || "—" %></p>
+  </div>
+</div>
