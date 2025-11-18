@@ -1,14 +1,14 @@
 <div class="container">
   <div class="screen">
     <div class="screen__content">
-      <h2>Reset Password</h2>
+      <h2><%= t("auth.forgot_password_title") %></h2>
       <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
         <div class="login__field">
-          <%= f.email_field :email, class: "login__input", placeholder: "Email", autofocus: true, autocomplete: "email" %>
+         <%= f.email_field :email, class: "login__input", placeholder: t("auth.placeholder_email") %>
         </div>
         <div class="actions">
-          <%= f.submit "Send reset link", class: "button reset__submit" %>
+          <%= f.submit t("auth.send_reset_link"), class: "button reset__submit" %>
         </div>
         <div class="home-page__logo">
         <%= image_tag("logo_full_transpr.png", alt: "Colorist.Space", class: "logo-img") %>

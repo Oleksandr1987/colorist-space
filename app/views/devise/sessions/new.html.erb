@@ -4,40 +4,40 @@
       <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "login" }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
         <div class="login__field">
-          <%= f.label :login, "Email or Phone" %>
+          <%= f.label :login, t("auth.email_or_phone") %>
           <%= f.text_field :login, class: "login__input", autofocus: true, autocomplete: "login" %>
         </div>
 
         <div class="login__field">
-          <%= f.label :password%>
-          <%= f.password_field :password, class: "login__input", autocomplete: "current-password" %>
+          <%= f.label :password, t("auth.password") %>
+          <%= f.password_field :password, class: "login__input", autocomplete: "current-password", placeholder: t("auth.password") %>
         </div>
 
         <% if devise_mapping.rememberable? %>
           <div class="login__field">
             <%= f.check_box :remember_me %>
-            <%= f.label :remember_me %>
+            <%= f.label :remember_me, t("auth.remember_me") %>
           </div>
         <% end %>
 
         <div class="actions">
-          <%= f.submit "Login", class: "button login__submit" %>
+          <%= f.submit t("auth.login"), class: "button login__submit" %>
         </div>
       <% end %>
 
       <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
         <div class="forgot__password">
-          <%= link_to "Forgot password?", new_password_path(resource_name), class: "forgot-password" %>
+          <%= link_to t("auth.forgot_password"), new_password_path(resource_name), class: "forgot-password" %>
         </div>
       <% end%>
 
       <div class='social-login'>
-        <h3> LOGIN WITH</h3>
+        <h3><%= t("auth.login_with") %></h3>
         <div class="social-icons">
           <%- if devise_mapping.omniauthable? %>
             <%- resource_class.omniauth_providers.each do |provider| %>
               <%= button_to omniauth_authorize_path(resource_name, provider), data: { turbo: false } do %>
-                <%= image_tag("social_icons/#{provider}.png", alt: "{provider.capitalize", class: "social-login__icon") %>
+                <%= image_tag("social_icons/#{provider}.png", alt: t("auth.social_icon_alt", provider: provider.capitalize)) %>
               <% end %>
             <% end %>
           <% end%>

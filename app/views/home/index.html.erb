@@ -2,15 +2,13 @@
   <div class="screen">
     <div class="screen__content">
       <div class="language-switcher top-right">
-        <%= form_with url: "/locale", method: :post, data: { turbo: false } do %>
-          <%= select_tag :locale,
-                options_for_select([['Українська', 'uk'], ['English', 'en']], I18n.locale),
-                onchange: "this.form.submit();",
-                class: "language-select" %>
-        <% end %>
+        <select class="language-select" onchange="window.location = '?locale=' + this.value;">
+          <option value="uk" <%= 'selected' if I18n.locale == :uk %>>Українська</option>
+          <option value="en" <%= 'selected' if I18n.locale == :en %>>English</option>
+        </select>
       </div>
 
-      <h2 class="login-title">Вхід</h2>
+      <h2 class="login-title"><%= t("auth.login_title") %></h2>
 
       <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "login" }) do |f| %>
 
@@ -18,13 +16,13 @@
 
         <!-- Email or Phone -->
         <div class="login__field">
-          <%= f.label :login, "Email or Phone" %>
+          <%= f.label :login, t("auth.email_or_phone") %>
           <%= f.text_field :login, class: "login__input", autofocus: true, autocomplete: "login" %>
         </div>
 
         <!-- Password -->
         <div class="login__field">
-          <%= f.label :password, "Введіть пароль:" %>
+          <%= f.label :password, t("auth.password") %>
           <%= f.password_field :password, class: "login__input", autocomplete: "current-password" %>
         </div>
 
@@ -32,13 +30,13 @@
         <% if devise_mapping.rememberable? %>
           <div class="login__field remember-me">
             <%= f.check_box :remember_me %>
-            <%= f.label :remember_me %>
+            <%= f.label :remember_me, t("auth.remember_me") %>
           </div>
         <% end %>
 
         <!-- Login button -->
         <div class="actions">
-          <%= f.submit "Увійти", class: "button login__submit" %>
+          <%= f.submit t("auth.login"), class: "button login__submit" %>
         </div>
 
       <% end %>
@@ -46,12 +44,12 @@
 
       <!-- Forgot password -->
       <div class="forgot__password">
-        <%= link_to "Забули пароль?", new_password_path(resource_name), class: "forgot-password" %>
+        <%= link_to t("auth.forgot_password"), new_password_path(resource_name), class: "forgot-password" %>
       </div>
 
       <!-- Social login -->
       <div class="social-login">
-        <h3>або увійдіть через:</h3>
+        <h3><%= t("auth.login_with") %></h3>
         <div class="social-icons">
 
           <%= button_to omniauth_authorize_path(:user, :facebook), data: { turbo: false } do %>
@@ -70,8 +68,8 @@
       </div>
 
       <!-- Register -->
-      <p class="home-register-label">Заходите вперше?</p>
-      <%= link_to "Створити акаунт", new_user_registration_path, class: "button signup__link" %>
+      <p class="home-register-label"><%= t("auth.need_register") %></p>
+      <%= link_to t("auth.signup"), new_user_registration_path, class: "button signup__link" %>
 
       <!-- Logo -->
       <div class="home-logo">
