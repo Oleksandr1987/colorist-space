@@ -1,0 +1,74 @@
+uk:
+  services:
+    menu:
+      search_placeholder: "Пошук послуг..."
+      sort_default: "Сортувати…"
+      sort_name: "За назвою A–Z"
+      sort_price_asc: "За ціною ↑"
+      sort_price_desc: "За ціною ↓"
+
+    form:
+      category: "Категорія послуги"
+      category_placeholder: "Введіть або оберіть категорію"
+      subtype: "Тип послуги"
+      subtype_placeholder: "Введіть або оберіть тип"
+      price: "Ціна (₴)"
+      unit: "Одиниця вимірювання (наприклад: g, ml)"
+      save: "Зберегти"
+
+    categories:
+      haircut: "Стрижка"
+      coloring: "Фарбування"
+      styling: "Укладання"
+      treatment: "Лікування"
+
+    subtypes:
+      haircut:
+        - "Коротка стрижка машинкою"
+        - "Довга стрижка ножицями"
+        - "Фейд стрижка"
+        - "Дитяча стрижка"
+
+      coloring:
+        - "Повне фарбування"
+        - "Омбре"
+        - "Фарбування коренів"
+        - "Балаяж"
+
+      styling:
+        - "Вечірня укладка"
+        - "Щоденна укладка"
+        - "Весільна укладка"
+
+      treatment:
+        - "Кератинове відновлення"
+        - "Глибоке зволоження"
+        - "Ботокс для волосся"
+
+    preparation_form:
+      name: "Назва препарату"
+      price: "Ціна за одиницю (₴)"
+      unit: "Одиниця вимірювання"
+      cancel: "Скасувати"
+
+    care_product_form:
+      name: "Назва засобу догляду"
+      price: "Ціна за одиницю (₴)"
+      unit: "Одиниця вимірювання"
+      cancel: "Скасувати"
+
+    list:
+      edit: "Редагувати"
+      delete: "Видалити"
+      confirm_delete: "Ви впевнені?"
+
+    pages:
+      services: "Послуги"
+      preparations: "Препарати"
+      care_products: "Засоби догляду"
+      service_management: "Керування послугами"
+      categories: "Категорії послуг"
+      new_service: "+ Нова послуга"
+      new_item: "+ Новий %{item}"
+      back: "←"
+      search: "Пошук..."

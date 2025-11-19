@@ -1,0 +1,74 @@
+en:
+  services:
+    menu:
+      search_placeholder: "Search services..."
+      sort_default: "Sort by…"
+      sort_name: "Sort by name A–Z"
+      sort_price_asc: "Sort by price ↑"
+      sort_price_desc: "Sort by price ↓"
+
+    form:
+      category: "Service Category"
+      category_placeholder: "Enter or select category"
+      subtype: "Service Type"
+      subtype_placeholder: "Enter or select type"
+      price: "Price (₴)"
+      unit: "Unit (e.g., g, ml)"
+      save: "Save"
+
+    categories:
+      haircut: "Haircut"
+      coloring: "Coloring"
+      styling: "Styling"
+      treatment: "Treatment"
+
+    subtypes:
+      haircut: 
+        - "Short haircut with clippers"
+        - "Long haircut with scissors"
+        - "Fade haircut"
+        - "Children's haircut"
+
+      coloring:
+        - "Full hair coloring"
+        - "Ombre"
+        - "Roots refresh"
+        - "Balayage"
+
+      styling:
+        - "Evening style"
+        - "Everyday styling"
+        - "Wedding styling"
+
+      treatment:
+        - "Keratin treatment"
+        - "Deep hydration"
+        - "Botox for hair"
+
+    preparation_form:
+      name: "Preparation Name"
+      price: "Price per Unit (₴)"
+      unit: "Unit of Measurement"
+      cancel: "Cancel"
+
+    care_product_form:
+      name: "Care Product Name"
+      price: "Price per Unit (₴)"
+      unit: "Unit of Measurement"
+      cancel: "Cancel"
+
+    list:
+      edit: "Edit"
+      delete: "Delete"
+      confirm_delete: "Are you sure?"
+
+    pages:
+      services: "Services"
+      preparations: "Preparations"
+      care_products: "Care Products"
+      service_management: "Service Management"
+      categories: "Service Categories"
+      new_service: "+ New Service"
+      new_item: "+ New %{item}"
+      back: "←"
+      search: "Search..."

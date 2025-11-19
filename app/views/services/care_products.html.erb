@@ -1,20 +1,22 @@
 <div class="service-wrapper" data-controller="service">
   <div class="category-header with-search">
     <div class="category-title">
-      <%= link_to "←", services_path, class: "back" %>
-      <span>Care Products</span>
+      <%= link_to t("services.pages.back"), services_path, class: "back" %>
+      <span><%= t("services.pages.care_products") %></span>
     </div>
 
     <div class="header-right">
       <div class="service-search-wrapper inline-search">
         <input type="text"
-               placeholder="Search..."
+               placeholder="<%= t('services.pages.search') %>"
                class="service-search-input"
                data-service-target="search"
                data-action="input->service#filter">
       </div>
 
-      <%= link_to raw('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>'), care_products_services_path(new: true), class: "plus-icon" %>
+      <%= link_to raw('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>'),
+          care_products_services_path(new: true),
+          class: "plus-icon" %>
     </div>
   </div>
 
