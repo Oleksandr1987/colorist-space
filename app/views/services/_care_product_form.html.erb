@@ -1,25 +1,32 @@
 <div class="service-form-wrapper">
   <%= form_with(model: service, url: create_care_product_services_path, local: true) do |f| %>
-  <%= f.hidden_field :service_type, value: "care_product" %>
+    <%= f.hidden_field :service_type, value: "care_product" %>
 
     <div class="form-section">
-      <%= f.label :subtype, "Care Product Name" %>
+      <%= f.label :subtype, t("services.care_product_form.name") %>
       <%= f.text_field :subtype, class: "form-input", required: true %>
     </div>
 
     <div class="form-section">
-      <%= f.label :price, "Price per Unit (₴)" %>
+      <%= f.label :price, t("services.care_product_form.price") %>
       <%= f.number_field :price, class: "form-input", required: true %>
     </div>
 
     <div class="form-section">
-      <%= f.label :unit, "Unit of Measurement" %>
-      <%= f.select :unit, options_for_select([["Gram (g)", "g"], ["Milliliter (ml)", "ml"], ["Liter (l)", "l"]]), {}, class: "form-input", required: true %>
+      <%= f.label :unit, t("services.care_product_form.unit") %>
+      <%= f.select :unit,
+            options_for_select([["Gram (g)", "g"], ["Milliliter (ml)", "ml"], ["Liter (l)", "l"]]),
+            {},
+            class: "form-input",
+            required: true %>
     </div>
 
     <div class="form-actions-row">
-      <%= f.submit "Save", class: "form-button primary" %>
-      <%= link_to "Cancel", care_products_services_path, class: "form-button cancel", data: { turbo: false } %>
+      <%= f.submit t("services.form.save"), class: "form-button primary" %>
+      <%= link_to t("services.care_product_form.cancel"),
+            care_products_services_path,
+            class: "form-button cancel",
+            data: { turbo: false } %>
     </div>
   <% end %>
 </div>

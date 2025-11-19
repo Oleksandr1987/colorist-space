@@ -1,8 +1,10 @@
 <div class="service-item"
     data-controller="popover"
     data-name="<%= [service.subtype, service.unit, service.price].compact.join(' ').downcase %>">
+
   <div class="service-info">
-    <strong><%= service.subtype %></strong> — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
+    <strong><%= service.subtype %></strong>
+    — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
     <% if service.unit.present? %>
       (<%= service.unit %>)
     <% end %>
@@ -17,11 +19,13 @@
     </button>
 
     <div class="popover-menu hidden" data-popover-target="menu">
-      <%= link_to "Edit", edit_service_path(service), class: "popover-item" %>
-      <%= button_to service_path(service), method: :delete,
-            data: { turbo_confirm: "Are you sure?" },
+      <%= link_to t("services.list.edit"), edit_service_path(service), class: "popover-item" %>
+
+      <%= button_to service_path(service),
+            method: :delete,
+            data: { turbo_confirm: t("services.list.confirm_delete") },
             class: "popover-item delete-button" do %>
-        Delete
+        <%= t("services.list.delete") %>
       <% end %>
     </div>
   </div>

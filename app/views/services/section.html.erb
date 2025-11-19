@@ -3,8 +3,8 @@
 <div class="category-wrapper" data-controller="service">
   <div class="category-header">
     <div class="category-title">
-      <%= link_to "←", services_path, class: "back" %>
-      <%= @category %> Services
+      <%= link_to t("services.pages.back"), services_path, class: "back" %>
+      <%= t("services.categories.#{@category.downcase}") %> <%= t("services.pages.services") %>
     </div>
 
     <%= render "services/menu" %>
@@ -17,6 +17,9 @@
   </div>
 
   <div class="create-button">
-    <%= link_to "+ New #{@category.singularize}", new_service_path(service_type: "service", category: @category), class: "button primary full" %>
+    <%= link_to t("services.pages.new_item", 
+              item: t("services.categories.#{@category.downcase}").singularize),
+            new_service_path(service_type: "service", category: @category),
+            class: "button primary full" %>
   </div>
 </div>

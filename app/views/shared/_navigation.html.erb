@@ -1,7 +1,6 @@
 <nav class="bottom-nav">
   <%= link_to calendar_appointments_path, class: "nav-item #{current_page?(calendar_appointments_path) ? 'active' : ''}" do %>
     <span class="icon">
-      <!-- calendar-days -->
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
            class="lucide lucide-calendar-days-icon lucide-calendar-days">
@@ -17,12 +16,11 @@
         <path d="M16 18h.01"/>
       </svg>
     </span>
-    <span class="label">Календар</span>
+    <span class="label"><%= t("navigation.calendar") %></span>
   <% end %>
 
   <%= link_to clients_path, class: "nav-item #{current_page?(clients_path) ? 'active' : ''}" do %>
     <span class="icon">
-      <!-- users -->
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
            class="lucide lucide-users-icon lucide-users">
@@ -32,12 +30,11 @@
         <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
       </svg>
     </span>
-    <span class="label">Клієнти</span>
+    <span class="label"><%= t("navigation.clients") %></span>
   <% end %>
 
   <%= link_to admin_path, class: "nav-item #{current_page?(admin_path) ? 'active' : ''}" do %>
     <span class="icon">
-      <!-- user-round-cog -->
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
            class="lucide lucide-user-round-cog-icon lucide-user-round-cog">
@@ -54,6 +51,6 @@
         <path d="m16.9 15.2-.4-.9"/>
       </svg>
     </span>
-    <span class="label">Адмін</span>
+    <span class="label"><%= t("navigation.admin") %></span>
   <% end %>
 </nav>

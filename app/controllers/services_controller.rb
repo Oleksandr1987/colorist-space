@@ -5,46 +5,55 @@ class ServicesController < ApplicationController
   auto_authorize :service, only: %i[new create create_preparation create_care_product edit update destroy]
   after_action :verify_authorized, only: %i[new create create_preparation create_care_product edit update destroy]
 
+  # СЛОВНИК ДЕФОЛТНИХ КАТЕГОРІЙ
+  DEFAULT_CATEGORIES = {
+    "haircut"   => I18n.t("services.categories.haircut"),
+    "coloring"  => I18n.t("services.categories.coloring"),
+    "styling"   => I18n.t("services.categories.styling"),
+    "treatment" => I18n.t("services.categories.treatment")
+  }.freeze
+
   def index
-    # На /services показуються три кнопки: Services, Preparations, Care Products
   end
 
   def main
     @categories = current_user.services
-                               .where(service_type: "service")
-                               .distinct
-                               .pluck(:category)
-                               .compact
+      .where(service_type: "service")
+      .distinct
+      .pluck(:category)
+      .compact
   end
 
   def section
-    @category = params[:category]
+    @category = normalize_category(params[:category])
+    @translated_category = translate_category(@category)
+
     @services = current_user.services
-                             .where(service_type: "service", category: @category)
-                             .order(:subtype)
+      .where(service_type: "service", category: @category)
+      .order(:subtype)
   end
 
   def preparations
     @service = Service.new if params[:new] == "true"
-    @preparations = current_user.services
-                                 .where(service_type: "preparation")
-                                 .order(:subtype)
+    @preparations = current_user.services.where(service_type: "preparation").order(:subtype)
   end
 
   def care_products
     @service = Service.new if params[:new] == "true"
-    @care_products = current_user.services
-                                  .where(service_type: "care_product")
-                                  .order(:subtype)
+    @care_products = current_user.services.where(service_type: "care_product").order(:subtype)
   end
 
   def new
     @service = Service.new(service_type: params[:service_type] || "service")
-    @service.category = params[:category] if params[:category].present?
+
+    if params[:category].present?
+      @service.category = normalize_category(params[:category])
+    end
   end
 
   def create
     @service = current_user.services.build(service_params)
+    @service.category = normalize_category(@service.category)
     @service.name = @service.subtype
 
     if @service.save
@@ -80,9 +89,12 @@ class ServicesController < ApplicationController
     end
   end
 
-  def edit; end
+  def edit
+  end
 
   def update
+    @service.category = normalize_category(service_params[:category])
+
     if @service.update(service_params)
       redirect_to redirect_path_for(@service), notice: "Service updated successfully."
     else
@@ -94,6 +106,7 @@ class ServicesController < ApplicationController
     service_type = @service.service_type
     category = @service.category
     @service.destroy
+
     redirect_to redirect_path_for_open(service_type, category), notice: "Service deleted."
   end
 
@@ -105,6 +118,23 @@ class ServicesController < ApplicationController
 
   def service_params
     params.require(:service).permit(:name, :price, :category, :subtype, :service_type, :unit)
+  end
+
+  def normalize_category(category)
+    return "" if category.blank?
+
+    found = DEFAULT_CATEGORIES.find { |k, v| v.casecmp?(category) }
+    return found.first if found
+
+    key = category.downcase
+    return key if DEFAULT_CATEGORIES.key?(key)
+    category
+  end
+
+  def translate_category(category)
+    return category unless DEFAULT_CATEGORIES.key?(category)
+
+    DEFAULT_CATEGORIES[category]
   end
 
   def redirect_path_for(service)

@@ -3,13 +3,16 @@
     <span class="dots-icon" aria-hidden="true"></span>
   </button>
   <div class="menu-dropdown hidden" data-service-target="menu">
-    <input type="text" placeholder="Search services..." data-action="input->service#filter" data-service-target="search">
+    <input type="text"
+           placeholder="<%= t('services.menu.search_placeholder') %>"
+           data-action="input->service#filter"
+           data-service-target="search">
 
     <select data-action="change->service#sort" data-service-target="sort">
-      <option value="">Sort by…</option>
-      <option value="name">Sort by name A-Z</option>
-      <option value="price_asc">Sort by price ↑</option>
-      <option value="price_desc">Sort by price ↓</option>
+      <option value=""><%= t("services.menu.sort_default") %></option>
+      <option value="name"><%= t("services.menu.sort_name") %></option>
+      <option value="price_asc"><%= t("services.menu.sort_price_asc") %></option>
+      <option value="price_desc"><%= t("services.menu.sort_price_desc") %></option>
     </select>
   </div>
 </div>
