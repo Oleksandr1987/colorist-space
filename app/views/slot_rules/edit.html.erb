@@ -1,5 +1,5 @@
-<h2>Edit Slot Rule</h2>
+<h2><%= t("slot_rules.edit") %></h2>
 
 <%= render "form", slot_rule: @slot_rule %>
 
-<%= link_to "Back", slot_rules_path, class: "button secondary" %>
+<%= link_to t("slot_rules.back"), slot_rules_path, class: "button secondary" %>

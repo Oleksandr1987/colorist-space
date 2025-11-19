@@ -1,33 +1,42 @@
 <div class="period-filter sticky-period-filter">
   <% from_date = Date.parse(permitted_params[:from]) rescue nil %>
   <% to_date = Date.parse(permitted_params[:to]) rescue nil %>
-  <% period_label = "Period" %>
+
+  <% period_label = t("analytics.income_filter.period") %>
+
   <% if from_date && to_date %>
     <% days_diff = (to_date - from_date).to_i %>
-    <% period_label =
-      case days_diff
-      when 7 then "7 days"
-      when 14 then "14 days"
-      when 30 then "1 month"
-      when 90 then "3 months"
-      when 180 then "6 months"
-      when 270 then "9 months"
-      when 365 then "1 year"
-      else "#{from_date.strftime('%d.%m.%Y')} - #{to_date.strftime('%d.%m.%Y')}"
-      end
-    %>
+
+    <% preset_map = {
+      7 => t("analytics.income_filter.presets.d7"),
+      14 => t("analytics.income_filter.presets.d14"),
+      30 => t("analytics.income_filter.presets.m1"),
+      90 => t("analytics.income_filter.presets.m3"),
+      180 => t("analytics.income_filter.presets.m6"),
+      270 => t("analytics.income_filter.presets.m9"),
+      365 => t("analytics.income_filter.presets.y1")
+    } %>
+
+    <% period_label = preset_map[days_diff] ||
+      "#{from_date.strftime('%d.%m.%Y')} - #{to_date.strftime('%d.%m.%Y')}" %>
   <% end %>
 
   <div class="quick-filters">
+
+    <!-- PERIOD DROPDOWN -->
     <div class="dropdown" data-controller="dropdown">
       <button class="filter-button <%= 'active' if from_date && to_date %>" data-action="click->dropdown#toggle">
         <%= period_label %>
       </button>
       <div class="dropdown-menu hidden" data-dropdown-target="menu">
         <% [
-          ['7 days', 7], ['14 days', 14], ['1 month', 30],
-          ['3 months', 90], ['6 months', 180],
-          ['9 months', 270], ['1 year', 365]
+          [t("analytics.income_filter.presets.d7"), 7],
+          [t("analytics.income_filter.presets.d14"), 14],
+          [t("analytics.income_filter.presets.m1"), 30],
+          [t("analytics.income_filter.presets.m3"), 90],
+          [t("analytics.income_filter.presets.m6"), 180],
+          [t("analytics.income_filter.presets.m9"), 270],
+          [t("analytics.income_filter.presets.y1"), 365]
         ].each do |label, days| %>
           <% from_val = days.days.ago.to_date.to_s %>
           <% to_val = Date.today.to_s %>
@@ -38,71 +47,106 @@
       </div>
     </div>
 
+    <!-- TYPE DROPDOWN -->
     <% service_type_label = case permitted_params[:service_type]
-      when 'service' then 'Services'
-      when 'preparation' then 'Preparations'
-      when 'care_product' then 'Care Products'
-      else 'Type'
+      when 'service' then t("analytics.income_filter.types.service")
+      when 'preparation' then t("analytics.income_filter.types.preparation")
+      when 'care_product' then t("analytics.income_filter.types.care_product")
+      else t("analytics.income_filter.types.type")
     end %>
     <div class="dropdown" data-controller="dropdown">
       <button class="filter-button <%= 'active' if permitted_params[:service_type].present? %>" data-action="click->dropdown#toggle">
         <%= service_type_label %>
       </button>
       <div class="dropdown-menu hidden" data-dropdown-target="menu">
-        <%= link_to 'All types', income_analytics_path(from: permitted_params[:from], to: permitted_params[:to]), class: 'dropdown-item' %>
-        <%= link_to 'Services', income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'service'), class: 'dropdown-item' %>
-        <%= link_to 'Preparations', income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'preparation'), class: 'dropdown-item' %>
-        <%= link_to 'Care products', income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'care_product'), class: 'dropdown-item' %>
+        <%= link_to t("analytics.income_filter.types.all"),
+              income_analytics_path(from: permitted_params[:from], to: permitted_params[:to]),
+              class: "dropdown-item" %>
+
+        <%= link_to t("analytics.income_filter.types.service"),
+              income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'service'),
+              class: "dropdown-item" %>
+
+        <%= link_to t("analytics.income_filter.types.preparation"),
+              income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'preparation'),
+              class: "dropdown-item" %>
+
+        <%= link_to t("analytics.income_filter.types.care_product"),
+              income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'care_product'),
+              class: "dropdown-item" %>
       </div>
     </div>
 
     <% if permitted_params[:service_type] == 'service' %>
+
+      <!-- CATEGORY DROPDOWN -->
       <% all_categories = current_user.services.where(service_type: 'service').distinct.pluck(:category).compact %>
-      <% category_label = permitted_params[:category].presence || "Category" %>
+      <% category_label = permitted_params[:category].presence || t("analytics.income_filter.categories.category") %>
+
       <div class="dropdown" data-controller="dropdown">
         <button class="filter-button <%= 'active' if permitted_params[:category].present? %>" data-action="click->dropdown#toggle">
           <%= category_label %>
         </button>
         <div class="dropdown-menu hidden" data-dropdown-target="menu">
-          <%= link_to 'All categories', income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'service'), class: 'dropdown-item' %>
+          <%= link_to t("analytics.income_filter.categories.all"),
+                income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'service'),
+                class: "dropdown-item" %>
+
           <% all_categories.each do |cat| %>
             <%= link_to cat,
-              income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'service', category: cat),
-              class: 'dropdown-item' %>
+                income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'service', category: cat),
+                class: "dropdown-item" %>
           <% end %>
         </div>
       </div>
 
-      <% subtype_label = permitted_params[:subtype].presence || "Subtype" %>
-      <% subtypes = current_user.services.where(service_type: 'service', category: permitted_params[:category]).distinct.pluck(:subtype).compact if permitted_params[:category].present? %>
-      <% subtypes ||= current_user.services.where(service_type: 'service').distinct.pluck(:subtype).compact %>
+      <!-- SUBTYPE DROPDOWN -->
+      <% subtype_label = permitted_params[:subtype].presence || t("analytics.income_filter.subtypes.subtype") %>
+      <% subtypes = if permitted_params[:category].present?
+                      current_user.services.where(service_type: 'service', category: permitted_params[:category]).distinct.pluck(:subtype).compact
+                    else
+                      current_user.services.where(service_type: 'service').distinct.pluck(:subtype).compact
+                    end %>
+
       <div class="dropdown" data-controller="dropdown">
         <button class="filter-button <%= 'active' if permitted_params[:subtype].present? %>" data-action="click->dropdown#toggle">
           <%= subtype_label %>
         </button>
         <div class="dropdown-menu hidden" data-dropdown-target="menu">
-          <%= link_to 'All subtypes', income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'service', category: permitted_params[:category]), class: 'dropdown-item' %>
+          <%= link_to t("analytics.income_filter.subtypes.all"),
+                income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'service', category: permitted_params[:category]),
+                class: "dropdown-item" %>
+
           <% subtypes.each do |sub| %>
             <%= link_to sub,
                 income_analytics_path(from: permitted_params[:from], to: permitted_params[:to], service_type: 'service', category: permitted_params[:category], subtype: sub),
-                class: 'dropdown-item' %>
+                class: "dropdown-item" %>
           <% end %>
         </div>
       </div>
     <% end %>
   </div>
 
+  <!-- CUSTOM RANGE -->
   <div class="custom-range">
     <%= form_with url: request.path, method: :get, local: true do %>
       <div class="custom-range">
         <div class="form-section">
-          <%= label_tag :from, "From", class: "form-label" %>
-          <%= text_field_tag :from, permitted_params[:from], id: "from-date", class: "form-input small", required: true, max: Date.today, data: { controller: "datepicker", datepicker_target: "input" } %>
+          <%= label_tag :from, t("analytics.income_filter.from"), class: "form-label" %>
+          <%= text_field_tag :from, permitted_params[:from], id: "from-date",
+                class: "form-input small",
+                required: true,
+                max: Date.today,
+                data: { controller: "datepicker", datepicker_target: "input" } %>
         </div>
 
         <div class="form-section">
-          <%= label_tag :to, "To", class: "form-label" %>
-          <%= text_field_tag :to, permitted_params[:to], id: "to-date", class: "form-input small", required: true, max: Date.today, data: { controller: "datepicker", datepicker_target: "input" } %>
+          <%= label_tag :to, t("analytics.income_filter.to"), class: "form-label" %>
+          <%= text_field_tag :to, permitted_params[:to], id: "to-date",
+                class: "form-input small",
+                required: true,
+                max: Date.today,
+                data: { controller: "datepicker", datepicker_target: "input" } %>
         </div>
       </div>
 
@@ -111,7 +155,7 @@
       <%= hidden_field_tag :subtype, permitted_params[:subtype] if permitted_params[:subtype].present? %>
 
       <div class="form-section">
-        <%= submit_tag "Filter", class: "form-button primary full-width" %>
+        <%= submit_tag t("analytics.income_filter.apply"), class: "form-button primary full-width" %>
       </div>
     <% end %>
   </div>

@@ -1,6 +1,29 @@
 en:
   settings:
+    title: "Account"
+
+    account:
+      title: "My Account"
+      name: "Name"
+      email: "Email"
+      phone: "Phone"
+      edit_profile: "Edit Profile"
+      change_password: "Change Password"
+      logout: "Log Out"
+      delete: "Delete Account"
+      confirm_delete: "Are you sure?"
+
     language:
-      title: "Interface Language"
+      title: "Language"
       uk: "Ukrainian"
       en: "English"
+
+    subscription:
+      title: "Subscription"
+      plan: "Plan"
+      active_until: "Active until"
+      days_left: "Days left"
+      expired: "Subscription expired"
+      expires_soon: "⚠️ Less than 3 days left"
+      manage: "Manage Subscription"
+      none: "—"

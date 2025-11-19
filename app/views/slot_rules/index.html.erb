@@ -2,24 +2,27 @@
   <div class="slot-rules-scrollable">
     <%= render "form", slot_rule: @slot_rule %>
 
-    <h3>Your Rules</h3>
+    <h3><%= t("slot_rules.your_rules") %></h3>
+
     <% if @slot_rules.any? %>
       <div data-controller="popover">
         <% @slot_rules.each do |rule| %>
           <div class="slot-rule-item">
             <div class="slot-rule-content">
               <strong><%= rule.start_time.strftime("%H:%M") %>–<%= rule.end_time.strftime("%H:%M") %></strong>,
-              <%= rule.weekdays.map(&:capitalize).join(", ") %>
+              <%= rule.weekdays.map { |d| t("slot_rules.weekdays.#{d}") }.join(", ") %>
             </div>
 
             <div class="slot-rule-actions">
               <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">✎</button>
               <div class="popover-menu hidden" data-popover-target="menu">
-                <%= link_to "Edit", edit_slot_rule_path(rule), class: "menu-item" %>
-                <%= button_to slot_rule_path(rule), method: :delete,
-                      form: { data: { turbo_confirm: "Are you sure?" } },
+                <%= link_to t("slot_rules.actions.edit"), edit_slot_rule_path(rule), class: "menu-item" %>
+
+                <%= button_to slot_rule_path(rule),
+                      method: :delete,
+                      form: { data: { turbo_confirm: t("slot_rules.actions.confirm_delete") } },
                       class: "menu-item delete-button" do %>
-                  Delete
+                  <%= t("slot_rules.actions.delete") %>
                 <% end %>
               </div>
             </div>
@@ -27,7 +30,7 @@
         <% end %>
       </div>
     <% else %>
-      <p>No slot rules defined.</p>
+      <p><%= t("slot_rules.no_rules") %></p>
     <% end %>
   </div>
 </div>

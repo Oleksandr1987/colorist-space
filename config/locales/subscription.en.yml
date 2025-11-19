@@ -1,0 +1,13 @@
+en:
+  subscription:
+    title: "Subscription Management"
+    current_plan: "Current plan"
+    valid_until: "Valid until"
+    expired: "Subscription expired"
+    expires_soon: "⚠️ Less than 3 days left"
+
+    monthly: "Subscribe for 1 month"
+    yearly: "Subscribe for 1 year"
+    cancel: "Cancel subscription"
+    back: "← Back to settings"
+    confirm_cancel: "Are you sure?"

@@ -1,0 +1,10 @@
+uk:
+  admin:
+    title: "Адмін-панель"
+
+    cards:
+      services: "Послуги"
+      schedule: "Розклад"
+      expenses: "Витрати"
+      analytics: "Аналітика"
+      settings: "Налаштування"
