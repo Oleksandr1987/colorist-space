@@ -1,27 +1,52 @@
 <div class="appointment-details-header">
-  <%= link_to "←", appointments_path, class: "back-button", title: "Back" %>
-  <h1>Appointment Details</h1>
+  <%= link_to "←", appointments_path, class: "back-button", title: t("common.back") %>
+  <h1><%= t("appointments.show.title") %></h1>
 </div>
 
 <div class="appointment-details">
-  <p>Client: <strong><%= @appointment.client.full_name %> </strong></p>
-  <p>Service: <strong><%= @appointment.service_name %></strong> </p>
-  <p>Date: <strong><%= @appointment.appointment_date.strftime("%d %B %Y") %></strong> </p>
-  <p>Time:<strong>
-    <%= @appointment.appointment_time.strftime("%H:%M") %>
-    <% if @appointment.end_time.present? %>
-      – <%= @appointment.end_time.strftime("%H:%M") %>
-    <% end %>
-  </strong></p>
+
+  <p>
+    <%= t("appointments.show.client") %>:
+    <strong><%= @appointment.client.full_name %></strong>
+  </p>
+
+  <p>
+    <%= t("appointments.show.service") %>:
+    <strong><%= @appointment.service_name %></strong>
+  </p>
+
+  <p>
+    <%= t("appointments.show.date") %>:
+    <strong><%= l(@appointment.appointment_date, format: :long) %></strong>
+  </p>
+
+  <p>
+    <%= t("appointments.show.time") %>:
+    <strong>
+      <%= @appointment.appointment_time.strftime("%H:%M") %>
+      <% if @appointment.end_time.present? %>
+        – <%= @appointment.end_time.strftime("%H:%M") %>
+      <% end %>
+    </strong>
+  </p>
+
   <% if @appointment.notes.present? %>
-    <p>Notes:<strong> <%= @appointment.notes %></strong></p>
+    <p>
+      <%= t("appointments.show.notes") %>:
+      <strong><%= @appointment.notes %></strong>
+    </p>
   <% end %>
 
   <div class="action-buttons-inline">
-    <%= link_to "Edit", edit_appointment_path(@appointment), class: "button small-button edit" %>
-    <%= button_to "Delete", appointment_path(@appointment),
-          method: :delete,
-          form: { data: { turbo_confirm: "Are you sure?" } },
-          class: "button small-button delete" %>
+    <%= link_to t("common.edit"),
+                edit_appointment_path(@appointment),
+                class: "button small-button edit" %>
+
+    <%= button_to t("common.delete"),
+                  appointment_path(@appointment),
+                  method: :delete,
+                  form: { data: { turbo_confirm: t("appointments.confirm.delete") } },
+                  class: "button small-button delete" %>
   </div>
+
 </div>

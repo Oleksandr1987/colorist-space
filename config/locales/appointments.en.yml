@@ -1,0 +1,101 @@
+en:
+  appointments:
+    title: "Appointments"
+    new: "New Appointment"
+    edit: "Edit Appointment"
+    show: "Appointment Details"
+    calendar: "Calendar"
+    back: "Back to Appointments"
+    nothing_selected: "Nothing selected"
+
+    form:
+      client_name: "Client Name"
+      client_name_placeholder: "Enter or select client name"
+      phone: "Phone"
+      date: "Date"
+      start_time: "Start Time"
+      end_time: "End Time"
+
+      services: "Main Services"
+      select_services: "Select services"
+
+      preparations: "Preparations"
+      select_preparations: "Select preparations"
+
+      care_products: "Care Products"
+      select_care_products: "Select care products"
+
+      notes: "Notes"
+      notes_placeholder: "Up to 256 characters..."
+      total: "Total"
+
+      save: "Save"
+
+    modals:
+      service:
+        title: "Select main services"
+        search: "Search service"
+        apply: "Apply"
+      preparation:
+        title: "Select preparations"
+        search: "Search preparation"
+        apply: "Apply"
+      care_product:
+        title: "Select care products"
+        search: "Search care product"
+        apply: "Apply"
+
+    calendar_view:
+      available: "Available"
+      add: "Add Appointment"
+      header: "Appointments & Available Slots"
+      today: "Today"
+      available_slots: "Available Slots"
+      days:
+        sun: "Sun"
+        mon: "Mon"
+        tue: "Tue"
+        wed: "Wed"
+        thu: "Thu"
+        fri: "Fri"
+        sat: "Sat"
+
+    confirm:
+      delete: "Are you sure you want to delete this appointment?"
+      delete_style: "Delete this style?"
+      delete_photo: "Delete this photo?"
+      delete_all_photos: "Delete ALL photos?"
+
+    show:
+      title: "Appointment Details"
+      client: "Client"
+      service: "Services"
+      date: "Date"
+      time: "Time"
+      notes: "Notes"
+      edit: "Edit"
+      delete: "Delete"
+
+    index:
+      edit: "Edit"
+      delete: "Delete"
+      new_appointment: "New Appointment"
+      calendar: "Calendar"
+      records:
+        one: "%{count} record"
+        other: "%{count} records"
+
+    history:
+      title: "Past Appointments"
+      records:
+        one: "%{count} record"
+        other: "%{count} records"
+
+  common:
+    save: "Save"
+    edit: "Edit"
+    delete: "Delete"
+    back: "Back"
+    apply: "Apply"
+    search: "Search"
+    are_you_sure: "Are you sure?"

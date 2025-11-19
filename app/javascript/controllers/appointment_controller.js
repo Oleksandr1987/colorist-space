@@ -14,7 +14,6 @@ export default class extends Controller {
       care_product: []
     }
 
-    // ✅ Перевірка на існування hiddenInputTarget
     if (this.hasHiddenInputTarget && this.hiddenInputTarget.value) {
       const existingIds = this.hiddenInputTarget.value
         .split(',')
@@ -82,12 +81,10 @@ export default class extends Controller {
   updateSelected() {
     const all = [...this.selected.service, ...this.selected.preparation, ...this.selected.care_product]
 
-    // 🔁 Очистити всі існуючі inputs
     if (this.hasHiddenInputTarget) {
       const container = this.hiddenInputTarget.parentElement
       container.querySelectorAll("input[name='appointment[service_ids][]']").forEach(e => e.remove())
 
-      // 🔄 Додати окремі hidden поля для кожного id
       all.forEach(s => {
         const input = document.createElement("input")
         input.type = "hidden"
@@ -96,11 +93,9 @@ export default class extends Controller {
         container.appendChild(input)
       })
 
-      // 🧹 Очистити hiddenInputTarget.value, бо воно більше не використовується
       this.hiddenInputTarget.value = ""
     }
 
-    // 🔄 Оновити UI
     this.updateTargetContent("serviceSelected", this.selected.service)
     this.updateTargetContent("preparationSelected", this.selected.preparation)
     this.updateTargetContent("careProductSelected", this.selected.care_product)
@@ -109,7 +104,7 @@ export default class extends Controller {
   updateTargetContent(targetName, items) {
     const el = this[`${targetName}Target`]
     if (items.length === 0) {
-      el.innerHTML = '<span class="placeholder">Нічого не вибрано</span>'
+      el.innerHTML = `<span class="placeholder">${I18n.t("appointments.form.nothing_selected")}</span>`
     } else {
       el.innerHTML = items.map(s => `${s.subtype} (${s.price} ₴)`).join(", ")
     }
