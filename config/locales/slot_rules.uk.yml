@@ -1,0 +1,30 @@
+uk:
+  slot_rules:
+    title: "Правила розкладу"
+    new: "Створити правило"
+    edit: "Редагувати правило"
+    update: "Оновити правило"
+    back: "Назад"
+    your_rules: "Ваші правила"
+    no_rules: "Правила ще не створені"
+
+    form:
+      start_time: "Початок"
+      end_time: "Кінець"
+      weekdays: "Дні тижня"
+      create: "Створити правило"
+      update: "Оновити правило"
+
+    weekdays:
+      sunday: "Неділя"
+      monday: "Понеділок"
+      tuesday: "Вівторок"
+      wednesday: "Середа"
+      thursday: "Четвер"
+      friday: "П’ятниця"
+      saturday: "Субота"
+
+    actions:
+      edit: "Редагувати"
+      delete: "Видалити"
+      confirm_delete: "Ви впевнені?"

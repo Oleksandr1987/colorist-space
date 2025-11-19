@@ -1,0 +1,30 @@
+en:
+  slot_rules:
+    title: "Slot Rules"
+    new: "Create Rule"
+    edit: "Edit Slot Rule"
+    update: "Update Rule"
+    back: "Back"
+    your_rules: "Your Rules"
+    no_rules: "No slot rules defined"
+
+    form:
+      start_time: "Start Time"
+      end_time: "End Time"
+      weekdays: "Weekdays"
+      create: "Create Rule"
+      update: "Update Rule"
+
+    weekdays:
+      sunday: "Sunday"
+      monday: "Monday"
+      tuesday: "Tuesday"
+      wednesday: "Wednesday"
+      thursday: "Thursday"
+      friday: "Friday"
+      saturday: "Saturday"
+
+    actions:
+      edit: "Edit"
+      delete: "Delete"
+      confirm_delete: "Are you sure?"

@@ -1,11 +1,14 @@
 <div class="analytics-header-bar">
-  <%= link_to "←", expenses_analytics_path(from: params[:from], to: params[:to]), class: "back-button-inline", title: "Назад" %>
+  <%= link_to "←", expenses_analytics_path(from: params[:from], to: params[:to]),
+              class: "back-button-inline", title: t("analytics.back") %>
 
-  <h1>Аналітика: Витрати</h1>
+  <h1><%= t("analytics.expenses.title") %></h1>
 
-  <%= link_to new_expense_path, class: "add-expense-button", title: "Додати витрату" do %>
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+  <%= link_to new_expense_path, class: "add-expense-button",
+              title: t("analytics.expenses.add") do %>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
          class="lucide lucide-plus">
       <path d="M5 12h14"/><path d="M12 5v14"/>
     </svg>
@@ -17,7 +20,9 @@
 <% if params[:from].present? && params[:to].present? %>
   <% if @category_filter.present? %>
     <div class="expenses-category-header-aligned">
-      <span class="category-header-title"><%= @category_filter %></span>
+      <span class="category-header-title">
+        <%= t("analytics.expenses.categories.#{@category_filter}", default: @category_filter) %>
+      </span>
       <span class="category-header-amount"><%= @total_expenses %> ₴</span>
     </div>
 
@@ -35,25 +40,34 @@
             <% expenses.sort_by(&:spent_on).reverse.each do |expense| %>
               <li class="expense-item" data-controller="popover">
                 <div class="expense-info">
-                  <%= expense.amount %> ₴ [<%= l(expense.spent_on, format: :default) %>]
+                  <%= expense.amount %> ₴
+                  [<%= l(expense.spent_on, format: :default) %>]
                   <% if expense.note.present? %> — <%= expense.note %><% end %>
                 </div>
 
                 <div class="expense-actions">
-                  <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil" width="20" height="20"
-                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                         stroke-linecap="round" stroke-linejoin="round">
+                  <button class="popover-toggle"
+                          data-popover-target="button"
+                          data-action="click->popover#toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil"
+                         width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
                       <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z" />
                       <path d="M16 5l3 3" />
                     </svg>
                   </button>
 
                   <div class="popover-menu hidden" data-popover-target="menu">
-                    <%= link_to "Edit", edit_expense_path(expense), class: "popover-item" %>
-                    <%= button_to expense_path(expense), method: :delete,
-                          data: { turbo_confirm: "Ви впевнені?" }, class: "popover-item delete-button" do %>
-                      Delete
+                    <%= link_to t("analytics.expenses.edit"),
+                                edit_expense_path(expense),
+                                class: "popover-item" %>
+
+                    <%= button_to expense_path(expense),
+                                  method: :delete,
+                                  data: { turbo_confirm: t("analytics.expenses.confirm_delete") },
+                                  class: "popover-item delete-button" do %>
+                      <%= t("analytics.expenses.delete") %>
                     <% end %>
                   </div>
                 </div>
@@ -72,7 +86,11 @@
         <div class="grouped-expense-block">
           <%= link_to expenses_analytics_path(category: category, from: params[:from], to: params[:to]),
                       class: "category-summary-link aligned" do %>
-            <span class="category-name-text"><%= category %></span>
+
+            <span class="category-name-text">
+              <%= t("analytics.expenses.categories.#{category}", default: category) %>
+            </span>
+
             <span class="category-amount"><%= sum %> ₴</span>
           <% end %>
         </div>
@@ -80,7 +98,7 @@
     </div>
 
     <div class="grouped-expense-total">
-      <span>Загалом за період:</span>
+      <span><%= t("analytics.period.total_for_period") %>:</span>
       <strong><%= total_all.to_i %> ₴</strong>
     </div>
   <% end %>

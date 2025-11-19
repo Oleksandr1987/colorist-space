@@ -1,6 +1,6 @@
 <div class="analytics-header-bar">
-  <%= link_to "←", income_analytics_path(from: params[:from], to: params[:to]), class: "back-button-inline", title: "Back" %>
-  <h1>Analytics: Income</h1>
+  <%= link_to "←", income_analytics_path(from: params[:from], to: params[:to]), class: "back-button-inline", title: t("analytics.back") %>
+  <h1><%= t("analytics.income.title") %></h1>
 </div>
 
 <%= render 'shared/period_filter_income' %>
@@ -8,7 +8,9 @@
 <% if params[:from].present? && params[:to].present? %>
   <% if params[:service_type].present? %>
     <div class="expenses-category-header-aligned">
-      <span class="category-header-title"><%= params[:service_type].humanize %></span>
+      <span class="category-header-title">
+        <%= t("analytics.income.types.#{params[:service_type]}", default: params[:service_type].humanize) %>
+      </span>
       <span class="category-header-amount green"><%= @total_income.to_i %> ₴</span>
     </div>
 
@@ -45,7 +47,9 @@
         <div class="grouped-expense-block">
           <%= link_to income_analytics_path(service_type: type, from: params[:from], to: params[:to]),
                       class: "category-summary-link aligned" do %>
-            <span class="category-name-text"><%= type.to_s.titleize %></span>
+            <span class="category-name-text">
+              <%= t("analytics.income.types.#{type}", default: type.to_s.titleize) %>
+            </span>
             <span class="category-amount green"><%= sum %> ₴</span>
           <% end %>
         </div>
@@ -53,7 +57,7 @@
     </div>
 
     <div class="grouped-expense-total">
-      <span>Total for period:</span>
+      <span><%= t("analytics.period.total_for_period") %>:</span>
       <strong class="green"><%= @total_income.to_i %> ₴</strong>
     </div>
   <% end %>

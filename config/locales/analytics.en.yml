@@ -1,0 +1,87 @@
+en:
+  analytics:
+    title: "Analytics"
+    back: "Back"
+
+    menu:
+      expenses: "Expenses"
+      income: "Income"
+      balance: "Balance"
+
+    period:
+      total_for_period: "Total for period"
+
+    balance:
+      title: "Balance (income – expenses)"
+      income: "Income"
+      expenses: "Expenses"
+      total: "Balance"
+
+    expenses:
+      title: "Analytics: Expenses"
+      add: "Add Expense"
+      edit: "Edit"
+      delete: "Delete"
+      confirm_delete: "Are you sure you want to delete this expense?"
+
+      categories:
+        materials: "Materials"
+        rent: "Rent"
+        tools: "Tools"
+        other: "Other"
+
+    income:
+      title: "Analytics: Income"
+      types:
+        service: "Services"
+        preparation: "Preparations"
+        care_product: "Care Products"
+
+    period_filter:
+      period: "Period"
+      from: "From"
+      to: "To"
+      apply: "Filter"
+
+      presets:
+        d7: "7 days"
+        d14: "14 days"
+        m1: "1 month"
+        m3: "3 months"
+        m6: "6 months"
+        m9: "9 months"
+        y1: "1 year"
+
+      categories:
+        all: "All categories"
+        category: "Category"
+
+    income_filter:
+      period: "Period"
+      from: "From"
+      to: "To"
+      apply: "Filter"
+
+      presets:
+        d7: "7 days"
+        d14: "14 days"
+        m1: "1 month"
+        m3: "3 months"
+        m6: "6 months"
+        m9: "9 months"
+        y1: "1 year"
+
+      types:
+        all: "All types"
+        service: "Services"
+        preparation: "Preparations"
+        care_product: "Care products"
+        type: "Type"
+
+      categories:
+        all: "All categories"
+        category: "Category"
+
+      subtypes:
+        all: "All subtypes"
+        subtype: "Subtype"

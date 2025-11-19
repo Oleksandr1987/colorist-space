@@ -1,23 +1,28 @@
 <div class="settings-page compact">
-  <h1 class="settings-title">Особистий кабінет</h1>
+  <h1 class="settings-title"><%= t("settings.title") %></h1>
 
   <div class="settings-block">
-    <h2 class="settings-heading">Мій акаунт</h2>
-    <p><strong>Ім’я:</strong> <%= @user.name.presence || "—" %></p>
-    <p><strong>Email:</strong> <%= @user.email %></p>
-    <p><strong>Телефон:</strong> <%= @user.phone.presence || "—" %></p>
+    <h2 class="settings-heading"><%= t("settings.account.title") %></h2>
+
+    <p><strong><%= t("settings.account.name") %>:</strong> <%= @user.name.presence || "—" %></p>
+    <p><strong><%= t("settings.account.email") %>:</strong> <%= @user.email %></p>
+    <p><strong><%= t("settings.account.phone") %>:</strong> <%= @user.phone.presence || "—" %></p>
 
     <div class="mt-2">
-      <%= link_to "Редагувати профіль", edit_user_registration_path, class: "link-row" %>
-      <%= link_to "Змінити пароль", edit_user_registration_path, class: "link-row" %>
-      <%= link_to "Вийти", destroy_user_session_path, data: { turbo_method: :delete }, class: "link-row logout" %>
-      <%= button_to "Видалити обліковий запис", registration_path(@user),
-          method: :delete,
-          data: { confirm: "Ви впевнені?", turbo_confirm: "Ви впевнені?" },
-          class: "link-row danger" %>
+      <%= link_to t("settings.account.edit_profile"), edit_user_registration_path, class: "link-row" %>
+      <%= link_to t("settings.account.change_password"), edit_user_registration_path, class: "link-row" %>
+      <%= link_to t("settings.account.logout"), destroy_user_session_path,
+            data: { turbo_method: :delete }, class: "link-row logout" %>
+
+      <%= button_to t("settings.account.delete"),
+            registration_path(@user),
+            method: :delete,
+            data: { confirm: t("settings.account.confirm_delete") },
+            class: "link-row danger" %>
     </div>
   </div>
 
+  <!-- LANGUAGE -->
   <div class="settings-block">
     <h2 class="settings-heading"><%= t("settings.language.title") %></h2>
 
@@ -30,8 +35,9 @@
     </div>
   </div>
 
+  <!-- SUBSCRIPTION -->
   <div class="settings-block">
-    <h2 class="settings-heading">Підписка</h2>
+    <h2 class="settings-heading"><%= t("settings.subscription.title") %></h2>
     <% plan =
         if @user.superadmin?
           "superadmin"
@@ -43,22 +49,22 @@
           "none"
         end %>
 
-    <p><strong>Тариф:</strong> <%= plan %></p>
+    <p><strong><%= t("settings.subscription.plan") %>:</strong> <%= plan %></p>
 
     <% if @user.subscription_expires_at.present? %>
-      <p><strong>Дійсна до:</strong> <%= @user.subscription_expires_at.strftime("%d.%m.%Y") %></p>
+      <p><strong><%= t("settings.subscription.active_until") %>:</strong> <%= @user.subscription_expires_at.strftime("%d.%m.%Y") %></p>
     <% elsif @user.on_trial? %>
-      <p><strong>Залишилось:</strong> <%= pluralize(@user.trial_days_left, 'день') %> пробного доступу</p>
+      <p><strong><%= t("settings.subscription.days_left") %>:</strong> <%= @user.trial_days_left %></p>
     <% else %>
-      <p><strong>Дійсна до:</strong> —</p>
+      <p><strong><%= t("settings.subscription.active_until") %>:</strong> <%= t("settings.subscription.none") %></p>
     <% end %>
 
     <% if @user.subscription_will_expire_soon? %>
-      <p class="warning">⚠️ Залишилось менше 3 днів</p>
+      <p class="warning"><%= t("settings.subscription.expires_soon") %></p>
     <% elsif !@user.has_active_subscription? && !@user.superadmin? && !@user.on_trial? %>
-      <p class="warning">⚠️ Підписка завершилась</p>
+      <p class="warning"><%= t("settings.subscription.expired") %></p>
     <% end %>
 
-    <%= link_to "Керувати підпискою", settings_subscription_path, class: "link-row primary" %>
+    <%= link_to t("settings.subscription.manage"), settings_subscription_path, class: "link-row primary" %>
   </div>
 </div>

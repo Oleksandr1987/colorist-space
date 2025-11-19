@@ -1,0 +1,10 @@
+en:
+  admin:
+    title: "Admin Panel"
+
+    cards:
+      services: "Services"
+      schedule: "Schedule"
+      expenses: "Expenses"
+      analytics: "Analytics"
+      settings: "Settings"

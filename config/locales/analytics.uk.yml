@@ -1,0 +1,87 @@
+uk:
+  analytics:
+    title: "Аналітика"
+    back: "Назад"
+
+    menu:
+      expenses: "Витрати"
+      income: "Дохід"
+      balance: "Сальдо"
+
+    period:
+      total_for_period: "Загалом за період"
+
+    balance:
+      title: "Сальдо (дохід – витрати)"
+      income: "Дохід"
+      expenses: "Витрати"
+      total: "Сальдо"
+
+    expenses:
+      title: "Аналітика: Витрати"
+      add: "Додати витрату"
+      edit: "Редагувати"
+      delete: "Видалити"
+      confirm_delete: "Ви впевнені, що хочете видалити цю витрату?"
+
+      categories:
+        materials: "Матеріали"
+        rent: "Оренда"
+        tools: "Інструменти"
+        other: "Інше"
+
+    income:
+      title: "Аналітика: Дохід"
+      types:
+        service: "Послуги"
+        preparation: "Препарати"
+        care_product: "Засоби догляду"
+
+    period_filter:
+      period: "Період"
+      from: "Від"
+      to: "До"
+      apply: "Фільтрувати"
+
+      presets:
+        d7: "7 днів"
+        d14: "14 днів"
+        m1: "1 місяць"
+        m3: "3 місяці"
+        m6: "6 місяців"
+        m9: "9 місяців"
+        y1: "1 рік"
+
+      categories:
+        all: "Всі категорії"
+        category: "Категорія"
+
+    income_filter:
+      period: "Період"
+      from: "Від"
+      to: "До"
+      apply: "Фільтрувати"
+
+      presets:
+        d7: "7 днів"
+        d14: "14 днів"
+        m1: "1 місяць"
+        m3: "3 місяці"
+        m6: "6 місяців"
+        m9: "9 місяців"
+        y1: "1 рік"
+
+      types:
+        all: "Всі типи"
+        service: "Послуги"
+        preparation: "Препарати"
+        care_product: "Засоби догляду"
+        type: "Тип"
+
+      categories:
+        all: "Усі категорії"
+        category: "Категорія"
+
+      subtypes:
+        all: "Усі підтипи"
+        subtype: "Підтип"

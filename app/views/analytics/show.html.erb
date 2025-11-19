@@ -1,4 +1,4 @@
-<h1>Аналітика</h1>
+<h1><%= t("analytics.title") %></h1>
 
 <div class="admin-dashboard">
   <%= link_to expenses_analytics_path, class: "admin-card expenses" do %>
@@ -6,7 +6,7 @@
       <path d="M16 17h6v-6"/>
       <path d="m22 17-8.5-8.5-5 5L2 7"/>
     </svg>
-    Витрати
+    <%= t("analytics.menu.expenses") %>
   <% end %>
 
   <%= link_to income_analytics_path, class: "admin-card income" do %>
@@ -14,7 +14,7 @@
       <path d="M16 7h6v6"/>
       <path d="m22 7-8.5 8.5-5-5L2 17"/>
     </svg>
-    Дохід
+    <%= t("analytics.menu.income") %>
   <% end %>
 
   <%= link_to balance_analytics_path, class: "admin-card balance" do %>
@@ -26,6 +26,6 @@
       <path d="M4 18v3"/>
       <path d="M8 14v7"/>
     </svg>
-    Сальдо
+    <%= t("analytics.menu.balance") %>
   <% end %>
 </div>

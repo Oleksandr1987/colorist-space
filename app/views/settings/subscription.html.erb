@@ -1,31 +1,34 @@
 <div class="subscription-page">
-  <h1>Керування підпискою</h1>
+  <h1><%= t("subscription.title") %></h1>
 
   <div class="subscription-info">
     <% plan = @user.superadmin? ? "superadmin" : (@user.plan_name || "trial") %>
     <% expires = @user.subscription_expires_at&.strftime("%d.%m.%Y") || "—" %>
 
-    <p><strong>Поточний тариф:</strong> <%= plan %></p>
-    <p><strong>Дійсний до:</strong> <%= expires %></p>
+    <p><strong><%= t("subscription.current_plan") %>:</strong> <%= plan %></p>
+    <p><strong><%= t("subscription.valid_until") %>:</strong> <%= expires %></p>
 
     <% if @user.subscription_will_expire_soon? %>
-      <p class="warning">⚠️ Залишилось менше 3 днів</p>
+      <p class="warning"><%= t("subscription.expires_soon") %></p>
     <% elsif !@user.has_active_subscription? && !@user.superadmin? %>
-      <p class="warning">⚠️ Підписка завершилась</p>
+      <p class="warning"><%= t("subscription.expired") %></p>
     <% end %>
   </div>
 
   <div class="subscription-actions mt-3">
-    <%= button_to "Оформити на 1 місяць", monthly_subscription_path, method: :post, class: "button primary full", data: { turbo: false } %>
-    <%= button_to "Оформити на 1 рік", yearly_subscription_path, method: :post, class: "button primary full", data: { turbo: false } %>
+    <%= button_to t("subscription.monthly"), monthly_subscription_path, method: :post, class: "button primary full", data: { turbo: false } %>
+    <%= button_to t("subscription.yearly"), yearly_subscription_path, method: :post, class: "button primary full", data: { turbo: false } %>
 
     <% if @user.has_active_subscription? %>
-      <%= button_to "Скасувати підписку", cancel_subscription_path, method: :delete,
-            data: { confirm: "Ви впевнені?" }, class: "button secondary full mt-2" %>
+      <%= button_to t("subscription.cancel"),
+            cancel_subscription_path,
+            method: :delete,
+            data: { confirm: t("subscription.confirm_cancel") },
+            class: "button secondary full mt-2" %>
     <% end %>
   </div>
 
   <div class="mt-3">
-    <%= link_to "← Назад до налаштувань", settings_path, class: "button link" %>
+    <%= link_to t("subscription.back"), settings_path, class: "button link" %>
   </div>
 </div>

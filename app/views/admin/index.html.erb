@@ -1,7 +1,7 @@
 <%= render 'shared/vertical_menu' %>
 
 <div class="admin-dashboard">
-  <h1>Admin Panel</h1>
+  <h1><%= t("admin.title") %></h1>
 
   <%= link_to services_path, class: "admin-card" do %>
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -13,7 +13,7 @@
       <circle cx="6" cy="18" r="3"/>
       <path d="M14.8 14.8 20 20"/>
     </svg>
-    Services
+    <%= t("admin.cards.services") %>
   <% end %>
 
   <%= link_to slot_rules_path, class: "admin-card" do %>
@@ -23,7 +23,7 @@
       <circle cx="12" cy="12" r="10"/>
       <polyline points="12 6 12 12 16 14"/>
     </svg>
-    Schedule
+    <%= t("admin.cards.schedule") %>
   <% end %>
 
   <%= link_to expenses_analytics_path, class: "admin-card expenses" do %>
@@ -31,7 +31,7 @@
       <path d="M16 17h6v-6"/>
       <path d="m22 17-8.5-8.5-5 5L2 7"/>
     </svg>
-    Expenses
+    <%= t("admin.cards.expenses") %>
   <% end %>
 
   <%= link_to analytics_path, class: "admin-card balance" do %>
@@ -43,7 +43,7 @@
         <path d="M4 18v3"/>
         <path d="M8 14v7"/>
     </svg>
-    Analytics
+    <%= t("admin.cards.analytics") %>
   <% end %>
   
   <%= link_to settings_path, class: "admin-card" do %>
@@ -53,6 +53,6 @@
       <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
       <circle cx="12" cy="12" r="3"/>
     </svg>
-    Settings
+    <%= t("admin.cards.settings") %>
   <% end %>
 </div>

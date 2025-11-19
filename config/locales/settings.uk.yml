@@ -1,6 +1,29 @@
 uk:
   settings:
+    title: "Особистий кабінет"
+
+    account:
+      title: "Мій акаунт"
+      name: "Ім’я"
+      email: "Email"
+      phone: "Телефон"
+      edit_profile: "Редагувати профіль"
+      change_password: "Змінити пароль"
+      logout: "Вийти"
+      delete: "Видалити обліковий запис"
+      confirm_delete: "Ви впевнені?"
+
     language:
       title: "Мова інтерфейсу"
       uk: "Українська"
       en: "English"
+
+    subscription:
+      title: "Підписка"
+      plan: "Тариф"
+      active_until: "Дійсна до"
+      days_left: "Залишилось"
+      expired: "Підписка завершилась"
+      expires_soon: "⚠️ Залишилось менше 3 днів"
+      manage: "Керувати підпискою"
+      none: "—"
