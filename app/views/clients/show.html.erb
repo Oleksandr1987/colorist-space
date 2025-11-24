@@ -12,23 +12,6 @@
         <%= link_to t("clients.show.new_appointment"),
                     new_appointment_path(client_id: @client.id),
                     class: "menu-item" %>
-
-        <%= link_to t("clients.show.edit_client"),
-                    edit_client_path(@client),
-                    class: "menu-item" %>
-
-        <a href="#client-info"
-           class="menu-item"
-           data-action="click->client-profile#toggleInfo">
-          <%= t("clients.show.info_tab") %>
-        </a>
-
-        <%= button_to t("clients.show.delete_client"),
-            client_path(@client),
-            method: :delete,
-            data: { turbo_confirm: t("clients.show.delete_client_confirm") },
-            class: "menu-item delete" %>
-
       </div>
     </div>
   </div>
@@ -72,7 +55,10 @@
               <div class="note-actions">
 
                 <%= link_to edit_client_service_note_path(@client, note), class: "edit-icon" do %>
-                  <svg ...>...</svg>
+                   <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z" />
+                    <path d="M16 5l3 3" />
+                  </svg>
                 <% end %>
 
                 <div data-controller="popover" class="popover">
@@ -95,6 +81,14 @@
       </div>
     <% end %>
 
+  </div>
+
+  <div>
+    <a href="#client-info"
+           class="menu-item"
+           data-action="click->client-profile#toggleInfo">
+          <%= t("clients.show.info_tab") %>
+        </a>
   </div>
 
   <!-- Photos Tab -->
@@ -139,7 +133,15 @@
 
   <!-- Back -->
   <div class="actions">
-    <%= link_to t("clients.back"), clients_path, class: "button secondary" %>
+    <%= link_to t("clients.show.edit_client"),
+                    edit_client_path(@client),
+                    class: "button secondary" %>
+    
+    <%= button_to t("clients.show.delete_client"),
+            client_path(@client),
+            method: :delete,
+            data: { turbo_confirm: t("clients.show.delete_client_confirm") },
+            class: "button delete" %>
   </div>
 
   <!-- Modal viewer remains unchanged -->

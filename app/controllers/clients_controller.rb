@@ -73,7 +73,7 @@ class ClientsController < ApplicationController
 
   def client_params
     params.require(:client).permit(
-      :first_name, :last_name, :phone, :birthdate,
+      :first_name, :last_name, :phone,
       :hair_type, :hair_length, :hair_structure,
       :hair_density, :scalp_condition, :note, photos: []
     )
