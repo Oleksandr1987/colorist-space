@@ -16,7 +16,6 @@ en:
       first_name: "First Name"
       last_name: "Last Name"
       phone: "Phone Number"
-      birthdate: "Date of Birth"
       note: "Notes"
 
       hair_info_title: "Optional Hair Information"

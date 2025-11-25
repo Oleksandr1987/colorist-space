@@ -2,34 +2,18 @@
 
   <!-- Header -->
   <div class="client-header">
-    <h1><%= @client.full_name %></h1>
 
-    <div data-controller="menu" class="menu-wrapper">
-      <button class="vertical-menu-toggle" data-action="click->menu#toggleMenu">≡</button>
+    <div class="client-header-left">
+      <h1><%= @client.full_name %></h1>
+      <p class="client-phone"><%= @client.phone %></p>
+    </div>
 
-      <div data-menu-target="menu" class="menu hidden">
-
-        <%= link_to t("clients.show.new_appointment"),
-                    new_appointment_path(client_id: @client.id),
-                    class: "menu-item" %>
-
-        <%= link_to t("clients.show.edit_client"),
-                    edit_client_path(@client),
-                    class: "menu-item" %>
-
-        <a href="#client-info"
-           class="menu-item"
-           data-action="click->client-profile#toggleInfo">
-          <%= t("clients.show.info_tab") %>
-        </a>
-
-        <%= button_to t("clients.show.delete_client"),
-            client_path(@client),
-            method: :delete,
-            data: { turbo_confirm: t("clients.show.delete_client_confirm") },
-            class: "menu-item delete" %>
-
-      </div>
+    <div class="client-header-right">
+      <%= link_to calendar_appointments_path,
+                  class: "button small new-appointment-button",
+                  data: { turbo: false } do %>
+        <%= t("clients.show.new_appointment") %>
+      <% end %>
     </div>
   </div>
 
@@ -44,107 +28,111 @@
 
     <button class="tab-button"
             data-client-profile-target="tab"
-            data-tab-name="photos"
+            data-tab-name="info"
             data-action="click->client-profile#showTab">
-      <%= t("clients.show.photos_tab") %>
+      <%= t("clients.show.info_tab") %>
     </button>
   </div>
 
-  <!-- Styles Tab -->
-  <div id="styles-tab" data-client-profile-target="tabContent" class="tab-content active">
+  <!-- STYLES TAB  -->
+  <div id="styles-tab"
+       data-client-profile-target="tabContent"
+       class="tab-content active">
 
-    <% @client.service_notes.order(created_at: :desc).group_by { |n| n.created_at.to_date }.each do |date, notes| %>
-      <div class="style-group">
+    <% @client.service_notes.order(created_at: :desc).each do |note| %>
+      <div class="style-card">
 
-        <h3><%= l(date, format: "%B %d") %></h3>
+        <!-- CLICKABLE THUMBNAIL → SHOW PAGE -->
+        <%= link_to client_service_note_path(@client, note),
+                    class: "style-photo-wrapper-link" do %>
 
-        <div class="photos-grid">
-          <% notes.each do |note| %>
-            <div class="service-note-thumb">
-              <%= link_to client_service_note_path(@client, note) do %>
-                <% if note.photos.attached? %>
-                  <%= image_tag note.photos.first, class: "client-photo" %>
-                <% else %>
-                  <div class="no-photo"><%= t("clients.show.no_photo") %></div>
-                <% end %>
+          <div class="style-photo-wrapper">
+
+            <% if note.photos.attached? %>
+
+              <%= image_tag thumb(note.photos.first),
+                    class: "style-photo" %>
+
+              <% if note.photos.count > 1 %>
+                <div class="style-photo-count">
+                  +<%= note.photos.count - 1 %>
+                </div>
               <% end %>
 
-              <div class="note-actions">
+            <% else %>
+              <div class="style-no-photo">No photo</div>
+            <% end %>
 
-                <%= link_to edit_client_service_note_path(@client, note), class: "edit-icon" do %>
-                  <svg ...>...</svg>
-                <% end %>
-
-                <div data-controller="popover" class="popover">
-                  <button class="popover-toggle" data-action="click->popover#toggle">⋮</button>
-
-                  <div class="popover-menu hidden" data-popover-target="menu">
-                    <%= button_to t("clients.show.delete_style"),
-                                  client_service_note_path(@client, note),
-                                  method: :delete,
-                                  data: { turbo_confirm: t("clients.show.delete_style_confirm") },
-                                  class: "popover-item delete-button" %>
-                  </div>
-                </div>
-
-              </div>
+            <div class="style-info-overlay">
+              <div class="style-date"><%= l(note.created_at, format: "%B %d") %></div>
+              <div class="style-service"><%= note.service_type.capitalize %></div>
             </div>
-          <% end %>
-        </div>
+
+          </div>
+
+        <% end %>
 
       </div>
     <% end %>
 
-  </div>
-
-  <!-- Photos Tab -->
-  <div id="photos-tab" data-client-profile-target="tabContent" class="tab-content hidden">
-
-    <div class="photos-grid">
-      <% @client.photos.each do |photo| %>
-        <div class="photo-wrapper" data-action="click->photo#show touchstart->photo#touchStart touchend->photo#touchEnd">
-
-          <%= image_tag photo, class: "client-photo", data: { photo_url: url_for(photo) } %>
-
-          <%= button_to "🗑",
-              delete_photo_client_path(@client, photo.id),
-              method: :delete,
-              data: { turbo_confirm: t("clients.show.delete_photo") },
-              class: "photo-delete-btn" %>
-
-        </div>
+    <!-- ADD STYLE BUTTON -->
+    <div class="add-style-wrapper" style="margin-top: 1.5rem; text-align:center;">
+      <%= link_to new_client_service_note_path(@client),
+                  class: "button small new-appointment-button add-style-button" do %>
+        + <%= t("clients.show.add_style") %>
       <% end %>
     </div>
-
-    <% if @client.photos.attached? %>
-      <%= button_to t("clients.show.delete_all_photos"),
-            delete_all_photos_client_path(@client),
-            method: :delete,
-            data: { turbo_confirm: t("clients.show.delete_all_photos_confirm") },
-            class: "button delete-all" %>
-    <% end %>
-
   </div>
 
-  <!-- Client Info -->
-  <div id="client-info" data-client-profile-target="info" class="client-info hidden">
-    <p><strong><%= t("clients.show.details.phone") %>:</strong> <%= @client.phone %></p>
-    <p><strong><%= t("clients.show.details.hair_type") %>:</strong> <%= t("clients.hair.types.#{@client.hair_type.downcase}") if @client.hair_type %></p>
-    <p><strong><%= t("clients.show.details.hair_length") %>:</strong> <%= t("clients.hair.lengths.#{@client.hair_length.downcase}") if @client.hair_length %></p>
-    <p><strong><%= t("clients.show.details.hair_structure") %>:</strong> <%= t("clients.hair.structures.#{@client.hair_structure.downcase}") if @client.hair_structure %></p>
-    <p><strong><%= t("clients.show.details.hair_density") %>:</strong> <%= t("clients.hair.density.#{@client.hair_density.downcase}") if @client.hair_density %></p>
-    <p><strong><%= t("clients.show.details.scalp_condition") %>:</strong> <%= t("clients.hair.scalp.#{@client.scalp_condition.downcase}") if @client.scalp_condition %></p>
-    <p><strong><%= t("clients.show.details.note") %>:</strong> <%= @client.note %></p>
+
+  <!-- INFO TAB  -->
+  <div id="info-tab"
+       data-client-profile-target="tabContent"
+       class="tab-content">
+
+    <div class="client-info">
+
+      <p><strong><%= t("clients.show.details.phone") %>:</strong>
+        <%= @client.phone %></p>
+
+      <p><strong><%= t("clients.show.details.hair_type") %>:</strong>
+        <%= t("clients.hair.types.#{@client.hair_type.downcase}") if @client.hair_type %></p>
+
+      <p><strong><%= t("clients.show.details.hair_length") %>:</strong>
+        <%= t("clients.hair.lengths.#{@client.hair_length.downcase}") if @client.hair_length %></p>
+
+      <p><strong><%= t("clients.show.details.hair_structure") %>:</strong>
+        <%= t("clients.hair.structures.#{@client.hair_structure.downcase}") if @client.hair_structure %></p>
+
+      <p><strong><%= t("clients.show.details.hair_density") %>:</strong>
+        <%= t("clients.hair.density.#{@client.hair_density.downcase}") if @client.hair_density %></p>
+
+      <p><strong><%= t("clients.show.details.scalp_condition") %>:</strong>
+        <%= t("clients.hair.scalp.#{@client.scalp_condition.downcase}") if @client.scalp_condition %></p>
+
+      <p><strong><%= t("clients.show.details.note") %>:</strong>
+        <%= @client.note %></p>
+
+      <div class="actions">
+        <%= link_to t("clients.show.edit_client"),
+                    edit_client_path(@client),
+                    class: "button secondary" %>
+
+        <%= button_to t("clients.show.delete_client"),
+                      client_path(@client),
+                      method: :delete,
+                      data: { turbo_confirm: t("clients.show.delete_client_confirm") },
+                      class: "button delete" %>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Back -->
-  <div class="actions">
-    <%= link_to t("clients.back"), clients_path, class: "button secondary" %>
-  </div>
-
-  <!-- Modal viewer remains unchanged -->
-  <div data-photo-target="modal" class="modal hidden">
-    ...
+  <!-- FULLSCREEN -->
+  <div data-photo-target="modal" class="fullscreen hidden">
+    <div class="fullscreen-backdrop" data-action="click->photo#close"></div>
+    <button class="fullscreen-close" data-action="click->photo#close">×</button>
+    <img data-photo-target="modalImage" class="fullscreen-image">
   </div>
 
 </div>

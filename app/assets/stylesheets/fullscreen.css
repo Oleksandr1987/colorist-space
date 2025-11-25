@@ -1,0 +1,50 @@
+.fullscreen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.96);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  backdrop-filter: blur(2px);
+}
+
+.fullscreen.hidden {
+  display: none !important;
+}
+
+/* Backdrop */
+.fullscreen-backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+/* Image */
+.fullscreen-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  z-index: 5;
+  cursor: grab;
+  transition: transform 0.25s ease;
+}
+
+/* Close button */
+.fullscreen-close {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  z-index: 10;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  border: none;
+  font-size: 2.3rem;
+  padding: 8px 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.fullscreen-close:hover {
+  background: rgba(0,0,0,0.75);
+}
