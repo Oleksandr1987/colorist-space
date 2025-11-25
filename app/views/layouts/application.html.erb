@@ -12,13 +12,14 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <!-- Styles -->
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "forms", media: "all", "data-turbo-track": "reload" %>
+
     <%= javascript_importmap_tags %>
   </head>
  
@@ -31,6 +32,23 @@
 
       <%= yield %>
     </main>
+
     <%= render 'shared/navigation' if user_signed_in? %>
+
+    <div data-controller="photo"
+         class="fullscreen hidden"
+         data-photo-target="modal">
+
+      <div class="fullscreen-backdrop"
+           data-action="click->photo#close"></div>
+
+      <img data-photo-target="modalImage"
+           class="fullscreen-image"
+           alt="">
+
+      <button class="fullscreen-close"
+              data-action="click->photo#close">✕</button>
+    </div>
+
   </body>
 </html>

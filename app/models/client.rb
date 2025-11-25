@@ -17,4 +17,8 @@ class Client < ApplicationRecord
   def full_name
     "#{first_name} #{last_name}".strip
   end
+
+  def decorated_photos
+    photos.map { |p| PhotoDecorator.decorate(p) }
+  end
 end
