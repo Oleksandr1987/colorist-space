@@ -45,3 +45,5 @@ uk:
 
     # Social alt
     social_icon_alt: "%{provider} логотип"
+
+    oauth_consent_html: "Продовжуючи, ви погоджуєтесь з %{terms} та %{privacy}."
