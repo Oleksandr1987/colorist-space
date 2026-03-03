@@ -57,7 +57,7 @@ group :development, :test do
   gem "dotenv-rails"
   gem "factory_bot_rails"
   gem "faker"
-  gem 'rspec-rails', '~> 8.0', '>= 8.0.2'
+  gem "rspec-rails", "~> 8.0", ">= 8.0.2"
 end
 
 group :development do
@@ -67,5 +67,5 @@ end
 group :test do
   gem "capybara"
   gem "selenium-webdriver"
-  gem 'shoulda-matchers', '~> 7.0', '>= 7.0.1'
+  gem "shoulda-matchers", "~> 7.0", ">= 7.0.1"
 end
