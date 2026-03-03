@@ -1,3 +1,19 @@
+@use "forms";
+@use "calendar";
+@use "clients";
+@use "admin";
+@use "home";
+@use "errors";
+@use "appointment";
+@use "appointment_form";
+@use "analytics";
+@use "photos";
+@use "services";
+@use "service_notes";
+@use "settings";
+@use "expenses";
+@use "datepicker";
+
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
 /* ==== General Page Styles ==== */
@@ -210,7 +226,7 @@ body {
   max-width: 100%;
   display: flex;
   justify-content: flex-end;
-  padding: 12px 16px 0; /* трохи нижче кнопка ≡ */
+  padding: 12px 16px 0;
 }
 
 .vertical-menu-toggle {
@@ -225,7 +241,7 @@ body {
 
 .vertical-menu {
   position: absolute;
-  top: 50px; /* трохи нижче кнопки */
+  top: 50px;
   right: 12px;
   background: white;
   border: 1px solid #ddd;
