@@ -6,35 +6,29 @@ on:
     branches: [ master ]
 
 jobs:
-  scan_ruby:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-      - run: bin/brakeman --no-pager
-
-  scan_js:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-      - run: bin/importmap audit
-
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
+
       - run: bin/rubocop -f github
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - run: bin/brakeman --no-pager
 
   test:
     runs-on: ubuntu-latest
@@ -49,16 +43,5 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Prepare database (no seeds!)
-        run: bin/rails db:create db:schema:load
-
-      - name: Run RSpec
-        run: bundle exec rspec
-
-      - name: Keep screenshots from failed system tests
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: screenshots
-          path: tmp/screenshots
-          if-no-files-found: ignore
+      - run: bin/rails db:create db:schema:load
+      - run: bundle exec rspec

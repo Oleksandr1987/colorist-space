@@ -27,7 +27,7 @@ class User < ApplicationRecord
       end
 
       where(conditions).where(
-        ["LOWER(email) = :value OR phone = :value", { value: login.downcase }]
+        [ "LOWER(email) = :value OR phone = :value", { value: login.downcase } ]
       ).first
     end
 

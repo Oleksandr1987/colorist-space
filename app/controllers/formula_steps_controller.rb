@@ -1,7 +1,7 @@
 class FormulaStepsController < ApplicationController
   before_action :set_client
   before_action :set_service_note
-  before_action :set_formula_step, only: [:update, :destroy, :clear_oxidant, :clear_time]
+  before_action :set_formula_step, only: [ :update, :destroy, :clear_oxidant, :clear_time ]
 
   def create
     @formula_step = @service_note.formula_steps.build(formula_step_params)
@@ -57,6 +57,6 @@ class FormulaStepsController < ApplicationController
 
   def formula_step_params
     params.require(:formula_step).permit(:section, :oxidant, :time,
-      formula_ingredients_attributes: [:id, :shade, :brand, :amount, :_destroy])
+      formula_ingredients_attributes: [ :id, :shade, :brand, :amount, :_destroy ])
   end
 end

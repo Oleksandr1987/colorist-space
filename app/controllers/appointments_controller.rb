@@ -47,7 +47,7 @@ class AppointmentsController < ApplicationController
 
     if @appointment.save
       @appointment.update(service_name: @appointment.combined_service_name)
-      redirect_to @appointment, notice: 'Appointment was successfully created.'
+      redirect_to @appointment, notice: "Appointment was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -74,7 +74,7 @@ class AppointmentsController < ApplicationController
     if @appointment.update(appointment_params)
       @appointment.reload
       @appointment.update_column(:service_name, @appointment.combined_service_name)
-      redirect_to @appointment, notice: 'Appointment was successfully updated.'
+      redirect_to @appointment, notice: "Appointment was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -82,7 +82,7 @@ class AppointmentsController < ApplicationController
 
   def destroy
     @appointment.destroy
-    redirect_to appointments_path, notice: 'Appointment was successfully deleted.'
+    redirect_to appointments_path, notice: "Appointment was successfully deleted."
   end
 
   def calendar; end
@@ -96,8 +96,8 @@ class AppointmentsController < ApplicationController
       .order(:appointment_time)
 
     render json: @appointments.map { |a|
-      start_time = a.appointment_time.strftime('%H:%M')
-      end_time = a.end_time.strftime('%H:%M') if a.end_time.present?
+      start_time = a.appointment_time.strftime("%H:%M")
+      end_time = a.end_time.strftime("%H:%M") if a.end_time.present?
 
       {
         id: a.id,

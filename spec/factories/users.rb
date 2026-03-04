@@ -2,7 +2,9 @@ FactoryBot.define do
   factory :user do
     name { Faker::Name.name }
     email { Faker::Internet.unique.email }
-    phone { "+380501234567" }
+
+    sequence(:phone) { |n| "+380501234#{format('%03d', n)}" }
+
     password { "Password123!" }
     password_confirmation { password }
     tos_agreement { true }

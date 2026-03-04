@@ -14,11 +14,11 @@ class ServiceNote < ApplicationRecord
 
   def short_title
     label = case service_type
-            when "haircut" then "Стрижка"
-            when "coloring" then "Фарбування"
-            when "care" then "Догляд"
-            else service_type.to_s.capitalize
-            end
+    when "haircut" then "Стрижка"
+    when "coloring" then "Фарбування"
+    when "care" then "Догляд"
+    else service_type.to_s.capitalize
+    end
   end
 
   private

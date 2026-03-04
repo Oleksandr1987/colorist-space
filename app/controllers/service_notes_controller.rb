@@ -50,7 +50,7 @@ class ServiceNotesController < ApplicationController
       :service_type, :notes, :price,
       formula_steps_attributes: [
         :id, :section, :oxidant, :time, :_destroy,
-        formula_ingredients_attributes: [:id, :shade, :brand, :amount, :_destroy]
+        formula_ingredients_attributes: [ :id, :shade, :brand, :amount, :_destroy ]
       ]
     )
   end

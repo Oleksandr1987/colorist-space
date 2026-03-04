@@ -109,7 +109,7 @@ today = Date.today
 12.times do |i|
   month_date = today << i
   start_date = month_date.beginning_of_month
-  end_date = [month_date.end_of_month, today].min
+  end_date = [ month_date.end_of_month, today ].min
 
   20.times do
     Expense.create!(
@@ -144,7 +144,7 @@ else
   200.times do
     client = clients.sample
     date = Date.today - rand(0..180)
-    time = Time.zone.parse("#{rand(9..17)}:#{[0, 30].sample}")
+    time = Time.zone.parse("#{rand(9..17)}:#{[ 0, 30 ].sample}")
 
     appointment = demo_user.appointments.build(
       client: client,
@@ -173,7 +173,7 @@ puts "🌱 Seeding future appointments..."
   rand(3..4).times do
     client = clients.sample
     hour = rand(9..16)
-    minute = [0, 15, 30, 45].sample
+    minute = [ 0, 15, 30, 45 ].sample
     time = Time.zone.parse("#{hour}:#{minute}")
 
     appointment = demo_user.appointments.build(

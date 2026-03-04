@@ -64,7 +64,7 @@ class Appointment < ApplicationRecord
 
   class << self
     def grouped_by_month(relation)
-      relation.group_by { |a| a.appointment_date.strftime('%B %Y') }
+      relation.group_by { |a| a.appointment_date.strftime("%B %Y") }
               .sort_by { |month, appointments| appointments.first.appointment_date.beginning_of_month }
               .to_h
     end
