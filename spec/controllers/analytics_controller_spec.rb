@@ -9,10 +9,7 @@ RSpec.describe AnalyticsController, type: :controller do
 
   before do
     travel_to Time.zone.local(2026, 1, 15)
-
-    # request.env["devise.mapping"] = Devise.mappings[:user]
-    # sign_in user
-    request.env["devise.mapping"] = Devise.mappings[:user] 
+    request.env["devise.mapping"] = Devise.mappings[:user]
     allow(request.env["warden"]).to receive(:authenticate!).and_return(user)
     allow(controller).to receive(:current_user).and_return(user)
   end
