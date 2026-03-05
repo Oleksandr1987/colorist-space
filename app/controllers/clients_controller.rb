@@ -23,7 +23,7 @@ class ClientsController < ApplicationController
   def create
     @client = current_user.clients.build(client_params)
     if @client.save
-      redirect_to edit_client_path(@client), notice: 'Client was created. Please add hair details.'
+      redirect_to edit_client_path(@client), notice: "Client was created. Please add hair details."
     else
       render :new, status: :unprocessable_entity
     end
@@ -37,7 +37,7 @@ class ClientsController < ApplicationController
     end
 
     if @client.update(client_params.except(:photos))
-      redirect_to @client, notice: 'Client was successfully updated.'
+      redirect_to @client, notice: "Client was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -45,12 +45,13 @@ class ClientsController < ApplicationController
 
   def destroy
     @client.destroy
-    redirect_to clients_path, notice: 'Client was successfully deleted.'
+    redirect_to clients_path, notice: "Client was successfully deleted."
   end
 
   def autocomplete
     term = params[:term].downcase
-    clients = current_user.clients.where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?", "%#{term}%", "%#{term}%")
+    clients = current_user.clients.where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?", "%#{term}%",
+"%#{term}%")
     render json: clients.select(:id, :first_name, :last_name, :phone)
   end
 

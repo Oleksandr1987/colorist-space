@@ -26,7 +26,7 @@ class SlotRule < ApplicationRecord
     slot_end = date.to_time.change(hour: end_time.hour, min: end_time.min)
 
     while current_start < slot_end
-      current_finish = [current_start + step_minutes.minutes, slot_end].min
+      current_finish = [ current_start + step_minutes.minutes, slot_end ].min
       slots << { start: current_start, end: current_finish }
       current_start = current_finish
     end
