@@ -2,6 +2,10 @@
 inherit_gem:
   rubocop-rails-omakase: rubocop.yml
 
+require:
+  - rubocop-rspec
+  - rubocop-rspec_rails
+
 AllCops:
   TargetRubyVersion: 3.2
   NewCops: enable
@@ -9,9 +13,9 @@ AllCops:
     - "db/schema.rb"
     - "bin/*"
     - "node_modules/**/*"
-    - 'config/initializers/devise.rb'
-    - 'config/routes.rb'
-    - 'db/migrate/*'
+    - "config/initializers/devise.rb"
+    - "config/routes.rb"
+    - "db/migrate/*"
 
 Layout/LineLength:
   Max: 120

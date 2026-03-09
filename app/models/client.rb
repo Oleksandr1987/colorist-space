@@ -17,4 +17,21 @@ class Client < ApplicationRecord
   def full_name
     "#{first_name} #{last_name}".strip
   end
+
+  def self.find_or_create_by_full_name(user:, full_name:, phone:)
+    first_name, last_name = full_name.to_s.strip.split(" ", 2)
+
+    client = user.clients.find_by(
+      first_name: first_name,
+      last_name: last_name
+    )
+
+    return client if client
+
+    user.clients.create!(
+      first_name: first_name,
+      last_name: last_name,
+      phone: phone
+    )
+  end
 end

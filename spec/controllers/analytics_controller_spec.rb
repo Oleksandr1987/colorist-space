@@ -25,20 +25,6 @@ RSpec.describe AnalyticsController, type: :controller do
         spent_on: Date.current
       )
 
-      other_category = create(:expense,
-        user: user,
-        category: "Інструменти",
-        amount: 50,
-        spent_on: Date.current
-      )
-
-      other_user_expense = create(:expense,
-        user: other_user,
-        category: "Оренда",
-        amount: 200,
-        spent_on: Date.current
-      )
-
       get :expenses, params: {
         from: 1.month.ago.to_date,
         to: Date.current,

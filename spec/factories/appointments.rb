@@ -3,9 +3,9 @@ FactoryBot.define do
     association :user
     association :client
 
-    appointment_date { Date.today }
+    appointment_date { Date.current + 1.day }
     appointment_time { Time.zone.parse("10:00") }
-    end_time         { Time.zone.parse("10:30") }
+    end_time { Time.zone.parse("10:30") }
 
     transient do
       main_service { nil }
