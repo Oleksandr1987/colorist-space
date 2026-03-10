@@ -7,7 +7,14 @@ class AnalyticsController < ApplicationController
   def show; end
 
   def expenses
-    @category_filter = permitted_params[:category]
+    category_param = permitted_params[:category]
+
+    @category_filter =
+      if Expense::CATEGORIES.include?(category_param)
+        category_param
+      else
+        nil
+      end
 
     @expenses = Expense
                   .for_user_between(current_user, @from, @to)
@@ -55,6 +62,6 @@ class AnalyticsController < ApplicationController
   end
 
   def permitted_params
-    params.permit(:from, :to, :category, :service_type, :subtype, :commit)
+    params.permit(:from, :to, :category, :service_type, :subtype, :commit, :locale)
   end
 end
