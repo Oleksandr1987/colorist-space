@@ -21,7 +21,7 @@ RSpec.describe ServiceNote, type: :model do
     end
 
     it "returns notes ordered by created_at desc" do
-      expect(ServiceNote.for_client(client.id)).to eq([newer, older])
+      expect(ServiceNote.for_client(client.id)).to eq([ newer, older ])
     end
   end
 
