@@ -6,9 +6,20 @@ class FormulaStep < ApplicationRecord
 
   validates :section, presence: true
 
-  # Ensure blank values are saved as nil
-  before_validation do
+  before_validation :normalize_values
+
+  def clear_oxidant!
+    update!(oxidant: nil)
+  end
+
+  def clear_time!
+    update!(time: nil)
+  end
+
+  private
+
+  def normalize_values
     self.oxidant = nil if oxidant.blank?
-    self.time    = nil if time.blank?
+    self.time = nil if time.blank?
   end
 end

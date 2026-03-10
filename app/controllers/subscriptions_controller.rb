@@ -1,5 +1,4 @@
 class SubscriptionsController < ApplicationController
-
   MERCHANT_LOGIN = "473b_ngrok_free_app" # заміни на свій
   SECRET_KEY = "0a3178120edbddaf1e403c6f4c595373cdfd177d" # заміни на свій
 
@@ -102,9 +101,9 @@ class SubscriptionsController < ApplicationController
       orderDate: order_date,
       amount: amount,
       currency: "UAH",
-      productName: [product_name],
-      productPrice: [amount],
-      productCount: [1],
+      productName: [ product_name ],
+      productPrice: [ amount ],
+      productCount: [ 1 ],
       clientFirstName: current_user.name,
       clientEmail: current_user.email,
       merchantSignature: Wayforpay::Signature.generate(data_for_signature, SECRET_KEY)

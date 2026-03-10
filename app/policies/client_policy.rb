@@ -11,6 +11,10 @@ class ClientPolicy < ApplicationPolicy
     user_owns_client?
   end
 
+  def delete_all_photos?
+    user_owns_client?
+  end
+
   private
 
   def user_owns_client?
