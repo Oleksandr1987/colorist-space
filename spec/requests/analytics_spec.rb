@@ -1,31 +1,30 @@
 require "rails_helper"
 
-RSpec.describe AnalyticsController, type: :controller do
-  include Devise::Test::ControllerHelpers
+RSpec.describe "Analytics", type: :request do
+  include Devise::Test::IntegrationHelpers
   include ActiveSupport::Testing::TimeHelpers
 
-  let(:user) { create(:user) }
+  let(:user) { create(:user, :trial) }
   let(:other_user) { create(:user) }
 
   before do
     travel_to Time.zone.local(2026, 1, 15)
-    request.env["devise.mapping"] = Devise.mappings[:user]
-    allow(request.env["warden"]).to receive(:authenticate!).and_return(user)
-    allow(controller).to receive(:current_user).and_return(user)
+    sign_in user, scope: :user
   end
 
   after { travel_back }
 
-  describe "GET #expenses" do
+  describe "GET /analytics/expenses" do
     it "filters expenses by user, period and category" do
-      rent = create(:expense,
+      rent = create(
+        :expense,
         user: user,
         category: "Оренда",
         amount: 100,
         spent_on: Date.current
       )
 
-      get :expenses, params: {
+      get expenses_analytics_path, params: {
         from: 1.month.ago.to_date,
         to: Date.current,
         category: "Оренда"
@@ -44,11 +43,12 @@ RSpec.describe AnalyticsController, type: :controller do
     end
   end
 
-  describe "GET #income" do
+  describe "GET /analytics/income" do
     let(:client) { create(:client, user: user) }
 
     it "returns income only for current user in period" do
-      service_a = create(:service,
+      service_a = create(
+        :service,
         user: user,
         service_type: "service",
         category: "Haircut",
@@ -56,7 +56,8 @@ RSpec.describe AnalyticsController, type: :controller do
         price: 100
       )
 
-      service_b = create(:service,
+      service_b = create(
+        :service,
         user: user,
         service_type: "service",
         category: "Coloring",
@@ -64,25 +65,28 @@ RSpec.describe AnalyticsController, type: :controller do
         price: 200
       )
 
-      create(:appointment,
+      create(
+        :appointment,
         user: user,
         client: client,
         appointment_date: Date.current,
-        appointment_time: Time.zone.parse("10:00"),
-        end_time: Time.zone.parse("10:30"),
+        appointment_time: "10:00",
+        end_time: "10:30",
         main_service: service_a
       )
 
-      create(:appointment,
+      create(
+        :appointment,
         user: user,
         client: client,
         appointment_date: Date.current,
-        appointment_time: Time.zone.parse("11:00"),
-        end_time: Time.zone.parse("11:30"),
+        appointment_time: "11:00",
+        end_time: "11:30",
         main_service: service_b
       )
 
-      other_service = create(:service,
+      other_service = create(
+        :service,
         user: other_user,
         service_type: "service",
         category: "Haircut",
@@ -92,16 +96,17 @@ RSpec.describe AnalyticsController, type: :controller do
 
       other_client = create(:client, user: other_user)
 
-      create(:appointment,
+      create(
+        :appointment,
         user: other_user,
         client: other_client,
         appointment_date: Date.current,
-        appointment_time: Time.zone.parse("12:00"),
-        end_time: Time.zone.parse("12:30"),
+        appointment_time: "12:00",
+        end_time: "12:30",
         main_service: other_service
       )
 
-      get :income, params: {
+      get income_analytics_path, params: {
         from: 1.month.ago.to_date,
         to: Date.current
       }
@@ -119,7 +124,8 @@ RSpec.describe AnalyticsController, type: :controller do
     end
 
     it "groups services by subtype when filtering by service_type" do
-      service_a = create(:service,
+      service_a = create(
+        :service,
         user: user,
         service_type: "service",
         category: "Haircut",
@@ -127,7 +133,8 @@ RSpec.describe AnalyticsController, type: :controller do
         price: 100
       )
 
-      service_b = create(:service,
+      service_b = create(
+        :service,
         user: user,
         service_type: "service",
         category: "Haircut",
@@ -137,25 +144,27 @@ RSpec.describe AnalyticsController, type: :controller do
 
       client = create(:client, user: user)
 
-      create(:appointment,
+      create(
+        :appointment,
         user: user,
         client: client,
         appointment_date: Date.current,
-        appointment_time: Time.zone.parse("10:00"),
-        end_time: Time.zone.parse("10:30"),
+        appointment_time: "10:00",
+        end_time: "10:30",
         main_service: service_a
       )
 
-      create(:appointment,
+      create(
+        :appointment,
         user: user,
         client: client,
         appointment_date: Date.current,
-        appointment_time: Time.zone.parse("11:00"),
-        end_time: Time.zone.parse("11:30"),
+        appointment_time: "11:00",
+        end_time: "11:30",
         main_service: service_b
       )
 
-      get :income, params: {
+      get income_analytics_path, params: {
         service_type: "service",
         subtype: "Fade",
         from: 1.month.ago.to_date,
@@ -175,11 +184,12 @@ RSpec.describe AnalyticsController, type: :controller do
     end
   end
 
-  describe "GET #balance" do
+  describe "GET /analytics/balance" do
     it "calculates income minus expenses" do
       client = create(:client, user: user)
 
-      service = create(:service,
+      service = create(
+        :service,
         user: user,
         service_type: "service",
         category: "Haircut",
@@ -187,28 +197,31 @@ RSpec.describe AnalyticsController, type: :controller do
         price: 100
       )
 
-      create(:appointment,
+      create(
+        :appointment,
         user: user,
         client: client,
         appointment_date: Date.current,
-        appointment_time: Time.zone.parse("10:00"),
-        end_time: Time.zone.parse("10:30"),
+        appointment_time: "10:00",
+        end_time: "10:30",
         main_service: service
       )
 
-      create(:expense,
+      create(
+        :expense,
         user: user,
         amount: 40,
         spent_on: Date.current
       )
 
-      create(:expense,
+      create(
+        :expense,
         user: user,
         amount: 10,
         spent_on: Date.current
       )
 
-      get :balance, params: {
+      get balance_analytics_path, params: {
         from: 1.month.ago.to_date,
         to: Date.current
       }
