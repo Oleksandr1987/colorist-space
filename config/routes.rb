@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   resources :clients do
     collection do
       get :search
+      get :autocomplete
     end
 
     member do
