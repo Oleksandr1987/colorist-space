@@ -27,7 +27,7 @@ class User < ApplicationRecord
       end
 
       where(conditions).where(
-        ["LOWER(email) = :value OR phone = :value", { value: login.downcase }]
+        [ "LOWER(email) = :value OR phone = :value", { value: login.downcase } ]
       ).first
     end
 
@@ -42,6 +42,7 @@ class User < ApplicationRecord
           user.password = Devise.friendly_token[0, 20]
           user.name = auth.info.name
           user.phone = auth.info.phone || ""
+          user.tos_agreement = true
         end
       end
       return_user

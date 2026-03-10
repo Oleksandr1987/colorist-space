@@ -21,6 +21,12 @@ class ServiceNote < ApplicationRecord
     end
   end
 
+  def build_default_formula
+    step = formula_steps.build
+    step.formula_ingredients.build
+    step
+  end
+
   def decorated_photos
     photos.map { |p| PhotoDecorator.decorate(p) }
   end

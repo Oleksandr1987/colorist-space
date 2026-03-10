@@ -8,6 +8,9 @@ uk:
       income: "Дохід"
       balance: "Сальдо"
 
+    save: "Зберегти"
+    cancel: "Скасувати"
+
     period:
       total_for_period: "Загалом за період"
 
@@ -24,14 +27,25 @@ uk:
       delete: "Видалити"
       confirm_delete: "Ви впевнені, що хочете видалити цю витрату?"
 
+      category: "Категорія витрати"
+      note: "Опис"
+      note_placeholder: "До 256 символів..."
+      date: "Дата витрати"
+      amount: "Сума (₴)"
+
       categories:
-        materials: "Матеріали"
         rent: "Оренда"
+        materials: "Матеріали"
+        advertising: "Реклама"
+        transport: "Транспорт"
+        care_products: "Засоби догляду"
         tools: "Інструменти"
+        utilities: "Комунальні платежі"
         other: "Інше"
 
     income:
       title: "Аналітика: Дохід"
+
       types:
         service: "Послуги"
         preparation: "Препарати"

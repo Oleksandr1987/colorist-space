@@ -30,7 +30,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 gem "image_processing", "~> 1.14"
 gem "ice_cube", "~> 0.17.0"
-gem 'draper', '~> 4.0'
+gem "draper", "~> 4.0"
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 gem "solid_cache"
 gem "solid_queue"
@@ -55,9 +55,13 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "brakeman", require: false
   gem "rubocop-rails-omakase", require: false
+  gem "rubocop-rspec", require: false
+  gem "rubocop-rspec_rails", require: false
   gem "dotenv-rails"
   gem "factory_bot_rails"
   gem "faker"
+  gem "rspec-rails", "~> 8.0", ">= 8.0.2"
+  gem "byebug", "~> 13.0"
 end
 
 group :development do
@@ -67,4 +71,5 @@ end
 group :test do
   gem "capybara"
   gem "selenium-webdriver"
+  gem "shoulda-matchers", "~> 7.0", ">= 7.0.1"
 end

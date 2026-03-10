@@ -6,9 +6,7 @@ class ExpensesController < ApplicationController
   after_action :verify_authorized, only: %i[new create edit update destroy]
 
   def index
-    @expenses_by_month = current_user.expenses
-      .order(spent_on: :desc)
-      .group_by { |e| e.spent_on.strftime("%B %Y") }
+    @expenses_by_month = Expense.monthly_expenses(current_user.expenses)
   end
 
   def new
@@ -25,7 +23,8 @@ class ExpensesController < ApplicationController
     end
   end
 
-  def edit; end
+  def edit
+  end
 
   def update
     if @expense.update(expense_params)

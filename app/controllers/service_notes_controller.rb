@@ -7,8 +7,7 @@ class ServiceNotesController < ApplicationController
 
   def new
     @service_note = @client.service_notes.build(user: current_user)
-    step = @service_note.formula_steps.build
-    step.formula_ingredients.build
+    @service_note.build_default_formula
   end
 
   def create
@@ -50,7 +49,7 @@ class ServiceNotesController < ApplicationController
       :service_type, :notes, :price,
       formula_steps_attributes: [
         :id, :section, :oxidant, :time, :_destroy,
-        formula_ingredients_attributes: [:id, :shade, :brand, :amount, :_destroy]
+        formula_ingredients_attributes: [ :id, :shade, :brand, :amount, :_destroy ]
       ]
     )
   end
