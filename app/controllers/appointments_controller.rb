@@ -1,8 +1,9 @@
 class AppointmentsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_appointment, only: %i[show edit update destroy]
-  auto_authorize :appointment, only: %i[new create edit update destroy show]
+  before_action :normalize_time_params, only: %i[create update]
 
+  auto_authorize :appointment, only: %i[new create edit update destroy show]
   after_action :verify_authorized, except: %i[index history calendar by_date free_slots]
 
   def index
@@ -30,33 +31,25 @@ class AppointmentsController < ApplicationController
 
     if params[:date].present?
       picked_date = Date.parse(params[:date]) rescue Date.today
-      @appointment.appointment_date = [picked_date, Date.today].max
+      @appointment.appointment_date = [ picked_date, Date.today ].max
     else
       @appointment.appointment_date = Date.today
     end
   end
 
   def create
-    @appointment = current_user.appointments.build(appointment_params)
+    client = Client.find_or_create_by_full_name(
+      user: current_user,
+      full_name: params[:appointment][:client_name],
+      phone: params[:appointment][:phone]
+    )
 
-    client_name = params[:appointment][:client_name].strip
-    client_phone = params[:appointment][:phone]
-    client = current_user.clients.find_by("CONCAT(first_name, ' ', last_name) = ?", client_name)
-
-    if client.nil?
-      first_name, last_name = client_name.split(" ", 2)
-      client = current_user.clients.create(
-        first_name: first_name,
-        last_name: last_name || "",
-        phone: client_phone
-      )
-    end
-
+    @appointment = current_user.appointments.build(appointment_params.except(:service_ids))
     @appointment.client = client
+    @appointment.services = Service.where(id: params[:appointment][:service_ids])
 
     if @appointment.save
-      @appointment.update(service_name: @appointment.combined_service_name)
-      redirect_to @appointment, notice: 'Appointment was successfully created.'
+      redirect_to @appointment
     else
       render :new, status: :unprocessable_entity
     end
@@ -65,25 +58,20 @@ class AppointmentsController < ApplicationController
   def edit; end
 
   def update
-    client_name = params[:appointment][:client_name].strip
-    client_phone = params[:appointment][:phone]
-    client = current_user.clients.find_by("CONCAT(first_name, ' ', last_name) = ?", client_name)
-
-    if client.nil?
-      first_name, last_name = client_name.split(" ", 2)
-      client = current_user.clients.create(
-        first_name: first_name,
-        last_name: last_name || "",
-        phone: client_phone
-      )
-    end
+    client = Client.find_or_create_by_full_name(
+      user: current_user,
+      full_name: params[:appointment][:client_name],
+      phone: params[:appointment][:phone]
+    )
 
     @appointment.client = client
 
-    if @appointment.update(appointment_params)
-      @appointment.reload
-      @appointment.update_column(:service_name, @appointment.combined_service_name)
-      redirect_to @appointment, notice: 'Appointment was successfully updated.'
+    if params[:appointment][:service_ids]
+      @appointment.services = Service.where(id: params[:appointment][:service_ids])
+    end
+
+    if @appointment.update(appointment_params.except(:service_ids))
+      redirect_to @appointment, notice: "Appointment was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -91,7 +79,7 @@ class AppointmentsController < ApplicationController
 
   def destroy
     @appointment.destroy
-    redirect_to appointments_path, notice: 'Appointment was successfully deleted.'
+    redirect_to appointments_path, notice: "Appointment was successfully deleted."
   end
 
   def calendar
@@ -105,48 +93,27 @@ class AppointmentsController < ApplicationController
     date = params[:date]&.to_date || Date.today
 
     @appointments = current_user.appointments
-      .includes(:client, :services)
-      .where(appointment_date: date)
+      .includes(:client)
+      .by_date(date)
       .order(:appointment_time)
 
-    render json: @appointments.map { |a|
-      start_time = a.appointment_time.strftime('%H:%M')
-      end_time = a.end_time.strftime('%H:%M') if a.end_time.present?
-
-      {
-        id: a.id,
-        client_name: a.client.full_name,
-        service: a.combined_service_name,
-        phone: a.client.phone,
-        start: "#{a.appointment_date}T#{start_time}",
-        end: "#{a.appointment_date}T#{end_time}",
-        appointment_time: start_time
-      }
-    }
+    render json: @appointments.map(&:as_calendar_json)
   end
 
   def free_slots
     date = params[:date].to_date
-    slot_rules = current_user.slot_rules.select { |rule| rule.active_on?(date) }
-    slots = slot_rules.flat_map { |rule| rule.slots_for(date, 5) }
-    appointments = current_user.appointments.where(appointment_date: date)
 
-    slots.reject! do |slot|
-      slot_start = slot[:start].to_time
-      slot_end = slot[:end].to_time
+    slots = Appointment.available_slots(current_user, date)
 
-      appointments.any? do |app|
-        appointment_start = app.appointment_time.in_time_zone.change(year: date.year, month: date.month, day: date.day)
-        appointment_end = app.end_time.in_time_zone.change(year: date.year, month: date.month, day: date.day)
-
-        slot_start < appointment_end && slot_end > appointment_start
-      end
-    end
-
-    render json: slots.map { |slot|
+    Rails.logger.debug "----- JSON SLOTS -----"
+  slots.each do |s|
+    Rails.logger.debug "slot json start: #{s[:start]}"
+  end
+    render json: slots.map {
+      |slot|
       {
-        start: slot[:start].iso8601,
-        end: slot[:end].iso8601
+        start: slot[:start].strftime("%H:%M"),
+        end: slot[:end].strftime("%H:%M")
       }
     }
   end
@@ -157,11 +124,23 @@ class AppointmentsController < ApplicationController
     @appointment = current_user.appointments.find(params[:id])
   end
 
+  def normalize_time_params
+    return unless params[:appointment]
+
+    %i[appointment_time end_time].each do |field|
+      next unless params[:appointment][field]
+
+      params[:appointment][field] = Time.zone.parse(params[:appointment][field])
+    end
+  end
+
   def appointment_params
     params.require(:appointment).permit(
-      :service_name, :appointment_date,
-      :appointment_time, :notes,
-      :end_time, service_ids: []
+      :appointment_date,
+      :appointment_time,
+      :end_time,
+      :notes,
+      service_ids: []
     )
   end
 end

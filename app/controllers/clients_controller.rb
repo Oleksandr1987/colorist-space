@@ -10,11 +10,12 @@ class ClientsController < ApplicationController
   end
 
   def search
-    @clients = current_user.clients.search(params[:query])
+    @clients = current_user.clients.search_by_name(params[:query])
     render :index
   end
 
-  def show; end
+  def show
+  end
 
   def new
     @client = current_user.clients.build
@@ -22,22 +23,23 @@ class ClientsController < ApplicationController
 
   def create
     @client = current_user.clients.build(client_params)
+
     if @client.save
-      redirect_to edit_client_path(@client), notice: 'Client was created. Please add hair details.'
+      redirect_to edit_client_path(@client),
+        notice: "Client was created. Please add hair details."
     else
       render :new, status: :unprocessable_entity
     end
   end
 
-  def edit; end
+  def edit
+  end
 
   def update
-    if client_params[:photos].present?
-      @client.photos.attach(client_params[:photos])
-    end
+    @client.attach_photos(client_params[:photos])
 
     if @client.update(client_params.except(:photos))
-      redirect_to @client, notice: 'Client was successfully updated.'
+      redirect_to @client, notice: "Client was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -45,24 +47,34 @@ class ClientsController < ApplicationController
 
   def destroy
     @client.destroy
-    redirect_to clients_path, notice: 'Client was successfully deleted.'
+
+    redirect_to clients_path,
+      notice: "Client was successfully deleted."
   end
 
   def autocomplete
-    term = params[:term].downcase
-    clients = current_user.clients.where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?", "%#{term}%", "%#{term}%")
-    render json: clients.select(:id, :first_name, :last_name, :phone)
+    clients = current_user.clients.search_by_name(params[:term])
+
+    render json: clients.select(
+      :id,
+      :first_name,
+      :last_name,
+      :phone
+    )
   end
 
   def delete_photo
-    photo = @client.photos.find(params[:photo_id])
-    photo.purge
-    redirect_to @client, notice: "Photo deleted."
+    @client.delete_photo(params[:photo_id])
+
+    redirect_to @client,
+      notice: "Photo deleted."
   end
 
   def delete_all_photos
-    @client.photos.purge
-    redirect_to @client, notice: "All photos deleted."
+    @client.delete_all_photos
+
+    redirect_to @client,
+      notice: "All photos deleted."
   end
 
   private
@@ -73,9 +85,16 @@ class ClientsController < ApplicationController
 
   def client_params
     params.require(:client).permit(
-      :first_name, :last_name, :phone,
-      :hair_type, :hair_length, :hair_structure,
-      :hair_density, :scalp_condition, :note, photos: []
+      :first_name,
+      :last_name,
+      :phone,
+      :hair_type,
+      :hair_length,
+      :hair_structure,
+      :hair_density,
+      :scalp_condition,
+      :note,
+      photos: []
     )
   end
 end

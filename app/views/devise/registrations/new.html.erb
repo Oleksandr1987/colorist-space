@@ -47,6 +47,24 @@
 
       <div class="social-signup">
         <h3><%= t("auth.signup_with") %></h3>
+        <p class="oauth-consent-text">
+          <%= t(
+            "auth.oauth_consent_html",
+            terms: link_to(
+              t("terms_of_service", default: "Terms of Service"),
+              terms_path,
+              target: "_blank",
+              rel: "noopener"
+            ),
+            privacy: link_to(
+              t("privacy_policy", default: "Privacy Policy"),
+              privacy_path,
+              target: "_blank",
+              rel: "noopener"
+            )
+          ).html_safe %>
+        </p>
+
         <div class="social-icons">
           <% if devise_mapping.omniauthable? %>
             <% resource_class.omniauth_providers.each do |provider| %>

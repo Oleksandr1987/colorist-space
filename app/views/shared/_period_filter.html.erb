@@ -53,15 +53,17 @@
       <div class="dropdown" data-controller="dropdown">
         <button class="filter-button <%= 'active' if permitted_params[:category].present? %>"
                 data-action="click->dropdown#toggle">
-          <%= permitted_params[:category].presence || t("analytics.period_filter.categories.category") %>
+          <%= permitted_params[:category].present? ?
+            t("analytics.expenses.categories.#{permitted_params[:category]}") :
+            t("analytics.period_filter.categories.category") %>
         </button>
         <div class="dropdown-menu hidden" data-dropdown-target="menu">
           <%= link_to t("analytics.period_filter.categories.all"),
-                expenses_analytics_path(from: permitted_params[:from], to: permitted_params[:to]),
+                expenses_analytics_path(from: permitted_params[:from], to: permitted_params[:to], category: nil),
                 class: "dropdown-item" %>
 
           <% Expense::CATEGORIES.each do |cat| %>
-            <%= link_to cat,
+            <%= link_to t("analytics.expenses.categories.#{cat}"),
                 expenses_analytics_path(from: permitted_params[:from], to: permitted_params[:to], category: cat),
                 class: "dropdown-item" %>
           <% end %>
