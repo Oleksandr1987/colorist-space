@@ -21,7 +21,7 @@
 
         <div class="month-header-right">
           <span class="month-header-amount">
-            <%= appointments.count %> <%= t("appointments.history.records") %>
+            <%= t("appointments.history.records", count: appointments.count) %>
           </span>
         </div>
       </div>

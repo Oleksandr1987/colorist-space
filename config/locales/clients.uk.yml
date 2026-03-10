@@ -16,7 +16,6 @@ uk:
       first_name: "Ім’я"
       last_name: "Прізвище"
       phone: "Телефон"
-      birthdate: "Дата народження"
       note: "Нотатки"
 
       hair_info_title: "Додаткова інформація про волосся"

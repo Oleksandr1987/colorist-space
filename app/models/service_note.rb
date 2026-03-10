@@ -27,6 +27,10 @@ class ServiceNote < ApplicationRecord
     step
   end
 
+  def decorated_photos
+    photos.map { |p| PhotoDecorator.decorate(p) }
+  end
+
   private
 
   def set_price_from_appointment

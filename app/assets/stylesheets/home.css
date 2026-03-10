@@ -78,13 +78,15 @@
   padding: 20px;
   width: 100%;
   max-width: 380px;
-  text-align: center;
+  /* text-align: center; */
 }
 
 /* Language switcher in the top right corner */
 .language-switcher.top-right {
   text-align: right;
   margin-bottom: 10px;
+  margin-left: auto;
+  margin-top: 32px;
 }
 
 /* Select for languages */
