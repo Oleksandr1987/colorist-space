@@ -78,7 +78,7 @@ RSpec.describe Client, type: :model do
         "image/jpeg"
       )
 
-      client.attach_photos([file])
+      client.attach_photos([ file ])
 
       expect(client.photos).to be_attached
     end
