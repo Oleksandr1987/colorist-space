@@ -30,6 +30,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 gem "image_processing", "~> 1.14"
 gem "ice_cube", "~> 0.17.0"
+gem 'draper', '~> 4.0'
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 gem "solid_cache"
 gem "solid_queue"

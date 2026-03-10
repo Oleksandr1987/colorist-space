@@ -16,85 +16,98 @@
     <%= f.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
   </div>
 
-  <div class="login__field">
-    <%= f.label :birthdate, t("clients.form.birthdate") %>
-    <%= f.date_field :birthdate, class: "login__input" %>
+  <div data-controller="collapse" class="collapse-section">
+    <button type="button" class="collapse-toggle" data-action="collapse#toggle">
+      <span><%= t("clients.form.hair_info_title") %></span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round" class="lucide lucide-plus">
+        <path d="M5 12h14"/><path d="M12 5v14"/>
+      </svg>
+    </button>
+
+    <div data-collapse-target="content" class="hidden">
+
+      <div class="login__field">
+        <%= f.label :hair_type, t("clients.form.hair_type") %>
+        <%= f.select :hair_type,
+          [
+            [t("clients.hair.types.straight"), "Straight"],
+            [t("clients.hair.types.wavy"), "Wavy"],
+            [t("clients.hair.types.curly"), "Curly"],
+            [t("clients.hair.types.coily"), "Coily"]
+          ],
+          { include_blank: t("clients.form.select_hair_type") },
+          class: "login__input" %>
+      </div>
+
+      <div class="login__field">
+        <%= f.label :hair_length, t("clients.form.hair_length") %>
+        <%= f.select :hair_length,
+          [
+            [t("clients.hair.lengths.short"), "Short"],
+            [t("clients.hair.lengths.medium"), "Medium"],
+            [t("clients.hair.lengths.long"), "Long"]
+          ],
+          { include_blank: t("clients.form.select_hair_length") },
+          class: "login__input" %>
+      </div>
+
+      <div class="login__field">
+        <%= f.label :hair_structure, t("clients.form.hair_structure") %>
+        <%= f.select :hair_structure,
+          [
+            [t("clients.hair.structures.thin"), "Thin"],
+            [t("clients.hair.structures.medium"), "Medium"],
+            [t("clients.hair.structures.thick"), "Thick"]
+          ],
+          { include_blank: t("clients.form.select_hair_structure") },
+          class: "login__input" %>
+      </div>
+
+      <div class="login__field">
+        <%= f.label :hair_density, t("clients.form.hair_density") %>
+        <%= f.select :hair_density,
+          [
+            [t("clients.hair.density.sparse"), "Sparse"],
+            [t("clients.hair.density.medium"), "Medium"],
+            [t("clients.hair.density.dense"), "Dense"]
+          ],
+          { include_blank: t("clients.form.select_hair_density") },
+          class: "login__input" %>
+      </div>
+
+      <div class="login__field">
+        <%= f.label :scalp_condition, t("clients.form.scalp_condition") %>
+        <%= f.select :scalp_condition,
+          [
+            [t("clients.hair.scalp.normal"), "Normal"],
+            [t("clients.hair.scalp.dry"), "Dry"],
+            [t("clients.hair.scalp.oily"), "Oily"],
+            [t("clients.hair.scalp.sensitive"), "Sensitive"]
+          ],
+          { include_blank: t("clients.form.select_scalp_condition") },
+          class: "login__input" %>
+      </div>
+
+    </div>
   </div>
 
-  <h3><%= t("clients.form.hair_info_title") %></h3>
+  <div data-controller="collapse" class="collapse-section">
+    <button type="button" class="collapse-toggle" data-action="collapse#toggle">
+      <span><%= t("clients.form.note") %></span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round" class="lucide lucide-plus">
+        <path d="M5 12h14"/><path d="M12 5v14"/>
+      </svg>
+    </button>
 
-  <div class="login__field">
-    <%= f.label :hair_type, t("clients.form.hair_type") %>
-    <%= f.select :hair_type,
-      [
-        [t("clients.hair.types.straight"), "Straight"],
-        [t("clients.hair.types.wavy"), "Wavy"],
-        [t("clients.hair.types.curly"), "Curly"],
-        [t("clients.hair.types.coily"), "Coily"]
-      ],
-      { include_blank: t("clients.form.select_hair_type") },
-      class: "login__input" %>
-  </div>
-
-  <div class="login__field">
-    <%= f.label :hair_length, t("clients.form.hair_length") %>
-    <%= f.select :hair_length,
-      [
-        [t("clients.hair.lengths.short"), "Short"],
-        [t("clients.hair.lengths.medium"), "Medium"],
-        [t("clients.hair.lengths.long"), "Long"]
-      ],
-      { include_blank: t("clients.form.select_hair_length") },
-      class: "login__input" %>
-  </div>
-
-  <div class="login__field">
-    <%= f.label :hair_structure, t("clients.form.hair_structure") %>
-    <%= f.select :hair_structure,
-      [
-        [t("clients.hair.structures.thin"), "Thin"],
-        [t("clients.hair.structures.medium"), "Medium"],
-        [t("clients.hair.structures.thick"), "Thick"]
-      ],
-      { include_blank: t("clients.form.select_hair_structure") },
-      class: "login__input" %>
-  </div>
-
-  <div class="login__field">
-    <%= f.label :hair_density, t("clients.form.hair_density") %>
-    <%= f.select :hair_density,
-      [
-        [t("clients.hair.density.sparse"), "Sparse"],
-        [t("clients.hair.density.medium"), "Medium"],
-        [t("clients.hair.density.dense"), "Dense"]
-      ],
-      { include_blank: t("clients.form.select_hair_density") },
-      class: "login__input" %>
-  </div>
-
-  <div class="login__field">
-    <%= f.label :scalp_condition, t("clients.form.scalp_condition") %>
-    <%= f.select :scalp_condition,
-      [
-        [t("clients.hair.scalp.normal"), "Normal"],
-        [t("clients.hair.scalp.dry"), "Dry"],
-        [t("clients.hair.scalp.oily"), "Oily"],
-        [t("clients.hair.scalp.sensitive"), "Sensitive"]
-      ],
-      { include_blank: t("clients.form.select_scalp_condition") },
-      class: "login__input" %>
-  </div>
-
-  <div class="login__field">
-    <%= f.label :note, t("clients.form.note") %>
-    <%= f.text_area :note, class: "login__input" %>
-  </div>
-
-  <div class="login__field photo-upload">
-    <label class="custom-upload-button">
-      <%= t("clients.form.add_photos") %>
-      <%= f.file_field :photos, multiple: true, accept: "image/*", class: "hidden-upload", direct_upload: true %>
-    </label>
+    <div data-collapse-target="content" class="hidden">
+      <div class="login__field">
+        <%= f.text_area :note, class: "login__input" %>
+      </div>
+    </div>
   </div>
 
   <div class="actions">
