@@ -55,4 +55,8 @@ class Client < ApplicationRecord
       phone: phone
     )
   end
+
+  def decorated_photos
+    photos.map { |p| PhotoDecorator.decorate(p) }
+  end
 end

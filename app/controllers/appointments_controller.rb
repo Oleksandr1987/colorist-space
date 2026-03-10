@@ -19,13 +19,22 @@ class AppointmentsController < ApplicationController
   def new
     @appointment = current_user.appointments.build
 
-    if params[:client_id]
+    if params[:client_id].present?
       client = current_user.clients.find_by(id: params[:client_id])
-      @appointment.client = client if client
+      if client
+        @appointment.client = client
+        @appointment.client_name = client.full_name if @appointment.respond_to?(:client_name)
+      end
     end
 
     @appointment.appointment_time = params[:time] if params[:time]
-    @appointment.appointment_date = params[:date] if params[:date]
+
+    if params[:date].present?
+      picked_date = Date.parse(params[:date]) rescue Date.today
+      @appointment.appointment_date = [ picked_date, Date.today ].max
+    else
+      @appointment.appointment_date = Date.today
+    end
   end
 
   def create
@@ -73,7 +82,12 @@ class AppointmentsController < ApplicationController
     redirect_to appointments_path, notice: "Appointment was successfully deleted."
   end
 
-  def calendar; end
+  def calendar
+    @dates_with_appointments =
+      current_user.appointments
+                  .pluck(:appointment_date)
+                  .map { |d| d.to_date.to_s }
+  end
 
   def by_date
     date = params[:date]&.to_date || Date.today

@@ -9,6 +9,7 @@ class Appointment < ApplicationRecord
   validates :appointment_time, uniqueness: { scope: :appointment_date, message: "is already booked for this date" }
 
   validate :valid_date
+  validate :valid_end_time
   validate :no_time_conflicts
   validate :time_step_interval
   validate :must_have_main_service
@@ -146,6 +147,13 @@ class Appointment < ApplicationRecord
   def valid_date
     return unless appointment_date.present? && appointment_date < Date.today
     errors.add(:appointment_date, "can't be in the past")
+  end
+
+  def valid_end_time
+    return if appointment_time.blank? || end_time.blank?
+    if end_time <= appointment_time
+      errors.add(:end_time, "must be later than start time")
+    end
   end
 
   def no_time_conflicts
