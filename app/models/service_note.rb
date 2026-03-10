@@ -13,12 +13,18 @@ class ServiceNote < ApplicationRecord
   before_validation :set_price_from_appointment, if: -> { appointment.present? && price.blank? }
 
   def short_title
-    label = case service_type
+    case service_type
     when "haircut" then "Стрижка"
     when "coloring" then "Фарбування"
     when "care" then "Догляд"
     else service_type.to_s.capitalize
     end
+  end
+
+  def build_default_formula
+    step = formula_steps.build
+    step.formula_ingredients.build
+    step
   end
 
   private

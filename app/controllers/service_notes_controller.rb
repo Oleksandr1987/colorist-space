@@ -7,8 +7,7 @@ class ServiceNotesController < ApplicationController
 
   def new
     @service_note = @client.service_notes.build(user: current_user)
-    step = @service_note.formula_steps.build
-    step.formula_ingredients.build
+    @service_note.build_default_formula
   end
 
   def create

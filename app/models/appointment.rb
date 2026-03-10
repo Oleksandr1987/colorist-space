@@ -89,8 +89,8 @@ class Appointment < ApplicationRecord
     pointer = 0
 
     slots.each do |slot|
-      slot_start = slot[:start].to_time
-      slot_end = slot[:end].to_time
+      slot_start = slot[:start]
+      slot_end = slot[:end]
 
       while pointer < appointments.length &&
             appointments[pointer].end_time <= slot_start

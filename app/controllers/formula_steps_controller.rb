@@ -26,19 +26,13 @@ class FormulaStepsController < ApplicationController
   end
 
   def clear_oxidant
-    @formula_step.update!(oxidant: nil)
-    respond_to do |format|
-      format.turbo_stream
-      format.html { redirect_back fallback_location: client_service_note_path(@client, @service_note) }
-    end
+    @formula_step.clear_oxidant!
+    respond_with_service_note
   end
 
   def clear_time
-    @formula_step.update!(time: nil)
-    respond_to do |format|
-      format.turbo_stream
-      format.html { redirect_back fallback_location: client_service_note_path(@client, @service_note) }
-    end
+    @formula_step.clear_time!
+    respond_with_service_note
   end
 
   private
@@ -58,5 +52,14 @@ class FormulaStepsController < ApplicationController
   def formula_step_params
     params.require(:formula_step).permit(:section, :oxidant, :time,
       formula_ingredients_attributes: [ :id, :shade, :brand, :amount, :_destroy ])
+  end
+
+  def respond_with_service_note
+    respond_to do |format|
+      format.turbo_stream
+      format.html do
+        redirect_back fallback_location: client_service_note_path(@client, @service_note)
+      end
+    end
   end
 end

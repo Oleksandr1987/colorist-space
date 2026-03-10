@@ -8,14 +8,12 @@ FactoryBot.define do
     end_time { Time.zone.parse("10:30") }
 
     transient do
-      main_service { nil }
+      main_service { create(:service) }
       extra_services { [] }
     end
 
     after(:build) do |appointment, evaluator|
-      if evaluator.main_service
-        appointment.services << evaluator.main_service
-      end
+      appointment.services << evaluator.main_service
 
       evaluator.extra_services.each do |svc|
         appointment.services << svc
