@@ -29,3 +29,38 @@
   background-color: #ff4d4d;
   color: white;
 }
+.client-input-wrapper {
+  position: relative;
+}
+
+.clear-client-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #eee;
+  border: none;
+  padding: 2px 6px;
+  font-size: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.clear-client-btn:hover {
+  opacity: 1;
+}
+
+.clear-client-btn.hidden {
+  display: none;
+}
+
+.inline-error {
+  color: #d9534f;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.hidden {
+  display: none;
+}

@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["monthLabel", "calendarDays", "selectedDateLabel", "timeline"]
-  static values = { translations: Object }
+  static values = { translations: Object, datesWithAppointments: Array, clientId: Number }
 
   connect() {
     this.t = this.translationsValue
@@ -38,17 +38,30 @@ export default class extends Controller {
 
     let html = dayNames.map(day => `<div class="day-name">${day}</div>`).join("")
 
-    for (let i = 0; i < firstDay; i++) html += `<div class="empty-day"></div>`
+    for (let i = 0; i < firstDay; i++) {
+      html += `<div class="empty-day"></div>`
+    }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month, day)
-      const isToday = this.isSameDate(date, new Date())
-      const isSelected = this.isSameDate(date, this.selectedDate)
+      const localDate = new Date(year, month, day)
+
+      const dateStr =
+        localDate.getFullYear() + "-" +
+        String(localDate.getMonth() + 1).padStart(2, "0") + "-" +
+        String(localDate.getDate()).padStart(2, "0")
+
+      const isToday = this.isSameDate(localDate, new Date())
+      const isSelected = this.isSameDate(localDate, this.selectedDate)
+      const hasAppointment = this.datesWithAppointmentsValue.includes(dateStr)
 
       html += `
-        <div class="day ${isToday ? "today" : ""} ${isSelected ? "selected" : ""}"
-             data-date="${date.toISOString()}"
-             data-action="click->calendar-view#selectDate">${day}</div>
+        <div class="day ${isToday ? "today" : ""} 
+                      ${isSelected ? "selected" : ""} 
+                      ${hasAppointment ? "has-appointment" : ""}"
+             data-date="${dateStr}"
+             data-action="click->calendar-view#selectDate">
+          ${day}
+        </div>
       `
     }
 
@@ -59,15 +72,26 @@ export default class extends Controller {
 
     this.calendarDaysTarget.innerHTML = html
     this.updateSelectedDateLabel()
+    this.updateAddButtonLink()
   }
 
   updateSelectedDateLabel() {
-    this.selectedDateLabelTarget.textContent = this.selectedDate.toLocaleDateString(this.t.locale, {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    })
+    this.selectedDateLabelTarget.textContent =
+      this.selectedDate.toLocaleDateString(this.t.locale, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      })
+  }
+
+  updateAddButtonLink() {
+    const dateStr = this.formatDate(this.selectedDate)
+
+    const btn = document.querySelector(".add-btn-wrapper a")
+    if (btn) {
+      btn.href = `/appointments/new?date=${dateStr}`
+    }
   }
 
   prevMonth() {
@@ -81,9 +105,25 @@ export default class extends Controller {
   }
 
   selectDate(event) {
-    this.selectedDate = new Date(event.currentTarget.dataset.date)
+    const dateStr = event.currentTarget.dataset.date
+
+    this.selectedDate = new Date(dateStr + "T00:00:00")
     this.renderCalendar()
     this.loadAppointments(this.selectedDate)
+  }
+
+  openNewAppointment(event) {
+    const url = new URL(event.target.href);
+
+    if (this.clientIdValue) {
+      url.searchParams.set("client_id", this.clientIdValue);
+    }
+
+    if (this.selectedDate) {
+      url.searchParams.set("date", this.selectedDate);
+    }
+
+    event.target.href = url.toString();
   }
 
   loadAppointments(date) {
@@ -259,8 +299,10 @@ export default class extends Controller {
   }
 
   formatDate(date) {
-    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-    return localDate.toISOString().split("T")[0]
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, "0")
+    const d = String(date.getDate()).padStart(2, "0")
+    return `${y}-${m}-${d}`
   }
 
   csrfToken() {

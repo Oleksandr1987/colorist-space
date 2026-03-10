@@ -329,7 +329,7 @@
 .login__field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   width: 100%;
 }
 
@@ -343,13 +343,20 @@
 .login__field input,
 .login__field select,
 .login__field textarea {
-  width: 100%;
+  /* width: 100%; */
   padding: 0.6rem 0.8rem;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
   background-color: #fff;
   box-sizing: border-box;
+}
+
+.login__field.remember-me {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
 }
 
 textarea.login__input {

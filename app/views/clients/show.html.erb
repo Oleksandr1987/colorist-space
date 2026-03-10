@@ -9,7 +9,7 @@
     </div>
 
     <div class="client-header-right">
-      <%= link_to calendar_appointments_path,
+      <%= link_to calendar_appointments_path(client_id: @client.id),
                   class: "button small new-appointment-button",
                   data: { turbo: false } do %>
         <%= t("clients.show.new_appointment") %>
