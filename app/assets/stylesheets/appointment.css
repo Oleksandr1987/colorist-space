@@ -55,6 +55,7 @@
   display: none;
 }
 
+<<<<<<< Updated upstream
 .inline-error {
   color: #d9534f;
   font-size: 14px;
@@ -64,3 +65,6 @@
 .hidden {
   display: none;
 }
+=======
+
+>>>>>>> Stashed changes
