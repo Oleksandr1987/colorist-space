@@ -38,6 +38,7 @@ uk:
       styles_tab: "Стилі"
       photos_tab: "Фото"
       info_tab: "Інформація"
+      add_style: "Додати стиль"
 
       new_appointment: "Нова зустріч"
       edit_client: "Редагувати клієнта"
