@@ -36,3 +36,9 @@
 **/.DS_Store
 /app/assets/builds/*
 !/app/assets/builds/.keep
+
+# Debug
+.byebug_history
+
+# IDE
+.idea/
