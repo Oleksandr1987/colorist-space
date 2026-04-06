@@ -105,12 +105,7 @@ class AppointmentsController < ApplicationController
 
     slots = Appointment.available_slots(current_user, date)
 
-    Rails.logger.debug "----- JSON SLOTS -----"
-  slots.each do |s|
-    Rails.logger.debug "slot json start: #{s[:start]}"
-  end
-    render json: slots.map {
-      |slot|
+    render json: slots.map { |slot|
       {
         start: slot[:start].strftime("%H:%M"),
         end: slot[:end].strftime("%H:%M")
