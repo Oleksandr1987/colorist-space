@@ -3,8 +3,8 @@
     <%= link_to "←", appointments_path, class: "back-link inline" %>
     <h2>
       <%= @appointment.new_record? ?
-            t("appointments.new") :
-            t("appointments.edit") %>
+          t("appointments.new") :
+          t("appointments.edit") %>
     </h2>
   </div>
 
@@ -25,22 +25,24 @@
     <% end %>
 
     <!-- Client Name -->
-    <div class="form-section">
-      <label>
-        <%= t("appointments.form.client_name") %>
-        <span class="required-asterisk">*</span>
-      </label>
-
+    <div class="client-input-wrapper">
       <%= text_field_tag "appointment[client_name]",
         @appointment.client&.full_name || "",
-        class: "form-input",
+        class: "form-input client-name-input",
         placeholder: t("appointments.form.client_name_placeholder"),
         data: {
           "calendar-target": "clientName",
-          action: "input->calendar#updateClientInfo"
+          action: "input->calendar#updateClientInfo keyup->calendar#toggleClearButton focus->calendar#toggleClearButton"
         },
         list: "client-list",
         autocomplete: "off" %>
+
+      <button type="button"
+              class="clear-client-btn hidden"
+              data-calendar-target="clearButton"
+              data-action="click->calendar#clearClientField">
+        ✕
+      </button>
 
       <datalist id="client-list" data-calendar-target="clientList">
         <% current_user.clients.each do |client| %>
@@ -70,7 +72,7 @@
       </label>
 
       <%= text_field_tag "appointment[appointment_date]",
-        (@appointment.appointment_date || Date.today).strftime("%d.%m.%Y"),
+        @appointment.appointment_date.strftime("%d.%m.%Y"),
         class: "form-input",
         readonly: true,
         id: "appointment_date",
@@ -91,7 +93,8 @@
           class: "form-input",
           data: {
             controller: "appointment",
-            action: "blur->appointment#roundToNearestFive"
+            appointment_target: "appointmentTime",
+            action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
       </div>
 
@@ -103,8 +106,15 @@
           class: "form-input",
           data: {
             controller: "appointment",
-            action: "blur->appointment#roundToNearestFive"
+            appointment_target: "endTime",
+            action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
+
+        <!-- Inline error placeholder -->
+        <div data-appointment-target="timeError"
+            class="inline-error hidden">
+          <%= t("appointments.form.end_time_error", default: "Час завершення має бути пізніше часу початку") %>
+        </div>
       </div>
     </div>
 

@@ -2,6 +2,8 @@
 
 <div
   data-controller="calendar-view"
+  data-calendar-view-client-id-value="<%= params[:client_id] %>"
+  data-calendar-view-dates-with-appointments-value="<%= @dates_with_appointments.to_json %>"
   data-calendar-view-translations-value='{
     "days": {
       "sun": "<%= t('appointments.calendar_view.days.sun') %>",
@@ -33,8 +35,9 @@
 
   <div class="add-btn-wrapper">
     <%= link_to t("appointments.calendar_view.add"),
-          new_appointment_path,
-          class: "button purple full" %>
+          new_appointment_path(date: params[:date]),
+          class: "button purple full",
+          data: { action: "calendar-view#openNewAppointment" } %>
   </div>
 
   <div class="timeline-wrapper">

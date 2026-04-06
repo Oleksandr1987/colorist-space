@@ -78,13 +78,15 @@
   padding: 20px;
   width: 100%;
   max-width: 380px;
-  text-align: center;
+  /* text-align: center; */
 }
 
 /* Language switcher in the top right corner */
 .language-switcher.top-right {
   text-align: right;
   margin-bottom: 10px;
+  margin-left: auto;
+  margin-top: 32px;
 }
 
 /* Select for languages */
@@ -134,4 +136,16 @@
 
 .home-logo .logo-img {
   width: 160px;
+}
+
+.oauth-consent-text {
+  font-size: 12px;
+  color: #666;
+  margin: 8px 0 12px;
+  text-align: center;
+}
+
+.oauth-consent-text a {
+  color: #4a6cf7;
+  text-decoration: underline;
 }

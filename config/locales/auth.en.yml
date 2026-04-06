@@ -45,3 +45,5 @@ en:
 
     # Social alt
     social_icon_alt: "%{provider} logo"
+
+    oauth_consent_html: "By continuing, you agree to the %{terms} and %{privacy}."

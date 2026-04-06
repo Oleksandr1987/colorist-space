@@ -197,6 +197,23 @@
   min-width: 100px;
 }
 
+.day.has-appointment {
+  position: relative;
+}
+
+.day.has-appointment::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: #6200ea; /* фіолетова позначка */
+  border-radius: 50%;
+}
+
+
 /* Responsive adjustment */
 @media (max-width: 420px) {
   .popover-menu {

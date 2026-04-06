@@ -11,15 +11,16 @@ Rails.application.routes.draw do
   resources :clients do
     collection do
       get :search
+      get :autocomplete
     end
 
     member do
-      delete 'photos/:photo_id', to: 'clients#delete_photo', as: 'delete_photo'
-      delete 'delete_all_photos', to: 'clients#delete_all_photos'
+      delete "photos/:photo_id", to: "clients#delete_photo", as: "delete_photo"
+      delete "delete_all_photos", to: "clients#delete_all_photos"
     end
 
     resources :service_notes do
-      resources :formula_steps, only: [:create, :update, :destroy] do
+      resources :formula_steps, only: [ :create, :update, :destroy ] do
         member do
           patch :clear_oxidant   # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_oxidant
           patch :clear_time      # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_time
@@ -60,14 +61,14 @@ Rails.application.routes.draw do
     delete :cancel, to: "subscriptions#cancel"
   end
 
-  get '/admin', to: 'admin#index', as: :admin
+  get "/admin", to: "admin#index", as: :admin
 
   get "/settings", to: "settings#show"
   get "/settings/subscription", to: "settings#subscription", as: :settings_subscription
 
   resources :expenses, except: [ :show ]
 
-  resource :analytics, only: [ :show ], controller: 'analytics' do
+  resource :analytics, controller: "analytics", only: [ :show ] do
     get :expenses
     get :income
     get :balance

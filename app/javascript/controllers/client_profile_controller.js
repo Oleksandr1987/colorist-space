@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="client-profile"
 export default class extends Controller {
-  static targets = ["tab", "tabContent", "menu", "info"]
+  static targets = ["tab", "tabContent", "menu"]
 
   connect() {
     this.showTabByName("styles") // Default tab on page load
@@ -27,9 +27,5 @@ export default class extends Controller {
 
   toggleMenu() {
     this.menuTarget.classList.toggle("hidden")
-  }
-
-  toggleInfo() {
-    this.infoTarget.classList.toggle("hidden")
   }
 }

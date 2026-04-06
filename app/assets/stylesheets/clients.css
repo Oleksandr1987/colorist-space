@@ -4,7 +4,7 @@
   padding: 0 1rem;
   max-width: 500px;
   margin: 0 auto;
-  max-height: 60vh;
+  max-height: 80vh;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #ccc transparent;
@@ -72,14 +72,6 @@
 }
 
 /* === Clients Index: Верхня панель === */
-
-.clients-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0 1rem 1rem;
-}
-
 .clients-title {
   font-size: 1.5rem;
   font-weight: bold;
@@ -144,13 +136,37 @@
   margin: 2rem auto 0;
 }
 
-@media (max-width: 600px) {
-  .clients-header {
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 0 0.5rem;
-  }
+.clients-container {
+  position: relative;
+}
 
+.floating-add-button {
+  position: absolute;
+  bottom: 1rem;
+  right: 1.6rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+  text-decoration: none;
+  z-index: 20;
+}
+
+.floating-add-button:hover {
+  background-color: transparent !important;
+}
+
+.floating-add-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* === Mobile === */
+
+@media (max-width: 600px) {
   .clients-title {
     font-size: 1.3rem;
   }
@@ -313,7 +329,7 @@
 .login__field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   width: 100%;
 }
 
@@ -327,13 +343,20 @@
 .login__field input,
 .login__field select,
 .login__field textarea {
-  width: 100%;
+  /* width: 100%; */
   padding: 0.6rem 0.8rem;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
   background-color: #fff;
   box-sizing: border-box;
+}
+
+.login__field.remember-me {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
 }
 
 textarea.login__input {
@@ -401,4 +424,167 @@ h1 {
 
 .hidden-upload {
   display: none;
+}
+
+/* === Collapsible sections === */
+
+.collapse-section {
+  margin-top: 1.5rem;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.5rem 0.8rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.collapse-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 0.6rem;
+  cursor: pointer;
+  color: #333333;
+}
+
+.collapse-toggle svg {
+  stroke: #333333;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================
+   STYLE CARDS — Charm layout (FINAL)
+   ========================= */
+
+.style-card {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1.4rem;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+/* --- PHOTO 16:9 strict horizontal like Charm --- */
+.style-photo-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;       /* =========== ГАРАНТОВАНИЙ ГОРИЗОНТАЛЬНИЙ ПРЯМОКУТНИК ========= */
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ddd;
+}
+
+.style-photo {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;   /* ======= КАДРУЄ ВЕРТИКАЛЬНЕ ФОТО, НЕ РОЗТЯГУЄ ======= */
+  object-position: center;        /* ======= центр кадру ======= */
+  display: block;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Hover zoom */
+.style-photo-wrapper:hover .style-photo {
+  transform: scale(1.06);
+}
+
+/* No photo */
+.style-no-photo {
+  width: 100%;
+  height: 100%;
+  background: #f2eef6;
+  color: #777;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Overlay */
+.style-info-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 95%);
+  color: white;
+  z-index: 10;
+}
+
+.style-date {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.style-service {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* +X counter */
+.style-photo-count {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.55);
+  padding: 0.3rem 0.6rem;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 15;
+}
+
+/* Action buttons */
+.style-card-actions {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 20;
+  display: flex;
+  gap: 6px;
+}
+
+.style-edit-btn,
+.style-more-btn {
+  background: rgba(255,255,255,0.85);
+  color: #333;
+  border-radius: 10px;
+  padding: 6px 8px;
+  font-size: 1.05rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.14);
+}
+
+/* popover fix */
+.popover-menu-client {
+  right: 0;
+  top: 2.2rem;
+}
+
+/* --- Mobile --- */
+
+@media (max-width: 600px) {
+  .style-card {
+    border-radius: 12px;
+  }
+
+  .style-info-overlay {
+    padding: 0.7rem 0.9rem;
+  }
+
+  .style-photo-count {
+    bottom: 10px;
+    right: 10px;
+    padding: 0.25rem 0.5rem;
+  }
 }

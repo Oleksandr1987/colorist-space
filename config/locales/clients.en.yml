@@ -16,7 +16,6 @@ en:
       first_name: "First Name"
       last_name: "Last Name"
       phone: "Phone Number"
-      birthdate: "Date of Birth"
       note: "Notes"
 
       hair_info_title: "Optional Hair Information"
@@ -39,6 +38,7 @@ en:
       styles_tab: "Styles"
       photos_tab: "Photos"
       info_tab: "Info"
+      add_style: "Add Style"
 
       new_appointment: "New Appointment"
       edit_client: "Edit Client"

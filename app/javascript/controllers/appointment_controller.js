@@ -4,7 +4,8 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "checkboxes", "total", "modal", "list", "selected", "field",
-    "serviceSelected", "preparationSelected", "careProductSelected", "hiddenInput"
+    "serviceSelected", "preparationSelected", "careProductSelected", "hiddenInput",
+    "appointmentTime", "endTime", "timeError", "saveButton"
   ]
 
   connect() {
@@ -140,5 +141,24 @@ export default class extends Controller {
     const formattedHours = String((hours + Math.floor(roundedMinutes / 60)) % 24).padStart(2, "0")
 
     input.value = `${formattedHours}:${formattedMinutes}`
+  }
+
+  validateTimes() {
+    const start = this.appointmentTimeTarget.value
+    const end = this.endTimeTarget.value
+
+    if (!start || !end) {
+      this.timeErrorTarget.classList.add("hidden")
+      this.saveButtonTarget.disabled = false
+      return
+    }
+
+    if (end <= start) {
+      this.timeErrorTarget.classList.remove("hidden")
+      this.saveButtonTarget.disabled = true
+    } else {
+      this.timeErrorTarget.classList.add("hidden")
+      this.saveButtonTarget.disabled = false
+    }
   }
 }

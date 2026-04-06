@@ -7,20 +7,20 @@ module PhoneValidator
     validates :phone, presence: true,
                       format: {
                         with: /\A\+380\d{9}\z/,
-                        message: 'must start with +380 and contain 9 digits after, e.g. +380123456789'
+                        message: "must start with +380 and contain 9 digits after, e.g. +380123456789"
                       }
   end
 
   def self.normalize(value)
     return nil if value.blank?
 
-    digits = value.to_s.gsub(/\D/, '')
+    digits = value.to_s.gsub(/\D/, "")
 
-    if digits.start_with?('0')
+    if digits.start_with?("0")
       "+380#{digits[1..]}"
-    elsif digits.start_with?('380')
+    elsif digits.start_with?("380")
       "+#{digits}"
-    elsif digits.start_with?('8') && digits.size == 11
+    elsif digits.start_with?("8") && digits.size == 11
       "+3#{digits}"
     else
       "+#{digits}"

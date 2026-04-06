@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["monthLabel", "calendarDays", "selectedDateLabel", "timeline"]
-  static values = { translations: Object }
+  static values = { translations: Object, datesWithAppointments: Array, clientId: Number }
 
   connect() {
     this.t = this.translationsValue
@@ -38,17 +38,30 @@ export default class extends Controller {
 
     let html = dayNames.map(day => `<div class="day-name">${day}</div>`).join("")
 
-    for (let i = 0; i < firstDay; i++) html += `<div class="empty-day"></div>`
+    for (let i = 0; i < firstDay; i++) {
+      html += `<div class="empty-day"></div>`
+    }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month, day)
-      const isToday = this.isSameDate(date, new Date())
-      const isSelected = this.isSameDate(date, this.selectedDate)
+      const localDate = new Date(year, month, day)
+
+      const dateStr =
+        localDate.getFullYear() + "-" +
+        String(localDate.getMonth() + 1).padStart(2, "0") + "-" +
+        String(localDate.getDate()).padStart(2, "0")
+
+      const isToday = this.isSameDate(localDate, new Date())
+      const isSelected = this.isSameDate(localDate, this.selectedDate)
+      const hasAppointment = this.datesWithAppointmentsValue.includes(dateStr)
 
       html += `
-        <div class="day ${isToday ? "today" : ""} ${isSelected ? "selected" : ""}"
-             data-date="${date.toISOString()}"
-             data-action="click->calendar-view#selectDate">${day}</div>
+        <div class="day ${isToday ? "today" : ""} 
+                      ${isSelected ? "selected" : ""} 
+                      ${hasAppointment ? "has-appointment" : ""}"
+             data-date="${dateStr}"
+             data-action="click->calendar-view#selectDate">
+          ${day}
+        </div>
       `
     }
 
@@ -59,15 +72,26 @@ export default class extends Controller {
 
     this.calendarDaysTarget.innerHTML = html
     this.updateSelectedDateLabel()
+    this.updateAddButtonLink()
   }
 
   updateSelectedDateLabel() {
-    this.selectedDateLabelTarget.textContent = this.selectedDate.toLocaleDateString(this.t.locale, {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    })
+    this.selectedDateLabelTarget.textContent =
+      this.selectedDate.toLocaleDateString(this.t.locale, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      })
+  }
+
+  updateAddButtonLink() {
+    const dateStr = this.formatDate(this.selectedDate)
+
+    const btn = document.querySelector(".add-btn-wrapper a")
+    if (btn) {
+      btn.href = `/appointments/new?date=${dateStr}`
+    }
   }
 
   prevMonth() {
@@ -81,9 +105,25 @@ export default class extends Controller {
   }
 
   selectDate(event) {
-    this.selectedDate = new Date(event.currentTarget.dataset.date)
+    const dateStr = event.currentTarget.dataset.date
+
+    this.selectedDate = new Date(dateStr + "T00:00:00")
     this.renderCalendar()
     this.loadAppointments(this.selectedDate)
+  }
+
+  openNewAppointment(event) {
+    const url = new URL(event.target.href);
+
+    if (this.clientIdValue) {
+      url.searchParams.set("client_id", this.clientIdValue);
+    }
+
+    if (this.selectedDate) {
+      url.searchParams.set("date", this.selectedDate);
+    }
+
+    event.target.href = url.toString();
   }
 
   loadAppointments(date) {
@@ -92,8 +132,18 @@ export default class extends Controller {
       fetch(`/appointments/by_date?date=${formatted}`).then(r => r.json()),
       fetch(`/appointments/free_slots?date=${formatted}`).then(r => r.json())
     ]).then(([appointments, slots]) => {
-      const mergedFreeSlots = this.mergeFreeSlots(slots, appointments)
-      this.renderTimeline(appointments, mergedFreeSlots)
+
+      const normalizedAppointments = appointments.map(a => ({
+        ...a,
+        start: a.start || a.start_time,
+        end: a.end || a.end_time
+      }))
+
+      const combinedFreeSlots = this.mergeAdjacentFreeSlots(slots)
+
+      const mergedFreeSlots = this.mergeFreeSlots(combinedFreeSlots, normalizedAppointments)
+
+      this.renderTimeline(normalizedAppointments, mergedFreeSlots)
     })
   }
 
@@ -105,14 +155,20 @@ export default class extends Controller {
     const combinedSlots = [
       ...appointments.map(app => ({ type: "booked", data: app })),
       ...slots.map(slot => ({ type: "free", data: slot }))
-    ].sort((a, b) => new Date(a.data.start) - new Date(b.data.start))
+    ].sort((a, b) =>
+      this.parseTime(a.data.start || a.data.start_time) -
+      this.parseTime(b.data.start || b.data.start_time)
+    )
 
     combinedSlots.forEach(slot => {
       const el = document.createElement("div")
-      const startTime = new Date(slot.data.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-      const endTime = new Date(slot.data.end || slot.data.end_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-
       el.classList.add("timeline-slot")
+
+      const startDate = this.parseTime(slot.data.start || slot.data.start_time)
+      const endDate = this.parseTime(slot.data.end || slot.data.end_time)
+
+      const startTime = this.formatTime(startDate)
+      const endTime = this.formatTime(endDate)
 
       if (slot.type === "booked") {
         el.classList.add("slot-booked")
@@ -163,19 +219,41 @@ export default class extends Controller {
     })
   }
 
+  mergeAdjacentFreeSlots(slots) {
+    if (!slots.length) return []
+
+    const merged = []
+    let current = { ...slots[0] }
+
+    for (let i = 1; i < slots.length; i++) {
+      const slot = slots[i]
+
+      if (current.end === slot.start) {
+        current.end = slot.end
+      } else {
+        merged.push(current)
+        current = { ...slot }
+      }
+    }
+
+    merged.push(current)
+    return merged
+  }
+
   mergeFreeSlots(freeSlots, appointments = []) {
     if (freeSlots.length === 0) return []
 
     const bookedRanges = appointments.map(a => ({
-      start: new Date(a.start),
-      end: new Date(a.end)
+      start: this.parseTime(a.start || a.start_time),
+      end: this.parseTime(a.end || a.end_time)
     }))
 
     const merged = []
 
     freeSlots.forEach(slot => {
-      let currentStart = new Date(slot.start)
-      const currentEnd = new Date(slot.end)
+
+      let currentStart = this.parseTime(slot.start)
+      const currentEnd = this.parseTime(slot.end)
 
       const overlaps = bookedRanges
         .filter(b => b.start < currentEnd && b.end > currentStart)
@@ -183,35 +261,47 @@ export default class extends Controller {
 
       for (const b of overlaps) {
         if (currentStart < b.start) {
-          merged.push({ start: new Date(currentStart), end: new Date(b.start) })
+          merged.push({
+            start: this.formatTime(currentStart),
+            end: this.formatTime(b.start)
+          })
         }
         currentStart = b.end > currentStart ? b.end : currentStart
       }
 
       if (currentStart < currentEnd) {
-        merged.push({ start: currentStart, end: currentEnd })
+        merged.push({
+          start: this.formatTime(currentStart),
+          end: this.formatTime(currentEnd)
+        })
       }
     })
 
-    const sorted = merged.sort((a, b) => a.start - b.start)
-    const final = []
-    let current = null
-
-    sorted.forEach(slot => {
-      if (!current) current = slot
-      else if (current.end.getTime() === slot.start.getTime()) {
-        current.end = slot.end
-      } else {
-        final.push(current)
-        current = slot
-      }
-    })
-
-    if (current) final.push(current)
-
-    return final
+    return merged
   }
 
+  parseTime(timeStr) {
+
+    if (!timeStr) return new Date()
+
+    if (timeStr.includes("T")) {
+      return new Date(timeStr)
+    }
+
+    const [h, m] = timeStr.split(":").map(Number)
+
+    const d = new Date(this.selectedDate)
+    d.setHours(h, m, 0, 0)
+
+    return d
+  }
+
+  formatTime(date) {
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    })
+  }
 
   togglePopover(id) {
     if (this.activePopover) {
@@ -259,8 +349,10 @@ export default class extends Controller {
   }
 
   formatDate(date) {
-    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-    return localDate.toISOString().split("T")[0]
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, "0")
+    const d = String(date.getDate()).padStart(2, "0")
+    return `${y}-${m}-${d}`
   }
 
   csrfToken() {

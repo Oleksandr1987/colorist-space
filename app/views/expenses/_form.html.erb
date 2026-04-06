@@ -2,7 +2,7 @@
   <div class="form-errors">
     <% if expense.errors.any? %>
       <div class="error-box">
-        <h4>Помилки при збереженні:</h4>
+        <h4><%= t("analytics.errors.title") %></h4>
         <ul>
           <% expense.errors.full_messages.each do |message| %>
             <li><%= message %></li>
@@ -14,21 +14,30 @@
 
   <%= form_with(model: expense, local: true) do |f| %>
     <div class="form-section">
-      <%= f.label :category, "Категорія витрати" %>
-      <%= f.select :category, Expense::CATEGORIES, {}, class: "form-input", required: true %>
+      <%= f.label :category, t("analytics.expenses.category") %>
+
+      <%= f.select :category,
+          Expense::CATEGORIES.map { |c|
+            [t("analytics.expenses.categories.#{c}"), c]
+          },
+          {},
+          class: "form-input",
+          required: true %>
     </div>
 
     <div class="form-section">
-      <%= f.label :note, "Опис" %>
+      <%= f.label :note, t("analytics.expenses.note") %>
+
       <%= f.text_area :note,
             class: "form-input textarea-auto",
             maxlength: 256,
             rows: 2,
-            placeholder: "До 256 символів..." %>
+            placeholder: t("analytics.expenses.note_placeholder") %>
     </div>
 
     <div class="form-section">
-      <%= f.label :spent_on, "Дата витрати" %>
+      <%= f.label :spent_on, t("analytics.expenses.date") %>
+
       <%= text_field_tag "expense[spent_on]",
         expense.spent_on&.to_date || Date.today,
         class: "form-input",
@@ -38,13 +47,23 @@
     </div>
 
     <div class="form-section">
-      <%= f.label :amount, "Сума (₴)" %>
-      <%= f.number_field :amount, class: "form-input", required: true %>
+      <%= f.label :amount, t("analytics.expenses.amount") %>
+
+      <%= f.number_field :amount,
+            class: "form-input",
+            required: true %>
     </div>
 
     <div class="form-actions-row">
-      <%= f.submit "Save", class: "form-button primary" %>
-      <%= link_to "Cancel", expenses_path, class: "form-button cancel", data: { turbo: false } %>
+
+      <%= f.submit t("analytics.save"),
+            class: "form-button primary" %>
+
+      <%= link_to t("analytics.cancel"),
+            expenses_path,
+            class: "form-button cancel",
+            data: { turbo: false } %>
+
     </div>
   <% end %>
 </div>

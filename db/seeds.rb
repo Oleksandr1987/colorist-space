@@ -1,15 +1,40 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
+# db/seeds.rb
 #
-# Example:
+# This file should ensure the existence of records required to run the application.
+# It must be idempotent and safe to run multiple times.
 #
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-puts "🌱 Seeding default services..."
+# IMPORTANT:
+# - No assumptions about existing records (NO find(1))
+# - No FactoryBot usage
+# - Heavy demo data only in development
 
-user = User.find(1)
+require "faker"
+
+puts "🌱 Running seeds for #{Rails.env} environment..."
+
+# -------------------------------------------------------------------
+# Base / demo user (used only in development)
+# -------------------------------------------------------------------
+
+unless Rails.env.development?
+  puts "ℹ️ Skipping demo seeds outside development environment"
+  return
+end
+
+demo_user = User.find_or_create_by!(email: "demo@colorist.space") do |u|
+  u.name = "Demo User"
+  u.phone = "+380500000000"
+  u.password = "Password123!"
+  u.tos_agreement = true
+end
+
+puts "👤 Demo user ready: #{demo_user.email}"
+
+# -------------------------------------------------------------------
+# Default services
+# -------------------------------------------------------------------
+
+puts "🌱 Seeding default services..."
 
 default_services = [
   # Haircuts
@@ -36,49 +61,59 @@ default_services = [
 ]
 
 default_services.each do |attrs|
-  name = "#{attrs[:category]}: #{attrs[:subtype]}"
-  Service.find_or_create_by!(attrs.merge(user_id: user.id, name: name))
-end
-
-puts "✅ Done seeding default services for #{user.name}."
-
-
-puts "🌱 Seeding clients for user..."
-
-alphabet = ('A'..'Z').to_a
-existing_clients = user.clients.to_a
-
-alphabet.each do |letter|
-  existing_for_letter = existing_clients.select { |client| client.first_name.starts_with?(letter) }
-
-  if existing_for_letter.count < 15
-    (15 - existing_for_letter.count).times do
-      FactoryBot.create(:client,
-        user: user,
-        first_name: "#{letter}#{Faker::Name.first_name}",
-        last_name: Faker::Name.last_name
-      )
-    end
+  Service.find_or_create_by!(
+    user: demo_user,
+    name: "#{attrs[:category]}: #{attrs[:subtype]}"
+  ) do |service|
+    service.assign_attributes(attrs)
   end
 end
 
-puts "✅ Done creating test clients."
+puts "✅ Default services seeded"
 
-puts "🌱 Seeding sample expenses by month..."
+# -------------------------------------------------------------------
+# Clients (A–Z, up to 15 per letter)
+# -------------------------------------------------------------------
 
-require 'faker'
+puts "🌱 Seeding clients..."
+
+alphabet = ("A".."Z").to_a
+
+alphabet.each do |letter|
+  existing_count =
+    demo_user.clients.where("first_name LIKE ?", "#{letter}%").count
+
+  next if existing_count >= 15
+
+  (15 - existing_count).times do
+    Client.create!(
+      user: demo_user,
+      first_name: "#{letter}#{Faker::Name.first_name}",
+      last_name: Faker::Name.last_name,
+      phone: Faker::PhoneNumber.cell_phone
+    )
+  end
+end
+
+puts "✅ Clients seeded"
+
+# -------------------------------------------------------------------
+# Expenses (last 12 months)
+# -------------------------------------------------------------------
+
+puts "🌱 Seeding expenses..."
 
 categories = Expense::CATEGORIES
 today = Date.today
 
 12.times do |i|
-  month_date = today << i # віднімаємо i місяців назад
+  month_date = today << i
   start_date = month_date.beginning_of_month
-  end_date = [month_date.end_of_month, today].min # якщо це поточний місяць — обмежимо сьогоднішнім днем
+  end_date = [ month_date.end_of_month, today ].min
 
   20.times do
     Expense.create!(
-      user: user,
+      user: demo_user,
       category: categories.sample,
       amount: rand(100..2500),
       spent_on: rand(start_date..end_date),
@@ -87,85 +122,74 @@ today = Date.today
   end
 end
 
-puts "✅ Done creating expenses."
+puts "✅ Expenses seeded"
 
-puts "🌱 Seeding appointments with income data..."
+# -------------------------------------------------------------------
+# Appointments (past 6 months)
+# -------------------------------------------------------------------
 
-require 'faker'
+puts "🌱 Seeding appointments (past)..."
 
-user = User.find(1)
-clients = user.clients.to_a
-services_by_type = user.services.group_by(&:service_type)
+clients = demo_user.clients.to_a
+services_by_type = demo_user.services.group_by(&:service_type)
 
 main_services = services_by_type["service"] || []
-other_services = (services_by_type["preparation"] || []) + (services_by_type["care_product"] || [])
+other_services =
+  (services_by_type["preparation"] || []) +
+  (services_by_type["care_product"] || [])
 
 if main_services.empty?
-  puts "❌ No main services found. Skipping appointment seeding."
+  puts "⚠️ No main services found, skipping appointment seeding"
 else
-  # Генеруємо 100 записів рівномірно розподілених по останніх 6 місяцях
   200.times do
     client = clients.sample
-    days_ago = rand(0..180)
-    date = Date.today - days_ago
-    time = Time.zone.parse("#{rand(9..17)}:#{[0, 30].sample}")
+    date = Date.today - rand(0..180)
+    time = Time.zone.parse("#{rand(9..17)}:#{[ 0, 30 ].sample}")
 
-    appt = user.appointments.build(
+    appointment = demo_user.appointments.build(
       client: client,
       appointment_date: date,
       appointment_time: time
     )
 
-    # Додаємо 1 обов’язковий main service + 0-2 додаткові
-    selected_main = main_services.sample
-    selected_others = other_services.sample(rand(0..2))
+    appointment.services << main_services.sample
+    appointment.services << other_services.sample(rand(0..2))
 
-    appt.services << selected_main
-    appt.services << selected_others
-
-    if appt.save
-      puts "✅ Created appointment for #{client.full_name} on #{date} at #{time.strftime('%H:%M')}"
-    else
-      puts "⚠️ Failed for #{client.full_name}: #{appt.errors.full_messages.join(', ')}"
+    if appointment.save
+      appointment.update_column(:service_name, appointment.combined_service_name)
     end
   end
 
-  puts "✅ Done creating appointments for analytics testing."
+  puts "✅ Past appointments seeded"
+end
 
+# -------------------------------------------------------------------
+# Future appointments (calendar UI)
+# -------------------------------------------------------------------
 
-  puts "🌱 Seeding future appointments for calendar UI test..."
+puts "🌱 Seeding future appointments..."
 
-start_date = Date.today
-end_date = start_date + 4.months
-
-(start_date..end_date).each do |date|
+(start_date = Date.today)..(end_date = Date.today + 4.months).each do |date|
   rand(3..4).times do
     client = clients.sample
-    base_hour = rand(9..16)
-    base_minute = [0, 15, 30, 45].sample
-    start_time = Time.zone.parse("#{base_hour}:#{base_minute}")
+    hour = rand(9..16)
+    minute = [ 0, 15, 30, 45 ].sample
+    time = Time.zone.parse("#{hour}:#{minute}")
 
-    appt = user.appointments.build(
+    appointment = demo_user.appointments.build(
       client: client,
       appointment_date: date,
-      appointment_time: start_time
+      appointment_time: time
     )
 
-    selected_main = main_services.sample
-    selected_others = other_services.sample(rand(0..2))
+    appointment.services << main_services.sample
+    appointment.services << other_services.sample(rand(0..2))
 
-    appt.services << selected_main
-    appt.services << selected_others
-
-    if appt.save
-      appt.update_column(:service_name, appt.combined_service_name)
-      puts "📅 Created future appointment on #{date} at #{start_time.strftime('%H:%M')}"
-    else
-      puts "⚠️ Error for #{client.full_name} on #{date}: #{appt.errors.full_messages.join(', ')}"
+    if appointment.save
+      appointment.update_column(:service_name, appointment.combined_service_name)
     end
   end
 end
 
-puts "✅ Done creating future appointments."
-
-end
+puts "✅ Future appointments seeded"
+puts "🎉 Seeding completed successfully"
