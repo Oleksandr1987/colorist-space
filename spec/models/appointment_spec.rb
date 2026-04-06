@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe Appointment, type: :model do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:user) { create(:user) }
   let(:client) { create(:client, user: user) }
   let(:main_service) { create(:service, user: user) }
@@ -139,6 +141,12 @@ RSpec.describe Appointment, type: :model do
   end
 
   describe ".grouped_by_month" do
+    before do
+      travel_to Time.zone.local(2026, 1, 1)
+    end
+
+    after { travel_back }
+
     it "groups appointments by appointment month" do
       appointment_in_first_month = create(
         :appointment,
