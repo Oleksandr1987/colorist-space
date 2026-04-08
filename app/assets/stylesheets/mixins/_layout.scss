@@ -1,0 +1,12 @@
+@use "../variables";
+
+@mixin container-layout {
+  display: flex;
+  width: 100%;
+  max-width: variables.$max-container-width;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: variables.$container-padding;
+  flex-direction: column;
+  box-sizing: border-box;
+}

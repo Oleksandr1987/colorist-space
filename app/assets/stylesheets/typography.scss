@@ -1,0 +1,98 @@
+@use "variables";
+
+h1,
+h2,
+h3,
+h4,
+h5,
+label,
+button,
+a,
+input,
+select,
+textarea {
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 28px;
+  line-height: 1.4;
+  font-weight: 600;
+  margin: 0;
+  color: variables.$font-base-color;
+}
+
+h2 {
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 600;
+  margin: 0;
+  color: variables.$font-base-color;
+}
+
+h3 {
+  font-size: 22px;
+  line-height: 1.4;
+  font-weight: 500;
+  margin: 0;
+  color: variables.$font-base-color;
+}
+
+h4 {
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 500;
+  margin: 0;
+  color: variables.$font-base-color;
+}
+
+h5 {
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 500;
+  margin: 0;
+  color: variables.$font-base-color;
+}
+
+p {
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 400;
+  margin: 0;
+  color: variables.$font-base-color;
+}
+
+a {
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 500;
+  text-decoration: none;
+  margin: 0;
+  color: variables.$tertiary-button-color;
+}
+
+button,
+input[type="button"],
+input[type="submit"] {
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 500;
+  margin: 0;
+}
+
+label {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
+  margin: 0;
+  color: variables.$font-base-color;
+}
+
+input {
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 400;
+  margin: 0;
+  color: variables.$font-base-color;
+}

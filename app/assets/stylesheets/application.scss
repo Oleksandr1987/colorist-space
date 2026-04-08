@@ -1,4 +1,9 @@
+@use "variables";
+@use "mixins";
+@use "typography";
 @use "forms";
+@use "form-fields";
+@use "login_page";
 @use "calendar";
 @use "clients";
 @use "admin";
@@ -14,13 +19,20 @@
 @use "expenses";
 @use "datepicker";
 
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-
 /* ==== General Page Styles ==== */
 body {
   margin: 0;
   padding: 0;
-  font-family: "Montserrat", serif;
+  font-family: "Montserrat", sans-serif;
+  background-color: variables.$bg-color-main;
+}
+
+.screen {
+  @include mixins.container-layout;
+}
+
+.screen__content {
+  flex: 1 1 auto;
 }
 
 /* ==== Header ==== */
@@ -103,7 +115,6 @@ body {
   display: inline-flex;
   padding: 14px;
   margin-left: 2px;
-  font-family: "Montserrat", serif;
   color: #fff;
   cursor: pointer;
   transition: 0.3s linear all;
@@ -194,7 +205,6 @@ body {
   align-items: center;
   border-top: 1px solid #e0e0e0;
   z-index: 9999;
-  font-family: "Montserrat", sans-serif;
 }
 
 .nav-item {
@@ -247,7 +257,7 @@ body {
   border: 1px solid #ddd;
   border-radius: 12px;
   padding: 10px 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   z-index: 1000;
   min-width: max-content;
   max-width: 90vw;
@@ -310,6 +320,7 @@ body {
   background-color: #ffebee;
   color: #c62828;
 }
+
 .flash.success {
   background-color: #e8f5e9;
   color: #228427;

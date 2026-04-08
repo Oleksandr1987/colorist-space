@@ -34,8 +34,8 @@ uk:
 
     # Links
     forgot_password: "Забули пароль?"
-    login_with: "УВІЙТИ ЧЕРЕЗ"
-    signup_with: "ЗАРЕЄСТРУВАТИСЯ ЧЕРЕЗ"
+    login_with: "Увійти через"
+    signup_with: "Зареєструватись через"
     need_login: "Вже маєте акаунт?"
     need_register: "Заходити вперше?"
 

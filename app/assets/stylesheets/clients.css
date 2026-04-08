@@ -100,42 +100,6 @@
   max-width: 80%;
 }
 
-/* === Універсальні кнопки === */
-
-.button {
-  background-color: #6200ea;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.button.small {
-  font-size: 0.9rem;
-  padding: 0.4rem 0.8rem;
-}
-
-.button.secondary {
-  background-color: #aaa;
-}
-
-.button:hover {
-  background-color: #3700b3;
-}
-
-.button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px #bb86fc;
-}
-
-.button.full-width {
-  display: block;
-  width: 90%;
-  margin: 2rem auto 0;
-}
-
 .clients-container {
   position: relative;
 }
@@ -333,68 +297,9 @@
   width: 100%;
 }
 
-.login__field label {
-  margin-bottom: 0.3rem;
-  font-weight: 500;
-  font-size: 0.95rem;
-  color: #333;
-}
-
-.login__field input,
-.login__field select,
-.login__field textarea {
-  /* width: 100%; */
-  padding: 0.6rem 0.8rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
-  box-sizing: border-box;
-}
-
-.login__field.remember-me {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-}
-
 textarea.login__input {
   resize: vertical;
   min-height: 80px;
-}
-
-/* === Reusable action section (bottom buttons) === */
-
-.actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.button {
-  background-color: #6200ea;
-  color: white;
-  padding: 0.5rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.button:hover {
-  background-color: #4b00b3;
-}
-
-/* === Default Page Title === */
-
-h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  padding-left: 1rem;
-  text-align: center;
 }
 
 /* === Choose photo === */

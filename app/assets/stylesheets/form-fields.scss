@@ -1,0 +1,105 @@
+@use "variables";
+@use "mixins";
+
+form {
+  margin-bottom: 24px;
+
+  .form__field {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    margin-bottom: 24px;
+
+    label {
+      margin-bottom: 8px;
+      color: variables.$font-base-color;
+    }
+
+    input {
+      padding: 12px;
+      border: 1px solid variables.$base-border-color;
+      border-radius: 10px;
+      outline: none;
+
+      &:focus,
+      &:hover,
+      &:active {
+        box-shadow: variables.$box-shadow-primary;
+      }
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+      margin-right: 8px;
+      appearance: none;
+      -webkit-appearance: none;
+      background: #ffffff;
+      border-radius: 6px;
+      position: relative;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:checked {
+        background: variables.$primary
+        url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><polyline points='5,12 10,17 19,7' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>")
+        no-repeat center center;
+        background-size: 22px 22px;
+        border-color: variables.$primary;
+      }
+
+      & + label {
+        margin-bottom: 0;
+        line-height: 1;
+
+        a {
+          color: variables.$tertiary-button-color;
+          font-size: 14px;
+        }
+      }
+    }
+
+    &.form__field__checkbox {
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .forgot__password {
+      position: absolute;
+      bottom: -24px;
+      right: 0;
+
+      a {
+        color: variables.$tertiary-button-color;
+        font-size: 14px;
+      }
+    }
+
+    input[type='password'] {
+      letter-spacing: 8px;
+    }
+
+    input[type='tel'] {
+      letter-spacing: 1px;
+    }
+
+    span.helper__text {
+      margin-top: 4px;
+      font-size: 14px;
+      color: variables.$font-secondary-color;
+    }
+  }
+
+  .actions {
+    margin-top: 32px;
+
+    input[type="submit"] {
+      @include mixins.primary-button-full;
+    }
+  }
+}
+
+

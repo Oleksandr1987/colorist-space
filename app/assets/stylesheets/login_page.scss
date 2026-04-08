@@ -1,0 +1,90 @@
+@use "variables";
+
+.language_switcher.top_right {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 32px;
+}
+
+.language_select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: block;
+  position: relative;
+  outline: none;
+  border: none;
+  padding-right: 40px;
+  color: variables.$primary;
+  font-size: 18px;
+  text-align: right;
+  cursor: pointer;
+  background: transparent url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><polyline points='7,10 12,15 17,10' stroke='%23481f9a' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
+  background-size: 28px 28px;
+
+  &::-ms-expand {
+    display: none;
+  }
+}
+
+.page_title {
+  margin-bottom: 24px;
+}
+
+.social_login {
+  p {
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  button {
+    outline: none;
+    border: none;
+    background: none;
+  }
+
+  .social_icons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    form {
+      margin: 0;
+    }
+  }
+
+  img.social_login_icon {
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+    text-shadow: 0 0 8px #7875B5;
+  }
+}
+
+.login_register {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .home_register_label {
+    margin-right: 8px;
+    font-size: 15px;
+  }
+
+  .home_register_link {
+    color: variables.$tertiary-button-color;
+    font-size: 15px;
+  }
+}
+
+.home_logo {
+  display: flex;
+  justify-content: center;
+}
+
+.oauth_consent_text,
+.oauth_consent_text a {
+  font-size: 15px;
+}

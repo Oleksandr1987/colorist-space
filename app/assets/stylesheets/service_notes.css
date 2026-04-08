@@ -347,10 +347,6 @@
 }
 
 /* ---------------- BUTTONS ---------------- */
-.actions {
-  margin-top: 1.5rem;
-}
-
 .actions .button.primary {
   background: #6d28d9;
   color: white;

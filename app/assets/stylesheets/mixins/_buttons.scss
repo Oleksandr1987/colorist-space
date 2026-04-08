@@ -1,0 +1,25 @@
+@use "../variables";
+
+@mixin primary-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  color: variables.$primary-button-color;
+  background-color: variables.$primary-button-bg-color;
+  border: 1px solid variables.$primary-button-border-color;
+  border-radius: 10px;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+}
+
+@mixin primary-button-full {
+  @include primary-button;
+  width: 100%;
+}
+
+@mixin links {
+  color: variables.$primary-button-color;
+}
+

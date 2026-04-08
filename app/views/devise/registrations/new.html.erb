@@ -4,35 +4,35 @@
 
       <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "login" }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
-        <div class="login__field">
+        <div class="form__field">
           <%= f.label :name, t("auth.name") %>
-          <%= f.text_field :name, class: "login__input", autofocus: true, autocomplete: "name" %>
+          <%= f.text_field :name, autofocus: true, autocomplete: "name" %>
         </div>
 
-        <div class="login__field">
+        <div class="form__field">
           <%= f.label :email, t("auth.email") %>
-          <%= f.email_field :email, class: "login__input", autocomplete: "email" %>
+          <%= f.email_field :email, autocomplete: "email" %>
         </div>
 
-        <div class="login__field">
+        <div class="form__field">
           <%= f.label :phone, t("auth.phone") %>
-          <%= f.telephone_field :phone, class: "login__input", autocomplete: "tel", data: { controller: "phone-mask" } %>
+          <%= f.telephone_field :phone, autocomplete: "tel", data: { controller: "phone-mask" } %>
         </div>
 
-        <div class="login__field">
+        <div class="form__field">
           <%= f.label :password, t("auth.password") %>
+          <%= f.password_field :password, autocomplete: "new-password" %>
           <% if @minimum_password_length %>
-            <em><%= t("auth.min_length", count: @minimum_password_length) %></em>
+            <span class="helper__text"><%= t("auth.min_length", count: @minimum_password_length) %></span>
           <% end %>
-          <%= f.password_field :password, class: "login__input", autocomplete: "new-password" %>
         </div>
 
-        <div class="login__field">
+        <div class="form__field">
           <%= f.label :password_confirmation, t("auth.password_confirmation") %>
-          <%= f.password_field :password_confirmation, class: "login__input", autocomplete: "new-password" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
         </div>
 
-        <div class="login__field remember-me">
+        <div class="form__field form__field__checkbox remember-me">
           <%= f.check_box :tos_agreement %>
           <%= f.label :tos_agreement,
               "#{t("auth.tos_agreement")} #{link_to(t("terms_of_service",
@@ -40,14 +40,25 @@
         </div>
 
         <div class="actions">
-          <%= f.submit t("auth.signup"), class: "button signup__submit" %>
+          <%= f.submit t("auth.signup") %>
         </div>
 
       <% end %>
 
-      <div class="social-signup">
-        <h3><%= t("auth.signup_with") %></h3>
-        <p class="oauth-consent-text">
+      <div class="social_login">
+        <p><%= t("auth.signup_with") %></p>
+        <div class="social_icons">
+          <% if devise_mapping.omniauthable? %>
+            <% resource_class.omniauth_providers.each do |provider| %>
+              <%= button_to omniauth_authorize_path(resource_name, provider), data: { turbo: false } do %>
+                <%= image_tag("social_icons/#{provider}.png",
+                  alt: t("auth.social_icon_alt", provider: provider.capitalize),
+                  class: "social_login_icon") %>
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
+        <p class="oauth_consent_text">
           <%= t(
             "auth.oauth_consent_html",
             terms: link_to(
@@ -65,17 +76,7 @@
           ).html_safe %>
         </p>
 
-        <div class="social-icons">
-          <% if devise_mapping.omniauthable? %>
-            <% resource_class.omniauth_providers.each do |provider| %>
-              <%= button_to omniauth_authorize_path(resource_name, provider), data: { turbo: false } do %>
-                <%= image_tag("social_icons/#{provider}.png",
-                  alt: t("auth.social_icon_alt", provider: provider.capitalize),
-                  class: "social-login__icon") %>
-              <% end %>
-            <% end %>
-          <% end %>
-        </div>
+
       </div>
     </div>
   </div>

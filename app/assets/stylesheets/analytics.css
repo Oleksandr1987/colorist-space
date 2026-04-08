@@ -165,27 +165,8 @@
   margin-bottom: 1.5rem;
 }
 
-/* Center main content */
-body main {
-  display: block;
-  padding: 1rem;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
 /* Responsive */
 @media (max-width: 600px) {
-  html, body {
-    height: auto;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
-  body main {
-    padding-bottom: 6rem;
-  }
-
   .custom-range {
     flex-direction: row;
     justify-content: center;
