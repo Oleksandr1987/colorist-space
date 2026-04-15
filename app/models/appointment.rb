@@ -12,7 +12,7 @@ class Appointment < ApplicationRecord
   validate :valid_end_time
   validate :no_time_conflicts
   validate :time_step_interval
-  validate :must_have_main_service
+  # validate :must_have_main_service
 
   before_validation :set_default_end_time, if: -> { appointment_time.present? && end_time.blank? }
   before_save :set_service_name
@@ -173,15 +173,15 @@ class Appointment < ApplicationRecord
     end
   end
 
-  def must_have_main_service
-    selected_services = services
+  # def must_have_main_service
+  #   selected_services = services
 
-    if selected_services.empty? && service_ids.present?
-      selected_services = Service.where(id: service_ids)
-    end
+  #   if selected_services.empty? && service_ids.present?
+  #     selected_services = Service.where(id: service_ids)
+  #   end
 
-    return if selected_services.any? { |s| s.service_type == "service" }
+  #   return if selected_services.any? { |s| s.service_type == "service" }
 
-    errors.add(:base, "At least one main service must be selected")
-  end
+  #   errors.add(:base, "At least one main service must be selected")
+  # end
 end

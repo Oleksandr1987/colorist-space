@@ -1,0 +1,42 @@
+<div class="color-modal hidden"
+     data-controller="color"
+     data-color-target="modal"
+     data-action="click->color#closeModal">
+
+  <div class="color-sheet"
+       data-action="click->color#stop">
+
+    <!-- HEADER -->
+    <div class="sheet-header">
+      <button type="button"
+              class="sheet-back"
+              data-action="click->color#closeModal">
+        ←
+      </button>
+
+      <h2>Add Color</h2>
+
+      <button type="button"
+              class="sheet-save"
+              data-action="click->color#save">
+        SAVE
+      </button>
+    </div>
+
+    <!-- BODY -->
+    <div class="sheet-body">
+
+      <div class="color-rows"
+           data-color-target="rows">
+      </div>
+
+      <button type="button"
+              class="add-color-btn"
+              data-action="click->color#addRow">
+        + ADD COLOR
+      </button>
+
+    </div>
+
+  </div>
+</div>

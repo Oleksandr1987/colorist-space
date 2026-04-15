@@ -47,22 +47,6 @@ RSpec.describe ServiceNote, type: :model do
     end
   end
 
-  describe "#build_default_formula" do
-    let(:service_note) { build(:service_note) }
-
-    it "builds a formula step" do
-      service_note.build_default_formula
-
-      expect(service_note.formula_steps.size).to eq(1)
-    end
-
-    it "builds a formula ingredient inside step" do
-      step = service_note.build_default_formula
-
-      expect(step.formula_ingredients.size).to eq(1)
-    end
-  end
-
   describe "before_validation set_price_from_appointment" do
     let(:service) { create(:service) }
 

@@ -8,7 +8,49 @@ Rails.application.routes.draw do
     omniauth_callbacks: "users/omniauth_callbacks"
    }
 
+  # resources :clients do
+  #   resources :service_notes do
+  #     member do
+  #       delete "photos/:photo_id", to: "service_notes#delete_photo", as: :delete_photo
+  #     end
+  #   end
+
+  #   collection do
+  #     get :search
+  #     get :autocomplete
+  #   end
+
+  #   member do
+  #     delete "photos/:photo_id", to: "clients#delete_photo", as: "delete_photo"
+  #     delete "delete_all_photos", to: "clients#delete_all_photos"
+  #   end
+
+  #   resources :service_notes do
+  #     post :add_ingredient, on: :member
+  #     resources :formula_steps, only: [ :create, :update, :destroy ] do
+  #       member do
+  #         patch :clear_oxidant   # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_oxidant
+  #         patch :clear_time      # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_time
+  #       end
+  #     end
+  #   end
+  # end
+
   resources :clients do
+    resources :service_notes do
+      member do
+        delete "photos/:photo_id", to: "service_notes#delete_photo", as: :delete_photo
+        post :add_ingredient
+      end
+
+      resources :formula_steps, only: [:create, :update, :destroy] do
+        member do
+          patch :clear_oxidant
+          patch :clear_time
+        end
+      end
+    end
+
     collection do
       get :search
       get :autocomplete
@@ -17,15 +59,6 @@ Rails.application.routes.draw do
     member do
       delete "photos/:photo_id", to: "clients#delete_photo", as: "delete_photo"
       delete "delete_all_photos", to: "clients#delete_all_photos"
-    end
-
-    resources :service_notes do
-      resources :formula_steps, only: [ :create, :update, :destroy ] do
-        member do
-          patch :clear_oxidant   # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_oxidant
-          patch :clear_time      # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_time
-        end
-      end
     end
   end
 

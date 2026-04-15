@@ -8,3 +8,13 @@ uk:
     cancel: "Скасувати"
     close: "Закрити"
     search: "Пошук"
+  date:
+    formats:
+      long: "%-d %B %Y"
+  formula:
+    sections:
+      roots: "Корені"
+      midshaft: "Середина"
+      length: "Довжина"
+      strands: "Пасма"
+      all_over: "По всій довжині"

@@ -1,8 +1,10 @@
 class FormulaStep < ApplicationRecord
-  belongs_to :service_note
-  has_many :formula_ingredients, dependent: :destroy
+  belongs_to :service_note, inverse_of: :formula_steps
+  has_many :formula_ingredients, dependent: :destroy, inverse_of: :formula_step
 
-  accepts_nested_attributes_for :formula_ingredients, allow_destroy: true
+  accepts_nested_attributes_for :formula_ingredients,
+  allow_destroy: true,
+  reject_if: proc { |attrs| attrs["shade"].blank? && attrs["amount"].blank? }
 
   validates :section, presence: true
 

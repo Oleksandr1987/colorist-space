@@ -4,10 +4,9 @@ class ServiceNote < ApplicationRecord
   belongs_to :appointment, optional: true
 
   has_many_attached :photos
-  has_many :formula_steps, dependent: :destroy
+  has_many :formula_steps, dependent: :destroy, inverse_of: :service_note
 
   accepts_nested_attributes_for :formula_steps, allow_destroy: true
-
   scope :for_client, ->(client_id) { where(client_id: client_id).order(created_at: :desc) }
 
   before_validation :set_price_from_appointment, if: -> { appointment.present? && price.blank? }
@@ -19,12 +18,6 @@ class ServiceNote < ApplicationRecord
     when "care" then "Догляд"
     else service_type.to_s.capitalize
     end
-  end
-
-  def build_default_formula
-    step = formula_steps.build
-    step.formula_ingredients.build
-    step
   end
 
   def decorated_photos

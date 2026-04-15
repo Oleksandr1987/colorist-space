@@ -1,0 +1,25 @@
+<div class="services-list" data-controller="service">
+  <div data-service-target="menu" class="hidden"></div>
+  <!-- hidden field для service_type -->
+  <%= hidden_field_tag "service_note[service_type]", "", data: { service_target: "type" } %>
+
+  <% current_user.services.each do |s| %>
+    <label class="service-item">
+
+      <%= check_box_tag "service_ids[]",
+            s.id,
+            false,
+            data: {
+              action: "change->service#updateType",
+              service_type: s.category
+            } %>
+
+      <div class="service-info">
+        <span class="service-name"><%= s.name %></span>
+        <span class="service-price"><%= s.price %>₴</span>
+      </div>
+
+    </label>
+  <% end %>
+
+</div>

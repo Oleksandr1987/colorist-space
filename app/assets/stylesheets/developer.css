@@ -1,0 +1,45 @@
+.dev-row-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.dev-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dev-percent {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.dev-separator {
+  color: #ccc;
+}
+
+.dev-ratio {
+  font-size: 18px;
+  color: #666;
+}
+
+.dev-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dev-amount {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.dev-row-display .remove {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #999;
+}

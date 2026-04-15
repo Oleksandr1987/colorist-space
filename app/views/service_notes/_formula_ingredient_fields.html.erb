@@ -1,6 +1,28 @@
-<div class="color-row">
-  <%= f.text_field :shade, placeholder: "Color, e.g., 5.1", class: "input" %>
-  <%= f.text_field :brand, placeholder: "Brand", class: "input" %>
-  <%= f.text_field :amount, placeholder: "Amount", class: "input amount" %> g
-  <button type="button" class="remove-btn" data-action="click->formula#removeColor">×</button>
-</div>
+<% uid = local_assigns[:uid] || SecureRandom.hex(6) %>
+<% shade = local_assigns[:shade] %>
+<% brand = local_assigns[:brand] %>
+<% amount = local_assigns[:amount] %>
+
+
+  <!-- HIDDEN FIELDS (те що йде в params) -->
+  <div class="hidden ingredient-fields"
+       data-uid="<%= uid %>">
+
+    <input type="hidden"
+      name="service_note[formula_steps_attributes][<%= step_index %>][formula_ingredients_attributes][<%= uid %>][shade]"
+      value="<%= shade %>">
+
+    <input type="hidden"
+      name="service_note[formula_steps_attributes][<%= step_index %>][formula_ingredients_attributes][<%= uid %>][brand]"
+      value="<%= brand %>">
+
+    <input type="hidden"
+      name="service_note[formula_steps_attributes][<%= step_index %>][formula_ingredients_attributes][<%= uid %>][amount]"
+      value="<%= amount %>">
+
+    <input type="hidden"
+      name="service_note[formula_steps_attributes][<%= step_index %>][formula_ingredients_attributes][<%= uid %>][_destroy]"
+      value="false">
+
+  </div>
+

@@ -1,0 +1,190 @@
+/* MODAL BACKDROP */
+.dev-modal {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CONTENT */
+.dev-modal-content {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+/* BODY */
+.dev-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* CLOSE BUTTON */
+.dev-close {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: none;
+  border: none;
+  font-size: 22px;
+}
+
+/* TITLE */
+.dev-modal h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+/* SWITCH */
+.dev-switch {
+  display: flex;
+  width: 140px;
+  background: #f3f3f3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dev-switch button {
+  flex: 1;
+  padding: 8px 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+}
+
+.dev-switch .active {
+  background: #1f2a30;
+  color: #fff;
+}
+
+/* PRESETS */
+.dev-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.dev-group button {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 13px;
+}
+
+.dev-group .active {
+  background: #1f2a30;
+  color: #fff;
+  border-color: #1f2a30;
+}
+
+/* ADD */
+.dev-add {
+  display: flex;
+  gap: 8px;
+}
+
+.dev-add input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.dev-add button {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #222;
+  background: #fff;
+}
+
+/* RATIO */
+.dev-ratio {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dev-ratio button {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.dev-ratio::before {
+  content: "RATIO";
+  width: 100%;
+  font-size: 12px;
+  color: #888;
+}
+
+.dev-ratio button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.dev-ratio button.active {
+  border-color: #1f2a30;
+}
+
+/* AMOUNT */
+.dev-amount {
+  margin-top: 10px;
+}
+
+.dev-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dev-amount input {
+  width: 100px;
+  padding: 8px;
+  border-bottom: 1px solid #000;
+}
+
+/* SAVE */
+/* .dev-save {
+  width: 100%;
+  padding: 14px;
+  background: #eecfd5;
+  border-radius: 14px;
+  font-weight: 600;
+  margin-top: 10px;
+} */
+.dev-save {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-top: 10px;
+  background: #6200ea;
+  color: white;
+}
+
+.dev-save:disabled {
+  opacity: 0.5;
+}
+
+.time-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-input .input-line {
+  width: 50px;
+}
+
+.time-unit {
+  font-size: 14px;
+  color: #666;
+}

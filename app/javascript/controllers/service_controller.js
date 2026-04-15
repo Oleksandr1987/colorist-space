@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect"]
+  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type"]
 
   static values = {
     categories: Object,
@@ -123,5 +123,24 @@ export default class extends Controller {
     } else {
       this.unitFieldTarget.style.display = "none"
     }
+  }
+
+  updateType() {
+    if (!this.hasTypeTarget) return
+
+    const checked = Array.from(
+      this.element.querySelectorAll("input[type='checkbox']:checked")
+    )
+
+    if (checked.length === 0) {
+      this.typeTarget.value = ""
+      return
+    }
+
+    const types = [...new Set(
+      checked.map(el => el.dataset.serviceType).filter(Boolean)
+    )]
+
+    this.typeTarget.value = types.length === 1 ? types[0] : "combined"
   }
 }

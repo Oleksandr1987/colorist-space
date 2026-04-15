@@ -8,3 +8,13 @@ en:
     cancel: "Cancel"
     close: "Close"
     search: "Search"
+  date:
+    formats:
+      long: "%B %d, %Y"
+  formula:
+    sections:
+      roots: "Roots"
+      midshaft: "Midshaft"
+      length: "Length"
+      strands: "Strands"
+      all_over: "All Over"

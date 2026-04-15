@@ -9,17 +9,23 @@ export default class extends Controller {
   }
 
   connect() {
-    // Якщо photosValue є — inline viewer (service_notes/show)
     if (this.hasPhotosValue) {
       this.modeValue = "inline"
       this.indexValue = 0
       this.showInlinePhoto(0)
-      this.setupSwipeInline()
+
+      if (this.hasPhotoContainerTarget) {
+        this.setupSwipeInline()
+      }
+
       return
     }
 
-    // Інакше fullscreen режим (clients/show)
+    // fullscreen mode
     this.modeValue = "fullscreen"
+
+    if (!this.hasModalTarget) return
+
     this.photos = Array.from(document.querySelectorAll("[data-photo-url]"))
     this.index = 0
 
@@ -46,12 +52,15 @@ export default class extends Controller {
   }
 
   openFullscreen(url) {
+    if (!this.hasModalTarget || !this.hasModalImageTarget) return
+
     this.modalImageTarget.src = url
     this.modalTarget.classList.remove("hidden")
   }
 
   close() {
-    if (this.modeValue !== "fullscreen") return
+    if (!this.hasModalTarget || !this.hasModalImageTarget) return
+
     this.modalTarget.classList.add("hidden")
     this.modalImageTarget.src = ""
   }
@@ -75,6 +84,8 @@ export default class extends Controller {
   }
 
   setupKeyboard() {
+    if (!this.hasModalTarget) return
+
     window.addEventListener("keydown", e => {
       if (this.modalTarget.classList.contains("hidden")) return
       if (e.key === "Escape") this.close()
@@ -84,6 +95,8 @@ export default class extends Controller {
   }
 
   setupSwipeMobileFullscreen() {
+    if (!this.hasModalTarget) return
+
     let startX = 0
 
     this.modalTarget.addEventListener("touchstart", e => {
@@ -128,17 +141,14 @@ export default class extends Controller {
   }
 
   nextInline() {
-    if (this.indexValue < this.photosValue.length - 1) {
-      this.indexValue++
-      this.showInlinePhoto(this.indexValue)
-    }
+    this.indexValue = (this.indexValue + 1) % this.photosValue.length
+    this.showInlinePhoto(this.indexValue)
   }
 
   prevInline() {
-    if (this.indexValue > 0) {
-      this.indexValue--
-      this.showInlinePhoto(this.indexValue)
-    }
+    this.indexValue =
+      (this.indexValue - 1 + this.photosValue.length) % this.photosValue.length
+    this.showInlinePhoto(this.indexValue)
   }
 
   clickNext() {
@@ -172,5 +182,30 @@ export default class extends Controller {
 
   touchEnd(event) {
     clearTimeout(event.currentTarget.longPressTimer)
+  }
+
+  remove(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const photoItem = event.currentTarget.closest(".photo-item")
+    const url = photoItem.dataset.deleteUrl
+
+    if (!confirm("Delete photo?")) return
+
+    fetch(url, {
+      method: "DELETE",
+      headers: {
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+        "Accept": "application/json"
+      }
+    })
+      .then(response => {
+        if (response.ok) {
+          photoItem.remove()
+        } else {
+          alert("Failed to delete photo")
+        }
+      })
   }
 }

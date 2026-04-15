@@ -1,0 +1,20 @@
+<div class="notes-block">
+
+  <div class="notes-date">
+    <%= l(@appointment&.appointment_date || Date.current, format: :long) %>
+  </div>
+
+  <!-- PRICE -->
+  <div class="price-wrapper">
+    <%= f.number_field :price, placeholder: "0", class: "price-input" %>
+    <div class="currency">₴</div>
+    <div class="price-label">Service price. 0$</div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="notes-wrapper">
+    <div class="notes-label">Notes</div>
+    <%= f.text_area :notes, class: "notes-textarea" %>
+  </div>
+
+</div>
