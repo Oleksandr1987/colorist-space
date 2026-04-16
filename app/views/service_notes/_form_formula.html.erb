@@ -1,37 +1,41 @@
 <div class="formula-container" data-controller="formula" data-service-note-id="<%= @service_note.id %>" data-client-id="<%= @client.id %>">
 
   <!-- STEP 1 -->
-  <div class="formula-step-wrapper"
-       data-controller="collapse">
+  <div class="formula-steps"
+     data-formula-target="container">
 
-    <!-- HEADER -->
-    <div class="formula-step-header"
-         data-action="click->collapse#toggle">
+    <%= f.fields_for :formula_steps do |step_form| %>
+      <% step_id = step_form.index || step_form.object.id %>
 
-      <span>STEP 1</span>
+      <!-- STEP WRAPPER -->
+      <div class="formula-step-wrapper"
+          data-controller="collapse"
+          data-step-id="<%= step_id %>">
 
-      <svg class="chevron"
-           xmlns="http://www.w3.org/2000/svg"
-           viewBox="0 0 24 24"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2">
-        <path d="m6 9 6 6 6-6"/>
-      </svg>
-    </div>
+        <!-- HEADER -->
+        <div class="formula-step-header"
+            data-action="click->collapse#toggle">
 
-    <!-- CONTENT -->
-    <div class="formula-step-content"
-         data-collapse-target="content">
+          <span>STEP <span class="step-number"></span></span>
 
-      <!-- STEPS -->
-      <div class="formula-steps"
-           data-formula-target="container">
+          <svg class="chevron"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </div>
 
-        <%= f.fields_for :formula_steps do |step_form| %>
+        <!-- CONTENT -->
+        <div class="formula-step-content"
+            data-collapse-target="content">
+
+          <!-- CARD -->
           <div class="formula-card"
-               data-controller="developer"
-               data-step-id="<%= step_form.index || step_form.object.id %>">
+              data-controller="developer"
+              data-step-id="<%= step_id %>">
 
             <!-- IMPORTANT: SECTION -->
             <%= step_form.hidden_field :section %>
@@ -57,48 +61,44 @@
                 <button type="button"
                         class="add-btn-small add-color-btn"
                         data-action="click->formula#openColorModal"
-                        data-step-index="<%= step_form.index || step_form.object.id %>">
+                        data-step-index="<%= step_id %>">
                   +
                 </button>
               </div>
 
               <div class="colors-list" data-color-target="list">
+                <div data-formula-target="colorsList">
 
-            <!-- ✅ UI (для відображення кольорів) -->
+                  <%= step_form.fields_for :formula_ingredients do |ingredient_form| %>
 
-            <!-- ✅ hidden fields (для form submit) -->
-              <div data-formula-target="colorsList">
+                    <% uid = ingredient_form.object.id || SecureRandom.hex(6) %>
 
-                <%= step_form.fields_for :formula_ingredients do |ingredient_form| %>
+                    <%= render "service_notes/formula_ingredient_fields",
+                          f: ingredient_form,
+                          uid: uid %>
+                    <div class="color-row-display"
+                        data-id="<%= uid %>">
 
-                  <% uid = ingredient_form.object.id || SecureRandom.hex(6) %>
+                      <div class="color-left">
+                        <span class="shade"><%= ingredient_form.object.shade %></span>
+                        <span class="brand"><%= ingredient_form.object.brand %></span>
+                      </div>
 
-                  <%= render "service_notes/formula_ingredient_fields",
-                        f: ingredient_form,
-                        uid: uid %>
-                  <div class="color-row-display"
-                      data-id="<%= uid %>">
+                      <div class="color-right">
+                        <span class="amount"><%= ingredient_form.object.amount %>g</span>
 
-                    <div class="color-left">
-                      <span class="shade"><%= ingredient_form.object.shade %></span>
-                      <span class="brand"><%= ingredient_form.object.brand %></span>
+                        <button type="button"
+                                class="remove"
+                                data-action="click->formula#removeColor">
+                          ×
+                        </button>
+                      </div>
+
                     </div>
 
-                    <div class="color-right">
-                      <span class="amount"><%= ingredient_form.object.amount %>g</span>
+                  <% end %>
 
-                      <button type="button"
-                              class="remove"
-                              data-action="click->formula#removeColor">
-                        ×
-                      </button>
-                    </div>
-
-                  </div>
-
-                <% end %>
-
-              </div>
+                </div>
 
               </div>
               <template data-formula-target="ingredientTemplate">
@@ -122,7 +122,7 @@
                     data-field="destroy">
                 </div>
               </template>
-                          </div>
+            </div>
 
             <!-- DEVELOPER -->
             <div class="formula-block">
@@ -155,7 +155,7 @@
                   <% end %>
 
                   <div class="dev-row-display">
-
+                    
                     <div class="dev-left">
                       <span class="dev-percent"><%= value %></span>
 
@@ -174,12 +174,12 @@
                               data-action="click->developer#remove">
                         ×
                       </button>
-                  </div>
+                    </div>
 
                   </div>
                 <% end %>
-                
-                
+
+
               </div>
             </div>
 
@@ -187,359 +187,384 @@
             <div class="formula-block">
               <div class="block-title">
                 <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-clock9-icon lucide-clock-9">
-                <circle cx="12" cy="12" r="10"/><path d="M12 6v6H8"/></svg> TIME</span>
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="lucide lucide-clock9-icon lucide-clock-9">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 6v6H8"/></svg> TIME</span>
                 <div class="time-input">
                   <%= step_form.number_field :time,
                       class: "input-line",
                       placeholder: "" %>
-                      <span class="time-unit">min</span>
+                  <span class="time-unit">min</span>
                 </div>
               </div>
 
 
             </div>
 
+            <div class="dev-modal hidden"
+                data-developer-target="modal"
+                data-action="click->developer#closeOnOverlay">
+
+              <div class="dev-modal-content"
+                data-action="click->developer#stopPropagation">
+
+              <!-- CLOSE -->
+              <button type="button"
+                      class="dev-close"
+                      data-action="click->developer#closeModal">
+                ✕
+              </button>
+
+              <div class="dev-body">
+
+                <h2>Add Developer</h2>
+
+                <!-- SWITCH -->
+                <div class="dev-switch">
+                  <button type="button"
+                    data-action="click->developer#setPercent"
+                    data-developer-target="percentBtn"
+                    class="active">%
+                  </button>
+
+                  <button type="button"
+                    data-action="click->developer#setVol"
+                    data-developer-target="volBtn">vol.
+                  </button>
+                </div>
+
+                <!-- PRESETS -->
+                <div class="dev-group" data-developer-target="percentGroup">
+                  <% ["1.5%", "3%", "4.5%", "6%", "9%", "12%"].each do |v| %>
+                    <button type="button"
+                      data-action="click->developer#select"
+                      data-value="<%= v %>"><%= v %>
+                    </button>
+                  <% end %>
+                </div>
+
+                <div class="dev-group hidden" data-developer-target="volGroup">
+                  <% ["5vol.", "10vol.", "15vol.", "20vol.", "30vol.", "40vol."].each do |v| %>
+                    <button type="button"
+                      data-action="click->developer#select"
+                      data-value="<%= v %>"><%= v %>
+                    </button>
+                  <% end %>
+                </div>
+
+                <!-- ADD CUSTOM -->
+                <div class="dev-add">
+                  <input type="text"
+                        inputmode="decimal"
+                        pattern="[0-9]*[.,]?[0-9]*"
+                        placeholder="Enter value"
+                        data-developer-target="customInput" />
+
+                  <button type="button"
+                          data-action="click->developer#addCustom">+ ADD
+                  </button>
+                </div>
+
+                <!-- RATIO -->
+                <div class="dev-ratio">
+                  <% ["1:1", "1:1.5", "1:2", "1:3"].each do |r| %>
+                    <button type="button"
+                            data-action="click->developer#setRatio"
+                            data-ratio="<%= r %>"><%= r %>
+                    </button>
+                  <% end %>
+                </div>
+
+                <div class="dev-amount">
+                  <label>Developer amount:</label>
+                  <div class="dev-amount-row">
+                    <span data-developer-target="amountDisplay">0g</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- SAVE -->
+              <button type="button"
+                class="dev-save"
+                data-action="click->developer#save"
+                data-developer-target="saveBtn"
+                disabled>
+                SAVE
+              </button>
+
+              </div>
+            </div>
+           
+
+          </div>
+        </div>
+      </div>
+    <% end %>
+     <!-- ADD STEP -->
+    <div class="formula-add-step"
+        data-controller="collapse">
+
+      <!-- BUTTON -->
+      <div class="add-step-btn"
+          data-action="click->collapse#toggle">
+
+        <span>+ ADD STEP</span>
+
+        <svg class="chevron"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
+      </div>
+
+      <!-- DROPDOWN -->
+      <div class="add-step-content hidden"
+          data-collapse-target="content">
+          <!-- ADD SECTION -->
+
+          <h5>Add section</h5>
+
+        <div class="sections-grid">
+          <% [:roots, :midshaft, :length, :strands, :all_over].each do |section| %>
+            <button type="button"
+                    class="section-btn"
+                    data-action="click->formula#createStep click->collapse#close click->collapse#stop"
+                    data-section="<%= section %>">
+              <%= t("formula.sections.#{section}") %>
+            </button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <%= render "service_notes/empty_formula_step" if @service_note.formula_steps.empty? %>
+
+  <!-- TEMPLATE -->
+  <template data-formula-target="template">
+    <div class="formula-step-wrapper"
+       data-controller="collapse"
+       data-step-id="NEW_RECORD">
+
+    <!-- HEADER -->
+      <div class="formula-step-header"
+          data-action="click->collapse#toggle">
+
+        <span class="step-title">
+          STEP <span class="step-number"></span>
+        </span>
+
+        <svg class="chevron"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
+      </div>
+
+    <!-- CONTENT -->
+      <div class="formula-step-content"
+          data-collapse-target="content">
+        <div class="formula-card"
+            data-controller="developer"
+            data-step-id="NEW_RECORD">
+
+          <!-- SECTION -->
+          <input type="hidden"
+                name="service_note[formula_steps_attributes][NEW_RECORD][section]"
+                value="__SECTION__" />
+
+          <input type="hidden"
+            name="service_note[formula_steps_attributes][NEW_RECORD][id]" />
+
+          <!-- HEADER -->
+          <div class="formula-header">
+            <span>__SECTION__</span>
+
+            <div class="step-remove">
+              <input type="hidden"
+                    name="service_note[formula_steps_attributes][NEW_RECORD][_destroy]"
+                    value="0"
+                    class="destroy-field" />
+
+              <button type="button"
+                      data-action="click->formula#removeStep">
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <!-- COLORS -->
+          <div class="formula-block">
+            <div class="block-title">
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flask-conical-icon lucide-flask-conical"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg>COLORS</span>
+
+              <button type="button"
+                      class="add-btn-small add-color-btn"
+                      data-action="click->formula#openColorModal">
+                +
+              </button>
+            </div>
+
+            <!-- DISPLAY LIST -->
+            <div class="colors-display"
+                data-color-target="list">
+            </div>
+
+            <!-- ✅ HIDDEN (Rails nested) -->
+            <div class="hidden"
+                data-formula-target="colorsList">
+            </div>
+
+            <!-- ✅ TEMPLATE для нових інгредієнтів -->
+            <template data-formula-target="ingredientTemplate">
+              <div class="ingredient-fields" data-id="NEW_ID">
+
+                <input type="hidden"
+                  name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][shade]"
+                  data-field="shade">
+
+                <input type="hidden"
+                  name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][brand]"
+                  data-field="brand">
+
+                <input type="hidden"
+                  name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][amount]"
+                  data-field="amount">
+
+                <input type="hidden"
+                  name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][_destroy]"
+                  value="0"
+                  data-field="destroy">
+              </div>
+            </template>
+
+          </div>
+
+          <!-- DEVELOPER -->
+          <div class="formula-block">
+            <div class="block-title">
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-percent-icon lucide-percent"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>DEVELOPER</span>
+              <button type="button"
+                class="add-btn-small add-dev-btn"
+                data-action="click->developer#openModal">
+                +
+              </button>
+            </div>
+
+            <input type="hidden"
+            name="service_note[formula_steps_attributes][NEW_RECORD][oxidant]"
+            data-developer-target="input" />
+
+            <div class="dev-display"
+                data-developer-target="display">
+            </div>
+          </div>
+
+          <!-- TIME -->
+          <div class="formula-block">
+            <div class="block-title">
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-clock9-icon lucide-clock-9">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6H8"/></svg> TIME</span>
+            </div>
+
+            <input type="number"
+                  name="service_note[formula_steps_attributes][NEW_RECORD][time]"
+                  class="input-line"
+                  value="0" />
+          </div>
+
+          <!-- DEVELOPER MODAL (без змін) -->
           <div class="dev-modal hidden"
             data-developer-target="modal"
             data-action="click->developer#closeOnOverlay">
 
-          <div class="dev-modal-content"
-              data-action="click->developer#stopPropagation">
+            <div class="dev-modal-content"
+                data-action="click->developer#stopPropagation">
 
-            <!-- CLOSE -->
-            <button type="button"
-                    class="dev-close"
-                    data-action="click->developer#closeModal">
-              ✕
-            </button>
+              <button type="button"
+                      class="dev-close"
+                      data-action="click->developer#closeModal">
+                ✕
+              </button>
 
-            <div class="dev-body">
+              <div class="dev-body">
+                <h2>Add Developer</h2>
 
-              <h2>Add Developer</h2>
-
-              <!-- SWITCH -->
-              <div class="dev-switch">
-                <button type="button"
-                  data-action="click->developer#setPercent"
-                  data-developer-target="percentBtn"
-                  class="active">%
-                </button>
-
-                <button type="button"
-                  data-action="click->developer#setVol"
-                  data-developer-target="volBtn">vol.
-                </button>
-              </div>
-
-              <!-- PRESETS -->
-              <div class="dev-group" data-developer-target="percentGroup">
-                <% ["1.5%", "3%", "4.5%", "6%", "9%", "12%"].each do |v| %>
+                <div class="dev-switch">
                   <button type="button"
-                    data-action="click->developer#select"
-                    data-value="<%= v %>"><%= v %>
-                  </button>
-                <% end %>
-              </div>
+                    data-action="click->developer#setPercent"
+                    data-developer-target="percentBtn"
+                    class="active">%</button>
 
-              <div class="dev-group hidden" data-developer-target="volGroup">
-                <% ["5vol.", "10vol.", "15vol.", "20vol.", "30vol.", "40vol."].each do |v| %>
                   <button type="button"
-                    data-action="click->developer#select"
-                    data-value="<%= v %>"><%= v %>
-                  </button>
-                <% end %>
-              </div>
+                    data-action="click->developer#setVol"
+                    data-developer-target="volBtn">vol.</button>
+                </div>
 
-              <!-- ADD CUSTOM -->
-              <div class="dev-add">
-                <input type="text"
-                       inputmode="decimal"
-                       pattern="[0-9]*[.,]?[0-9]*"
-                       placeholder="Enter value"
-                       data-developer-target="customInput" />
+                <div class="dev-group" data-developer-target="percentGroup">
+                  <% ["1.5%", "3%", "4.5%", "6%", "9%", "12%"].each do |v| %>
+                    <button type="button"
+                      data-action="click->developer#select"
+                      data-value="<%= v %>"><%= v %></button>
+                  <% end %>
+                </div>
 
-                <button type="button"
-                        data-action="click->developer#addCustom">+ ADD
-                </button>
-              </div>
+                <div class="dev-group hidden" data-developer-target="volGroup">
+                  <% ["5vol.", "10vol.", "15vol.", "20vol.", "30vol.", "40vol."].each do |v| %>
+                    <button type="button"
+                      data-action="click->developer#select"
+                      data-value="<%= v %>"><%= v %></button>
+                  <% end %>
+                </div>
 
-              <!-- RATIO -->
-              <div class="dev-ratio">
-                <% ["1:1", "1:1.5", "1:2", "1:3"].each do |r| %>
+                <div class="dev-add">
+                  <input type="text"
+                    inputmode="decimal"
+                    placeholder="Enter value"
+                    data-developer-target="customInput" />
+
                   <button type="button"
-                          data-action="click->developer#setRatio"
-                          data-ratio="<%= r %>"><%= r %>
-                  </button>
-                <% end %>
-              </div>
+                    data-action="click->developer#addCustom">+ ADD</button>
+                </div>
 
-              <div class="dev-amount">
-                <label>Developer amount:</label>
-                <div class="dev-amount-row">
-                  <span data-developer-target="amountDisplay">0g</span>
+                <div class="dev-ratio">
+                  <% ["1:1", "1:1.5", "1:2", "1:3"].each do |r| %>
+                    <button type="button"
+                      data-action="click->developer#setRatio"
+                      data-ratio="<%= r %>"><%= r %></button>
+                  <% end %>
+                </div>
+
+                <div class="dev-amount">
+                  <label>Developer amount:</label>
+                  <div class="dev-amount-row">
+                    <span data-developer-target="amountDisplay">0g</span>
+                  </div>
                 </div>
               </div>
 
-            </div>
-
-            <!-- SAVE -->
-            <button type="button"
-              class="dev-save"
-              data-action="click->developer#save"
-              data-developer-target="saveBtn"
-              disabled>
-              SAVE
-            </button>
-
-            </div>
-          </div>
-
-          </div>
-        <% end %>
-
-      </div>
-
-      <!-- ADD STEP -->
-      <div class="formula-add-step"
-           data-controller="collapse">
-
-        <!-- BUTTON -->
-        <div class="add-step-btn"
-             data-action="click->collapse#toggle">
-
-          <span>+ ADD STEP</span>
-
-          <svg class="chevron"
-               xmlns="http://www.w3.org/2000/svg"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
-        </div>
-
-        <!-- DROPDOWN -->
-        <div class="add-step-content hidden"
-             data-collapse-target="content">
-          <!-- ADD SECTION -->
-
-            <h5>Add section</h5>
-
-            <div class="sections-grid">
-              <% [:roots, :midshaft, :length, :strands, :all_over].each do |section| %>
-                <button type="button"
-                        class="section-btn"
-                        data-action="click->formula#createStep click->collapse#close click->collapse#stop"
-                        data-section="<%= section %>">
-                  <%= t("formula.sections.#{section}") %>
-                </button>
-              <% end %>
-            </div>
-
-        </div>
-
-      </div>
-
-    </div>
-  </div>
-
-  <!-- TEMPLATE -->
-  <template data-formula-target="template">
-    <div class="formula-card"
-        data-controller="developer"
-        data-step-id="NEW_RECORD">
-
-      <!-- SECTION -->
-      <input type="hidden"
-            name="service_note[formula_steps_attributes][NEW_RECORD][section]"
-            value="__SECTION__" />
-
-      <input type="hidden"
-        name="service_note[formula_steps_attributes][NEW_RECORD][id]" />
-
-      <!-- HEADER -->
-      <div class="formula-header">
-        <span>__SECTION__</span>
-
-        <div class="step-remove">
-          <input type="hidden"
-                name="service_note[formula_steps_attributes][NEW_RECORD][_destroy]"
-                value="0"
-                class="destroy-field" />
-
-          <button type="button"
-                  data-action="click->formula#removeStep">
-            ✕
-          </button>
-        </div>
-      </div>
-
-      <!-- COLORS -->
-      <div class="formula-block">
-        <div class="block-title">
-          <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flask-conical-icon lucide-flask-conical"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg>COLORS</span>
-
-          <button type="button"
-                  class="add-btn-small add-color-btn"
-                  data-action="click->formula#openColorModal">
-            +
-          </button>
-        </div>
-
-        <!-- DISPLAY LIST -->
-        <div class="colors-display"
-            data-color-target="list">
-        </div>
-
-        <!-- ✅ HIDDEN (Rails nested) -->
-        <div class="hidden"
-            data-formula-target="colorsList">
-        </div>
-
-        <!-- ✅ TEMPLATE для нових інгредієнтів -->
-        <template data-formula-target="ingredientTemplate">
-          <div class="ingredient-fields" data-id="NEW_ID">
-
-            <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][shade]"
-              data-field="shade">
-
-            <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][brand]"
-              data-field="brand">
-
-            <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][amount]"
-              data-field="amount">
-
-            <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][_destroy]"
-              value="0"
-              data-field="destroy">
-          </div>
-        </template>
-
-      </div>
-
-      <!-- DEVELOPER -->
-      <div class="formula-block">
-        <div class="block-title">
-          <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-percent-icon lucide-percent"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>DEVELOPER</span>
-          <button type="button"
-            class="add-btn-small add-dev-btn"
-            data-action="click->developer#openModal">
-            +
-          </button>
-        </div>
-
-        <input type="hidden"
-        name="service_note[formula_steps_attributes][NEW_RECORD][oxidant]"
-        data-developer-target="input" />
-
-        <div class="dev-display"
-            data-developer-target="display">
-        </div>
-      </div>
-
-      <!-- TIME -->
-      <div class="formula-block">
-        <div class="block-title">
-          <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-clock9-icon lucide-clock-9">
-            <circle cx="12" cy="12" r="10"/><path d="M12 6v6H8"/></svg> TIME</span>
-        </div>
-
-        <input type="number"
-              name="service_note[formula_steps_attributes][NEW_RECORD][time]"
-              class="input-line"
-              value="0" />
-      </div>
-
-      <!-- DEVELOPER MODAL (без змін) -->
-      <div class="dev-modal hidden"
-        data-developer-target="modal"
-        data-action="click->developer#closeOnOverlay">
-
-        <div class="dev-modal-content"
-            data-action="click->developer#stopPropagation">
-
-          <button type="button"
-                  class="dev-close"
-                  data-action="click->developer#closeModal">
-            ✕
-          </button>
-
-          <div class="dev-body">
-            <h2>Add Developer</h2>
-
-            <div class="dev-switch">
               <button type="button"
-                data-action="click->developer#setPercent"
-                data-developer-target="percentBtn"
-                class="active">%</button>
+                class="dev-save"
+                data-action="click->developer#save"
+                data-developer-target="saveBtn"
+                disabled>
+                SAVE
+              </button>
 
-              <button type="button"
-                data-action="click->developer#setVol"
-                data-developer-target="volBtn">vol.</button>
-            </div>
-
-            <div class="dev-group" data-developer-target="percentGroup">
-              <% ["1.5%", "3%", "4.5%", "6%", "9%", "12%"].each do |v| %>
-                <button type="button"
-                  data-action="click->developer#select"
-                  data-value="<%= v %>"><%= v %></button>
-              <% end %>
-            </div>
-
-            <div class="dev-group hidden" data-developer-target="volGroup">
-              <% ["5vol.", "10vol.", "15vol.", "20vol.", "30vol.", "40vol."].each do |v| %>
-                <button type="button"
-                  data-action="click->developer#select"
-                  data-value="<%= v %>"><%= v %></button>
-              <% end %>
-            </div>
-
-            <div class="dev-add">
-              <input type="text"
-                inputmode="decimal"
-                placeholder="Enter value"
-                data-developer-target="customInput" />
-
-              <button type="button"
-                data-action="click->developer#addCustom">+ ADD</button>
-            </div>
-
-            <div class="dev-ratio">
-              <% ["1:1", "1:1.5", "1:2", "1:3"].each do |r| %>
-                <button type="button"
-                  data-action="click->developer#setRatio"
-                  data-ratio="<%= r %>"><%= r %></button>
-              <% end %>
-            </div>
-
-            <div class="dev-amount">
-              <label>Developer amount:</label>
-              <div class="dev-amount-row">
-                <span data-developer-target="amountDisplay">0g</span>
-              </div>
             </div>
           </div>
 
-          <button type="button"
-            class="dev-save"
-            data-action="click->developer#save"
-            data-developer-target="saveBtn"
-            disabled>
-            SAVE
-          </button>
-
         </div>
       </div>
-
     </div>
   </template>
 

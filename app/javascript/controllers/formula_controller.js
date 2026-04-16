@@ -9,6 +9,7 @@ export default class extends Controller {
     this.initSortable()
     this.initSwipe()
     this.observeAmountChanges()
+    this.updateStepNumbers()
   }
 
   // ---------------- COLOR SUM ----------------
@@ -78,12 +79,15 @@ export default class extends Controller {
     const destroyInput = newStep.querySelector(".destroy-field")
     if (destroyInput) destroyInput.value = "0"
 
+    const empty = this.element.querySelector(".empty-step")
+    if (empty) empty.remove()
+
     this.updateStepNumbers()
     this.containerTarget.classList.remove("hidden")
   }
 
   updateStepNumbers() {
-    const steps = this.containerTarget.querySelectorAll(".formula-card")
+    const steps = this.containerTarget.querySelectorAll(".formula-step-wrapper")
 
     steps.forEach((step, index) => {
       const el = step.querySelector(".step-number")
@@ -94,7 +98,10 @@ export default class extends Controller {
   removeStep(event) {
     event.preventDefault()
 
-    const card = event.currentTarget.closest(".formula-card")
+    const wrapper = event.currentTarget.closest(".formula-step-wrapper")
+    const card = wrapper.querySelector(".formula-card")
+    wrapper.style.display = "none"
+
     const destroyInput = card.querySelector(".destroy-field")
 
     if (destroyInput) {
