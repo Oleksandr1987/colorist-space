@@ -4,7 +4,7 @@
      data-photo-index-value="0"
      class="note-viewer">
 
-  <!-- PHOTO VIEWER -->
+  <!-- PHOTO -->
   <div class="note-photo-wrapper"
        data-photo-target="photoContainer"
        data-action="
@@ -39,17 +39,20 @@
     <% end %>
   </div>
 
-  <!-- TITLE + ACTIONS -->
-  <div class="note-title-block">
-    <div class="note-title-left">
-      <div class="note-title-date"><%= l(@service_note.created_at, format: "%B %d") %></div>
-      <div class="note-title-service"><%= @service_note.service_type.capitalize %></div>
+  <!-- HEADER -->
+  <div class="note-header-modern">
+    <div>
+      <div class="note-date">
+        <%= l(@service_note.created_at, format: "%B %d") %>
+      </div>
+
+      <div class="note-client">
+        <%= @client.full_name %>
+      </div>
     </div>
 
-    <div class="note-title-actions">
-
-      <%= link_to edit_client_service_note_path(@client, @service_note),
-                  class: "note-title-edit" do %>
+    <div class="note-actions-modern">
+      <%= link_to edit_client_service_note_path(@client, @service_note) do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil" width="20" height="20"
           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -59,45 +62,88 @@
       <% end %>
 
       <%= button_to client_service_note_path(@client, @service_note),
-                    method: :delete,
-                    data: { turbo_confirm: "Delete?" },
-                    class: "note-title-delete" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-ellipsis-vertical-icon lucide-ellipsis-vertical">
-          <circle cx="12" cy="12" r="1"/>
-          <circle cx="12" cy="5" r="1"/>
-          <circle cx="12" cy="19" r="1"/>
-        </svg>
+            method: :delete,
+            data: { turbo_confirm: "Delete?" } do %>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis-vertical-icon lucide-ellipsis-vertical">
+        <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
       <% end %>
-
     </div>
   </div>
 
-  <!-- DETAILS -->
-  <div class="note-bottom">
+  <!-- CONTENT -->
+  <div class="note-content">
 
-    <% if @service_note.data.present? %>
-      <div class="note-block">
-        <h3>Formula</h3>
-        <pre><%= JSON.pretty_generate(@service_note.data) %></pre>
+    <!-- FORMULA -->
+    <div class="note-section">
+      <div class="note-section-title"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg>
+        <span>FORMULA</span>
       </div>
-    <% end %>
 
-    <% if @service_note.notes.present? %>
-      <div class="note-block">
-        <h3>Notes</h3>
-        <p><%= @service_note.notes %></p>
-      </div>
-    <% end %>
+      <div data-controller="collapse" class="note-step">
 
-    <% if @service_note.price.present? %>
-      <div class="note-block">
-        <h3>Price</h3>
-        <p><%= @service_note.price %> ₴</p>
+        <!-- HEADER (кнопка) -->
+        <div class="note-step-pill"
+            data-action="click->collapse#toggle">
+
+          <span>STEP 1</span>
+
+          <!-- стрілка -->
+          <svg class="chevron"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="note-step-content hidden"
+            data-collapse-target="content">
+
+          <%= render "service_notes/formula_preview",
+                service_note: @service_note %>
+
+        </div>
+
       </div>
-    <% end %>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="note-section">
+      <div class="note-section-title"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>
+        <span>SERVICES</span>
+      </div>
+
+      <% if @service_note.appointment&.services.present? %>
+        <% @service_note.appointment.services.each do |service| %>
+          <div class="note-row"><%= service.name %></div>
+        <% end %>
+      <% else %>
+        <div class="note-row empty">No services</div>
+      <% end %>
+    </div>
+
+    <!-- NOTES -->
+    <div class="note-section">
+      <div class="note-section-title"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg>
+        <span>NOTES</span>
+      </div>
+
+      <div class="note-label">Final price</div>
+      <div class="note-value">
+        <%= @service_note.price || 0 %> €
+      </div>
+
+      <% if @service_note.notes.present? %>
+        <div class="note-label">Notes</div>
+        <div class="note-value">
+          <%= @service_note.notes %>
+        </div>
+      <% end %>
+    </div>
 
   </div>
 </div>

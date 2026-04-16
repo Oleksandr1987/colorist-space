@@ -1,0 +1,91 @@
+<% @service_note.formula_steps.each do |step| %>
+
+  <div class="formula-preview-card">
+
+    <!-- TITLE -->
+    <div class="formula-preview-title">
+      <%= step.section&.capitalize || "Step" %>
+    </div>
+
+    <!-- COLORS -->
+    <% if step.formula_ingredients.any? %>
+      <div class="formula-preview-group">
+
+        <div class="formula-icon">
+          <!-- flask -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/>
+            <path d="M6.453 15h11.094"/>
+          </svg>
+        </div>
+
+        <div class="formula-content">
+          <% step.formula_ingredients.each do |i| %>
+            <div class="formula-row">
+              <span><%= i.shade %> <%= i.brand %></span>
+              <span><%= i.amount %>g</span>
+            </div>
+          <% end %>
+        </div>
+
+      </div>
+    <% end %>
+
+    <!-- DEVELOPER -->
+    <% if step.oxidant.present? %>
+      <% parts = step.oxidant.split("|") %>
+      <% value = parts[0] %>
+      <% ratio = parts[1] %>
+
+      <% total_color = step.formula_ingredients.sum { |i| i.amount.to_f } %>
+      <% ratio_val = ratio&.split(":")&.last.to_f %>
+      <% dev_amount = (total_color * ratio_val).round %>
+
+      <div class="formula-preview-group">
+
+        <div class="formula-icon">
+          <!-- percent -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" x2="5" y1="5" y2="19"/>
+            <circle cx="6.5" cy="6.5" r="2.5"/>
+            <circle cx="17.5" cy="17.5" r="2.5"/>
+          </svg>
+        </div>
+
+        <div class="formula-content">
+          <div class="formula-row">
+            <span><%= value %> <%= ratio %></span>
+            <span><%= dev_amount %>g</span>
+          </div>
+        </div>
+
+      </div>
+    <% end %>
+
+    <!-- TIME -->
+    <% if step.time.present? %>
+      <div class="formula-preview-group">
+
+        <div class="formula-icon">
+          <!-- clock -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6H8"/>
+          </svg>
+        </div>
+
+        <div class="formula-content">
+          <div class="formula-row">
+            <span><%= step.time %> min</span>
+          </div>
+        </div>
+
+      </div>
+    <% end %>
+
+  </div>
+
+<% end %>
