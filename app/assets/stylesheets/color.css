@@ -185,3 +185,16 @@
 .color-row-display .remove:hover {
   color: #000;
 }
+
+.save-success {
+  color: #2ecc71;
+  font-weight: 600;
+  font-size: 14px;
+  animation: fadeOut 2s forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1 }
+  70% { opacity: 1 }
+  100% { opacity: 0 }
+}

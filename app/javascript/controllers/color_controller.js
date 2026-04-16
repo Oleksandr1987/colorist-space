@@ -65,6 +65,8 @@ export default class extends Controller {
 
     const rows = this.rowsTarget.querySelectorAll(".color-row")
 
+    const stepId = this.currentStep.dataset.stepId
+
     rows.forEach(row => {
       const [shadeInput, brandInput, amountInput] = row.querySelectorAll("input")
 
@@ -81,22 +83,27 @@ export default class extends Controller {
         "[data-formula-target='ingredientTemplate']"
       )
 
-      const uid = Date.now()
-      let html = template.innerHTML.replace(/NEW_RECORD/g, uid)
+      const uid = `new_${Date.now()}_${Math.random().toString(36).slice(2)}`
+
+      let html = template.innerHTML
+        .replace(/NEW_ID/g, uid)
+        .replace(/STEP_ID/g, stepId)
 
       const wrapper = document.createElement("div")
       wrapper.innerHTML = html
 
       const hidden = wrapper.querySelector(".ingredient-fields")
-      hidden.dataset.id = uid 
+      hidden.dataset.id = uid
 
       hidden.querySelector("[data-field='shade']").value = shade
       hidden.querySelector("[data-field='brand']").value = brand
       hidden.querySelector("[data-field='amount']").value = amount
 
-      this.currentStep
-        .querySelector("[data-formula-target='colorsList']")
-        .appendChild(hidden)
+      const hiddenContainer = this.currentStep.querySelector(
+        "[data-formula-target='colorsList']"
+      )
+
+      hiddenContainer.appendChild(hidden)
 
       const display = document.createElement("div")
       display.className = "color-row-display"
@@ -113,10 +120,11 @@ export default class extends Controller {
             data-action="click->formula#removeColor">×</button>
         </div>
       `
+      const displayContainer = this.currentStep.querySelector(
+        "[data-color-target='list']"
+      )
 
-      this.currentStep
-        .querySelector("[data-color-target='list']")
-        .appendChild(display)
+      displayContainer.appendChild(display)
     })
 
     this.rowsTarget.innerHTML = ""

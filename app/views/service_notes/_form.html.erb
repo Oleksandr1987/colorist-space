@@ -1,10 +1,11 @@
 <div class="wizard-screen" data-controller="wizard">
-  <%= form_with(model: [@client, @service_note], local: true, html: { multipart: true }) do |f| %>
+  <%= form_with(model: [@client, @service_note], html: { multipart: true }) do |f| %>
     <!-- TOP BAR -->
     <div class="wizard-top">
       <button type="button" data-action="click->wizard#close">✕</button>
       <span data-wizard-target="title">Formula</span>
       <button type="submit">SAVE</button>
+      <div id="save_status"></div>
     </div>
 
     <!-- NAV -->

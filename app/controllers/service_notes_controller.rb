@@ -29,9 +29,16 @@ class ServiceNotesController < ApplicationController
   def update
     if @service_note.update(service_note_params.except(:photos))
       attach_photos
-      redirect_to client_service_note_path(@client, @service_note), notice: "Service note updated"
+
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to edit_client_service_note_path(@client, @service_note) }
+      end
     else
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -80,7 +87,7 @@ class ServiceNotesController < ApplicationController
       photos: [],
       formula_steps_attributes: [
         :id, :section, :oxidant, :time, :_destroy,
-        formula_ingredients_attributes: [ :id, :shade, :brand, :amount, :_destroy ]
+        formula_ingredients_attributes: {}
       ]
     )
   end

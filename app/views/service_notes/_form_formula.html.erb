@@ -42,7 +42,6 @@
 
             <!-- ✅ hidden fields (для form submit) -->
             <div data-formula-target="colorsList">
-              <div id="ingredients_step_<%= step_form.index %>">
 
                 <%= step_form.fields_for :formula_ingredients do |ingredient_form| %>
 
@@ -73,26 +72,26 @@
 
                 <% end %>
 
-              </div>
             </div>
 
           </div>
           <template data-formula-target="ingredientTemplate">
-            <div class="ingredient-fields">
+            <div class="ingredient-fields" data-id="NEW_ID">
+
               <input type="hidden"
-                name="service_note[formula_steps_attributes][<%= step_form.index || step_form.object.id %>][formula_ingredients_attributes][NEW_RECORD][shade]"
+                name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][shade]"
                 data-field="shade">
 
               <input type="hidden"
-                name="service_note[formula_steps_attributes][<%= step_form.index || step_form.object.id %>][formula_ingredients_attributes][NEW_RECORD][brand]"
+                name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][brand]"
                 data-field="brand">
 
               <input type="hidden"
-                name="service_note[formula_steps_attributes][<%= step_form.index || step_form.object.id %>][formula_ingredients_attributes][NEW_RECORD][amount]"
+                name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][amount]"
                 data-field="amount">
 
               <input type="hidden"
-                name="service_note[formula_steps_attributes][<%= step_form.index || step_form.object.id %>][formula_ingredients_attributes][NEW_RECORD][_destroy]"
+                name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][_destroy]"
                 value="0"
                 data-field="destroy">
             </div>
@@ -347,22 +346,22 @@
 
         <!-- ✅ TEMPLATE для нових інгредієнтів -->
         <template data-formula-target="ingredientTemplate">
-          <div class="ingredient-fields"
-              data-id="NEW_RECORD">
+          <div class="ingredient-fields" data-id="NEW_ID">
+
             <input type="hidden"
-              name="service_note[formula_steps_attributes][NEW_RECORD][formula_ingredients_attributes][NEW_RECORD][shade]"
+              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][shade]"
               data-field="shade">
 
             <input type="hidden"
-              name="service_note[formula_steps_attributes][NEW_RECORD][formula_ingredients_attributes][NEW_RECORD][brand]"
+              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][brand]"
               data-field="brand">
 
             <input type="hidden"
-              name="service_note[formula_steps_attributes][NEW_RECORD][formula_ingredients_attributes][NEW_RECORD][amount]"
+              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][amount]"
               data-field="amount">
 
             <input type="hidden"
-              name="service_note[formula_steps_attributes][NEW_RECORD][formula_ingredients_attributes][NEW_RECORD][_destroy]"
+              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][_destroy]"
               value="0"
               data-field="destroy">
           </div>
