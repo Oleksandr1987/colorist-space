@@ -15,6 +15,7 @@ export default class extends Controller {
     this.selectedValue = null
     this.selectedRatio = null
     this.colorAmount = 0
+    this.initializeState()
 
     this.handleEsc = this.handleEsc.bind(this)
     document.addEventListener("keydown", this.handleEsc)
@@ -25,7 +26,6 @@ export default class extends Controller {
       this.updateColorAmount
     )
 
-    // ✅ SAFE target
     if (this.hasCustomInputTarget) {
       this.customInputTarget.addEventListener("input", () => {
         let val = this.customInputTarget.value
@@ -50,11 +50,36 @@ export default class extends Controller {
     }
   }
 
+  initializeState() {
+    if (!this.hasInputTarget) return
+
+    const hasValue = this.inputTarget.value && this.inputTarget.value.length > 0
+
+    const addBtn = this.element.querySelector(".add-dev-btn")
+
+    if (addBtn) {
+      addBtn.style.display = hasValue ? "none" : "inline-flex"
+    }
+  }
+
   // ---------------- MODAL ----------------
   openModal() {
     if (this.hasModalTarget) {
       this.modalTarget.classList.remove("hidden")
     }
+
+    const step = this.element.closest(".formula-card")
+
+    let total = 0
+
+    step.querySelectorAll("[name*='[amount]']").forEach(input => {
+      const val = parseFloat(input.value)
+      if (!isNaN(val)) total += val
+    })
+
+    this.colorAmount = total
+
+    this.calculateAmount()
   }
 
   closeModal() {
@@ -164,15 +189,16 @@ export default class extends Controller {
   }
 
   // ---------------- CALC ----------------
-  // updateColorAmount(event) {
-  //   this.colorAmount = event.detail?.total || 0
-  //   this.calculateAmount()
-  // }
   updateColorAmount(event) {
-    this.colorAmount = event.detail?.total || 0
+    const stepId = this.element.dataset.stepId
 
-    // 🔥 якщо вже є вибраний developer → перерахувати
-    if (this.selectedRatio && this.selectedValue) {
+    if (event.detail.stepId !== stepId) return
+
+    this.colorAmount = event.detail.total || 0
+
+    this.calculateAmount()
+
+    if (this.selectedRatio) {
       const amount = this.calculateAmount()
 
       const result = [
@@ -181,52 +207,27 @@ export default class extends Controller {
         amount
       ].filter(Boolean).join("|")
 
-      // 👉 hidden sync
       if (this.hasInputTarget) {
         this.inputTarget.value = result
       }
 
-      // 👉 UI sync
       if (this.hasDisplayTarget) {
         this.renderDisplay(this.selectedValue, this.selectedRatio, amount)
       }
     }
   }
-  // calculateAmount() {
-  //   if (!this.selectedRatio || !this.colorAmount) return
-  //   if (!this.hasAmountTarget) return
 
-  //   const ratio = parseFloat(this.selectedRatio.split(":")[1])
-  //   const result = Math.round(this.colorAmount * ratio)
-
-  //   this.amountTarget.value = result
-  // }
-
-  // ---------------- SAVE ----------------
-  // save() {
-  //   let result = this.selectedValue || ""
-
-  //   if (this.selectedRatio) {
-  //     result += ` | ${this.selectedRatio}`
-  //   }
-
-  //   if (this.hasInputTarget) {
-  //     this.inputTarget.value = result
-  //   }
-
-  //   if (this.hasDisplayTarget) {
-  //     this.displayTarget.textContent = result
-  //   }
-
-  //   this.closeModal()
-  // }
   calculateAmount() {
-    if (!this.selectedRatio || !this.colorAmount) return
+    if (!this.selectedRatio) {
+      if (this.hasAmountDisplayTarget) {
+        this.amountDisplayTarget.textContent = "0g"
+      }
+      return 0
+    }
 
     const ratio = parseFloat(this.selectedRatio.split(":")[1])
     const result = Math.round(this.colorAmount * ratio)
 
-    // 👉 показ в модалці
     if (this.hasAmountDisplayTarget) {
       this.amountDisplayTarget.textContent = `${result}g`
     }
@@ -245,71 +246,31 @@ export default class extends Controller {
 
         <div class="dev-right">
           ${amount ? `<span class="dev-amount">${amount}g</span>` : ""}
-          <button type="button" class="remove">×</button>
+          <button type="button" class="remove" data-action="click->developer#remove">×</button>
         </div>
 
       </div>
     `
   }
-
-  // save() {
-  //   let value = this.selectedValue || ""
-  //   let ratio = this.selectedRatio || ""
-  //   let amount = this.amountTarget?.value || ""
-
-  //   // 👉 якщо нема amount — рахуємо
-  //   if (!amount && ratio && this.colorAmount) {
-  //     const r = parseFloat(ratio.split(":")[1])
-  //     amount = Math.round(this.colorAmount * r)
-  //   }
-
-  //   // 👉 зберігаємо як structured string
-  //   const result = [value, ratio, amount].filter(Boolean).join("|")
-
-  //   // hidden input
-  //   if (this.hasInputTarget) {
-  //     this.inputTarget.value = result
-  //   }
-
-  //   // UI
-  //   if (this.hasDisplayTarget) {
-  //     this.displayTarget.innerHTML = `
-  //       <div class="dev-row-display">
-
-  //         <div class="dev-left">
-  //           <span class="dev-percent">${value}</span>
-  //           ${ratio ? `<span class="dev-separator">|</span><span class="dev-ratio">${ratio}</span>` : ""}
-  //         </div>
-
-  //         <div class="dev-right">
-  //           ${amount ? `<span class="dev-amount">${amount}g</span>` : ""}
-  //           <button type="button" class="remove">×</button>
-  //         </div>
-
-  //       </div>
-  //     `
-  //   }
-
-  //   this.closeModal()
-  // }
+// ---------------- SAVE ----------------
   save() {
     let value = this.selectedValue || ""
     let ratio = this.selectedRatio || ""
 
-    // 👉 amount тільки з calculate
     const amount = this.calculateAmount()
 
     const result = [value, ratio, amount].filter(Boolean).join("|")
 
-    // hidden
     if (this.hasInputTarget) {
       this.inputTarget.value = result
     }
 
-    // UI
     if (this.hasDisplayTarget) {
       this.renderDisplay(value, ratio, amount)
     }
+
+    const addBtn = this.element.querySelector(".add-dev-btn")
+    if (addBtn) addBtn.style.display = "none"
 
     this.closeModal()
   }
@@ -322,5 +283,31 @@ export default class extends Controller {
 
   stopPropagation(event) {
     event.stopPropagation()
+  }
+
+  remove() {
+    if (this.hasInputTarget) {
+      this.inputTarget.value = ""
+    }
+
+    if (this.hasDisplayTarget) {
+      this.displayTarget.innerHTML = ""
+    }
+
+    const addBtn = this.element.querySelector(".add-dev-btn")
+    if (addBtn) addBtn.style.display = "inline-flex"
+
+    const step = this.element.closest(".formula-card")
+
+    if (step) {
+      window.dispatchEvent(
+        new CustomEvent("formula:colorAmountChanged", {
+          detail: {
+            total: 0,
+            stepId: step.dataset.stepId
+          }
+        })
+      )
+    }
   }
 }

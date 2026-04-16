@@ -75,15 +75,14 @@ class ServiceNotesController < ApplicationController
   end
 
   def service_note_params
-    params.require(:service_note).permit!
-    # params.require(:service_note).permit(
-    #   :service_type, :notes, :price,
-    #   photos: [],
-    #   formula_steps_attributes: [
-    #     :id, :section, :oxidant, :time, :_destroy,
-    #     formula_ingredients_attributes: [ :id, :shade, :brand, :amount, :_destroy ]
-    #   ]
-    # )
+    params.require(:service_note).permit(
+      :service_type, :notes, :price,
+      photos: [],
+      formula_steps_attributes: [
+        :id, :section, :oxidant, :time, :_destroy,
+        formula_ingredients_attributes: [ :id, :shade, :brand, :amount, :_destroy ]
+      ]
+    )
   end
 
   def attach_photos

@@ -1,28 +1,13 @@
-<% uid = local_assigns[:uid] || SecureRandom.hex(6) %>
-<% shade = local_assigns[:shade] %>
-<% brand = local_assigns[:brand] %>
-<% amount = local_assigns[:amount] %>
+<% uid = local_assigns[:uid] || f.object.id || SecureRandom.hex(6) %>
 
+<div class="ingredient-fields"
+     data-id="<%= uid %>">
 
-  <!-- HIDDEN FIELDS (те що йде в params) -->
-  <div class="hidden ingredient-fields"
-       data-uid="<%= uid %>">
+  <%= f.hidden_field :id %>
 
-    <input type="hidden"
-      name="service_note[formula_steps_attributes][<%= step_index %>][formula_ingredients_attributes][<%= uid %>][shade]"
-      value="<%= shade %>">
+  <%= f.hidden_field :shade, data: { field: "shade" } %>
+  <%= f.hidden_field :brand, data: { field: "brand" } %>
+  <%= f.hidden_field :amount, data: { field: "amount" } %>
+  <%= f.hidden_field :_destroy, value: 0, data: { field: "destroy" } %>
 
-    <input type="hidden"
-      name="service_note[formula_steps_attributes][<%= step_index %>][formula_ingredients_attributes][<%= uid %>][brand]"
-      value="<%= brand %>">
-
-    <input type="hidden"
-      name="service_note[formula_steps_attributes][<%= step_index %>][formula_ingredients_attributes][<%= uid %>][amount]"
-      value="<%= amount %>">
-
-    <input type="hidden"
-      name="service_note[formula_steps_attributes][<%= step_index %>][formula_ingredients_attributes][<%= uid %>][_destroy]"
-      value="false">
-
-  </div>
-
+</div>

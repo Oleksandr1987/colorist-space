@@ -46,10 +46,8 @@ export default class extends Controller {
       <button type="button" class="color-remove">×</button>
     `
 
-    // remove
     row.querySelector(".color-remove").onclick = () => row.remove()
 
-    // amount validation
     const amountInput = row.querySelector("input:last-of-type")
 
     amountInput.addEventListener("input", () => {
@@ -64,7 +62,7 @@ export default class extends Controller {
 
   save() {
     if (!this.currentStep) return
-    
+
     const rows = this.rowsTarget.querySelectorAll(".color-row")
 
     rows.forEach(row => {
@@ -79,46 +77,59 @@ export default class extends Controller {
       amount = amount.replace(",", ".")
       if (parseFloat(amount) <= 0) return
 
-      const step = this.currentStep
-      const uid = Math.random().toString(36).slice(2)
-      // UI
+      const template = this.currentStep.querySelector(
+        "[data-formula-target='ingredientTemplate']"
+      )
+
+      const uid = Date.now()
+      let html = template.innerHTML.replace(/NEW_RECORD/g, uid)
+
+      const wrapper = document.createElement("div")
+      wrapper.innerHTML = html
+
+      const hidden = wrapper.querySelector(".ingredient-fields")
+      hidden.dataset.id = uid 
+
+      hidden.querySelector("[data-field='shade']").value = shade
+      hidden.querySelector("[data-field='brand']").value = brand
+      hidden.querySelector("[data-field='amount']").value = amount
+
+      this.currentStep
+        .querySelector("[data-formula-target='colorsList']")
+        .appendChild(hidden)
+
       const display = document.createElement("div")
       display.className = "color-row-display"
-      display.dataset.uid = uid
+      display.dataset.id = uid
 
       display.innerHTML = `
         <div class="color-left">
           <span class="shade">${shade}</span>
           <span class="brand">${brand}</span>
         </div>
-
         <div class="color-right">
           <span class="amount">${amount}g</span>
-          <button type="button" class="remove">×</button>
+          <button type="button" class="remove"
+            data-action="click->formula#removeColor">×</button>
         </div>
       `
 
-      // display.querySelector(".remove").onclick = () => display.remove()
-      display.querySelector(".remove").setAttribute(
-        "data-action",
-        "click->formula#removeColor"
-      )
-
-      step.querySelector("[data-color-target='list']").appendChild(display)
-
-      this.addHiddenIngredient(step, shade, brand, amount, uid)
+      this.currentStep
+        .querySelector("[data-color-target='list']")
+        .appendChild(display)
     })
-
-    const total = this.calculateTotalAmount()
-
-    window.dispatchEvent(
-      new CustomEvent("formula:colorAmountChanged", {
-        detail: { total: total }
-      })
-    )
 
     this.rowsTarget.innerHTML = ""
     this.closeModal()
+
+    window.dispatchEvent(
+      new CustomEvent("formula:colorAmountChanged", {
+        detail: {
+          total: this.calculateTotalAmount(),
+          stepId: this.currentStep.dataset.stepId
+        }
+      })
+    )
   }
 
   calculateTotalAmount() {
@@ -139,30 +150,5 @@ export default class extends Controller {
 
   stop(e) {
     e.stopPropagation()
-  }
-
-  addHiddenIngredient(step, shade, brand, amount, uid) {
-    const list = step.querySelector("[data-formula-target='colorsList']")
-    const prototype = list.dataset.prototype
-
-    if (!prototype) return
-
-    let html = prototype
-
-    html = html.replace(/NEW_RECORD/g, () => {
-      return Math.random().toString(36).slice(2)
-    })
-
-    const wrapper = document.createElement("div")
-    wrapper.innerHTML = html
-
-    const el = wrapper.firstElementChild
-    el.dataset.id = uid
-
-    el.querySelector("[name*='[shade]']").value = shade
-    el.querySelector("[name*='[brand]']").value = brand
-    el.querySelector("[name*='[amount]']").value = amount
-
-    list.appendChild(el)
   }
 }

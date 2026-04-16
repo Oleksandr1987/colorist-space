@@ -27,12 +27,22 @@ export default class extends Controller {
     return total
   }
 
-  dispatchColorAmount() {
-    const total = this.getTotalColorAmount()
+  dispatchColorAmount(step) {
+    const inputs = step.querySelectorAll("[name*='[amount]']")
+
+    let total = 0
+
+    inputs.forEach(input => {
+      const val = parseFloat(input.value)
+      if (!isNaN(val)) total += val
+    })
 
     window.dispatchEvent(
       new CustomEvent("formula:colorAmountChanged", {
-        detail: { total }
+        detail: {
+          total,
+          stepId: step.dataset.stepId
+        }
       })
     )
   }
@@ -40,7 +50,10 @@ export default class extends Controller {
   observeAmountChanges() {
     this.element.addEventListener("input", (e) => {
       if (e.target.name?.includes("[amount]")) {
-        this.dispatchColorAmount()
+        const step = e.target.closest(".formula-card")
+        if (step) {
+          this.dispatchColorAmount(step)
+        }
       }
     })
   }
@@ -51,16 +64,20 @@ export default class extends Controller {
 
     const section = event.currentTarget.dataset.section
     const template = this.templateTarget.innerHTML
-    const uid = () => `${Date.now()}_${Math.random().toString(36).slice(2)}`
-    const stepId = uid()
+
+    const stepId = Date.now()
 
     let html = template
       .replace(/__SECTION__/g, section)
       .replace(/NEW_RECORD/g, stepId)
-      .replace(/NEW_COLOR/g, uid())
 
     this.containerTarget.insertAdjacentHTML("beforeend", html)
-    // this.application.load(this.containerTarget)
+
+    const newStep = this.containerTarget.lastElementChild
+
+    const destroyInput = newStep.querySelector(".destroy-field")
+    if (destroyInput) destroyInput.value = "0"
+
     this.updateStepNumbers()
     this.containerTarget.classList.remove("hidden")
   }
@@ -88,7 +105,9 @@ export default class extends Controller {
     }
 
     this.updateStepNumbers()
-    this.dispatchColorAmount()
+
+    const step = card
+    this.dispatchColorAmount(step)
 
     const visibleSteps = this.containerTarget.querySelectorAll(".formula-card:not([style*='display: none'])")
 
@@ -123,81 +142,39 @@ export default class extends Controller {
 
     list.insertAdjacentHTML("beforeend", html)
 
-    this.dispatchColorAmount()
+    this.dispatchColorAmount(card)
    }
 
-  // removeColor(event) {
-  //   event.preventDefault()
-
-  //   const row = event.currentTarget.closest(".color-row")
-  //   const destroyInput = row.querySelector("input[name*='_destroy']")
-
-  //   if (destroyInput) {
-  //     destroyInput.value = "1"
-  //     row.style.display = "none"
-  //   } else {
-  //     row.remove()
-  //   }
-
-  //   this.dispatchColorAmount()
-  // }
-
-  // removeColor(event) {
-  //   event.preventDefault()
-
-  //   const btn = event.currentTarget
-
-  //   // 🔥 UI рядок
-  //   const displayRow = btn.closest(".color-row-display")
-  //   if (displayRow) displayRow.remove()
-
-  //   // 🔥 hidden row (якщо є)
-  //   const hiddenRow = btn.closest(".color-row")
-  //   if (hiddenRow) {
-  //     const destroyInput = hiddenRow.querySelector("input[name*='_destroy']")
-
-  //     if (destroyInput) {
-  //       destroyInput.value = "1"
-  //       hiddenRow.style.display = "none"
-  //     } else {
-  //       hiddenRow.remove()
-  //     }
-  //   }
-
-  //   // 🔥 MAGIC → live update
-  //   this.dispatchColorAmount()
-  // }
   removeColor(event) {
     event.preventDefault()
 
-    const btn = event.currentTarget
-    const displayRow = btn.closest(".color-row-display")
-
+    const displayRow = event.currentTarget.closest(".color-row-display")
     if (!displayRow) return
 
     const id = displayRow.dataset.id
 
-    // 🔥 remove UI
-    displayRow.remove()
+    const step = displayRow.closest(".formula-card")
 
-    // 🔥 знайти hidden по id
-    const hidden = this.element.querySelector(
+    const hidden = step.querySelector(
       `.ingredient-fields[data-id="${id}"]`
     )
 
-    if (hidden) {
-      const destroyInput = hidden.querySelector("input[name*='_destroy']")
-
-      if (destroyInput) {
-        destroyInput.value = "1"
-        hidden.style.display = "none"
-      } else {
-        hidden.remove()
-      }
+    if (!hidden) {
+      console.error("❌ hidden not found for id:", id)
+      displayRow.remove()
+      return
     }
 
-    // 🔥 live recalc
-    this.dispatchColorAmount()
+    const destroyInput = hidden.querySelector("[data-field='destroy']")
+
+    if (destroyInput) {
+      destroyInput.value = "1"
+      hidden.style.display = "none"
+    }
+
+    displayRow.remove()
+
+    this.dispatchColorAmount(step)
   }
 
   // ---------------- DRAG ----------------
@@ -260,13 +237,11 @@ export default class extends Controller {
     event.preventDefault()
     const stepIndex = event.currentTarget.dataset.stepIndex
 
-    // const url = `/service_notes/${this.data.get("id")}/add_ingredient`
     const serviceNoteId = this.element.dataset.serviceNoteId
     const clientId = this.element.dataset.clientId
 
     const url = `/clients/${clientId}/service_notes/${serviceNoteId}/add_ingredient`
 
-    // 
     fetch(url, {
       method: "POST",
       headers: {
