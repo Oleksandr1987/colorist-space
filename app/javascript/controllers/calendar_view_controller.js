@@ -1,3 +1,4 @@
+// app/javascript/controllers/calendar_view_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -14,10 +15,20 @@ export default class extends Controller {
     this.loadAppointments(this.selectedDate)
     this.scrollToToday()
     document.addEventListener("click", this.closePopoverOnClickOutside.bind(this))
+    this.startAutoRefresh()
+    this.startLiveSlotUpdates()
   }
 
   disconnect() {
     document.removeEventListener("click", this.closePopoverOnClickOutside)
+
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval)
+    }
+
+    if (this.liveInterval) {
+      clearInterval(this.liveInterval)
+    }
   }
 
   renderCalendar() {
@@ -128,10 +139,27 @@ export default class extends Controller {
 
   loadAppointments(date) {
     const formatted = this.formatDate(date)
-    Promise.all([
-      fetch(`/appointments/by_date?date=${formatted}`).then(r => r.json()),
-      fetch(`/appointments/free_slots?date=${formatted}`).then(r => r.json())
-    ]).then(([appointments, slots]) => {
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const selected = new Date(date)
+    selected.setHours(0, 0, 0, 0)
+
+    const isPast = selected < today
+    const isToday = selected.getTime() === today.getTime()
+
+    const requests = [
+      fetch(`/appointments/by_date?date=${formatted}`).then(r => r.json())
+    ]
+
+    if (!isPast) {
+      requests.push(
+        fetch(`/appointments/free_slots?date=${formatted}`).then(r => r.json())
+      )
+    }
+
+    Promise.all(requests).then(([appointments, slots = []]) => {
 
       const normalizedAppointments = appointments.map(a => ({
         ...a,
@@ -139,9 +167,36 @@ export default class extends Controller {
         end: a.end || a.end_time
       }))
 
-      const combinedFreeSlots = this.mergeAdjacentFreeSlots(slots)
+      let mergedFreeSlots = []
 
-      const mergedFreeSlots = this.mergeFreeSlots(combinedFreeSlots, normalizedAppointments)
+      if (!isPast) {
+        let filteredSlots = slots
+
+        if (isToday) {
+          const now = new Date()
+
+          filteredSlots = slots
+            .map(slot => {
+              let start = this.parseTime(slot.start)
+              let end = this.parseTime(slot.end)
+
+              if (end <= now) return null
+
+              if (start < now) {
+                start = now
+              }
+
+              return {
+                start: this.formatTime(start),
+                end: this.formatTime(end)
+              }
+            })
+            .filter(Boolean)
+        }
+
+        const combinedFreeSlots = this.mergeAdjacentFreeSlots(filteredSlots)
+        mergedFreeSlots = this.mergeFreeSlots(combinedFreeSlots, normalizedAppointments)
+      }
 
       this.renderTimeline(normalizedAppointments, mergedFreeSlots)
     })
@@ -358,5 +413,74 @@ export default class extends Controller {
   csrfToken() {
     const meta = document.querySelector("meta[name='csrf-token']")
     return meta ? meta.content : ""
+  }
+
+  startAutoRefresh() {
+    const now = new Date()
+
+    const delay = (60 - now.getSeconds()) * 1000 - now.getMilliseconds()
+
+    setTimeout(() => {
+      this.loadAppointments(this.selectedDate)
+
+      this.refreshInterval = setInterval(() => {
+        this.loadAppointments(this.selectedDate)
+      }, 60000)
+
+    }, delay)
+  }
+
+  startLiveSlotUpdates() {
+    const now = new Date()
+
+    const delay = (10 - (now.getSeconds() % 10)) * 1000 - now.getMilliseconds()
+
+    setTimeout(() => {
+      this.updateLiveSlots()
+
+      this.liveInterval = setInterval(() => {
+        this.updateLiveSlots()
+      }, 10000)
+
+    }, delay)
+  }
+
+  updateLiveSlots() {
+    const today = new Date()
+    const selected = new Date(this.selectedDate)
+
+    if (!this.isSameDate(today, selected)) return
+
+    const now = new Date()
+
+    const slots = this.timelineTarget.querySelectorAll(".slot-free")
+
+    slots.forEach(slot => {
+      const content = slot.querySelector(".slot-content")
+      if (!content) return
+
+      const match = content.textContent.match(/(\d{2}:\d{2})–(\d{2}:\d{2})/)
+      if (!match) return
+
+      let [_, startStr, endStr] = match
+
+      let start = this.parseTime(startStr)
+      let end = this.parseTime(endStr)
+
+      if (end <= now) {
+        slot.remove()
+        return
+      }
+
+      if (start < now) {
+        start = now
+
+        const newStart = this.formatTime(start)
+
+        content.innerHTML = `
+          ${newStart}–${this.formatTime(end)} (${this.t.available})
+        `
+      }
+    })
   }
 }

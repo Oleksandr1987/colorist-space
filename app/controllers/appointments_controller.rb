@@ -103,6 +103,8 @@ class AppointmentsController < ApplicationController
   def free_slots
     date = params[:date].to_date
 
+    return render json: [] if date < Date.today
+
     slots = Appointment.available_slots(current_user, date)
 
     render json: slots.map { |slot|
