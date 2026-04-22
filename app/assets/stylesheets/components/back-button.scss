@@ -1,0 +1,16 @@
+@use "../variables";
+
+.back-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid variables.$base-border-color;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: variables.$inverted url("data:image/svg+xml;utf8,<svg width='28' height='28' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><polyline points='15,7 10,12 15,17' stroke='%23481f9a' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat 4px center;
+  background-size: 28px 28px;
+  font-size: 0;
+}

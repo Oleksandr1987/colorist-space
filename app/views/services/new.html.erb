@@ -1,7 +1,12 @@
-<div class="page-header">
-  <%= link_to "←", services_path, class: "back-button" %>
-</div>
+<div class="screen">
+  <div class="screen__content">
+    <div class="screen__header">
+      <%= link_to "", main_services_path, class: "back-button" %>
+      <h2 class="screen__title"><%= t("services.form.title") %></h2>
+    </div>
 
-<div class="service-form-wrapper">
-  <%= render 'form', service: @service %>
+    <div class="service-form-wrapper">
+      <%= render 'form', service: @service %>
+    </div>
+  </div>
 </div>

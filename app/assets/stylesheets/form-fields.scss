@@ -102,4 +102,12 @@ form {
   }
 }
 
+.primary-button {
+  @include mixins.primary-button;
+}
+
+.secondary-button-full {
+  @include mixins.secondary-button-full;
+}
+
 

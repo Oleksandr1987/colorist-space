@@ -52,42 +52,6 @@
   position: relative;
 }
 
-/* --- Form Sections --- */
-.form-section {
-  margin-bottom: 0.6rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.form-section.double {
-  flex-direction: row;
-  gap: 0.75rem;
-}
-
-.form-section.double > div {
-  flex: 1;
-}
-
-.form-input {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  color: #333;
-  border-radius: 6px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-textarea.form-input {
-  min-height: 55px;
-}
-
-.required-asterisk {
-  color: red;
-  margin-left: 0.25rem;
-}
-
 /* --- Floating Save Button --- */
 .floating-save-button {
   position: fixed;

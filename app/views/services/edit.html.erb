@@ -1,3 +1,10 @@
-<h2><%= t("services.list.edit") %></h2>
+<div class="screen">
+  <div class="screen__content">
+    <div class="screen__header">
+      <%= link_to "", section_services_path(category: @service.category), class: "back-button" %>
+      <h2><%= t("services.list.edit") %></h2>
+    </div>
 
-<%= render "form", service: @service %>
+    <%= render "form", service: @service %>
+  </div>
+</div>

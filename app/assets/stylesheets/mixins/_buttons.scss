@@ -1,17 +1,22 @@
 @use "../variables";
 
-@mixin primary-button {
+@mixin base-button {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 12px;
-  color: variables.$primary-button-color;
-  background-color: variables.$primary-button-bg-color;
-  border: 1px solid variables.$primary-button-border-color;
   border-radius: 10px;
   text-decoration: none;
   text-align: center;
+  line-height: 1;
   cursor: pointer;
+}
+
+@mixin primary-button {
+  @include base-button;
+  color: variables.$primary-button-color;
+  background-color: variables.$primary-button-bg-color;
+  border: 1px solid variables.$primary-button-border-color;
 }
 
 @mixin primary-button-full {
@@ -19,7 +24,18 @@
   width: 100%;
 }
 
+@mixin secondary-button {
+  @include base-button;
+  color: variables.$secondary-button-color;
+  background-color: variables.$secondary-button-bg-color;
+  border: 1px solid variables.$secondary-button-border-color;
+}
+
+@mixin secondary-button-full {
+  @include secondary-button;
+  width: 100%;
+}
+
 @mixin links {
   color: variables.$primary-button-color;
 }
-

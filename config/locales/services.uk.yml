@@ -8,6 +8,7 @@ uk:
       sort_price_desc: "За ціною ↓"
 
     form:
+      title: "Додати послугу"
       category: "Категорія послуги"
       category_placeholder: "Введіть або оберіть категорію"
       subtype: "Тип послуги"

@@ -2,13 +2,13 @@
     data-controller="popover"
     data-name="<%= [service.subtype, service.unit, service.price].compact.join(' ').downcase %>">
 
-  <div class="service-info">
+  <p class="service-info">
     <strong><%= service.subtype %></strong>
     — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
     <% if service.unit.present? %>
       (<%= service.unit %>)
     <% end %>
-  </div>
+  </p>
 
   <div class="service-actions">
     <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">

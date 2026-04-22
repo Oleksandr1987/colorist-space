@@ -1,50 +1,46 @@
-<div class="service-form-wrapper">
-  <%= form_with(model: service, local: true, data: { controller: "service" }) do |f| %>
-    <div class="form-section">
-      <%= f.label :category, t("services.form.category") %>
-      <%= f.text_field :category,
-            class: "form-input",
-            list: "categories",
-            placeholder: t("services.form.category_placeholder"),
-            required: true,
-            data: { action: "input->service#updateSubtypeOptions", service_target: "categorySelect" } %>
+<%= form_with(model: service, local: true, data: { controller: "service" }) do |f| %>
+  <div class="form__field">
+    <%= f.label :category, t("services.form.category") %>
+    <%= f.text_field :category,
+          list: "categories",
+          placeholder: t("services.form.category_placeholder"),
+          required: true,
+          data: { action: "input->service#updateSubtypeOptions", service_target: "categorySelect" } %>
 
-      <datalist id="categories">
-        <option value="<%= t('services.categories.haircut') %>"/>
-        <option value="<%= t('services.categories.coloring') %>"/>
-        <option value="<%= t('services.categories.styling') %>"/>
-        <option value="<%= t('services.categories.treatment') %>"/>
-      </datalist>
-    </div>
+    <datalist id="categories">
+      <option value="<%= t('services.categories.haircut') %>"/>
+      <option value="<%= t('services.categories.coloring') %>"/>
+      <option value="<%= t('services.categories.styling') %>"/>
+      <option value="<%= t('services.categories.treatment') %>"/>
+    </datalist>
+  </div>
 
-    <div class="form-section">
-      <%= f.label :subtype, t("services.form.subtype") %>
-      <%= f.text_field :subtype,
-            class: "form-input",
-            list: "subtypes",
-            placeholder: t("services.form.subtype_placeholder"),
-            data: { service_target: "subtype" },
-            required: true %>
+  <div class="form__field">
+    <%= f.label :subtype, t("services.form.subtype") %>
+    <%= f.text_field :subtype,
+          list: "subtypes",
+          placeholder: t("services.form.subtype_placeholder"),
+          data: { service_target: "subtype" },
+          required: true %>
 
-      <datalist id="subtypes"></datalist>
-    </div>
+    <datalist id="subtypes"></datalist>
+  </div>
 
-    <div class="form-section">
-      <%= f.label :price, t("services.form.price") %>
-      <%= f.number_field :price, class: "form-input", required: true %>
-    </div>
+  <div class="form__field">
+    <%= f.label :price, t("services.form.price") %>
+    <%= f.number_field :price, required: true %>
+  </div>
 
-    <div class="form-section"
-         style="<%= service.service_type == "preparation" || service.service_type == "care_product" ? '' : 'display:none;' %>"
-         data-service-target="unitField">
-      <%= f.label :unit, t("services.form.unit") %>
-      <%= f.text_field :unit, class: "form-input", placeholder: "g, ml, etc." %>
-    </div>
+  <div class="form__field"
+       style="<%= service.service_type == "preparation" || service.service_type == "care_product" ? '' : 'display:none;' %>"
+       data-service-target="unitField">
+    <%= f.label :unit, t("services.form.unit") %>
+    <%= f.text_field :unit, placeholder: "g, ml, etc." %>
+  </div>
 
-    <%= f.hidden_field :service_type, value: service.service_type, data: { service_target: "typeSelect" } %>
+  <%= f.hidden_field :service_type, value: service.service_type, data: { service_target: "typeSelect" } %>
 
-    <div class="form-actions">
-      <%= f.submit t("services.form.save"), class: "button primary full" %>
-    </div>
-  <% end %>
-</div>
+  <div class="actions">
+    <%= f.submit t("services.form.save") %>
+  </div>
+<% end %>

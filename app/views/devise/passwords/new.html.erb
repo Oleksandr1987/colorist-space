@@ -1,7 +1,10 @@
 <div class="container">
   <div class="screen">
     <div class="screen__content">
-      <h2 class="page_title"><%= t("auth.forgot_password_title") %></h2>
+      <div class="screen__header">
+        <%= link_to "", "/", class: "back-button" %>
+        <h2 class="screen__title"><%= t("auth.forgot_password_title") %></h2>
+      </div>
       <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
         <div class="form__field">

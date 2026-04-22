@@ -8,6 +8,7 @@ en:
       sort_price_desc: "Sort by price ↓"
 
     form:
+      title: "Add category"
       category: "Service Category"
       category_placeholder: "Enter or select category"
       subtype: "Service Type"

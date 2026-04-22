@@ -30,7 +30,7 @@
 
     <main>
       <% flash.each do |type, message| %>
-        <div class="flash <%= type %>"><%= message.html_safe %></div>
+        <div class="flash <%= type %>" data-controller="flash"><%= message.html_safe %></div>
       <% end %>
 
       <%= yield %>

@@ -1,6 +1,10 @@
 <div class="container">
   <div class="screen">
     <div class="screen__content">
+      <div class="screen__header">
+        <%= link_to "", "/", class: "back-button" %>
+        <h2 class="screen__title"><%= t("auth.signup_title") %></h2>
+      </div>
 
       <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "login" }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>

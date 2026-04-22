@@ -1,19 +1,30 @@
+// variables + mixins
 @use "variables";
 @use "mixins";
 @use "typography";
 @use "forms";
 @use "form-fields";
+
+// components
+@use "components/back-button";
+@use "components/notification";
+
+
+// pages (restyled)
 @use "login_page";
+@use "registration";
+@use "admin";
+@use "services";
+
+// legacy
 @use "calendar";
 @use "clients";
-@use "admin";
 @use "home";
 @use "errors";
 @use "appointment";
 @use "appointment_form";
 @use "analytics";
 @use "photos";
-@use "services";
 @use "service_notes";
 @use "settings";
 @use "expenses";
@@ -302,26 +313,3 @@ body {
   }
 }
 
-.flash {
-  padding: 12px 16px;
-  margin: 12px 0;
-  border-radius: 6px;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.flash.notice {
-  background-color: #e0f7fa;
-  color: #006064;
-}
-
-.flash.alert,
-.flash.danger {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.flash.success {
-  background-color: #e8f5e9;
-  color: #228427;
-}

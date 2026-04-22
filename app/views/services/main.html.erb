@@ -1,16 +1,23 @@
-<%= render 'shared/vertical_menu' %>
+<div class="screen">
+  <div class="screen__content">
+    <%= render 'shared/vertical_menu' %>
 
-<div class="admin-dashboard">
-  <h1><%= t("services.pages.categories") %></h1>
+    <div class="screen__header">
+      <%= link_to "", services_path, class: "back-button" %>
+      <h2><%= t("services.pages.categories") %></h2>
+    </div>
+      <div class="categories-list-page">
+        <%= link_to t("services.pages.new_service"),
+            new_service_path(service_type: "service"),
+            class: "category-new-button" %>
 
-  <% @categories.each do |category| %>
-    <% key = category.to_s.downcase %>
-    <%= link_to t("services.categories.#{key}", default: category),
-                section_services_path(category: category),
-                class: "admin-card" %>
-  <% end %>
-
-  <%= link_to t("services.pages.new_service"),
-              new_service_path(service_type: "service"),
-              class: "category-item category-new" %>
+        <% @categories.each do |category| %>
+          <% key = category.to_s.downcase %>
+          <%= link_to t("services.categories.#{key}", default: category),
+              section_services_path(category: category),
+              class: "service-category-card secondary-button-full" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
 </div>

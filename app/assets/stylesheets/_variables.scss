@@ -1,11 +1,15 @@
 // container sizes
-$container-padding: 32px;
+$container-padding: 24px;
 $max-container-width: 440px;
 
 // main colors
 $primary: #481f9a;
 $secondary: #f5f3ff;
 $inverted: #ffffff;
+
+$success: #228427;
+$alert: #c62828;
+$info: #464ad6;
 
 // form elements
 $base-border-color: #88868C33;
@@ -20,7 +24,27 @@ $primary-button-color: $inverted;
 $primary-button-bg-color: $primary;
 $primary-button-border-color: $primary;
 
+$secondary-button-color: $primary;
+$secondary-button-bg-color: $inverted;
+$secondary-button-border-color: $primary;
+
 $tertiary-button-color: $primary;
+
+// notices
+$notice-bg-color: $inverted;
+$notice-info-text-color: $info;
+$notice-alert-text-color: $alert;
+$notice-success-text-color: $success;
+
+// menus
+$dot-menu-color: $primary;
+
+$icon-button-color: $primary;
+
+$menu-bg-color: $inverted;
+$menu-button-color: $font-base-color;
+$menu-delete-button-color: $alert;
+
 
 
 // background colors
