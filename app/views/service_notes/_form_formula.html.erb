@@ -62,7 +62,7 @@
                         class="add-btn-small add-color-btn"
                         data-action="click->formula#openColorModal"
                         data-step-index="<%= step_id %>">
-                  +
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 </button>
               </div>
 
@@ -133,7 +133,7 @@
                         class="add-btn-small add-dev-btn"
                         data-action="click->developer#openModal"
                         style="<%= 'display: none;' if step_form.object.oxidant.present? %>">
-                  +
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 </button>
               </div>
 
@@ -302,6 +302,7 @@
       </div>
     <% end %>
      <!-- ADD STEP -->
+     <% unless @service_note.formula_steps.empty? %>
     <div class="formula-add-step"
         data-controller="collapse">
 
@@ -340,6 +341,7 @@
         </div>
       </div>
     </div>
+    <% end %>
 
   </div>
   <%= render "service_notes/empty_formula_step" if @service_note.formula_steps.empty? %>
@@ -408,7 +410,7 @@
               <button type="button"
                       class="add-btn-small add-color-btn"
                       data-action="click->formula#openColorModal">
-                +
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
               </button>
             </div>
 
@@ -454,7 +456,7 @@
               <button type="button"
                 class="add-btn-small add-dev-btn"
                 data-action="click->developer#openModal">
-                +
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
               </button>
             </div>
 

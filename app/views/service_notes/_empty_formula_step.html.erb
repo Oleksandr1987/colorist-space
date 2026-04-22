@@ -21,41 +21,21 @@
   <div class="formula-step-content"
        data-collapse-target="content">
 
-    <div class="formula-add-step"
-         data-controller="collapse">
+    <div class="sections-wrapper">
 
-      <div class="add-step-btn"
-           data-action="click->collapse#toggle">
+      <h5>Add section</h5>
 
-        <span>+ ADD STEP</span>
-
-        <svg class="chevron"
-             xmlns="http://www.w3.org/2000/svg"
-             viewBox="0 0 24 24"
-             fill="none"
-             stroke="currentColor"
-             stroke-width="2">
-          <path d="m6 9 6 6 6-6"/>
-        </svg>
+      <div class="sections-grid">
+        <% [:roots, :midshaft, :length, :strands, :all_over].each do |section| %>
+          <button type="button"
+                  class="section-btn"
+                  data-action="click->formula#createStep click->collapse#stop"
+                  data-section="<%= section %>">
+            <%= t("formula.sections.#{section}") %>
+          </button>
+        <% end %>
       </div>
 
-      <div class="add-step-content hidden"
-           data-collapse-target="content">
-
-        <h5>Add section</h5>
-
-        <div class="sections-grid">
-          <% [:roots, :midshaft, :length, :strands, :all_over].each do |section| %>
-            <button type="button"
-                    class="section-btn"
-                    data-action="click->formula#createStep click->collapse#close click->collapse#stop"
-                    data-section="<%= section %>">
-              <%= t("formula.sections.#{section}") %>
-            </button>
-          <% end %>
-        </div>
-
-      </div>
     </div>
 
   </div>

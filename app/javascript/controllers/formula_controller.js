@@ -87,7 +87,17 @@ export default class extends Controller {
   }
 
   updateStepNumbers() {
-    const steps = this.containerTarget.querySelectorAll(".formula-step-wrapper")
+    const steps = Array.from(
+      this.containerTarget.querySelectorAll(".formula-step-wrapper")
+    ).filter(wrapper => {
+      const card = wrapper.querySelector(".formula-card")
+      const destroyInput = card?.querySelector(".destroy-field")
+
+      return (
+        wrapper.style.display !== "none" &&
+        (!destroyInput || destroyInput.value !== "1")
+      )
+    })
 
     steps.forEach((step, index) => {
       const el = step.querySelector(".step-number")
@@ -191,7 +201,8 @@ export default class extends Controller {
     Sortable.create(this.stepsTarget, {
       animation: 150,
       ghostClass: "drag-ghost",
-      handle: ".step-header"
+      handle: ".step-header",
+      onEnd: () => this.updateStepNumbers()
     })
   }
 

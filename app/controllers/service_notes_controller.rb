@@ -18,9 +18,16 @@ class ServiceNotesController < ApplicationController
 
     if @service_note.save
       attach_photos
-      redirect_to client_service_note_path(@client, @service_note), notice: "Service note created"
+
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to edit_client_service_note_path(@client, @service_note) }
+      end
     else
-      render :new, status: :unprocessable_entity
+      respond_to do |format|
+        format.turbo_stream { render :new, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_entity }
+      end
     end
   end
 
