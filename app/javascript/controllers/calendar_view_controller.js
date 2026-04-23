@@ -227,14 +227,25 @@ export default class extends Controller {
 
       if (slot.type === "booked") {
         el.classList.add("slot-booked")
+
         el.innerHTML = `
           <div class="slot-content">
-            <div class="slot-text">
+
+            <!-- CLICKABLE AREA -->
+            <div class="slot-text clickable"
+                data-action="click->calendar-view#createServiceNote"
+                data-id="${slot.data.id}"
+                data-client-id="${slot.data.client_id}">
+                
               ${startTime}–${endTime} — ${slot.data.service} (${slot.data.client_name})
             </div>
 
+            <!-- ICON AREA -->
             <div class="slot-icon-wrapper">
-              <button class="popover-toggle" data-id="${slot.data.id}">✎</button>
+              <button class="popover-toggle"
+                      data-id="${slot.data.id}">
+                ✎
+              </button>
 
               <div class="popover-menu hidden" id="popover-${slot.data.id}">
                 <a href="/appointments/${slot.data.id}/edit">${this.t.edit}</a>
@@ -250,6 +261,7 @@ export default class extends Controller {
                 </form>
               </div>
             </div>
+
           </div>
         `
       } else {
@@ -482,5 +494,20 @@ export default class extends Controller {
         `
       }
     })
+  }
+
+  createServiceNote(event) {
+    event.stopPropagation()
+
+    const appointmentId = event.currentTarget.dataset.id
+    const clientId = event.currentTarget.dataset.clientId
+
+    if (!clientId || clientId === "0") {
+      console.error("❌ invalid clientId:", clientId)
+      return
+    }
+
+    window.location.href =
+      `/clients/${clientId}/service_notes/new?appointment_id=${appointmentId}`
   }
 }

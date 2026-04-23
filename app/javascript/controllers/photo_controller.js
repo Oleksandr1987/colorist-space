@@ -32,6 +32,8 @@ export default class extends Controller {
     this.setupKeyboard()
     this.setupSwipeMobileFullscreen()
     this.setupSwipeDesktopFullscreen()
+
+    if (!this.hasPhotoTarget) return
   }
 
   /* -----------------------------------
@@ -132,6 +134,8 @@ export default class extends Controller {
   ------------------------------------*/
 
   showInlinePhoto(index) {
+    if (!this.hasPhotoTarget) return
+
     const url = this.photosValue[index]
     this.photoTarget.src = url
 

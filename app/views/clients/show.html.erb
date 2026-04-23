@@ -84,6 +84,59 @@
     </div>
   </div>
 
+  <div class="appointments-tabs">
+    <button class="tab-button active"
+            data-action="click->client-profile#toggleAppointments"
+            data-type="future">
+      Upcoming
+    </button>
+
+    <button class="tab-button"
+            data-action="click->client-profile#toggleAppointments"
+            data-type="past">
+      History
+    </button>
+  </div>
+
+  <div data-client-profile-target="futureAppointments" class="appointments-block active">
+
+    <% @future_appointments.each do |a| %>
+      <div class="appointment-card future">
+
+        <div class="appointment-time">
+          <%= l(a.appointment_date, format: :long) %>
+          <span>
+            <%= a.appointment_time.strftime("%H:%M") %>–<%= a.end_time.strftime("%H:%M") %>
+          </span>
+        </div>
+
+        <div class="appointment-service">
+          <%= a.combined_service_name %>
+        </div>
+
+      </div>
+    <% end %>
+
+  </div>
+
+  <div data-client-profile-target="pastAppointments" class="appointments-block hidden">
+
+    <% @past_appointments.each do |a| %>
+      <div class="appointment-card past">
+
+        <div class="appointment-time">
+          <%= l(a.appointment_date, format: :long) %>         
+        </div>
+
+        <div class="appointment-service">
+          <%= a.combined_service_name %>
+        </div>
+
+      </div>
+    <% end %>
+
+  </div>
+
 
   <!-- INFO TAB  -->
   <div id="info-tab"

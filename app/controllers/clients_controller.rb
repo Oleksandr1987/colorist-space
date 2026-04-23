@@ -15,6 +15,8 @@ class ClientsController < ApplicationController
   end
 
   def show
+    @past_appointments = @client.appointments.past.order(appointment_date: :desc)
+    @future_appointments = @client.appointments.future.order(:appointment_date)
   end
 
   def new

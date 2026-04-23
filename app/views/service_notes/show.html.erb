@@ -117,8 +117,8 @@
         <span>SERVICES</span>
       </div>
 
-      <% if @service_note.appointment&.services.present? %>
-        <% @service_note.appointment.services.each do |service| %>
+      <% if @service_note.services.any? %>
+        <% @service_note.services.each do |service| %>
           <div class="note-row"><%= service.name %></div>
         <% end %>
       <% else %>

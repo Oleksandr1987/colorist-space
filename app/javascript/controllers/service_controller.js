@@ -1,7 +1,8 @@
+// app/javascript/controllers/service_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type"]
+  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type","selected"]
 
   static values = {
     categories: Object,
@@ -11,6 +12,8 @@ export default class extends Controller {
   connect() {
     this.boundOutsideClick = this.handleOutsideClick.bind(this)
     window.addEventListener("click", this.boundOutsideClick)
+
+    this.renderInitialSelected()
 
     if (this.hasListTarget) {
       this.listTarget.addEventListener("click", () => {
@@ -142,5 +145,73 @@ export default class extends Controller {
     )]
 
     this.typeTarget.value = types.length === 1 ? types[0] : "combined"
+    this.dispatchServicesChanged()
+  }
+
+  dispatchServicesChanged() {
+    window.dispatchEvent(new CustomEvent("services:changed"))
+  }
+
+  toggleService(event) {
+    const checkbox = event.target
+
+    const id = checkbox.value
+    const name = checkbox.dataset.name
+    const price = checkbox.dataset.price
+
+    if (checkbox.checked) {
+      this.addSelected(id, name, price)
+    } else {
+      this.removeSelected(id)
+    }
+
+    this.dispatchServicesChanged()
+  }
+
+  addSelected(id, name, price) {
+    const container = this.selectedTarget
+
+    if (container.querySelector(`[data-id="${id}"]`)) return
+
+    const html = `
+      <div class="service-item selected" data-id="${id}">
+        <div class="service-info">
+          <span>${name}</span>
+          <span>${price}</span>
+        </div>
+
+        <button type="button"
+                class="remove"
+                data-action="click->service#removeSelected">
+          ×
+        </button>
+      </div>
+    `
+
+    container.insertAdjacentHTML("beforeend", html)
+  }
+
+  removeSelected(event) {
+    const row = event.currentTarget.closest(".service-item")
+    const id = row.dataset.id
+
+    const checkbox = document.querySelector(
+      `input[name='service_note[service_ids][]'][value='${id}']`
+    )
+    if (checkbox) checkbox.checked = false
+
+    row.remove()
+
+    this.dispatchServicesChanged()
+  }
+
+  renderInitialSelected() {
+    const checked = this.element.querySelectorAll(
+      "input[name='service_note[service_ids][]']:checked"
+    )
+
+    checked.forEach(el => {
+      this.addSelected(el.value, el.dataset.name, el.dataset.price)
+    })
   }
 }

@@ -3,7 +3,7 @@
     <!-- TOP BAR -->
     <div class="wizard-top">
       <button type="button" data-action="click->wizard#close">✕</button>
-      <span data-wizard-target="title">Formula</span>
+      <span data-wizard-target="title">Services</span>
       <button type="submit">SAVE</button>
       <div id="save_status"></div>
     </div>
@@ -14,14 +14,14 @@
         <div class="wizard-progress-bar" data-wizard-target="progress"></div>
       </div>
 
-      <!-- FORMULA -->
-      <div data-action="click->wizard#go" data-step="0" class="wiz-item active">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg>
+      <!-- SERVICES -->
+      <div data-action="click->wizard#go" data-step="0" class="wiz-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>
       </div>
 
-      <!-- SERVICES -->
-      <div data-action="click->wizard#go" data-step="1" class="wiz-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>
+      <!-- FORMULA -->
+      <div data-action="click->wizard#go" data-step="1" class="wiz-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg>
       </div>
 
       <!-- PHOTOS -->
@@ -39,12 +39,12 @@
     <!-- CONTENT -->
     <div class="wizard-content" data-wizard-target="container">
 
-      <div class="wizard-step active" data-wizard-target="step">
-        <%= render "service_notes/steps/formula", f: f %>
-      </div>
-
       <div class="wizard-step" data-wizard-target="step">
         <%= render "service_notes/steps/services", f: f %>
+      </div>
+
+      <div class="wizard-step active" data-wizard-target="step">
+        <%= render "service_notes/steps/formula", f: f %>
       </div>
 
       <div class="wizard-step" data-wizard-target="step">

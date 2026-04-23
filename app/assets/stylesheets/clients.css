@@ -588,3 +588,43 @@ h1 {
     padding: 0.25rem 0.5rem;
   }
 }
+
+
+.appointments-block.hidden {
+  display: none;
+}
+
+.appointment-card {
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.appointment-card.future {
+  background: #e8f5e9;
+}
+
+.appointment-card.past {
+  background: #f5f5f5;
+}
+
+.appointments-tabs {
+  display: flex;
+  background: #f3f3f3;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.appointments-tabs .tab-button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.appointments-tabs .tab-button.active {
+  background: #6200ea;
+  color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}

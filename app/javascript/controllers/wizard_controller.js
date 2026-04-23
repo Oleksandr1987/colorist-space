@@ -61,7 +61,7 @@ export default class extends Controller {
     })
 
     // title
-    const titles = ["Formula", "Services", "Photos", "Notes"]
+    const titles = ["Services", "Formula", "Photos", "Notes"]
     this.titleTarget.textContent = titles[this.current]
 
     this.updateProgress()

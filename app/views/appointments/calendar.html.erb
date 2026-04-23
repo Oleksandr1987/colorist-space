@@ -2,7 +2,7 @@
 
 <div
   data-controller="calendar-view"
-  data-calendar-view-client-id-value="<%= params[:client_id] %>"
+  data-calendar-view-client-id-value="<%= params[:client_id] || @client&.id %>"
   data-calendar-view-dates-with-appointments-value="<%= @dates_with_appointments.to_json %>"
   data-calendar-view-translations-value='{
     "days": {

@@ -32,7 +32,7 @@ RSpec.describe "ServiceNotes", type: :request do
       end.to change(ServiceNote, :count).by(1)
 
       expect(response).to redirect_to(
-        client_service_note_path(ServiceNote.last.client, ServiceNote.last, locale: I18n.locale)
+        edit_client_service_note_path(ServiceNote.last.client, ServiceNote.last, locale: I18n.locale)
       )
     end
   end

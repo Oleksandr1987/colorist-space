@@ -47,19 +47,13 @@ RSpec.describe ServiceNote, type: :model do
     end
   end
 
-  describe "before_validation set_price_from_appointment" do
-    let(:service) { create(:service) }
+  describe "before_validation set_price_from_services" do
+    let(:service1) { create(:service, price: 200) }
+    let(:service2) { create(:service, price: 300) }
 
-    let(:appointment) do
-      create(:appointment, main_service: service)
-    end
-
-    before do
-      allow(appointment).to receive(:total_price).and_return(500)
-    end
-
-    it "copies price from appointment if price blank" do
-      note = build(:service_note, appointment: appointment, price: nil)
+    it "sets price from services if present" do
+      note = build(:service_note, price: nil)
+      note.services = [ service1, service2 ]
 
       note.valid?
 
@@ -67,11 +61,20 @@ RSpec.describe ServiceNote, type: :model do
     end
 
     it "does not override existing price" do
-      note = build(:service_note, appointment: appointment, price: 200)
+      note = build(:service_note, price: 100)
+      note.services = [ service1 ]
 
       note.valid?
 
-      expect(note.price).to eq(200)
+      expect(note.price).to eq(100)
+    end
+
+    it "keeps price nil if no services" do
+      note = build(:service_note, price: nil)
+
+      note.valid?
+
+      expect(note.price).to be_nil
     end
   end
 end

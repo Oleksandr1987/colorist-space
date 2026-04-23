@@ -237,3 +237,11 @@
 .hidden {
   display: none;
 }
+
+.slot-text.clickable {
+  cursor: pointer;
+}
+
+.slot-text.clickable:hover {
+  opacity: 0.7;
+}

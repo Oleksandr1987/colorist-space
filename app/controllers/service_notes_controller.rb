@@ -9,12 +9,27 @@ class ServiceNotesController < ApplicationController
     @service_note = @client.service_notes.build(user: current_user)
 
     @appointment = Appointment.find_by(id: params[:appointment_id])
+
+    if @appointment
+      @service_note.appointment = @appointment
+      @selected_service_ids = @appointment.service_ids
+    else
+      @selected_service_ids = []
+    end
   end
 
   def create
+    service_ids = params[:service_note][:service_ids]&.uniq
+
     @service_note = @client.service_notes.build(
       service_note_params.except(:photos).merge(user: current_user)
     )
+
+    if service_ids.present?
+      @service_note.service_ids = service_ids
+    elsif @service_note.appointment.present?
+      @service_note.service_ids = @service_note.appointment.service_ids
+    end
 
     if @service_note.save
       attach_photos
@@ -24,17 +39,20 @@ class ServiceNotesController < ApplicationController
         format.html { redirect_to edit_client_service_note_path(@client, @service_note) }
       end
     else
-      respond_to do |format|
-        format.turbo_stream { render :new, status: :unprocessable_entity }
-        format.html { render :new, status: :unprocessable_entity }
-      end
+      render :new, status: :unprocessable_entity
     end
   end
 
-  def edit; end
+  def edit
+    @selected_service_ids = @service_note.service_ids
+  end
 
   def update
-    if @service_note.update(service_note_params.except(:photos))
+    service_ids = params[:service_note][:service_ids]&.uniq || []
+
+    if @service_note.update(
+        service_note_params.except(:photos).merge(service_ids: service_ids)
+      )
       attach_photos
 
       respond_to do |format|
@@ -42,10 +60,7 @@ class ServiceNotesController < ApplicationController
         format.html { redirect_to edit_client_service_note_path(@client, @service_note) }
       end
     else
-      respond_to do |format|
-        format.turbo_stream { render :edit, status: :unprocessable_entity }
-        format.html { render :edit, status: :unprocessable_entity }
-      end
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -92,6 +107,7 @@ class ServiceNotesController < ApplicationController
     params.require(:service_note).permit(
       :service_type, :notes, :price,
       photos: [],
+      service_ids: [],
       formula_steps_attributes: [
         :id, :section, :oxidant, :time, :_destroy,
         formula_ingredients_attributes: {}

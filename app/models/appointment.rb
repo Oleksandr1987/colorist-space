@@ -62,6 +62,7 @@ class Appointment < ApplicationRecord
 
     {
       id: id,
+      client_id: client.id,
       client_name: client.full_name,
       service: service_name,
       phone: client.phone,
@@ -130,9 +131,9 @@ class Appointment < ApplicationRecord
     self.end_time = appointment_time + 30.minutes
   end
 
-  def set_service_name
-    self.service_name = combined_service_name
-  end
+  # def set_service_name
+  #   self.service_name = combined_service_name
+  # end
 
   def set_service_name
     selected_services = services

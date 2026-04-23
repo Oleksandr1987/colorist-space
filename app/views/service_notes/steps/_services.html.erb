@@ -1,25 +1,40 @@
 <div class="services-list" data-controller="service">
-  <div data-service-target="menu" class="hidden"></div>
-  <!-- hidden field для service_type -->
+
   <%= hidden_field_tag "service_note[service_type]", "", data: { service_target: "type" } %>
 
-  <% current_user.services.each do |s| %>
-    <label class="service-item">
+  <!-- SELECTED -->
+  <div class="selected-services" data-service-target="selected"></div>
 
-      <%= check_box_tag "service_ids[]",
+  <!-- ➕ BUTTON -->
+  <button type="button"
+          class="button add-service-btn"
+          data-action="click->service#toggleMenu">
+    ➕ Add service
+  </button>
+
+  <!-- DROPDOWN -->
+  <div class="service-dropdown hidden" data-service-target="menu">
+
+    <% current_user.services.each do |s| %>
+      <label class="service-item">
+
+        <%= check_box_tag "service_note[service_ids][]",
             s.id,
-            false,
+            @selected_service_ids.include?(s.id),
             data: {
-              action: "change->service#updateType",
-              service_type: s.category
+              action: "change->service#toggleService",
+              price: s.price,
+              name: s.name
             } %>
 
-      <div class="service-info">
-        <span class="service-name"><%= s.name %></span>
-        <span class="service-price"><%= s.price %>₴</span>
-      </div>
+        <div class="service-info">
+          <span><%= s.name %></span>
+          <span><%= s.price %></span>
+        </div>
 
-    </label>
-  <% end %>
+      </label>
+    <% end %>
+
+  </div>
 
 </div>

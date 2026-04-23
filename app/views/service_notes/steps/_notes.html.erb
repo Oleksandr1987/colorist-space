@@ -1,14 +1,28 @@
-<div class="notes-block">
+<div class="notes-block" data-controller="service-note">
 
   <div class="notes-date">
     <%= l(@appointment&.appointment_date || Date.current, format: :long) %>
   </div>
 
+  <!-- SERVICES (🔥 тепер тільки через JS) -->
+  <div class="notes-label">Services</div>
+
+  <div class="notes-services">
+    <div data-service-note-target="servicesList"></div>
+  </div>
+
   <!-- PRICE -->
   <div class="price-wrapper">
-    <%= f.number_field :price, placeholder: "0", class: "price-input" %>
-    <div class="currency">₴</div>
-    <div class="price-label">Service price. 0$</div>
+
+    <div class="price-display">
+      <span class="price-label">Service price:</span>
+      <span class="price-value" data-service-note-target="priceValue">
+        <%= @service_note.price || 0 %>
+      </span>
+    </div>
+
+    <%= f.hidden_field :price, data: { service_note_target: "priceInput" } %>
+
   </div>
 
   <!-- NOTES -->
