@@ -25,6 +25,10 @@ class ServiceNotesController < ApplicationController
       service_note_params.except(:photos).merge(user: current_user)
     )
 
+    if params[:appointment_id].present?
+      @service_note.appointment = Appointment.find(params[:appointment_id])
+    end
+
     if service_ids.present?
       @service_note.service_ids = service_ids
     elsif @service_note.appointment.present?

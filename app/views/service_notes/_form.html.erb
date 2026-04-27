@@ -1,5 +1,6 @@
 <div class="wizard-screen" data-controller="wizard">
   <%= form_with(model: [@client, @service_note], html: { multipart: true }) do |f| %>
+    <%= hidden_field_tag :appointment_id, params[:appointment_id] %>
     <!-- TOP BAR -->
     <div class="wizard-top">
       <button type="button" data-action="click->wizard#close">✕</button>

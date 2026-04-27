@@ -28,7 +28,9 @@
   <!-- NOTES -->
   <div class="notes-wrapper">
     <div class="notes-label">Notes</div>
-    <%= f.text_area :notes, class: "notes-textarea" %>
+    <%= f.text_area :notes,
+      value: @service_note.notes.presence || @appointment&.notes,
+      class: "notes-textarea" %>
   </div>
 
 </div>

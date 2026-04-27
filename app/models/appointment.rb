@@ -4,6 +4,7 @@ class Appointment < ApplicationRecord
 
   has_many :appointment_services_relations, inverse_of: :appointment, dependent: :destroy
   has_many :services, through: :appointment_services_relations
+  has_one :service_note, dependent: :destroy
 
   validates :appointment_date, :appointment_time, presence: true
   validates :appointment_time, uniqueness: { scope: :appointment_date, message: "is already booked for this date" }
@@ -16,6 +17,8 @@ class Appointment < ApplicationRecord
 
   before_validation :set_default_end_time, if: -> { appointment_time.present? && end_time.blank? }
   before_save :set_service_name
+  after_update :sync_service_note_client, if: :saved_change_to_client_id?
+  after_save :sync_service_note_notes
 
   scope :by_date, ->(date) { where(appointment_date: date) }
 
@@ -53,7 +56,11 @@ class Appointment < ApplicationRecord
   end
 
   def combined_service_name
-    services.map(&:subtype).join(" + ")
+    if service_note&.services&.any?
+      service_note.services.map(&:subtype).join(" + ")
+    else
+      services.map(&:subtype).join(" + ")
+    end
   end
 
   def as_calendar_json
@@ -131,10 +138,6 @@ class Appointment < ApplicationRecord
     self.end_time = appointment_time + 30.minutes
   end
 
-  # def set_service_name
-  #   self.service_name = combined_service_name
-  # end
-
   def set_service_name
     selected_services = services
 
@@ -146,8 +149,11 @@ class Appointment < ApplicationRecord
   end
 
   def valid_date
-    return unless appointment_date.present? && appointment_date < Date.today
-    errors.add(:appointment_date, "can't be in the past")
+    return unless appointment_date.present?
+
+    if new_record? && appointment_date < Date.today
+      errors.add(:appointment_date, "can't be in the past")
+    end
   end
 
   def valid_end_time
@@ -174,15 +180,18 @@ class Appointment < ApplicationRecord
     end
   end
 
-  # def must_have_main_service
-  #   selected_services = services
+  def sync_service_note_client
+    note = ServiceNote.find_by(appointment_id: id)
+    return unless note
 
-  #   if selected_services.empty? && service_ids.present?
-  #     selected_services = Service.where(id: service_ids)
-  #   end
+    note.update(client_id: client_id)
+  end
 
-  #   return if selected_services.any? { |s| s.service_type == "service" }
+  def sync_service_note_notes
+    return unless service_note.present?
 
-  #   errors.add(:base, "At least one main service must be selected")
-  # end
+    return if service_note.notes == notes
+
+    service_note.update_column(:notes, notes)
+  end
 end

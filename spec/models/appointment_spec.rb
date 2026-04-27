@@ -174,4 +174,58 @@ RSpec.describe Appointment, type: :model do
       expect(grouped["April 2026"]).to contain_exactly(appointment_in_second_month)
     end
   end
+
+  describe "callbacks: service_note sync" do
+    let(:appointment) { create(:appointment, user: user, client: client) }
+    let(:service_note) { create(:service_note, appointment: appointment, client: client, user: user) }
+
+    describe "#sync_service_note_client" do
+      it "updates service_note client when appointment client changes" do
+        service_note = create(:service_note, appointment: appointment, user: user, client: client)
+
+        new_client = create(:client, user: user)
+
+        appointment.update_column(:client_id, new_client.id)
+
+        appointment.send(:sync_service_note_client)
+
+        expect(service_note.reload.client).to eq(new_client)
+      end
+
+      it "does nothing if no service_note" do
+        appointment_without_note = create(:appointment, user: user, client: client)
+
+        expect {
+          appointment_without_note.update!(client: create(:client, user: user))
+        }.not_to raise_error
+      end
+    end
+
+    describe "#sync_service_note_notes" do
+      it "updates service_note notes after save" do
+        service_note.update_column(:notes, nil)
+
+        appointment.update!(notes: "Updated from appointment")
+
+        expect(service_note.reload.notes).to eq("Updated from appointment")
+      end
+
+      it "does not update if notes are the same" do
+        service_note.update!(notes: "Same note")
+        appointment.update!(notes: "Same note")
+
+        expect {
+          appointment.save!
+        }.not_to change { service_note.reload.notes }
+      end
+
+      it "does nothing if no service_note" do
+        appointment_without_note = create(:appointment, user: user, client: client, notes: "Test")
+
+        expect {
+          appointment_without_note.save!
+        }.not_to raise_error
+      end
+    end
+  end
 end

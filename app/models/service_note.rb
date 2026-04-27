@@ -13,6 +13,11 @@ class ServiceNote < ApplicationRecord
   scope :for_client, ->(client_id) { where(client_id: client_id).order(created_at: :desc) }
 
   before_validation :set_price_from_services
+  before_validation :copy_notes_from_appointment, on: :create
+
+  after_save :sync_appointment_services
+  after_save :sync_appointment_notes
+  after_destroy :clear_appointment_services
 
   def short_title
     case service_type
@@ -44,5 +49,38 @@ class ServiceNote < ApplicationRecord
     return if price.present?
     return if services.empty?
     self.price = services.sum(&:price)
+  end
+
+  def copy_notes_from_appointment
+    return if notes.present?
+    return unless appointment&.notes.present?
+
+    self.notes = appointment.notes
+  end
+
+  def sync_appointment_services
+    return unless appointment.present?
+
+    appointment.services = services
+
+    appointment.update_column(
+      :service_name,
+      services.map(&:subtype).join(" + ")
+    )
+  end
+
+  def sync_appointment_notes
+    return unless appointment.present?
+
+    return if appointment.notes == notes
+
+    appointment.update_column(:notes, notes)
+  end
+
+  def clear_appointment_services
+    return unless appointment.present?
+
+    appointment.services = []
+    appointment.update_column(:service_name, nil)
   end
 end
