@@ -1,3 +1,4 @@
+// app/javascript/controllers/phone_mask_controller.js
 import { Controller } from "@hotwired/stimulus"
 import Inputmask from "inputmask"
 

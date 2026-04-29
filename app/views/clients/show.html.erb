@@ -1,4 +1,6 @@
-<div data-controller="client-profile photo" class="client-profile-container">
+<div data-controller="client-profile photo"
+     data-client-profile-id-value="<%= @client.id %>" 
+     class="client-profile-container">
 
   <!-- Header -->
   <div class="client-header">
@@ -145,8 +147,110 @@
 
     <div class="client-info">
 
-      <p><strong><%= t("clients.show.details.phone") %>:</strong>
-        <%= @client.phone %></p>
+      <p><strong><%= t("clients.show.details.phone") %>:</strong></p>
+        <% main_phone = @client.phone %>
+        <ul class="phones-list">
+
+          <!-- MAIN PHONE -->
+          <li class="phone-item">
+
+            <a href="tel:<%= main_phone %>" class="phone-link full">
+
+              <!-- ICON -->
+              <svg xmlns="http://www.w3.org/2000/svg"
+                  width="18" height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-phone phone-icon">
+                <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/>
+              </svg>
+
+              <%= main_phone %>
+            </a>
+
+            <!-- COPY -->
+            <button type="button"
+                    class="copy-btn"
+                    data-action="click->client-profile#copyPhone"
+                    data-phone="<%= @client.phone %>">
+
+              <svg xmlns="http://www.w3.org/2000/svg"
+                  width="18" height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-copy">
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+              </svg>
+
+            </button>
+          </li>
+
+          <!-- ADDITIONAL PHONES -->
+          <% @client.client_phones.each do |phone| %>
+            <% next if phone.phone == main_phone %>
+            <li class="phone-item">
+
+              <a href="tel:<%= phone.phone %>" class="phone-link full">
+
+                <!-- ICON -->
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    width="18" height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-phone phone-icon">
+                  <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/>
+                </svg>
+
+                <%= phone.phone %>
+              </a>
+
+              <!-- COPY -->
+              <button type="button"
+                      class="copy-btn"
+                      data-action="click->client-profile#copyPhone"
+                      data-phone="<%= phone.phone %>">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    width="18" height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-copy">
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                </svg>
+
+              </button>
+
+              <!-- ⭐ MAKE PRIMARY -->
+              <button
+                type="button"
+                class="make-primary-btn"
+                data-action="click->client-profile#makePrimary"
+                data-phone="<%= phone.phone %>">
+                ⭐
+              </button>
+
+            </li>
+          <% end %>
+
+        </ul>
 
       <p><strong><%= t("clients.show.details.hair_type") %>:</strong>
         <%= t("clients.hair.types.#{@client.hair_type.downcase}") if @client.hair_type %></p>

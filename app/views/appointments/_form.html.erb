@@ -92,7 +92,6 @@
           step: 300,
           class: "form-input",
           data: {
-            controller: "appointment",
             appointment_target: "appointmentTime",
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
@@ -105,7 +104,6 @@
           step: 300,
           class: "form-input",
           data: {
-            controller: "appointment",
             appointment_target: "endTime",
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
@@ -183,7 +181,9 @@
 
     <!-- Submit -->
     <div class="form-actions" style="height: 80px;"></div>
-    <%= f.submit t("appointments.form.save"), class: "floating-save-button" %>
+    <%= f.submit t("appointments.form.save"),
+      class: "floating-save-button",
+      data: { "appointment-target": "saveButton" } %>
 
     <!-- Modals -->
     <%= render "appointments/modals/service_modal" %>

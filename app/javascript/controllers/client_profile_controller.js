@@ -4,6 +4,7 @@ import { Controller } from "@hotwired/stimulus"
 // Connects to data-controller="client-profile"
 export default class extends Controller {
   static targets = ["tab", "tabContent", "menu", "futureAppointments", "pastAppointments"]
+  static values = { id: Number }
 
   connect() {
     this.showTabByName("styles") // Default tab on page load
@@ -38,6 +39,33 @@ export default class extends Controller {
 
     event.currentTarget.parentElement.querySelectorAll("button").forEach(btn => {
       btn.classList.toggle("active", btn === event.currentTarget)
+    })
+  }
+
+  copyPhone(event) {
+    const phone = event.currentTarget.dataset.phone
+
+    navigator.clipboard.writeText(phone)
+
+    event.currentTarget.classList.add("copied")
+
+    setTimeout(() => {
+      event.currentTarget.classList.remove("copied")
+    }, 1000)
+  }
+
+  makePrimary(event) {
+    const phone = event.currentTarget.dataset.phone
+
+    fetch(`/clients/${this.idValue}/make_primary`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
+      },
+      body: JSON.stringify({ phone: phone })
+    }).then(() => {
+      window.location.reload()
     })
   }
 }

@@ -24,6 +24,20 @@ class ClientsController < ApplicationController
   end
 
   def create
+    normalized_phone = PhoneValidator.normalize(client_params[:phone])
+
+    existing_client =
+      current_user.clients.find_by(phone: normalized_phone) ||
+      Client.joins(:client_phones)
+          .where(client_phones: { phone: normalized_phone })
+          .find_by(user_id: current_user.id)
+
+    if existing_client
+      redirect_to edit_client_path(existing_client),
+        alert: "Client with this phone already exists. You can update their info."
+      return
+    end
+
     @client = current_user.clients.build(client_params)
 
     if @client.save
@@ -79,6 +93,14 @@ class ClientsController < ApplicationController
       notice: "All photos deleted."
   end
 
+  def make_primary
+    @client = current_user.clients.find(params[:id])
+
+    @client.make_primary!(params[:phone])
+
+    head :ok
+  end
+
   private
 
   def set_client
@@ -96,7 +118,8 @@ class ClientsController < ApplicationController
       :hair_density,
       :scalp_condition,
       :note,
-      photos: []
+      photos: [],
+      client_phones_attributes: [ :id, :phone, :_destroy ]
     )
   end
 end

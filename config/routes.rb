@@ -57,6 +57,7 @@ Rails.application.routes.draw do
     end
 
     member do
+      patch :make_primary
       delete "photos/:photo_id", to: "clients#delete_photo", as: "delete_photo"
       delete "delete_all_photos", to: "clients#delete_all_photos"
     end

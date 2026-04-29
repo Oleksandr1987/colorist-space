@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_22_174902) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_28_083957) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -63,6 +63,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_174902) do
     t.index ["user_id"], name: "index_appointments_on_user_id"
   end
 
+  create_table "client_phones", force: :cascade do |t|
+    t.integer "client_id", null: false
+    t.datetime "created_at", null: false
+    t.string "phone", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_client_phones_on_client_id"
+    t.index ["phone"], name: "index_client_phones_on_phone", unique: true
+  end
+
   create_table "clients", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "first_name", null: false
@@ -76,6 +85,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_174902) do
     t.string "scalp_condition"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.index ["user_id", "phone"], name: "index_clients_on_user_id_and_phone", unique: true
     t.index ["user_id"], name: "index_clients_on_user_id"
   end
 
@@ -188,6 +198,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_174902) do
   add_foreign_key "appointment_services_relations", "services"
   add_foreign_key "appointments", "clients"
   add_foreign_key "appointments", "users"
+  add_foreign_key "client_phones", "clients"
   add_foreign_key "clients", "users"
   add_foreign_key "expenses", "users"
   add_foreign_key "formula_ingredients", "formula_steps"

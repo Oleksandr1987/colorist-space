@@ -6,8 +6,16 @@ class Client < ApplicationRecord
   has_many_attached :photos
   has_many :appointments, dependent: :destroy
   has_many :service_notes, dependent: :destroy
+  has_many :client_phones, dependent: :destroy
+  accepts_nested_attributes_for :client_phones, allow_destroy: true
 
   validates :first_name, :last_name, presence: true
+  validates :phone, uniqueness: {
+    scope: :user_id,
+    message: "Client with this phone number already exists"
+  }
+
+  before_save :ensure_primary_phone
 
   scope :alphabetical, -> { order("LOWER(first_name)") }
 
@@ -58,5 +66,24 @@ class Client < ApplicationRecord
 
   def decorated_photos
     photos.map { |p| PhotoDecorator.decorate(p) }
+  end
+
+  def make_primary!(new_phone)
+    transaction do
+      client_phones.create!(phone: phone)
+
+      update!(phone: new_phone)
+
+      client_phones.where(phone: new_phone).destroy_all
+    end
+  end
+
+  private
+
+  def ensure_primary_phone
+    if phone.blank? && client_phones.any?
+      self.phone = client_phones.first.phone
+      client_phones.first.mark_for_destruction
+    end
   end
 end
