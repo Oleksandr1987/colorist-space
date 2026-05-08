@@ -104,6 +104,12 @@ export default class extends Controller {
     const empty = this.element.querySelector(".empty-step")
     if (empty) empty.remove()
 
+    this.containerTarget.classList.remove("hidden")
+
+    if (this.hasAddStepTarget) {
+      this.addStepTarget.classList.remove("hidden")
+    }
+
     this.updateStepNumbers()
     this.containerTarget.classList.remove("hidden")
   }
@@ -150,9 +156,18 @@ export default class extends Controller {
 
     const visibleSteps = this.containerTarget.querySelectorAll(".formula-card:not([style*='display: none'])")
 
-      if (visibleSteps.length === 0) {
-        this.containerTarget.classList.add("hidden")
+    if (visibleSteps.length === 0) {
+
+      if (this.hasAddStepTarget) {
+        this.addStepTarget.classList.remove("hidden")
       }
+
+      const empty = this.element.querySelector(".empty-step")
+
+      if (empty) {
+        empty.classList.remove("hidden")
+      }
+    }
   }
 
   openColorModal(event) {

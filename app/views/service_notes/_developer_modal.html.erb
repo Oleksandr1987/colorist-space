@@ -12,10 +12,10 @@
     </button>
 
     <div class="dev-body">
-      <h2>Add Developer</h2>
+      <h2>Add Oxidant</h2>
 
       <div class="dev-preparations">
-        <label>Select preparation</label>
+        <label>Select oxidant</label>
 
         <select data-developer-target="serviceSelect"
                 data-action="change->developer#selectService"
@@ -54,18 +54,24 @@
           </button>
         <% end %>
 
-        <div class="dev-ratio-custom">
+        <div class="dev-ratio-custom"
+            data-developer-target="customRatio">
+
           <input type="text"
                  inputmode="decimal"
                  placeholder="1:"
                  value="1:"
                  data-developer-target="customInput"
-                 data-action="input->developer#normalizeCustomRatio" />
+                 data-action="
+                  focus->developer#highlightCustomRatio
+                  input->developer#normalizeCustomRatio
+                 " />
 
           <button type="button"
                   data-action="click->developer#addCustom">
             + ADD
           </button>
+
         </div>
       </div>
 
@@ -74,9 +80,14 @@
       </div>
 
       <div class="dev-amount">
-        <label>Developer amount:</label>
+        <label>Oxidant amount:</label>
         <div class="dev-amount-row">
-          <span data-developer-target="amountDisplay">0g</span>
+          <input type="text"
+                 value="0"
+                 class="dev-amount-input"
+                 data-developer-target="amountInput"
+                 data-action="input->developer#manualAmountChanged">
+            <span>g</span>
         </div>
       </div>
     </div>

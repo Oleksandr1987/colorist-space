@@ -27,7 +27,21 @@ class FormulaStep < ApplicationRecord
   end
 
   def oxidant_data
-    oxidant.is_a?(Hash) ? oxidant : {}
+    return {} if oxidant.blank?
+
+    data =
+      case oxidant
+      when String
+        JSON.parse(oxidant) rescue {}
+      when Hash
+        oxidant
+      else
+        {}
+      end
+
+    return {} unless data["service_id"].present?
+
+    data
   end
 
   def oxidant_amount

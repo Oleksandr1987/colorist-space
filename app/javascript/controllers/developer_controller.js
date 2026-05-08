@@ -8,14 +8,16 @@ export default class extends Controller {
     "newName",
     "newPrice",
     "saveBtn",
-    "amountDisplay",
-    "customInput"
+    "amountInput",
+    "customInput",
+    "customRatio"
   ]
 
   connect() {
     this.selectedServiceId = null
     this.selectedRatio = null
     this.colorAmount = 0
+    this.manualOverride = false
 
     this.initializeState()
 
@@ -49,7 +51,14 @@ export default class extends Controller {
   initializeState() {
     if (!this.hasInputTarget) return
 
-    const hasValue = this.inputTarget.value && this.inputTarget.value.length > 0
+    let hasValue = false
+
+    try {
+      const parsed = JSON.parse(this.inputTarget.value || "{}")
+      hasValue = !!parsed.service_id
+    } catch {
+      hasValue = false
+    }
 
     const addBtn = this.element.querySelector(".add-dev-btn")
 
@@ -59,7 +68,7 @@ export default class extends Controller {
   }
 
   // ---------------- MODAL ----------------
-  openModal() {
+  openModal(isEdit = false) {
     if (this.hasModalTarget) {
       this.modalTarget.classList.remove("hidden")
     }
@@ -73,7 +82,26 @@ export default class extends Controller {
     })
 
     this.colorAmount = total
+
+    if (isEdit && this.inputTarget.value) {
+      const data = JSON.parse(this.inputTarget.value)
+
+      this.selectedServiceId = data.service_id
+      this.selectedPrice = parseFloat(data.price || 0)
+      this.selectedRatio = data.ratio
+
+      this.serviceSelectTarget.value = data.service_id
+
+      this.highlightRatio(data.ratio)
+
+      this.amountInputTarget.value = data.amount || 0
+    }
+
     this.calculateAmount()
+  }
+
+  edit() {
+    this.openModal(true)
   }
 
   closeModal() {
@@ -87,6 +115,8 @@ export default class extends Controller {
     if (this.hasSaveBtnTarget) {
       this.saveBtnTarget.disabled = true
     }
+
+    this.initializeState()
   }
 
   // ---------------- SELECT SERVICE ----------------
@@ -104,6 +134,7 @@ export default class extends Controller {
   // ---------------- RATIO ----------------
   setRatio(e) {
     this.selectedRatio = e.currentTarget.dataset.ratio
+    this.manualOverride = false
 
     e.currentTarget.parentElement
       .querySelectorAll("button")
@@ -111,7 +142,12 @@ export default class extends Controller {
 
     e.currentTarget.classList.add("active")
 
+    if (this.hasCustomRatioTarget) {
+      this.customRatioTarget.classList.remove("active")
+    }
+
     this.calculateAmount()
+    this.enableSave()
   }
 
   addCustom() {
@@ -140,6 +176,9 @@ export default class extends Controller {
     this.customInputTarget.value = this.selectedRatio
 
     this.calculateAmount()
+
+    this.highlightCustomRatio()
+
     this.enableSave()
   }
 
@@ -156,13 +195,41 @@ export default class extends Controller {
     }
 
     this.customInputTarget.value = value
+
+    this.element
+      .querySelectorAll(".dev-ratio button")
+      .forEach(button => button.classList.remove("active"))
+
+    this.highlightCustomRatio()
+  }
+
+  updateRatioPreview() {
+    this.element
+      .querySelectorAll(".dev-ratio button")
+      .forEach(button => button.classList.remove("active"))
+
+    this.customInputTarget.value = this.selectedRatio
+  }
+
+  highlightCustomRatio() {
+    if (!this.hasCustomRatioTarget) return
+
+    this.element
+      .querySelectorAll(".dev-ratio > button")
+      .forEach(button => button.classList.remove("active"))
+
+    this.customRatioTarget.classList.add("active")
   }
 
   // ---------------- ENABLE SAVE ----------------
   enableSave() {
-    if (this.hasSaveBtnTarget) {
-      this.saveBtnTarget.disabled = false
-    }
+    if (!this.hasSaveBtnTarget) return
+
+    const canSave =
+      this.selectedServiceId &&
+      this.selectedRatio
+
+    this.saveBtnTarget.disabled = !canSave
   }
 
   // ---------------- CALCULATE ----------------
@@ -172,6 +239,9 @@ export default class extends Controller {
 
     this.colorAmount = event.detail.total || 0
 
+    if (!this.manualOverride) {
+      this.calculateAmount()
+    }
     const amount = this.calculateAmount()
 
     if (!this.selectedServiceId) return
@@ -191,21 +261,41 @@ export default class extends Controller {
   }
 
   calculateAmount() {
+    if (this.manualOverride) {
+      return parseFloat(this.amountInputTarget.value || 0)
+    }
+
     if (!this.selectedRatio) {
-      if (this.hasAmountDisplayTarget) {
-        this.amountDisplayTarget.textContent = "0g"
-      }
+      this.amountInputTarget.value = 0
       return 0
     }
 
     const ratio = parseFloat(this.selectedRatio.split(":")[1])
+
     const result = Math.round(this.colorAmount * ratio)
 
-    if (this.hasAmountDisplayTarget) {
-      this.amountDisplayTarget.textContent = `${result}g`
-    }
+    this.amountInputTarget.value = result
 
     return result
+  }
+
+  manualAmountChanged() {
+    this.manualOverride = true
+
+    let amount = parseFloat(
+      this.amountInputTarget.value.replace(",", ".")
+    )
+
+    if (isNaN(amount)) amount = 0
+
+    const ratio = this.colorAmount > 0
+      ? (amount / this.colorAmount).toFixed(2)
+      : 0
+
+    this.selectedRatio = `1:${ratio}`
+
+    this.updateRatioPreview()
+    this.highlightCustomRatio()
   }
 
   // ---------------- DISPLAY ----------------
@@ -237,7 +327,9 @@ export default class extends Controller {
   save() {
     if (!this.selectedServiceId) return
 
-    const amount = this.calculateAmount()
+    const amount = parseFloat(
+      this.amountInputTarget.value || 0
+    )
 
     const result = {
       service_id: this.selectedServiceId,
@@ -267,12 +359,21 @@ export default class extends Controller {
       this.inputTarget.value = ""
     }
 
+    this.manualOverride = false
+
     if (this.hasDisplayTarget) {
       this.displayTarget.innerHTML = ""
     }
 
     const addBtn = this.element.querySelector(".add-dev-btn")
     if (addBtn) addBtn.style.display = "inline-flex"
+
+    this.selectedServiceId = null
+    this.selectedRatio = null
+
+    if (this.hasInputTarget) {
+      this.inputTarget.value = ""
+    }
 
     const step = this.element.closest(".formula-card")
 
@@ -314,7 +415,13 @@ export default class extends Controller {
     this.selectedPrice = parseFloat(data.price || 0)
     this.selectedRatio = data.ratio
 
-    const amount = this.calculateAmount()
+    let amount
+
+    if (this.manualOverride) {
+      amount = parseFloat(this.amountInputTarget.value || 0)
+    } else {
+      amount = this.calculateAmount()
+    }
 
     const updated = {
       service_id: this.selectedServiceId,
@@ -387,5 +494,16 @@ export default class extends Controller {
 
   stopPropagation(event) {
     event.stopPropagation()
+  }
+
+  highlightRatio(ratio) {
+    this.element
+      .querySelectorAll(".dev-ratio button")
+      .forEach(button => {
+        button.classList.toggle(
+          "active",
+          button.dataset.ratio === ratio
+        )
+      })
   }
 }

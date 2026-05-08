@@ -23,6 +23,10 @@ class ServicePolicy < ApplicationPolicy
     create?
   end
 
+  def create_care_product?
+    create?
+  end
+
   private
 
   def owns_record?

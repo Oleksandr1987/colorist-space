@@ -132,7 +132,7 @@
                 <button type="button"
                         class="add-btn-small add-dev-btn"
                         data-action="click->developer#openModal"
-                        style="<%= 'display: none;' if step_form.object.oxidant.present? %>">
+                        style="<%= 'display: none;' if step_form.object.oxidant_data&.dig("service_id").present? %>">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 </button>
               </div>
@@ -143,8 +143,8 @@
               <div class="dev-display"
                    data-developer-target="display">
 
-                <% if step_form.object.oxidant.present? %>
-                  <% data = step_form.object.oxidant || {} %>
+                <% if step_form.object.oxidant_data&.dig("service_id").present? %>
+                  <% data = step_form.object.oxidant_data || {} %>
                   <% service = current_user.services.find_by(id: data["service_id"]) %>
 
                   <div class="dev-row-display">
@@ -165,11 +165,35 @@
                         <span class="dev-amount"><%= data["amount"] %>g</span>
                       <% end %>
 
-                      <button type="button"
-                              class="remove"
-                              data-action="click->developer#remove">
-                        ×
-                      </button>
+                      <div class="dev-actions"
+                          data-controller="popover">
+
+                        <button type="button"
+                                class="edit-btn"
+                                data-action="click->popover#toggle">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z" />
+                            <path d="M16 5l3 3" />
+                          </svg>
+                        </button>
+
+                        <div class="popover-menu hidden"
+                            data-popover-target="menu">
+
+                          <button type="button"
+                                  data-action="click->developer#edit">
+                            Edit
+                          </button>
+
+                          <button type="button"
+                                  data-action="click->developer#remove">
+                            Delete
+                          </button>
+
+                        </div>
+                      </div>
                     </div>
 
                   </div>

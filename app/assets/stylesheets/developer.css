@@ -43,3 +43,71 @@
   font-size: 18px;
   color: #999;
 }
+
+.dev-amount-input {
+  width: 70px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  background: transparent;
+  font-size: 18px;
+  text-align: center;
+}
+
+.dev-ratio button.active {
+  background: #111;
+  color: white;
+}
+
+.dev-actions {
+  position: relative;
+}
+
+.edit-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+}
+
+.dev-actions .popover-menu {
+  position: absolute;
+  right: 0;
+  top: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+  padding: 8px;
+  z-index: 100;
+}
+
+.dev-ratio-custom {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dev-ratio-custom.active {
+  border-radius: 12px;
+  background: #111;
+  padding: 4px;
+}
+
+.dev-ratio-custom.active input {
+  color: white;
+  background: transparent;
+  border: none;
+  outline: none;
+  caret-color: white;
+}
+
+.dev-ratio-custom input::placeholder {
+  color: #999;
+}
+
+.dev-ratio-custom.active input::placeholder {
+  color: rgba(255,255,255,.7);
+}
+
+.dev-ratio-custom.active button {
+  background: white;
+  color: black;
+}
