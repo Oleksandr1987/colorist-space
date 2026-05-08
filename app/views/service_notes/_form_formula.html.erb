@@ -137,40 +137,36 @@
                 </button>
               </div>
 
-              <%= step_form.hidden_field :oxidant, data: { developer_target: "input" } %>
+              <%= step_form.hidden_field :oxidant,
+                    value: step_form.object.oxidant_data.to_json,
+                    data: { developer_target: "input" } %>
               <div class="dev-display"
-                data-developer-target="display">
+                   data-developer-target="display">
 
                 <% if step_form.object.oxidant.present? %>
-                  <% parts = step_form.object.oxidant.split("|") %>
-                  <% value = parts[0] %>
-                  <% ratio = parts[1] %>
-                  <% amount = parts[2] %>
-
-                  <% if amount.blank? && ratio.present? %>
-                    <% total = step_form.object.formula_ingredients.sum { |i| i.amount.to_f } %>
-                    <% ratio_value = ratio.split(":")[1].to_f rescue 0 %>
-                    <% calculated = (total * ratio_value).round %>
-                    <% amount = calculated if calculated > 0 %>
-                  <% end %>
+                  <% data = step_form.object.oxidant || {} %>
+                  <% service = current_user.services.find_by(id: data["service_id"]) %>
 
                   <div class="dev-row-display">
-                    
-                    <div class="dev-left">
-                      <span class="dev-percent"><%= value %></span>
 
-                      <% if ratio.present? %>
+                    <div class="dev-left">
+                      <span class="dev-name">
+                        <%= service&.subtype || "Unknown" %>
+                      </span>
+
+                      <% if data["ratio"].present? %>
                         <span class="dev-separator">|</span>
-                        <span class="dev-ratio"><%= ratio %></span>
+                        <span class="dev-ratio"><%= data["ratio"] %></span>
                       <% end %>
                     </div>
 
                     <div class="dev-right">
-                      <% if amount.present? %>
-                        <span class="dev-amount"><%= amount %>g</span>
+                      <% if data["amount"].present? %>
+                        <span class="dev-amount"><%= data["amount"] %>g</span>
                       <% end %>
 
-                      <button type="button" class="remove"
+                      <button type="button"
+                              class="remove"
                               data-action="click->developer#remove">
                         ×
                       </button>
@@ -178,7 +174,6 @@
 
                   </div>
                 <% end %>
-
 
               </div>
             </div>
@@ -191,7 +186,9 @@
                   class="lucide lucide-clock9-icon lucide-clock-9">
                   <circle cx="12" cy="12" r="10"/><path d="M12 6v6H8"/></svg> TIME</span>
                 <div class="time-input">
-                  <%= step_form.number_field :time,
+                  <%= step_form.text_field :time,
+                      inputmode: "numeric",
+                      pattern: "[0-9]*",
                       class: "input-line",
                       placeholder: "" %>
                   <span class="time-unit">min</span>
@@ -201,108 +198,17 @@
 
             </div>
 
-            <div class="dev-modal hidden"
-                data-developer-target="modal"
-                data-action="click->developer#closeOnOverlay">
-
-              <div class="dev-modal-content"
-                data-action="click->developer#stopPropagation">
-
-              <!-- CLOSE -->
-              <button type="button"
-                      class="dev-close"
-                      data-action="click->developer#closeModal">
-                ✕
-              </button>
-
-              <div class="dev-body">
-
-                <h2>Add Developer</h2>
-
-                <!-- SWITCH -->
-                <div class="dev-switch">
-                  <button type="button"
-                    data-action="click->developer#setPercent"
-                    data-developer-target="percentBtn"
-                    class="active">%
-                  </button>
-
-                  <button type="button"
-                    data-action="click->developer#setVol"
-                    data-developer-target="volBtn">vol.
-                  </button>
-                </div>
-
-                <!-- PRESETS -->
-                <div class="dev-group" data-developer-target="percentGroup">
-                  <% ["1.5%", "3%", "4.5%", "6%", "9%", "12%"].each do |v| %>
-                    <button type="button"
-                      data-action="click->developer#select"
-                      data-value="<%= v %>"><%= v %>
-                    </button>
-                  <% end %>
-                </div>
-
-                <div class="dev-group hidden" data-developer-target="volGroup">
-                  <% ["5vol.", "10vol.", "15vol.", "20vol.", "30vol.", "40vol."].each do |v| %>
-                    <button type="button"
-                      data-action="click->developer#select"
-                      data-value="<%= v %>"><%= v %>
-                    </button>
-                  <% end %>
-                </div>
-
-                <!-- ADD CUSTOM -->
-                <div class="dev-add">
-                  <input type="text"
-                        inputmode="decimal"
-                        pattern="[0-9]*[.,]?[0-9]*"
-                        placeholder="Enter value"
-                        data-developer-target="customInput" />
-
-                  <button type="button"
-                          data-action="click->developer#addCustom">+ ADD
-                  </button>
-                </div>
-
-                <!-- RATIO -->
-                <div class="dev-ratio">
-                  <% ["1:1", "1:1.5", "1:2", "1:3"].each do |r| %>
-                    <button type="button"
-                            data-action="click->developer#setRatio"
-                            data-ratio="<%= r %>"><%= r %>
-                    </button>
-                  <% end %>
-                </div>
-
-                <div class="dev-amount">
-                  <label>Developer amount:</label>
-                  <div class="dev-amount-row">
-                    <span data-developer-target="amountDisplay">0g</span>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- SAVE -->
-              <button type="button"
-                class="dev-save"
-                data-action="click->developer#save"
-                data-developer-target="saveBtn"
-                disabled>
-                SAVE
-              </button>
-
-              </div>
-            </div>
+            <%= render "service_notes/developer_modal" %>
 
           </div>
         </div>
       </div>
     <% end %>
      <!-- ADD STEP -->
-     <% unless @service_note.formula_steps.empty? %>
-    <div class="formula-add-step"
+    <% add_step_hidden = @service_note.new_record? && @service_note.formula_steps.empty? %>
+
+    <div class="formula-add-step <%= 'hidden' if add_step_hidden %>"
+        data-formula-target="addStep"
         data-controller="collapse">
 
       <!-- BUTTON -->
@@ -340,7 +246,6 @@
         </div>
       </div>
     </div>
-    <% end %>
 
   </div>
   <%= render "service_notes/empty_formula_step" if @service_note.formula_steps.empty? %>

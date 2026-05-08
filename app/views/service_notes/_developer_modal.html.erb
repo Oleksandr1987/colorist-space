@@ -1,0 +1,92 @@
+<div class="dev-modal hidden"
+     data-developer-target="modal"
+     data-action="click->developer#closeOnOverlay">
+
+  <div class="dev-modal-content"
+       data-action="click->developer#stopPropagation">
+
+    <button type="button"
+            class="dev-close"
+            data-action="click->developer#closeModal">
+      ✕
+    </button>
+
+    <div class="dev-body">
+      <h2>Add Developer</h2>
+
+      <div class="dev-preparations">
+        <label>Select preparation</label>
+
+        <select data-developer-target="serviceSelect"
+                data-action="change->developer#selectService"
+                class="input-line">
+          <option value="">Choose...</option>
+
+          <% current_user.services.where(service_type: "preparation").each do |prep| %>
+            <option value="<%= prep.id %>" data-price="<%= prep.price %>">
+              <%= prep.subtype %> (<%= prep.price %> ₴ / <%= prep.unit %>)
+            </option>
+          <% end %>
+        </select>
+
+        <div class="dev-add-preparation">
+          <input type="text"
+                 placeholder="New preparation name"
+                 data-developer-target="newName">
+
+          <input type="number"
+                 placeholder="Price"
+                 data-developer-target="newPrice">
+
+          <button type="button"
+                  data-action="click->developer#createPreparation">
+            + Create
+          </button>
+        </div>
+      </div>
+
+      <div class="dev-ratio">
+        <% ["1:1", "1:1.5", "1:2", "1:3"].each do |r| %>
+          <button type="button"
+                  data-action="click->developer#setRatio"
+                  data-ratio="<%= r %>">
+            <%= r %>
+          </button>
+        <% end %>
+
+        <div class="dev-ratio-custom">
+          <input type="text"
+                 inputmode="decimal"
+                 placeholder="1:"
+                 value="1:"
+                 data-developer-target="customInput"
+                 data-action="input->developer#normalizeCustomRatio" />
+
+          <button type="button"
+                  data-action="click->developer#addCustom">
+            + ADD
+          </button>
+        </div>
+      </div>
+
+      <div class="dev-hint">
+        <%= t("formula.ratio_hint_html").html_safe %>
+      </div>
+
+      <div class="dev-amount">
+        <label>Developer amount:</label>
+        <div class="dev-amount-row">
+          <span data-developer-target="amountDisplay">0g</span>
+        </div>
+      </div>
+    </div>
+
+    <button type="button"
+            class="dev-save"
+            data-action="click->developer#save"
+            data-developer-target="saveBtn"
+            disabled>
+      SAVE
+    </button>
+  </div>
+</div>

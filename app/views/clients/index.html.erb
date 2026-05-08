@@ -7,7 +7,7 @@
            class="search-input compact">
 
     <div class="client-list indexed">
-      <% if @clients.any? %>
+      <% if @clients.present? %>
         <% @clients.group_by { |c| c.first_name[0].upcase }.sort.each do |letter, list| %>
           <div class="client-group" data-client-search-target="group">
             <div class="letter-index"><%= letter %></div>

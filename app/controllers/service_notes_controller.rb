@@ -6,16 +6,15 @@ class ServiceNotesController < ApplicationController
   def show; end
 
   def new
-    @service_note = @client.service_notes.build(user: current_user)
+    @appointment = current_user.appointments.find(params[:appointment_id])
 
-    @appointment = Appointment.find_by(id: params[:appointment_id])
+    @service_note = @client.service_notes.build(
+      user: current_user,
+      appointment: @appointment
+    )
 
-    if @appointment
-      @service_note.appointment = @appointment
-      @selected_service_ids = @appointment.service_ids
-    else
-      @selected_service_ids = []
-    end
+    @selected_service_ids = @appointment.service_ids
+    @preparations = current_user.services.where(service_type: "preparation")
   end
 
   def create
@@ -48,7 +47,10 @@ class ServiceNotesController < ApplicationController
   end
 
   def edit
+    @appointment = @service_note.appointment
+
     @selected_service_ids = @service_note.service_ids
+    @preparations = current_user.services.where(service_type: "preparation")
   end
 
   def update
@@ -64,6 +66,10 @@ class ServiceNotesController < ApplicationController
         format.html { redirect_to edit_client_service_note_path(@client, @service_note) }
       end
     else
+      @appointment = @service_note.appointment
+      @selected_service_ids = service_ids
+      @preparations = current_user.services.where(service_type: "preparation")
+
       render :edit, status: :unprocessable_entity
     end
   end
@@ -110,6 +116,7 @@ class ServiceNotesController < ApplicationController
   def service_note_params
     params.require(:service_note).permit(
       :service_type, :notes, :price,
+      care_products: [ :name, :price, :qty ],
       photos: [],
       service_ids: [],
       formula_steps_attributes: [

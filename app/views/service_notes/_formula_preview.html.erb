@@ -1,4 +1,4 @@
-<% @service_note.formula_steps.each do |step| %>
+<% service_note.formula_steps.each do |step| %>
 
   <div class="formula-preview-card">
 
@@ -34,13 +34,8 @@
 
     <!-- DEVELOPER -->
     <% if step.oxidant.present? %>
-      <% parts = step.oxidant.split("|") %>
-      <% value = parts[0] %>
-      <% ratio = parts[1] %>
-
-      <% total_color = step.formula_ingredients.sum { |i| i.amount.to_f } %>
-      <% ratio_val = ratio&.split(":")&.last.to_f %>
-      <% dev_amount = (total_color * ratio_val).round %>
+      <% data = step.oxidant || {} %>
+      <% service = step.oxidant_service %>
 
       <div class="formula-preview-group">
 
@@ -56,8 +51,11 @@
 
         <div class="formula-content">
           <div class="formula-row">
-            <span><%= value %> <%= ratio %></span>
-            <span><%= dev_amount %>g</span>
+            <span>
+              <%= service&.subtype || "Unknown" %>
+              <%= data["ratio"] %>
+            </span>
+            <span><%= data["amount"] %>g</span>
           </div>
         </div>
 

@@ -3,13 +3,19 @@ import { Controller } from "@hotwired/stimulus"
 import Sortable from "sortablejs"
 import { Turbo } from "@hotwired/turbo-rails"
 export default class extends Controller {
-  static targets = ["container", "template", "steps", "colorsList"]
+  static targets = ["container", "template", "steps", "colorsList", "addStep"]
 
   connect() {
     this.initSortable()
     this.initSwipe()
     this.observeAmountChanges()
     this.updateStepNumbers()
+    this.showAddStepHandler = () => this.showAddStep()
+    window.addEventListener("formula:firstStepFilled", this.showAddStepHandler)
+  }
+
+  disconnect() {
+    window.removeEventListener("formula:firstStepFilled", this.showAddStepHandler)
   }
 
   // ---------------- COLOR SUM ----------------
@@ -29,14 +35,30 @@ export default class extends Controller {
   }
 
   dispatchColorAmount(step) {
-    const inputs = step.querySelectorAll("[name*='[amount]']")
-
     let total = 0
 
-    inputs.forEach(input => {
-      const val = parseFloat(input.value)
-      if (!isNaN(val)) total += val
-    })
+    step
+      .querySelectorAll(".ingredient-fields")
+      .forEach(wrapper => {
+
+        const destroyInput = wrapper.querySelector(
+          "[data-field='destroy']"
+        )
+
+        if (destroyInput?.value === "1") return
+
+        const amountInput = wrapper.querySelector(
+          "[data-field='amount']"
+        )
+
+        if (!amountInput) return
+
+        const val = parseFloat(amountInput.value || 0)
+
+        if (!isNaN(val)) {
+          total += val
+        }
+      })
 
     window.dispatchEvent(
       new CustomEvent("formula:colorAmountChanged", {
@@ -192,6 +214,7 @@ export default class extends Controller {
     displayRow.remove()
 
     this.dispatchColorAmount(step)
+    window.dispatchEvent(new CustomEvent("formula:changed"))
   }
 
   // ---------------- DRAG ----------------
@@ -273,5 +296,11 @@ export default class extends Controller {
     .then(html => {
       Turbo.renderStreamMessage(html)
     })
+  }
+
+  showAddStep() {
+    if (this.hasAddStepTarget) {
+      this.addStepTarget.classList.remove("hidden")
+    }
   }
 }

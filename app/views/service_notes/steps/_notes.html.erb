@@ -1,10 +1,10 @@
 <div class="notes-block" data-controller="service-note">
 
   <div class="notes-date">
-    <%= l(@appointment&.appointment_date || Date.current, format: :long) %>
+    <%= l(@appointment.appointment_date, format: :long) %>
   </div>
 
-  <!-- SERVICES (🔥 тепер тільки через JS) -->
+  <!-- SERVICES  -->
   <div class="notes-label">Services</div>
 
   <div class="notes-services">
@@ -23,6 +23,41 @@
 
     <%= f.hidden_field :price, data: { service_note_target: "priceInput" } %>
 
+  </div>
+
+    <!-- DEVELOPER -->
+  <div class="notes-label">Developer</div>
+  <div class="notes-dev">
+    <div data-service-note-target="developerList"></div>
+
+    <div class="notes-dev-total">
+      <span data-service-note-target="developerAmount">
+        <%= @service_note.developer_total_amount %>g
+      </span>
+
+      <span data-service-note-target="developerPrice">
+        <%= @service_note.developer_total_price %> ₴
+      </span>
+    </div>
+  </div>
+
+  <!-- CARE PRODUCTS -->
+  <div class="notes-label">Care products</div>
+
+  <div data-controller="care-products">
+    <div data-care-products-target="list"></div>
+
+    <button type="button" data-action="click->care-products#add">
+      + Add product
+    </button>
+  </div>
+
+  <!-- FINAL PRICE -->
+  <div class="price-final">
+    Total:
+    <span data-service-note-target="finalPrice">
+      <%= @service_note.final_price %>
+    </span> ₴
   </div>
 
   <!-- NOTES -->

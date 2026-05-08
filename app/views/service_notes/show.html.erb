@@ -43,7 +43,7 @@
   <div class="note-header-modern">
     <div>
       <div class="note-date">
-        <%= l(@service_note.created_at, format: "%B %d") %>
+        <%= l(@service_note.appointment.appointment_date, format: "%B %d") %>
       </div>
 
       <div class="note-client">
@@ -134,7 +134,7 @@
 
       <div class="note-label">Final price</div>
       <div class="note-value">
-        <%= @service_note.price || 0 %> €
+        <%= @service_note.final_price || 0 %>
       </div>
 
       <% if @service_note.notes.present? %>

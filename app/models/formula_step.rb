@@ -3,12 +3,14 @@ class FormulaStep < ApplicationRecord
   has_many :formula_ingredients, dependent: :destroy, inverse_of: :formula_step
 
   accepts_nested_attributes_for :formula_ingredients,
-  allow_destroy: true,
-  reject_if: proc { |attrs| attrs["shade"].blank? && attrs["amount"].blank? }
+    allow_destroy: true,
+    reject_if: proc { |attrs| attrs["shade"].blank? && attrs["amount"].blank? }
 
   validates :section, presence: true
 
   before_validation :normalize_values
+
+  attribute :oxidant, :json, default: {}
 
   def clear_oxidant!
     update!(oxidant: nil)
@@ -18,9 +20,44 @@ class FormulaStep < ApplicationRecord
     update!(time: nil)
   end
 
+  def oxidant_service
+    return unless oxidant["service_id"]
+
+    Service.find_by(id: oxidant["service_id"])
+  end
+
+  def oxidant_data
+    oxidant.is_a?(Hash) ? oxidant : {}
+  end
+
+  def oxidant_amount
+    oxidant_data["amount"].to_f
+  end
+
+  def oxidant_price
+    oxidant_data["price"].to_f
+  end
+
+  def oxidant_ratio
+    oxidant_data["ratio"]
+  end
+
+  def oxidant_total_price
+    oxidant_price * oxidant_amount
+  end
+
   private
 
   def normalize_values
+    if oxidant.present?
+      begin
+        parsed = oxidant.is_a?(String) ? JSON.parse(oxidant) : oxidant
+        self.oxidant = parsed
+      rescue
+        self.oxidant = nil
+      end
+    end
+
     self.oxidant = nil if oxidant.blank?
     self.time = nil if time.blank?
   end

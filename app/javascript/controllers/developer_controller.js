@@ -4,52 +4,48 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "modal", "input", "display",
-    "percentGroup", "volGroup",
-    "percentBtn", "volBtn",
-    "saveBtn", "customInput",
-    "amount", "amountDisplay"
+    "serviceSelect",
+    "newName",
+    "newPrice",
+    "saveBtn",
+    "amountDisplay",
+    "customInput"
   ]
 
   connect() {
-    this.mode = "percent"
-    this.selectedValue = null
+    this.selectedServiceId = null
     this.selectedRatio = null
     this.colorAmount = 0
+
     this.initializeState()
 
     this.handleEsc = this.handleEsc.bind(this)
     document.addEventListener("keydown", this.handleEsc)
 
     this.updateColorAmount = this.updateColorAmount.bind(this)
+    this.recalculateFromColors = this.recalculateFromColors.bind(this)
     window.addEventListener(
       "formula:colorAmountChanged",
-      this.updateColorAmount
+      this.recalculateFromColors
     )
-
-    if (this.hasCustomInputTarget) {
-      this.customInputTarget.addEventListener("input", () => {
-        let val = this.customInputTarget.value
-        val = val.replace(/[^0-9.,]/g, "")
-        val = val.replace("-", "")
-        this.customInputTarget.value = val
-      })
-    }
   }
 
   disconnect() {
     document.removeEventListener("keydown", this.handleEsc)
     window.removeEventListener(
       "formula:colorAmountChanged",
-      this.updateColorAmount
+      this.recalculateFromColors
     )
   }
 
+  // ---------------- ESC ----------------
   handleEsc(e) {
     if (e.key === "Escape") {
       this.closeModal()
     }
   }
 
+  // ---------------- INIT ----------------
   initializeState() {
     if (!this.hasInputTarget) return
 
@@ -71,14 +67,12 @@ export default class extends Controller {
     const step = this.element.closest(".formula-card")
 
     let total = 0
-
     step.querySelectorAll("[name*='[amount]']").forEach(input => {
       const val = parseFloat(input.value)
       if (!isNaN(val)) total += val
     })
 
     this.colorAmount = total
-
     this.calculateAmount()
   }
 
@@ -87,57 +81,27 @@ export default class extends Controller {
       this.modalTarget.classList.add("hidden")
     }
 
-    this.selectedValue = null
+    this.selectedServiceId = null
     this.selectedRatio = null
 
     if (this.hasSaveBtnTarget) {
       this.saveBtnTarget.disabled = true
     }
-
-    this.element.querySelectorAll(".dev-group button")
-      .forEach(b => b.classList.remove("active"))
   }
 
-  // ---------------- SWITCH ----------------
-  setPercent() {
-    this.mode = "percent"
+  // ---------------- SELECT SERVICE ----------------
+  selectService() {
+    const option = this.serviceSelectTarget.selectedOptions[0]
 
-    if (this.hasPercentGroupTarget)
-      this.percentGroupTarget.classList.remove("hidden")
+    if (!option || !option.value) return
 
-    if (this.hasVolGroupTarget)
-      this.volGroupTarget.classList.add("hidden")
+    this.selectedServiceId = option.value
+    this.selectedPrice = parseFloat(option.dataset.price || 0)
 
-    this.percentBtnTarget?.classList.add("active")
-    this.volBtnTarget?.classList.remove("active")
-  }
-
-  setVol() {
-    this.mode = "vol"
-
-    if (this.hasVolGroupTarget)
-      this.volGroupTarget.classList.remove("hidden")
-
-    if (this.hasPercentGroupTarget)
-      this.percentGroupTarget.classList.add("hidden")
-
-    this.volBtnTarget?.classList.add("active")
-    this.percentBtnTarget?.classList.remove("active")
-  }
-
-  // ---------------- SELECT ----------------
-  select(e) {
-    this.selectedValue = e.currentTarget.dataset.value
     this.enableSave()
-
-    e.currentTarget
-      .closest(".dev-group")
-      .querySelectorAll("button")
-      .forEach(b => b.classList.remove("active"))
-
-    e.currentTarget.classList.add("active")
   }
 
+  // ---------------- RATIO ----------------
   setRatio(e) {
     this.selectedRatio = e.currentTarget.dataset.ratio
 
@@ -153,67 +117,76 @@ export default class extends Controller {
   addCustom() {
     if (!this.hasCustomInputTarget) return
 
-    let val = this.customInputTarget.value.trim()
-    if (!val) return
+    let value = this.customInputTarget.value.trim()
 
-    val = val.replace(",", ".")
-    const number = parseFloat(val)
+    if (!value) return
+
+    value = value.replace(",", ".")
+    value = value.replace("1:", "")
+
+    const number = parseFloat(value)
 
     if (isNaN(number) || number <= 0) {
-      alert("Enter positive number")
+      alert("Enter positive ratio")
       return
     }
 
-    const formatted =
-      this.mode === "percent"
-        ? `${number}%`
-        : `${number}vol.`
+    this.selectedRatio = `1:${number}`
 
-    this.selectedValue = formatted
+    this.element
+      .querySelectorAll(".dev-ratio button")
+      .forEach(button => button.classList.remove("active"))
 
-    this.highlightCustomValue()
+    this.customInputTarget.value = this.selectedRatio
+
+    this.calculateAmount()
     this.enableSave()
-
-    this.customInputTarget.value = ""
   }
 
-  highlightCustomValue() {
-    this.element.querySelectorAll(".dev-group button")
-      .forEach(b => b.classList.remove("active"))
+  normalizeCustomRatio() {
+    if (!this.hasCustomInputTarget) return
+
+    let value = this.customInputTarget.value.trim()
+
+    value = value.replace(",", ".")
+    value = value.replace(/[^0-9:.]/g, "")
+
+    if (!value.startsWith("1:")) {
+      value = "1:" + value.replace("1:", "").replace(":", "")
+    }
+
+    this.customInputTarget.value = value
   }
 
+  // ---------------- ENABLE SAVE ----------------
   enableSave() {
     if (this.hasSaveBtnTarget) {
       this.saveBtnTarget.disabled = false
     }
   }
 
-  // ---------------- CALC ----------------
+  // ---------------- CALCULATE ----------------
   updateColorAmount(event) {
     const stepId = this.element.dataset.stepId
-
     if (event.detail.stepId !== stepId) return
 
     this.colorAmount = event.detail.total || 0
 
-    this.calculateAmount()
+    const amount = this.calculateAmount()
 
-    if (this.selectedRatio) {
-      const amount = this.calculateAmount()
+    if (!this.selectedServiceId) return
 
-      const result = [
-        this.selectedValue,
-        this.selectedRatio,
-        amount
-      ].filter(Boolean).join("|")
+    const result = {
+      service_id: this.selectedServiceId,
+      price: this.selectedPrice,
+      ratio: this.selectedRatio,
+      amount: amount
+    }
 
-      if (this.hasInputTarget) {
-        this.inputTarget.value = result
-      }
+    this.inputTarget.value = JSON.stringify(result)
 
-      if (this.hasDisplayTarget) {
-        this.renderDisplay(this.selectedValue, this.selectedRatio, amount)
-      }
+    if (this.hasDisplayTarget) {
+      this.renderDisplay(this.selectedServiceId, this.selectedRatio, amount)
     }
   }
 
@@ -235,12 +208,19 @@ export default class extends Controller {
     return result
   }
 
-  renderDisplay(value, ratio, amount) {
+  // ---------------- DISPLAY ----------------
+  renderDisplay(serviceId, ratio, amount) {
+    const option = this.serviceSelectTarget.querySelector(
+      `option[value='${serviceId}']`
+    )
+
+    const name = option ? option.textContent.split("(")[0].trim() : "Unknown"
+
     this.displayTarget.innerHTML = `
       <div class="dev-row-display">
 
         <div class="dev-left">
-          <span class="dev-percent">${value}</span>
+          <span class="dev-name">${name}</span>
           ${ratio ? `<span class="dev-separator">|</span><span class="dev-ratio">${ratio}</span>` : ""}
         </div>
 
@@ -252,39 +232,36 @@ export default class extends Controller {
       </div>
     `
   }
-// ---------------- SAVE ----------------
+
+  // ---------------- SAVE ----------------
   save() {
-    let value = this.selectedValue || ""
-    let ratio = this.selectedRatio || ""
+    if (!this.selectedServiceId) return
 
     const amount = this.calculateAmount()
 
-    const result = [value, ratio, amount].filter(Boolean).join("|")
-
-    if (this.hasInputTarget) {
-      this.inputTarget.value = result
+    const result = {
+      service_id: this.selectedServiceId,
+      price: this.selectedPrice,
+      ratio: this.selectedRatio,
+      amount: amount
     }
 
+    this.inputTarget.value = JSON.stringify(result)
+
     if (this.hasDisplayTarget) {
-      this.renderDisplay(value, ratio, amount)
+      this.renderDisplay(this.selectedServiceId, this.selectedRatio, amount)
     }
 
     const addBtn = this.element.querySelector(".add-dev-btn")
     if (addBtn) addBtn.style.display = "none"
 
+    window.dispatchEvent(new CustomEvent("services:changed"))
+    window.dispatchEvent(new CustomEvent("formula:changed"))
+
     this.closeModal()
   }
 
-  closeOnOverlay(event) {
-    if (event.target === this.modalTarget) {
-      this.closeModal()
-    }
-  }
-
-  stopPropagation(event) {
-    event.stopPropagation()
-  }
-
+  // ---------------- REMOVE ----------------
   remove() {
     if (this.hasInputTarget) {
       this.inputTarget.value = ""
@@ -309,5 +286,106 @@ export default class extends Controller {
         })
       )
     }
+
+    window.dispatchEvent(new CustomEvent("formula:changed"))
+  }
+
+  recalculateFromColors(event) {
+    if (!this.hasInputTarget) return
+    if (!this.inputTarget.value) return
+
+    let data
+
+    try {
+      data = JSON.parse(this.inputTarget.value)
+    } catch {
+      return
+    }
+
+    if (!data.ratio) return
+
+    const stepId = this.element.dataset.stepId
+
+    if (event.detail.stepId !== stepId) return
+
+    this.colorAmount = event.detail.total || 0
+
+    this.selectedServiceId = data.service_id
+    this.selectedPrice = parseFloat(data.price || 0)
+    this.selectedRatio = data.ratio
+
+    const amount = this.calculateAmount()
+
+    const updated = {
+      service_id: this.selectedServiceId,
+      price: this.selectedPrice,
+      ratio: this.selectedRatio,
+      amount: amount
+    }
+
+    this.inputTarget.value = JSON.stringify(updated)
+
+    if (this.hasDisplayTarget) {
+      this.renderDisplay(
+        this.selectedServiceId,
+        this.selectedRatio,
+        amount
+      )
+    }
+
+    window.dispatchEvent(new CustomEvent("formula:changed"))
+  }
+
+  // ---------------- CREATE PREPARATION ----------------
+  createPreparation() {
+    const name = this.newNameTarget.value.trim()
+    const price = parseFloat(this.newPriceTarget.value)
+
+    if (!name || isNaN(price)) {
+      alert("Fill name and price")
+      return
+    }
+
+    fetch("/services/create_preparation", {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        service: {
+          subtype: name,
+          price: price,
+          service_type: "preparation"
+        }
+      })
+    })
+      .then(r => r.json())
+      .then(data => {
+        const option = document.createElement("option")
+        option.value = data.id
+        option.textContent = `${data.subtype} (${data.price} ₴)`
+        option.dataset.price = data.price
+
+        this.serviceSelectTarget.appendChild(option)
+        this.serviceSelectTarget.value = data.id
+
+        this.selectService()
+
+        this.newNameTarget.value = ""
+        this.newPriceTarget.value = ""
+      })
+  }
+
+  // ---------------- OVERLAY ----------------
+  closeOnOverlay(event) {
+    if (event.target === this.modalTarget) {
+      this.closeModal()
+    }
+  }
+
+  stopPropagation(event) {
+    event.stopPropagation()
   }
 }

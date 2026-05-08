@@ -130,23 +130,50 @@ export default class extends Controller {
     this.rowsTarget.innerHTML = ""
     this.closeModal()
 
-    window.dispatchEvent(
-      new CustomEvent("formula:colorAmountChanged", {
-        detail: {
-          total: this.calculateTotalAmount(),
-          stepId: this.currentStep.dataset.stepId
-        }
-      })
-    )
+    requestAnimationFrame(() => {
+      window.dispatchEvent(
+        new CustomEvent("formula:colorAmountChanged", {
+          detail: {
+            total: this.calculateTotalAmount(),
+            stepId: this.currentStep.dataset.stepId
+          }
+        })
+      )
+
+      window.dispatchEvent(
+        new CustomEvent("formula:changed")
+      )
+
+      window.dispatchEvent(
+        new CustomEvent("formula:firstStepFilled")
+      )
+    })
   }
 
   calculateTotalAmount() {
     let total = 0
 
     this.currentStep
-      .querySelectorAll("[name*='[amount]']")
-      .forEach(input => {
-        total += parseFloat(input.value || 0)
+      .querySelectorAll(".ingredient-fields")
+      .forEach(wrapper => {
+
+        const destroyInput = wrapper.querySelector(
+          "[data-field='destroy']"
+        )
+
+        if (destroyInput?.value === "1") return
+
+        const amountInput = wrapper.querySelector(
+          "[data-field='amount']"
+        )
+
+        if (!amountInput) return
+
+        const value = parseFloat(amountInput.value || 0)
+
+        if (!isNaN(value)) {
+          total += value
+        }
       })
 
     return total

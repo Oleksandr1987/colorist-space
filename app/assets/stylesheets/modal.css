@@ -38,7 +38,9 @@
 /* TITLE */
 .dev-modal h2 {
   font-size: 20px;
-  margin-bottom: 8px;
+  margin: 0 0 16px;
+  padding-left: 34px;
+  line-height: 1.2;
 }
 
 /* SWITCH */
@@ -85,23 +87,30 @@
 }
 
 /* ADD */
-.dev-add {
+.dev-ratio-custom {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  align-items: center;
 }
 
-.dev-add input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.dev-add button {
-  padding: 10px 12px;
+.dev-ratio-custom input {
+  width: 32px;
+  padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid #222;
-  background: #fff;
+  border: 1px solid #ddd;
+  font-size: 12px;
+}
+
+.dev-ratio-custom button {
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+.dev-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #888;
+  line-height: 1.35;
 }
 
 /* RATIO */
@@ -150,15 +159,6 @@
   border-bottom: 1px solid #000;
 }
 
-/* SAVE */
-/* .dev-save {
-  width: 100%;
-  padding: 14px;
-  background: #eecfd5;
-  border-radius: 14px;
-  font-weight: 600;
-  margin-top: 10px;
-} */
 .dev-save {
   width: 100%;
   padding: 14px;
@@ -186,4 +186,102 @@
 .time-unit {
   font-size: 14px;
   color: #666;
+}
+
+/* Hide number input arrows */
+.time-input input[type="number"]::-webkit-inner-spin-button,
+.time-input input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.time-input input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.unsaved-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+}
+
+.unsaved-modal.hidden {
+  display: none;
+}
+
+.unsaved-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.unsaved-modal-card {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translate(-50%, -50%);
+
+  width: calc(100% - 48px);
+  max-width: 340px;
+
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.unsaved-modal-card h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.unsaved-modal-card p {
+  margin: 0 0 18px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.unsaved-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.unsaved-modal-actions button {
+  flex: 1;
+  border-radius: 12px;
+  padding: 10px 8px;
+  font-size: 13px;
+}
+
+@media (max-width: 420px) {
+  .unsaved-modal-card {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translate(-50%, -50%);
+
+  width: calc(100% - 48px);
+  max-width: 340px;
+  box-sizing: border-box;
+
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+  /* .unsaved-modal-card h3 {
+    font-size: 18px;
+  }
+
+  .unsaved-modal-card p {
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .unsaved-modal-actions button {
+    font-size: 12px;
+    padding: 9px 6px;
+  } */
 }

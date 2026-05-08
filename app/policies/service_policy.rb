@@ -19,6 +19,10 @@ class ServicePolicy < ApplicationPolicy
     owns_record?
   end
 
+  def create_preparation?
+    create?
+  end
+
   private
 
   def owns_record?

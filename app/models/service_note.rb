@@ -1,7 +1,7 @@
 class ServiceNote < ApplicationRecord
   belongs_to :user
   belongs_to :client
-  belongs_to :appointment, optional: true
+  belongs_to :appointment
 
   has_many :service_note_services, dependent: :destroy
   has_many :services, through: :service_note_services
@@ -10,6 +10,9 @@ class ServiceNote < ApplicationRecord
   has_many :formula_steps, dependent: :destroy, inverse_of: :service_note
 
   accepts_nested_attributes_for :formula_steps, allow_destroy: true
+
+  validates :appointment_id, uniqueness: true
+
   scope :for_client, ->(client_id) { where(client_id: client_id).order(created_at: :desc) }
 
   before_validation :set_price_from_services
@@ -43,11 +46,38 @@ class ServiceNote < ApplicationRecord
     Service.none
   end
 
+  def developer_total_amount
+    formula_steps.sum(&:oxidant_amount)
+  end
+
+  def developer_total_price
+    formula_steps.sum(&:oxidant_total_price)
+  end
+
+  def care_products_total
+    return 0 unless care_products.is_a?(Array)
+
+    care_products.sum do |item|
+      item["price"].to_f * item["qty"].to_f
+    end
+  end
+
+  def final_price
+    services.sum(&:price) +
+      developer_total_price +
+      care_products_total
+  end
+
+  def appointment_date
+    appointment.appointment_date
+  end
+
   private
 
   def set_price_from_services
     return if price.present?
     return if services.empty?
+
     self.price = services.sum(&:price)
   end
 
@@ -71,7 +101,6 @@ class ServiceNote < ApplicationRecord
 
   def sync_appointment_notes
     return unless appointment.present?
-
     return if appointment.notes == notes
 
     appointment.update_column(:notes, notes)

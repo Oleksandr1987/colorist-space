@@ -8,6 +8,9 @@ uk:
     cancel: "Скасувати"
     close: "Закрити"
     search: "Пошук"
+    discard: "Відхилити"
+    unsaved_changes_title: "Незбережені зміни"
+    unsaved_changes_message: "У вас є незбережені зміни. Зберегти їх перед виходом?"
   date:
     formats:
       long: "%-d %B %Y"
@@ -18,3 +21,4 @@ uk:
       length: "Довжина"
       strands: "Пасма"
       all_over: "По всій довжині"
+    ratio_hint_html: "Введіть значення після <strong>1:</strong>, наприклад <strong>2</strong>, <strong>1.5</strong> або <strong>2.7</strong>"

@@ -93,7 +93,7 @@ class AppointmentsController < ApplicationController
     date = params[:date]&.to_date || Date.today
 
     @appointments = current_user.appointments
-      .includes(:client)
+      .includes(:client,  :service_note)
       .by_date(date)
       .order(:appointment_time)
 

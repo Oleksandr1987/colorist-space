@@ -235,7 +235,8 @@ export default class extends Controller {
             <div class="slot-text clickable"
                 data-action="click->calendar-view#createServiceNote"
                 data-id="${slot.data.id}"
-                data-client-id="${slot.data.client_id}">
+                data-client-id="${slot.data.client_id}"
+                data-service-note-id="${slot.data.service_note_id || ""}">
                 
               ${startTime}–${endTime} — ${slot.data.service} (${slot.data.client_name})
             </div>
@@ -501,13 +502,19 @@ export default class extends Controller {
 
     const appointmentId = event.currentTarget.dataset.id
     const clientId = event.currentTarget.dataset.clientId
+    const serviceNoteId = event.currentTarget.dataset.serviceNoteId
 
     if (!clientId || clientId === "0") {
       console.error("❌ invalid clientId:", clientId)
       return
     }
 
-    window.location.href =
-      `/clients/${clientId}/service_notes/new?appointment_id=${appointmentId}`
+    if (serviceNoteId) {
+      window.location.href =
+        `/clients/${clientId}/service_notes/${serviceNoteId}/edit?appointment_id=${appointmentId}`
+    } else {
+      window.location.href =
+        `/clients/${clientId}/service_notes/new?appointment_id=${appointmentId}`
+    }
   }
 }

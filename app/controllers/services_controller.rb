@@ -69,10 +69,12 @@ class ServicesController < ApplicationController
     @service.service_type = "preparation"
 
     if @service.save
-      redirect_to preparations_services_path, notice: "Preparation created successfully."
+      respond_to do |format|
+        format.html { redirect_to preparations_services_path, notice: "Preparation created successfully." }
+        format.json { render json: @service }
+      end
     else
-      @preparations = current_user.services.where(service_type: "preparation").order(:subtype)
-      render :preparations, status: :unprocessable_entity
+      render json: { errors: @service.errors.full_messages }, status: :unprocessable_entity
     end
   end
 

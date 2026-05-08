@@ -18,6 +18,7 @@ class Client < ApplicationRecord
   before_save :ensure_primary_phone
 
   scope :alphabetical, -> { order("LOWER(first_name)") }
+  scope :with_phones, -> { includes(:client_phones) }
 
   scope :search_by_name, ->(query) {
     q = "%#{query.to_s.downcase}%"

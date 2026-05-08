@@ -8,6 +8,9 @@ en:
     cancel: "Cancel"
     close: "Close"
     search: "Search"
+    discard: "Discard"
+    unsaved_changes_title: "Unsaved changes"
+    unsaved_changes_message: "You have unsaved changes. Save them before leaving?"
   date:
     formats:
       long: "%B %d, %Y"
@@ -18,3 +21,4 @@ en:
       length: "Length"
       strands: "Strands"
       all_over: "All Over"
+    ratio_hint_html: "Enter a ratio after <strong>1:</strong>, for example <strong>2</strong>, <strong>1.5</strong>, or <strong>2.7</strong>"

@@ -1,4 +1,10 @@
-<div class="wizard-screen" data-controller="wizard">
+<div class="wizard-screen"
+     data-controller="wizard"
+     data-wizard-unsaved-title-value="<%= t('common.unsaved_changes_title') %>"
+     data-wizard-unsaved-message-value="<%= t('common.unsaved_changes_message') %>"
+     data-wizard-save-label-value="<%= t('common.save') %>"
+     data-wizard-discard-label-value="<%= t('common.discard') %>"
+     data-wizard-cancel-label-value="<%= t('common.cancel') %>">
   <%= form_with(model: [@client, @service_note], html: { multipart: true }) do |f| %>
     <%= hidden_field_tag :appointment_id, params[:appointment_id] %>
     <!-- TOP BAR -->
@@ -73,4 +79,32 @@
     </div>
 
   <% end %>
+  <div class="unsaved-modal hidden" data-wizard-target="unsavedModal">
+    <div class="unsaved-modal-backdrop"></div>
+
+    <div class="unsaved-modal-card">
+      <h3 data-wizard-target="unsavedTitle"></h3>
+      <p data-wizard-target="unsavedMessage"></p>
+
+      <div class="unsaved-modal-actions">
+        <button type="button"
+                class="button secondary"
+                data-action="click->wizard#cancelClose">
+          <%= t("common.cancel") %>
+        </button>
+
+        <button type="button"
+                class="button danger"
+                data-action="click->wizard#discardChanges">
+          <%= t("common.discard") %>
+        </button>
+
+        <button type="button"
+                class="button primary"
+                data-action="click->wizard#saveAndClose">
+          <%= t("common.save") %>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

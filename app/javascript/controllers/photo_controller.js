@@ -211,5 +211,7 @@ export default class extends Controller {
           alert("Failed to delete photo")
         }
       })
+
+    window.dispatchEvent(new CustomEvent("wizard:changed"))
   }
 }

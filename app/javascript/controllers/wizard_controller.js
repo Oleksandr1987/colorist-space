@@ -2,7 +2,27 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["container", "title", "progress", "step", "nextButton", "nextLabel", "nextIcon", "prevButton"]
+  static targets = [
+    "container",
+    "title",
+    "progress",
+    "step",
+    "nextButton",
+    "nextLabel",
+    "nextIcon",
+    "prevButton",
+    "unsavedModal",
+    "unsavedTitle",
+    "unsavedMessage"
+  ]
+
+  static values = {
+    unsavedTitle: String,
+    unsavedMessage: String,
+    saveLabel: String,
+    discardLabel: String,
+    cancelLabel: String
+  }
 
   connect() {
     console.log("Wizard controller connected")
@@ -10,11 +30,34 @@ export default class extends Controller {
     this.current = 0
     this.steps = this.stepTargets
     this.nav = this.element.querySelectorAll(".wiz-item")
+    this.isDirty = false
+
+    this.markDirty = this.markDirty.bind(this)
+
+    this.element.addEventListener("input", this.markDirty)
+    this.element.addEventListener("change", this.markDirty)
+
+    window.addEventListener("formula:changed", this.markDirty)
+    window.addEventListener("services:changed", this.markDirty)
+    window.addEventListener("wizard:changed", this.markDirty)
+
+    this.element.querySelector("form")?.addEventListener("submit", () => {
+      this.isDirty = false
+    })
 
     this.update()
     this.updateNextButton()
     this.updateButtons()
     this.initSwipe()
+  }
+
+  disconnect() {
+    this.element.removeEventListener("input", this.markDirty)
+    this.element.removeEventListener("change", this.markDirty)
+
+    window.removeEventListener("formula:changed", this.markDirty)
+    window.removeEventListener("services:changed", this.markDirty)
+    window.removeEventListener("wizard:changed", this.markDirty)
   }
 
   // ---------------- NAV CLICK ----------------
@@ -124,6 +167,41 @@ export default class extends Controller {
   }
 
   close() {
-    this.element.remove()
+    if (!this.isDirty) {
+      history.back()
+      return
+    }
+
+    this.openUnsavedModal()
+  }
+
+  openUnsavedModal() {
+    if (this.hasUnsavedTitleTarget) {
+      this.unsavedTitleTarget.textContent = this.unsavedTitleValue
+    }
+
+    if (this.hasUnsavedMessageTarget) {
+      this.unsavedMessageTarget.textContent = this.unsavedMessageValue
+    }
+
+    this.unsavedModalTarget.classList.remove("hidden")
+  }
+
+  cancelClose() {
+    this.unsavedModalTarget.classList.add("hidden")
+  }
+
+  discardChanges() {
+    this.isDirty = false
+    history.back()
+  }
+
+  saveAndClose() {
+    this.isDirty = false
+    this.element.querySelector("form")?.requestSubmit()
+  }
+
+  markDirty() {
+    this.isDirty = true
   }
 }

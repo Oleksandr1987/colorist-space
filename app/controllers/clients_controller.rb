@@ -6,11 +6,17 @@ class ClientsController < ApplicationController
   after_action :verify_authorized, only: %i[show new create edit update destroy delete_photo delete_all_photos]
 
   def index
-    @clients = current_user.clients.alphabetical
+    @clients = current_user.clients
+      .with_phones
+      .alphabetical
   end
 
   def search
-    @clients = current_user.clients.search_by_name(params[:query])
+    @clients = current_user.clients
+      .with_phones
+      .search_by_name(params[:query])
+      .alphabetical
+
     render :index
   end
 
