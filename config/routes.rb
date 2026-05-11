@@ -1,31 +1,13 @@
 Rails.application.routes.draw do
-  # get "home/index"
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  devise_for :users, controllers: {
-    registrations: "users/registrations",
-    sessions: "users/sessions",
-    omniauth_callbacks: "users/omniauth_callbacks"
-   }
-
-  # resources :clients do
-  #   resources :service_notes do
-  #     member do
-  #       delete "photos/:photo_id", to: "service_notes#delete_photo", as: :delete_photo
-  #     end
-  #   end
-
-  #   collection do
-  #     get :search
-  #     get :autocomplete
-  #   end
-
-  #   member do
-  #     delete "photos/:photo_id", to: "clients#delete_photo", as: "delete_photo"
-  #     delete "delete_all_photos", to: "clients#delete_all_photos"
-  #   end
-
-  #   resources :service_notes do
+  devise_for(
+    :users,
+    controllers: {
+      registrations: "users/registrations",
+      sessions: "users/sessions",
+      omniauth_callbacks: "users/omniauth_callbacks"
+    }
+  )
   #     post :add_ingredient, on: :member
   #     resources :formula_steps, only: [ :create, :update, :destroy ] do
   #       member do
@@ -109,17 +91,14 @@ Rails.application.routes.draw do
   end
 
   root to: "home#index"
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   get "/privacy_policy", to: "static#privacy_policy"
   get "/terms", to: "static#terms"
   get "/about_us", to: "static#about_us"
-  # Defines the root path route ("/")
-  # root "posts#index"
+
 end

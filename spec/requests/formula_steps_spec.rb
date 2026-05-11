@@ -30,12 +30,29 @@ RSpec.describe "FormulaSteps", type: :request do
 
   describe "PATCH /formula_steps/:id" do
     it "updates the formula step" do
-      patch client_service_note_formula_step_path(client, service_note, formula_step), params: {
-        formula_step: { oxidant: "9%" }
+      oxidant_data = {
+        service_id: 1,
+        ratio: "1:2",
+        amount: 30
       }
 
-      expect(response).to redirect_to(client_service_note_path(client, service_note, locale: I18n.locale))
-      expect(formula_step.reload.oxidant).to eq("9%")
+      patch client_service_note_formula_step_path(client, service_note, formula_step), params: {
+        formula_step: {
+          oxidant: oxidant_data.to_json
+        }
+      }
+
+      expect(response).to redirect_to(
+        client_service_note_path(client, service_note, locale: I18n.locale)
+      )
+
+      expect(formula_step.reload.oxidant_data).to eq(
+        {
+          "service_id" => 1,
+          "ratio" => "1:2",
+          "amount" => 30
+        }
+      )
     end
   end
 

@@ -6,6 +6,7 @@ RSpec.describe "ServiceNotes", type: :request do
   let(:user) { create(:user, :trial) }
   let(:client) { create(:client, user: user) }
   let(:service_note) { create(:service_note, client: client, user: user) }
+  let(:appointment) { create(:appointment, user: user, client: client) }
 
   before do
     sign_in user
@@ -13,7 +14,10 @@ RSpec.describe "ServiceNotes", type: :request do
 
   describe "GET /new" do
     it "renders new service note page" do
-      get new_client_service_note_path(client)
+      get new_client_service_note_path(
+        client,
+        appointment_id: appointment.id
+      )
 
       expect(response).to have_http_status(:ok)
     end
@@ -23,6 +27,7 @@ RSpec.describe "ServiceNotes", type: :request do
     it "creates a service note" do
       expect do
         post client_service_notes_path(client), params: {
+          appointment_id: appointment.id,
           service_note: {
             service_type: "coloring",
             notes: "Test",

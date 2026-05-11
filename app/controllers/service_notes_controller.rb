@@ -42,7 +42,7 @@ class ServiceNotesController < ApplicationController
         format.html { redirect_to edit_client_service_note_path(@client, @service_note) }
       end
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -70,7 +70,7 @@ class ServiceNotesController < ApplicationController
       @selected_service_ids = service_ids
       @preparations = current_user.services.where(service_type: "preparation")
 
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

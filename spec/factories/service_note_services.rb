@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :service_note_service do
-    service_note { nil }
-    service { nil }
+    association :service_note
+    association :service
   end
 end

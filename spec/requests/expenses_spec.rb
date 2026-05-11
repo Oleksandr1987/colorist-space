@@ -57,7 +57,7 @@ RSpec.describe "Expenses", type: :request do
 
       post expenses_path, params: params
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
@@ -88,7 +88,7 @@ RSpec.describe "Expenses", type: :request do
         }
       }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 

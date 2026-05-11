@@ -42,6 +42,22 @@ RSpec.describe User, type: :model do
       expect(result).to eq(user)
     end
 
+    it "does not normalize login when email used" do
+      expect(PhoneValidator).not_to receive(:normalize)
+
+      result = described_class.find_for_database_authentication(
+        login: "test@example.com"
+      )
+
+      expect(result).to eq(user)
+    end
+
+    it "returns nil when login missing" do
+      result = described_class.find_for_database_authentication({})
+
+      expect(result).to be_nil
+    end
+
     it "finds user by normalized phone" do
       allow(PhoneValidator).to receive(:normalize).and_return("+380501234567")
 

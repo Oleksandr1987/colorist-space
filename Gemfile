@@ -72,4 +72,8 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem "shoulda-matchers", "~> 7.0", ">= 7.0.1"
+
+  gem "simplecov", require: false
+  gem "simplecov-console"
+  gem "simplecov_json_formatter"
 end

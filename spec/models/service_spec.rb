@@ -161,5 +161,19 @@ RSpec.describe Service, type: :model do
 
       expect(monthly.dig("service", appointment_out_of_range.strftime("%B %Y"))).to be_nil
     end
+
+    it ".grouped_income groups by name for non-service types" do
+      from = Date.current
+      to   = Date.current + 30.days
+
+      scope = described_class
+        .income_for_user_between(user, from, to)
+        .apply_income_filters(service_type: "preparation")
+
+      grouped = described_class.grouped_income(scope, "preparation")
+
+      expect(grouped.keys).to include(prep.name)
+      expect(grouped[prep.name]).to eq(50)
+    end
   end
 end

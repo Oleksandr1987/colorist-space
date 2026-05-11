@@ -120,6 +120,33 @@ RSpec.describe Client, type: :model do
     end
   end
 
+  describe "#decorated_photos" do
+    it "decorates attached photos" do
+      client = create(:client)
+
+      file = fixture_file_upload(
+        Rails.root.join("spec/fixtures/files/test_image.jpg"),
+        "image/jpeg"
+      )
+
+      client.photos.attach(file)
+
+      decorated = double("decorated_photo")
+
+      allow(PhotoDecorator)
+        .to receive(:decorate)
+        .and_return(decorated)
+
+      expect(client.decorated_photos).to eq([ decorated ])
+    end
+
+    it "returns empty array when no photos" do
+      client = create(:client)
+
+      expect(client.decorated_photos).to eq([])
+    end
+  end
+
   describe ".find_or_create_by_full_name" do
     it "returns existing client if found" do
       user = create(:user)
@@ -164,6 +191,57 @@ RSpec.describe Client, type: :model do
       )
 
       expect(result).to be_nil
+    end
+  end
+
+  describe "#make_primary!" do
+    it "moves current phone to client_phones and updates primary phone" do
+      client = create(:client, phone: "+380111111111")
+
+      client.client_phones.create!(phone: "+380222222222")
+
+      client.make_primary!("+380222222222")
+
+      expect(client.reload.phone).to eq("+380222222222")
+
+      expect(
+        client.client_phones.pluck(:phone)
+      ).to include("+380111111111")
+
+      expect(
+        client.client_phones.pluck(:phone)
+      ).not_to include("+380222222222")
+    end
+  end
+
+  describe "#ensure_primary_phone" do
+    it "sets phone from client_phones when phone blank" do
+      client = build(:client, phone: "+380111111111")
+
+      client.phone = nil
+      client.client_phones.build(phone: "+380999999999")
+
+      client.send(:ensure_primary_phone)
+
+      expect(client.phone).to eq("+380999999999")
+    end
+
+    it "does nothing when phone present" do
+      client = build(:client, phone: "+380111111111")
+
+      client.client_phones.build(phone: "+380222222222")
+
+      client.send(:ensure_primary_phone)
+
+      expect(client.phone).to eq("+380111111111")
+    end
+
+    it "does nothing when no client_phones" do
+      client = build(:client, phone: nil)
+
+      client.send(:ensure_primary_phone)
+
+      expect(client.phone).to be_nil
     end
   end
 end

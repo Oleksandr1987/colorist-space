@@ -59,7 +59,7 @@ class ServicesController < ApplicationController
     if @service.save
       redirect_to redirect_path_for(@service), notice: "Service created successfully."
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -74,7 +74,7 @@ class ServicesController < ApplicationController
         format.json { render json: @service }
       end
     else
-      render json: { errors: @service.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @service.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -87,7 +87,7 @@ class ServicesController < ApplicationController
       redirect_to care_products_services_path, notice: "Care product created successfully."
     else
       @care_products = current_user.services.where(service_type: "care_product").order(:subtype)
-      render :care_products, status: :unprocessable_entity
+      render :care_products, status: :unprocessable_content
     end
   end
 
@@ -100,7 +100,7 @@ class ServicesController < ApplicationController
     if @service.update(service_params)
       redirect_to redirect_path_for(@service), notice: "Service updated successfully."
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

@@ -8,7 +8,7 @@ class FormulaStepsController < ApplicationController
     if @formula_step.save
       redirect_to client_service_note_path(@client, @service_note), notice: "Step saved"
     else
-      render "service_notes/show", status: :unprocessable_entity
+      render "service_notes/show", status: :unprocessable_content
     end
   end
 
@@ -16,7 +16,7 @@ class FormulaStepsController < ApplicationController
     if @formula_step.update(formula_step_params)
       redirect_to client_service_note_path(@client, @service_note), notice: "Step updated"
     else
-      render "service_notes/show", status: :unprocessable_entity
+      render "service_notes/show", status: :unprocessable_content
     end
   end
 

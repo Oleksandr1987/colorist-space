@@ -51,7 +51,7 @@ class AppointmentsController < ApplicationController
     if @appointment.save
       redirect_to @appointment
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -73,7 +73,7 @@ class AppointmentsController < ApplicationController
     if @appointment.update(appointment_params.except(:service_ids))
       redirect_to @appointment, notice: "Appointment was successfully updated."
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

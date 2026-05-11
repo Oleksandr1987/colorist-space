@@ -10,17 +10,33 @@ FactoryBot.define do
     end
 
     transient do
-      main_service { create(:service, user: user) }
+      main_service { nil }
       extra_services { [] }
     end
 
-    after(:build) do |appointment, evaluator|
-      appointment.appointment_time = Time.zone.parse(appointment.appointment_time.to_s)
+    after(:build) do |appointment|
+      appointment.appointment_time =
+        Time.zone.parse(appointment.appointment_time.to_s)
 
       appointment.end_time ||= appointment.appointment_time + 30.minutes
+    end
 
-      appointment.services << evaluator.main_service
-      evaluator.extra_services.each { |svc| appointment.services << svc }
+   after(:create) do |appointment, evaluator|
+      if evaluator.main_service.present?
+        AppointmentServicesRelation.create!(
+          appointment: appointment,
+          service: evaluator.main_service
+        )
+      end
+
+      evaluator.extra_services.each do |svc|
+        AppointmentServicesRelation.create!(
+          appointment: appointment,
+          service: svc
+        )
+      end
+
+      appointment.reload
     end
   end
 end

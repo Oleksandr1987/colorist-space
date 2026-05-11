@@ -1,9 +1,9 @@
 FactoryBot.define do
   factory :service_note do
-    association :appointment
+    appointment
 
-    user { appointment.user }
-    client { appointment.client }
+    user { appointment.present? ? appointment.user : association(:user) }
+    client { appointment.present? ? appointment.client : association(:client) }
 
     service_type { "coloring" }
     notes { "Test service note" }
