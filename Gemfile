@@ -74,6 +74,6 @@ group :test do
   gem "shoulda-matchers", "~> 7.0", ">= 7.0.1"
 
   gem "simplecov", require: false
-  gem "simplecov-console"
-  gem "simplecov_json_formatter"
+  gem "simplecov-console", require: false
+  gem "simplecov_json_formatter", require: false
 end
