@@ -6,6 +6,17 @@
      data-wizard-discard-label-value="<%= t('common.discard') %>"
      data-wizard-cancel-label-value="<%= t('common.cancel') %>">
   <%= form_with(model: [@client, @service_note], html: { multipart: true }) do |f| %>
+
+    <% if @service_note.errors.any? %>
+      <div class="form-errors">
+        <% @service_note.errors.full_messages.each do |message| %>
+          <div class="form-error">
+            <%= message %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
     <%= hidden_field_tag :appointment_id, params[:appointment_id] %>
     <!-- TOP BAR -->
     <div class="wizard-top">

@@ -12,6 +12,7 @@ class ServiceNote < ApplicationRecord
   accepts_nested_attributes_for :formula_steps, allow_destroy: true
 
   validates :appointment_id, uniqueness: true
+  validate :must_have_services
 
   scope :for_client, ->(client_id) { where(client_id: client_id).order(created_at: :desc) }
 
@@ -103,5 +104,15 @@ class ServiceNote < ApplicationRecord
 
     appointment.services = []
     appointment.update_column(:service_name, nil)
+  end
+
+  def must_have_services
+    return if services.any?
+    return if appointment&.services&.any?
+
+    errors.add(
+      :base,
+      I18n.t("service_notes.errors.services_required")
+    )
   end
 end

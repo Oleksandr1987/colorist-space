@@ -72,3 +72,7 @@ uk:
       new_item: "+ Новий %{item}"
       back: "←"
       search: "Пошук..."
+
+  service_notes:
+    errors:
+      services_required: "Будь ласка, оберіть хоча б одну послугу"

@@ -13,7 +13,6 @@ class Appointment < ApplicationRecord
   validate :valid_end_time
   validate :no_time_conflicts
   validate :time_step_interval
-  # validate :must_have_main_service
 
   before_validation :set_default_end_time, if: -> { appointment_time.present? && end_time.blank? }
   before_save :set_service_name

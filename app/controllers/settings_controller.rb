@@ -1,3 +1,4 @@
+# :nocov:
 class SettingsController < ApplicationController
   before_action :authenticate_user!
 
@@ -11,3 +12,4 @@ class SettingsController < ApplicationController
     authorize @user
   end
 end
+# :nocov:

@@ -41,6 +41,31 @@ RSpec.describe "Analytics", type: :request do
       expect(Expense.total_expenses(scope)).to eq(100)
       expect(Expense.grouped_expenses(scope)).to eq({ "Оренда" => 100 })
     end
+
+    it "assigns category filter when category valid" do
+      get expenses_analytics_path, params: {
+        category: Expense::CATEGORIES.first
+      }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "ignores invalid category" do
+      get expenses_analytics_path, params: {
+        category: "INVALID_CATEGORY"
+      }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "falls back to default dates when invalid dates passed" do
+      get expenses_analytics_path, params: {
+        from: "INVALID_DATE",
+        to: "INVALID_DATE"
+      }
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 
   describe "GET /analytics/income" do

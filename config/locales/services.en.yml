@@ -72,3 +72,7 @@ en:
       new_item: "+ New %{item}"
       back: "←"
       search: "Search..."
+
+  service_notes:
+    errors:
+      services_required: "Please select at least one service"

@@ -78,6 +78,30 @@ RSpec.describe "Clients", type: :request do
 
       expect(response).to have_http_status(:unprocessable_content)
     end
+
+    it "redirects when client with same phone already exists" do
+      existing_client = create(
+        :client,
+        user: user,
+        phone: "+380930000999"
+      )
+
+      post clients_path, params: {
+        client: {
+          first_name: "New",
+          last_name: "Client",
+          phone: "0930000999"
+        }
+      }
+
+      expect(response).to redirect_to(
+        edit_client_path(existing_client, locale: I18n.locale)
+      )
+
+      expect(flash[:alert]).to eq(
+        "Client with this phone already exists. You can update their info."
+      )
+    end
   end
 
   describe "GET /clients/:id/edit" do
@@ -98,6 +122,18 @@ RSpec.describe "Clients", type: :request do
 
       expect(response).to redirect_to(client_url(client, locale: I18n.locale))
       expect(client.reload.first_name).to eq("Updated")
+    end
+
+    it "renders edit when update invalid" do
+      patch client_path(client), params: {
+        client: {
+          first_name: "",
+          last_name: "",
+          phone: ""
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
@@ -155,6 +191,20 @@ RSpec.describe "Clients", type: :request do
       delete delete_all_photos_client_path(client)
 
       expect(response).to redirect_to(client_url(client, locale: I18n.locale))
+    end
+  end
+
+  describe "PATCH /clients/:id/make_primary" do
+    it "marks phone as primary" do
+      allow_any_instance_of(Client)
+        .to receive(:make_primary!)
+        .with("+380111111111")
+
+      patch make_primary_client_path(client), params: {
+        phone: "+380111111111"
+      }
+
+      expect(response).to have_http_status(:ok)
     end
   end
 end

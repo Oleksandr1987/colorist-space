@@ -21,7 +21,9 @@ FactoryBot.define do
       appointment.end_time ||= appointment.appointment_time + 30.minutes
     end
 
-   after(:create) do |appointment, evaluator|
+    after(:create) do |appointment, evaluator|
+      next if evaluator.main_service.blank? && evaluator.extra_services.blank?
+
       if evaluator.main_service.present?
         AppointmentServicesRelation.create!(
           appointment: appointment,

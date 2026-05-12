@@ -1,3 +1,5 @@
+# spec/models/appointment_spec.rb
+
 require "rails_helper"
 
 RSpec.describe Appointment, type: :model do
@@ -5,7 +7,9 @@ RSpec.describe Appointment, type: :model do
 
   let(:user) { create(:user) }
   let(:client) { create(:client, user: user) }
-  let(:main_service) { create(:service, user: user) }
+  let(:main_service) { create(:service, user: user, subtype: "Coloring", price: 100) }
+  let(:extra_service) { create(:service, user: user, subtype: "Haircut", price: 200) }
+  let(:appointment) { create(:appointment, user: user, client: client, main_service: main_service) }
 
   describe "validations" do
     subject do
@@ -64,15 +68,12 @@ RSpec.describe Appointment, type: :model do
 
   describe "#total_price" do
     it "returns sum of service prices" do
-      s1 = create(:service, price: 100, user: user)
-      s2 = create(:service, price: 200, user: user)
-
       appointment = create(
         :appointment,
         user: user,
         client: client,
-        main_service: s1,
-        extra_services: [ s2 ]
+        main_service: main_service,
+        extra_services: [ extra_service ]
       )
 
       expect(appointment.total_price).to eq(300)
@@ -80,78 +81,55 @@ RSpec.describe Appointment, type: :model do
   end
 
   describe "#combined_service_name" do
-    let(:coloring_service) { create(:service, subtype: "Coloring", user: user) }
-
-    let(:haircut_service) { create(:service, subtype: "Haircut", user: user) }
-
     it "joins service subtypes" do
       appointment = create(
         :appointment,
         user: user,
         client: client,
-        main_service: coloring_service,
-        extra_services: [ haircut_service ]
+        main_service: main_service,
+        extra_services: [ extra_service ]
       )
 
-      expect(appointment.combined_service_name)
-        .to eq("Coloring + Haircut")
+      expect(appointment.combined_service_name).to eq("Coloring + Haircut")
     end
 
     it "returns service_note services when present" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client
-      )
-
       service_note = create(
         :service_note,
+        services_count: 0,
         appointment: appointment,
         user: user,
         client: client
       )
 
-      service_note.services << [ haircut_service, coloring_service ]
+      service_note.services = [ extra_service, main_service ]
+      service_note.save!
 
-      expect(appointment.reload.combined_service_name)
-        .to eq("Haircut + Coloring")
+      expect(
+        appointment.reload
+          .combined_service_name
+          .split(" + ")
+      ).to contain_exactly(
+        "Haircut",
+        "Coloring"
+      )
     end
 
     it "falls back to appointment services if service_note has no services" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client
-      )
-
-      AppointmentServicesRelation.create!(
-        appointment: appointment,
-        service: coloring_service
-      )
-
       create(
         :service_note,
+        :without_services,
         appointment: appointment,
         user: user,
         client: client
       )
 
-      expect(appointment.reload.combined_service_name)
-        .to eq("Coloring")
+      expect(appointment.reload.combined_service_name).to eq("Coloring")
     end
   end
 
   describe "#as_calendar_json" do
     it "returns formatted calendar hash" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.current,
-        appointment_time: "10:00",
-        main_service: main_service
-      )
-
       json = appointment.as_calendar_json
 
       expect(json[:id]).to eq(appointment.id)
@@ -160,26 +138,12 @@ RSpec.describe Appointment, type: :model do
     end
 
     it "returns nil service_note_id when no service note exists" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client,
-        main_service: main_service
-      )
-
       json = appointment.as_calendar_json
 
       expect(json[:service_note_id]).to be_nil
     end
 
     it "handles nil end_time" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client,
-        main_service: main_service
-      )
-
       appointment.update_column(:end_time, nil)
 
       json = appointment.as_calendar_json
@@ -188,12 +152,6 @@ RSpec.describe Appointment, type: :model do
     end
 
     it "includes service_note_id when present" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client
-      )
-
       service_note = create(
         :service_note,
         appointment: appointment,
@@ -230,11 +188,8 @@ RSpec.describe Appointment, type: :model do
     before do
       slot_rules_relation = double
 
-      allow(user).to receive(:slot_rules)
-        .and_return(slot_rules_relation)
-
-      allow(slot_rules_relation).to receive(:select)
-        .and_return([ slot_rule ])
+      allow(user).to receive(:slot_rules).and_return(slot_rules_relation)
+      allow(slot_rules_relation).to receive(:select).and_return([ slot_rule ])
     end
 
     it "returns all slots when there are no appointments" do
@@ -256,9 +211,7 @@ RSpec.describe Appointment, type: :model do
       slots = described_class.available_slots(user, date)
 
       expect(slots.length).to eq(1)
-
-      expect(slots.first[:start].strftime("%H:%M"))
-        .to eq("11:00")
+      expect(slots.first[:start].strftime("%H:%M")).to eq("11:00")
     end
 
     it "keeps non-conflicting slots" do
@@ -346,19 +299,17 @@ RSpec.describe Appointment, type: :model do
       )
 
       expect(grouped.keys).to contain_exactly("March 2026", "April 2026")
-
       expect(grouped["March 2026"]).to contain_exactly(appointment_in_first_month)
       expect(grouped["April 2026"]).to contain_exactly(appointment_in_second_month)
     end
   end
 
   describe "callbacks: service_note sync" do
-    let(:appointment) { create(:appointment, user: user, client: client) }
     let(:service_note) { create(:service_note, appointment: appointment, client: client, user: user) }
 
     describe "#sync_service_note_client" do
       it "updates service_note client when appointment client changes" do
-        service_note = create(:service_note, appointment: appointment, user: user, client: client)
+        service_note
 
         new_client = create(:client, user: user)
 
@@ -373,7 +324,9 @@ RSpec.describe Appointment, type: :model do
         appointment_without_note = create(:appointment, user: user, client: client)
 
         expect {
-          appointment_without_note.update!(client: create(:client, user: user))
+          appointment_without_note.update!(
+            client: create(:client, user: user)
+          )
         }.not_to raise_error
       end
     end
@@ -381,7 +334,6 @@ RSpec.describe Appointment, type: :model do
     describe "#sync_service_note_notes" do
       it "updates service_note notes after save" do
         service_note.update_column(:notes, nil)
-
         appointment.update!(notes: "Updated from appointment")
 
         expect(service_note.reload.notes).to eq("Updated from appointment")
@@ -391,17 +343,18 @@ RSpec.describe Appointment, type: :model do
         service_note.update!(notes: "Same note")
         appointment.update!(notes: "Same note")
 
-        expect {
-          appointment.save!
-        }.not_to change { service_note.reload.notes }
+        expect { appointment.save! }.not_to change { service_note.reload.notes }
       end
 
       it "does nothing if no service_note" do
-        appointment_without_note = create(:appointment, user: user, client: client, notes: "Test")
+        appointment_without_note = create(
+          :appointment,
+          user: user,
+          client: client,
+          notes: "Test"
+        )
 
-        expect {
-          appointment_without_note.save!
-        }.not_to raise_error
+        expect { appointment_without_note.save! }.not_to raise_error
       end
     end
   end
@@ -409,21 +362,8 @@ RSpec.describe Appointment, type: :model do
   describe "private validations and callbacks" do
     describe "#set_service_name" do
       it "sets service_name from service_ids when services are empty" do
-        service = create(
-          :service,
-          subtype: "Coloring",
-          user: user
-        )
-
-        appointment = build(
-          :appointment,
-          user: user,
-          client: client,
-          main_service: nil
-        )
-
-        appointment.service_ids = [ service.id ]
-
+        appointment = build(:appointment, user: user, client: client, main_service: nil)
+        appointment.service_ids = [ main_service.id ]
         appointment.save!
 
         expect(appointment.service_name).to eq("Coloring")
@@ -442,8 +382,7 @@ RSpec.describe Appointment, type: :model do
 
         expect(appointment).not_to be_valid
 
-        expect(appointment.errors[:appointment_date])
-          .to include("can't be in the past")
+        expect(appointment.errors[:appointment_date]).to include("can't be in the past")
       end
     end
 
@@ -461,9 +400,7 @@ RSpec.describe Appointment, type: :model do
         )
 
         expect(appointment).not_to be_valid
-
-        expect(appointment.errors[:end_time])
-          .to include("must be later than start time")
+        expect(appointment.errors[:end_time]).to include("must be later than start time")
       end
     end
 
@@ -479,9 +416,7 @@ RSpec.describe Appointment, type: :model do
         )
 
         expect(appointment).not_to be_valid
-
-        expect(appointment.errors[:appointment_time])
-          .to include("must be in 5-minute intervals")
+        expect(appointment.errors[:appointment_time]).to include("must be in 5-minute intervals")
       end
     end
   end

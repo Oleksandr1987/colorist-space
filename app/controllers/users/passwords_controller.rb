@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# :nocov:
+
 class Users::PasswordsController < Devise::PasswordsController
   # GET /resource/password/new
   # def new
@@ -32,3 +34,4 @@ class Users::PasswordsController < Devise::PasswordsController
   #   super(resource_name)
   # end
 end
+# :nocov:

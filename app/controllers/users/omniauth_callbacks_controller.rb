@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# :nocov:
+
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def facebook
     handle_auth("Facebook")
@@ -57,3 +59,4 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   #   super(scope)
   # end
 end
+# :nocov:

@@ -26,6 +26,18 @@ RSpec.describe "FormulaSteps", type: :request do
 
       expect(response).to redirect_to(client_service_note_path(client, service_note, locale: I18n.locale))
     end
+
+    it "renders show when formula step invalid" do
+      expect do
+        post client_service_note_formula_steps_path(client, service_note), params: {
+          formula_step: {
+            section: nil
+          }
+        }
+      end.not_to change(FormulaStep, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
   end
 
   describe "PATCH /formula_steps/:id" do
@@ -53,6 +65,20 @@ RSpec.describe "FormulaSteps", type: :request do
           "amount" => 30
         }
       )
+    end
+
+    it "renders show when update invalid" do
+      patch client_service_note_formula_step_path(
+        client,
+        service_note,
+        formula_step
+      ), params: {
+        formula_step: {
+          section: nil
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
