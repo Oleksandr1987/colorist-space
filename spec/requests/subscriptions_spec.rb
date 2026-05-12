@@ -1,8 +1,6 @@
-# spec/requests/subscriptions_spec.rb
-
 require "rails_helper"
 
-RSpec.describe "Subscriptions", type: :request do
+RSpec.describe "Subscriptions" do
   include Devise::Test::IntegrationHelpers
 
   let(:user) do

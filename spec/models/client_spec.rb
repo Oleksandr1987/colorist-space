@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Client, type: :model do
+RSpec.describe Client do
   describe "associations" do
     it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:appointments).dependent(:destroy) }
@@ -131,7 +131,7 @@ RSpec.describe Client, type: :model do
 
       client.photos.attach(file)
 
-      decorated = double("decorated_photo")
+      decorated = instance_double(PhotoDecorator)
 
       allow(PhotoDecorator)
         .to receive(:decorate)

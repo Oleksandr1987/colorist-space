@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Clients", type: :request do
+RSpec.describe "Clients" do
   include Devise::Test::IntegrationHelpers
 
   let(:user) { create(:user, :trial) }
@@ -196,7 +196,7 @@ RSpec.describe "Clients", type: :request do
 
   describe "PATCH /clients/:id/make_primary" do
     it "marks phone as primary" do
-      allow_any_instance_of(Client)
+      allow(client)
         .to receive(:make_primary!)
         .with("+380111111111")
 

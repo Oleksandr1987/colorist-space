@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "FormulaSteps", type: :request do
+RSpec.describe "FormulaSteps" do
   include Devise::Test::IntegrationHelpers
 
   let(:user) { create(:user, :trial) }

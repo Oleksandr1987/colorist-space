@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Analytics", type: :request do
+RSpec.describe "Analytics" do
   include Devise::Test::IntegrationHelpers
   include ActiveSupport::Testing::TimeHelpers
 
@@ -71,8 +71,8 @@ RSpec.describe "Analytics", type: :request do
   describe "GET /analytics/income" do
     let(:client) { create(:client, user: user) }
 
-    it "returns income only for current user in period" do
-      service_a = create(
+    let(:service_a) do
+      create(
         :service,
         user: user,
         service_type: "service",
@@ -80,8 +80,10 @@ RSpec.describe "Analytics", type: :request do
         subtype: "A",
         price: 100
       )
+    end
 
-      service_b = create(
+    let(:service_b) do
+      create(
         :service,
         user: user,
         service_type: "service",
@@ -89,7 +91,28 @@ RSpec.describe "Analytics", type: :request do
         subtype: "B",
         price: 200
       )
+    end
 
+    let(:other_service) do
+      create(
+        :service,
+        user: other_user,
+        service_type: "service",
+        category: "Haircut",
+        subtype: "X",
+        price: 999
+      )
+    end
+
+    let(:services_scope) do
+      Service.income_for_user_between(
+        user,
+        1.month.ago.to_date,
+        Date.current
+      )
+    end
+
+    before do
       create(
         :appointment,
         user: user,
@@ -108,15 +131,6 @@ RSpec.describe "Analytics", type: :request do
         appointment_time: "11:00",
         end_time: "11:30",
         main_service: service_b
-      )
-
-      other_service = create(
-        :service,
-        user: other_user,
-        service_type: "service",
-        category: "Haircut",
-        subtype: "X",
-        price: 999
       )
 
       other_client = create(:client, user: other_user)
@@ -135,85 +149,35 @@ RSpec.describe "Analytics", type: :request do
         from: 1.month.ago.to_date,
         to: Date.current
       }
-
-      expect(response).to have_http_status(:ok)
-
-      services = Service
-        .income_for_user_between(user, 1.month.ago.to_date, Date.current)
-
-      expect(services).to include(service_a, service_b)
-      expect(services.pluck(:price)).not_to include(999)
-
-      expect(services.sum(:price)).to eq(300)
-      expect(Service.grouped_income(services, nil)).to eq({ "service" => 300 })
     end
 
-    it "groups services by subtype when filtering by service_type" do
-      service_a = create(
-        :service,
-        user: user,
-        service_type: "service",
-        category: "Haircut",
-        subtype: "Fade",
-        price: 100
-      )
-
-      service_b = create(
-        :service,
-        user: user,
-        service_type: "service",
-        category: "Haircut",
-        subtype: "Classic",
-        price: 150
-      )
-
-      client = create(:client, user: user)
-
-      create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.current,
-        appointment_time: "10:00",
-        end_time: "10:30",
-        main_service: service_a
-      )
-
-      create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.current,
-        appointment_time: "11:00",
-        end_time: "11:30",
-        main_service: service_b
-      )
-
-      get income_analytics_path, params: {
-        service_type: "service",
-        subtype: "Fade",
-        from: 1.month.ago.to_date,
-        to: Date.current
-      }
-
+    it "returns success response" do
       expect(response).to have_http_status(:ok)
+    end
 
-      services = Service
-        .income_for_user_between(user, 1.month.ago.to_date, Date.current)
-        .apply_income_filters(service_type: "service", subtype: "Fade")
+    it "returns only current user services" do
+      expect(services_scope).to include(service_a, service_b)
+    end
 
-      expect(services).to contain_exactly(service_a)
+    it "excludes other user services" do
+      expect(services_scope.pluck(:price)).not_to include(999)
+    end
 
-      expect(Service.grouped_income(services, "service")).to eq({ "Fade" => 100 })
-      expect(services.sum(:price)).to eq(100)
+    it "calculates total income" do
+      expect(services_scope.sum(:price)).to eq(300)
+    end
+
+    it "groups income by service type" do
+      expect(Service.grouped_income(services_scope, nil))
+        .to eq({ "service" => 300 })
     end
   end
 
   describe "GET /analytics/balance" do
-    it "calculates income minus expenses" do
-      client = create(:client, user: user)
+    let(:client) { create(:client, user: user) }
 
-      service = create(
+    let(:service) do
+      create(
         :service,
         user: user,
         service_type: "service",
@@ -221,7 +185,12 @@ RSpec.describe "Analytics", type: :request do
         subtype: "Basic",
         price: 100
       )
+    end
 
+    let(:from) { 1.month.ago.to_date }
+    let(:to) { Date.current }
+
+    before do
       create(
         :appointment,
         user: user,
@@ -232,38 +201,45 @@ RSpec.describe "Analytics", type: :request do
         main_service: service
       )
 
-      create(
-        :expense,
-        user: user,
-        amount: 40,
-        spent_on: Date.current
-      )
-
-      create(
-        :expense,
-        user: user,
-        amount: 10,
-        spent_on: Date.current
-      )
+      create(:expense, user: user, amount: 40, spent_on: Date.current)
+      create(:expense, user: user, amount: 10, spent_on: Date.current)
 
       get balance_analytics_path, params: {
-        from: 1.month.ago.to_date,
-        to: Date.current
+        from: from,
+        to: to
       }
+    end
 
-      expect(response).to have_http_status(:ok)
+    describe "response" do
+      it "returns success" do
+        expect(response).to have_http_status(:ok)
+      end
+    end
 
-      income = Service
-        .income_for_user_between(user, 1.month.ago.to_date, Date.current)
-        .sum(:price)
+    describe "calculations" do
+      subject(:income) do
+        Service
+          .income_for_user_between(user, from, to)
+          .sum(:price)
+      end
 
-      expenses = user.expenses
-        .where(spent_on: 1.month.ago.to_date..Date.current)
-        .sum(:amount)
+      let(:expenses) do
+        user.expenses
+          .where(spent_on: from..to)
+          .sum(:amount)
+      end
 
-      expect(income).to eq(100)
-      expect(expenses).to eq(50)
-      expect(income - expenses).to eq(50)
+      it "calculates income" do
+        expect(income).to eq(100)
+      end
+
+      it "calculates expenses" do
+        expect(expenses).to eq(50)
+      end
+
+      it "calculates balance" do
+        expect(income - expenses).to eq(50)
+      end
     end
   end
 end

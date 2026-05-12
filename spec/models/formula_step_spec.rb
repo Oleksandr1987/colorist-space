@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe FormulaStep, type: :model do
+RSpec.describe FormulaStep do
   describe "associations" do
     it { is_expected.to belong_to(:service_note) }
     it { is_expected.to have_many(:formula_ingredients).dependent(:destroy) }

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "ServiceNotes", type: :request do
+RSpec.describe "ServiceNotes" do
   include Devise::Test::IntegrationHelpers
 
   let(:user) { create(:user, :trial) }

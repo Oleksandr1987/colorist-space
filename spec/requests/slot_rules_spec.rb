@@ -1,8 +1,6 @@
-# spec/requests/slot_rules_spec.rb
-
 require "rails_helper"
 
-RSpec.describe "SlotRules", type: :request do
+RSpec.describe "SlotRules" do
   include Devise::Test::IntegrationHelpers
 
   let(:user) { create(:user, :trial) }

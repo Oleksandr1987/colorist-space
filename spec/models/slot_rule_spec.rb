@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe SlotRule, type: :model do
+RSpec.describe SlotRule do
   describe "associations" do
     it { is_expected.to belong_to(:user) }
   end
@@ -84,7 +84,7 @@ RSpec.describe SlotRule, type: :model do
         weekdays: [ Date.current.strftime("%A").downcase ]
       )
 
-      expect(slot_rule.active_on?(Date.current)).to eq(true)
+      expect(slot_rule.active_on?(Date.current)).to be(true)
     end
 
     it "returns false when schedule does not occur on date" do
@@ -93,9 +93,9 @@ RSpec.describe SlotRule, type: :model do
         weekdays: [ "monday" ]
       )
 
-      date = Date.parse("2026-05-12") # tuesday
+      date = Date.parse("2026-05-12")
 
-      expect(slot_rule.active_on?(date)).to eq(false)
+      expect(slot_rule.active_on?(date)).to be(false)
     end
 
     it "returns nil when schedule absent" do

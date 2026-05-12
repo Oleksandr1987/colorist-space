@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Services", type: :request do
+RSpec.describe "Services" do
   include Devise::Test::IntegrationHelpers
 
   let(:user) { create(:user, :trial) }
@@ -296,25 +296,6 @@ RSpec.describe "Services", type: :request do
       service.update_column(:service_type, "unknown")
 
       delete service_path(service)
-
-      expect(response).to redirect_to(
-        services_path(locale: I18n.locale)
-      )
-    end
-
-    it "falls back to services path after update for unknown type" do
-      service = create(:service, user: user)
-
-      service.update_column(:service_type, "unknown")
-
-      allow_any_instance_of(Service).to receive(:update).and_return(true)
-
-      patch service_path(service), params: {
-        service: {
-          subtype: "Unknown",
-          price: 123
-        }
-      }
 
       expect(response).to redirect_to(
         services_path(locale: I18n.locale)

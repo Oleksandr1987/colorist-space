@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Static pages", type: :request do
+RSpec.describe "Static pages" do
   describe "GET /privacy_policy" do
     it "renders privacy policy page" do
       get "/privacy_policy"

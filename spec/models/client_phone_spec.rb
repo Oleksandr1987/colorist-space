@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe ClientPhone, type: :model do
+RSpec.describe ClientPhone do
   describe "associations" do
     it { is_expected.to belong_to(:client) }
   end

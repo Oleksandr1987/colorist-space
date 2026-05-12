@@ -1,17 +1,18 @@
 require "rails_helper"
 
-RSpec.describe ServiceNote, type: :model do
+RSpec.describe ServiceNote do
   let(:appointment) { create(:appointment) }
   let(:service) { create(:service, subtype: "Color", price: 100) }
   let(:extra_service) { create(:service, subtype: "Cut", price: 200) }
   let(:note) { create(:service_note, appointment: appointment) }
-  let(:step1) { instance_double(FormulaStep, oxidant_amount: 10, oxidant_total_price: 50) }
-  let(:step2) { instance_double(FormulaStep, oxidant_amount: 15, oxidant_total_price: 75) }
+  let(:step_one) { instance_double(FormulaStep, oxidant_amount: 10, oxidant_total_price: 50) }
+  let(:step_two) { instance_double(FormulaStep, oxidant_amount: 15, oxidant_total_price: 75) }
 
   def stub_totals(note, developer: 0, care: 0)
-    allow(note).to receive(:developer_total_price).and_return(developer)
-
-    allow(note).to receive(:care_products_total).and_return(care)
+    allow(note).to receive_messages(
+      developer_total_price: developer,
+      care_products_total: care
+    )
   end
 
   describe "associations" do
@@ -28,7 +29,7 @@ RSpec.describe ServiceNote, type: :model do
     let!(:newer) { create(:service_note, client: client, user: user, created_at: 1.day.ago) }
 
     it "returns notes ordered by created_at desc" do
-      expect(ServiceNote.for_client(client.id)).to eq([ newer, older ])
+      expect(described_class.for_client(client.id)).to eq([ newer, older ])
     end
   end
 
@@ -85,7 +86,7 @@ RSpec.describe ServiceNote, type: :model do
   describe "callbacks: notes sync" do
     let(:appointment) { create(:appointment, notes: "Appointment note") }
 
-    context "copy_notes_from_appointment" do
+    context "when copy_notes_from_appointment" do
       it "copies notes from appointment on create if notes blank" do
         note = build(:service_note, appointment: appointment, notes: nil)
 
@@ -113,7 +114,7 @@ RSpec.describe ServiceNote, type: :model do
       end
     end
 
-    context "sync_appointment_notes" do
+    context "when sync_appointment_notes" do
       it "updates appointment notes after save" do
         note = create(:service_note, appointment: appointment, notes: "New note")
 
@@ -135,13 +136,13 @@ RSpec.describe ServiceNote, type: :model do
   end
 
   describe "callbacks: services sync" do
-    context "sync_appointment_services" do
+    context "when sync_appointment_services" do
       it "syncs services to appointment after save" do
         note.services = [ service, extra_service ]
 
         note.save!
 
-        expect(appointment.reload.services).to match_array([ service, extra_service ])
+        expect(appointment.reload.services).to contain_exactly(service, extra_service)
       end
 
       it "updates service_name on appointment" do
@@ -153,7 +154,7 @@ RSpec.describe ServiceNote, type: :model do
       end
     end
 
-    context "clear_appointment_services" do
+    context "when clear_appointment_services" do
       it "clears services on appointment when service_note destroyed" do
         note.services = [ service ]
 
@@ -188,7 +189,7 @@ RSpec.describe ServiceNote, type: :model do
     it "returns own services when present" do
       note.services = [ service ]
 
-      expect(note.all_services).to match_array([ service ])
+      expect(note.all_services).to contain_exactly(service)
     end
 
     it "returns appointment services when own services absent" do
@@ -199,7 +200,7 @@ RSpec.describe ServiceNote, type: :model do
       built_note.services = []
 
       expect(built_note.services).to be_empty
-      expect(built_note.all_services).to match_array([ service ])
+      expect(built_note.all_services).to contain_exactly(service)
     end
 
     it "returns appointment services when note has no services and appointment has services" do
@@ -210,8 +211,8 @@ RSpec.describe ServiceNote, type: :model do
       built_note.services = []
 
       expect(built_note.services).to be_empty
-      expect(built_note.appointment.services).to match_array([ service ])
-      expect(built_note.all_services).to match_array([ service ])
+      expect(built_note.appointment.services).to contain_exactly(service)
+      expect(built_note.all_services).to contain_exactly(service)
     end
 
     it "returns empty relation when appointment is nil" do
@@ -226,7 +227,7 @@ RSpec.describe ServiceNote, type: :model do
 
   describe "#developer_total_amount" do
     it "returns sum of oxidant amounts" do
-      allow(note).to receive(:formula_steps).and_return([ step1, step2 ])
+      allow(note).to receive(:formula_steps).and_return([ step_one, step_two ])
 
       expect(note.developer_total_amount).to eq(25)
     end
@@ -238,7 +239,7 @@ RSpec.describe ServiceNote, type: :model do
 
   describe "#developer_total_price" do
     it "returns sum of oxidant total prices" do
-      allow(note).to receive(:formula_steps).and_return([ step1, step2 ])
+      allow(note).to receive(:formula_steps).and_return([ step_one, step_two ])
 
       expect(note.developer_total_price).to eq(125)
     end
@@ -313,7 +314,7 @@ RSpec.describe ServiceNote, type: :model do
 
       note.photos.attach(file)
 
-      decorated = double("decorated_photo")
+      decorated = instance_double(PhotoDecorator)
 
       allow(PhotoDecorator).to receive(:decorate).and_return(decorated)
 
@@ -331,7 +332,7 @@ RSpec.describe ServiceNote, type: :model do
     it "does not overwrite appointment services when services empty" do
       appointment.services << service
 
-      empty_note = ServiceNote.new(appointment: appointment, user: appointment.user, client: appointment.client)
+      empty_note = described_class.new(appointment: appointment, user: appointment.user, client: appointment.client)
 
       allow(empty_note).to receive(:services).and_return(Service.none)
 

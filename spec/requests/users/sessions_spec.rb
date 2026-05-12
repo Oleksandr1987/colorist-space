@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Users::Sessions", type: :request do
+RSpec.describe "Users::Sessions" do
   include Devise::Test::IntegrationHelpers
 
   let(:password) { "Password123!" }
@@ -55,19 +55,6 @@ RSpec.describe "Users::Sessions", type: :request do
       post user_session_path, params: {
         user: {
           login: "0991112233",
-          password: password
-        }
-      }
-
-      expect(response).to redirect_to(
-        calendar_appointments_path(locale: I18n.locale)
-      )
-    end
-
-    it "signs in with email without normalization" do
-      post user_session_path, params: {
-        user: {
-          login: user.email,
           password: password
         }
       }

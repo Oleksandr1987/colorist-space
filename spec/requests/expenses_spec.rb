@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Expenses", type: :request do
+RSpec.describe "Expenses" do
   include Devise::Test::IntegrationHelpers
 
   let(:user) { create(:user, :trial) }

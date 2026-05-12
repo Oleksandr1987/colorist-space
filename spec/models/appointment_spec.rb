@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Appointment, type: :model do
+RSpec.describe Appointment do
   include ActiveSupport::Testing::TimeHelpers
 
   let(:user) { create(:user) }
