@@ -1,13 +1,12 @@
 Rails.application.routes.draw do
 
-  devise_for(
-    :users,
-    controllers: {
-      registrations: "users/registrations",
-      sessions: "users/sessions",
-      omniauth_callbacks: "users/omniauth_callbacks"
-    }
-  )
+  devise_for :users,
+           controllers: {
+             registrations: "users/registrations",
+             sessions: "users/sessions",
+             omniauth_callbacks: "users/omniauth_callbacks"
+           }
+
   #     post :add_ingredient, on: :member
   #     resources :formula_steps, only: [ :create, :update, :destroy ] do
   #       member do
