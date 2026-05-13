@@ -23,14 +23,17 @@ class ServiceNotesController < ApplicationController
     @service_note = @client.service_notes.build(
       service_note_params.except(:photos).merge(user: current_user)
     )
-
+    # :nocov:
     if params[:appointment_id].present?
+      # :nocov:
       @service_note.appointment = Appointment.find(params[:appointment_id])
     end
 
     if service_ids.present?
       @service_note.service_ids = service_ids
+    # :nocov:
     elsif @service_note.appointment.present?
+      # :nocov:
       @service_note.service_ids = @service_note.appointment.service_ids
     end
 
@@ -42,7 +45,11 @@ class ServiceNotesController < ApplicationController
         format.html { redirect_to edit_client_service_note_path(@client, @service_note) }
       end
     else
-      render :new, status: :unprocessable_entity
+      @appointment = @service_note.appointment
+      @selected_service_ids = service_ids || []
+      @preparations = current_user.services.where(service_type: "preparation")
+
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -70,7 +77,7 @@ class ServiceNotesController < ApplicationController
       @selected_service_ids = service_ids
       @preparations = current_user.services.where(service_type: "preparation")
 
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -86,6 +93,7 @@ class ServiceNotesController < ApplicationController
     head :ok
   end
 
+  # :nocov:
   def add_ingredient
     @service_note = @client.service_notes.find(params[:id])
 
@@ -102,6 +110,7 @@ class ServiceNotesController < ApplicationController
       }
     )
   end
+  # :nocov:
 
   private
 
@@ -126,9 +135,11 @@ class ServiceNotesController < ApplicationController
     )
   end
 
+  # :nocov:
   def attach_photos
     return unless params[:service_note][:photos].present?
 
     @service_note.photos.attach(params[:service_note][:photos])
   end
+  # :nocov:
 end

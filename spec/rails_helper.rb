@@ -54,7 +54,7 @@ RSpec.configure do |config|
   # RSpec Rails uses metadata to mix in different behaviours to your tests,
   # for example enabling you to call `get` and `post` in request specs. e.g.:
   #
-  #     RSpec.describe UsersController, type: :request do
+  #     RSpec.describe UsersController  do
   #       # ...
   #     end
   #
@@ -66,7 +66,7 @@ RSpec.configure do |config|
   # behaviour is considered legacy and will be removed in a future version.
   #
   # To enable this behaviour uncomment the line below.
-  # config.infer_spec_type_from_file_location!
+  config.infer_spec_type_from_file_location!
 
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!

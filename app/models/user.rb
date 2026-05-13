@@ -22,7 +22,9 @@ class User < ApplicationRecord
       conditions = warden_conditions.dup
       login = conditions.delete(:login)&.strip
 
-      if login.present? && !login.include?("@")
+      return nil if login.blank?
+
+      if !login.include?("@")
         login = PhoneValidator.normalize(login)
       end
 

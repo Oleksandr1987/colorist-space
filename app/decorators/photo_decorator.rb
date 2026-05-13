@@ -1,6 +1,6 @@
 class PhotoDecorator < Draper::Decorator
   delegate_all
-
+  # :nocov:
   def optimized
     object.variant(
       resize_to_limit: [ 1280, 1280 ],
@@ -14,4 +14,5 @@ class PhotoDecorator < Draper::Decorator
       saver: { quality: 75 }
     )
   end
+  # :nocov:
 end

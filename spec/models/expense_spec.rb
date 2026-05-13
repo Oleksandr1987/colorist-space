@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Expense, type: :model do
+RSpec.describe Expense do
   describe "associations" do
     it { is_expected.to belong_to(:user) }
   end
@@ -86,7 +86,7 @@ RSpec.describe Expense, type: :model do
       create(:expense, category: "rent", amount: 50)
       create(:expense, category: "other", amount: 10)
 
-      grouped = described_class.grouped_expenses(Expense.all)
+      grouped = described_class.grouped_expenses(described_class.all)
 
       expect(grouped).to eq({ "rent" => 150, "other" => 10 })
     end
@@ -95,7 +95,7 @@ RSpec.describe Expense, type: :model do
       create(:expense, amount: 40)
       create(:expense, amount: 60)
 
-      expect(described_class.total_expenses(Expense.all)).to eq(100)
+      expect(described_class.total_expenses(described_class.all)).to eq(100)
     end
 
     it ".monthly_expenses groups by month label" do
@@ -104,7 +104,7 @@ RSpec.describe Expense, type: :model do
         create(:expense, spent_on: Date.new(2026, 1, 20))
         create(:expense, spent_on: Date.new(2026, 2, 1))
 
-        grouped = described_class.monthly_expenses(Expense.all)
+        grouped = described_class.monthly_expenses(described_class.all)
 
         expect(grouped.keys).to contain_exactly("February 2026", "January 2026")
         expect(grouped["January 2026"].size).to eq(2)

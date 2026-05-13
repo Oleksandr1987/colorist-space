@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "FormulaSteps", type: :request do
+RSpec.describe "FormulaSteps" do
   include Devise::Test::IntegrationHelpers
 
   let(:user) { create(:user, :trial) }
@@ -26,16 +26,59 @@ RSpec.describe "FormulaSteps", type: :request do
 
       expect(response).to redirect_to(client_service_note_path(client, service_note, locale: I18n.locale))
     end
+
+    it "renders show when formula step invalid" do
+      expect do
+        post client_service_note_formula_steps_path(client, service_note), params: {
+          formula_step: {
+            section: nil
+          }
+        }
+      end.not_to change(FormulaStep, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
   end
 
   describe "PATCH /formula_steps/:id" do
     it "updates the formula step" do
-      patch client_service_note_formula_step_path(client, service_note, formula_step), params: {
-        formula_step: { oxidant: "9%" }
+      oxidant_data = {
+        service_id: 1,
+        ratio: "1:2",
+        amount: 30
       }
 
-      expect(response).to redirect_to(client_service_note_path(client, service_note, locale: I18n.locale))
-      expect(formula_step.reload.oxidant).to eq("9%")
+      patch client_service_note_formula_step_path(client, service_note, formula_step), params: {
+        formula_step: {
+          oxidant: oxidant_data.to_json
+        }
+      }
+
+      expect(response).to redirect_to(
+        client_service_note_path(client, service_note, locale: I18n.locale)
+      )
+
+      expect(formula_step.reload.oxidant_data).to eq(
+        {
+          "service_id" => 1,
+          "ratio" => "1:2",
+          "amount" => 30
+        }
+      )
+    end
+
+    it "renders show when update invalid" do
+      patch client_service_note_formula_step_path(
+        client,
+        service_note,
+        formula_step
+      ), params: {
+        formula_step: {
+          section: nil
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 

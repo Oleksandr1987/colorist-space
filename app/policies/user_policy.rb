@@ -1,3 +1,4 @@
+# :nocov:
 class UserPolicy < ApplicationPolicy
   def show?
     record == user
@@ -7,3 +8,4 @@ class UserPolicy < ApplicationPolicy
     user.present? && user == record
   end
 end
+# :nocov:

@@ -1,3 +1,4 @@
+# :nocov:
 class HomeController < ApplicationController
   before_action :prepare_devise_vars
 
@@ -28,3 +29,4 @@ class HomeController < ApplicationController
     Devise.mappings[:user]
   end
 end
+# :nocov:

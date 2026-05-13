@@ -72,7 +72,7 @@
       </label>
 
       <%= text_field_tag "appointment[appointment_date]",
-        @appointment.appointment_date.strftime("%d.%m.%Y"),
+        (@appointment.appointment_date || Date.today).strftime("%d.%m.%Y"),
         class: "form-input",
         readonly: true,
         id: "appointment_date",

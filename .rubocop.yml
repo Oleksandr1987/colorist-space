@@ -1,4 +1,3 @@
-# Omakase Ruby styling for Rails
 inherit_gem:
   rubocop-rails-omakase: rubocop.yml
 
@@ -19,3 +18,22 @@ AllCops:
 
 Layout/LineLength:
   Max: 120
+
+RSpec:
+  Enabled: true
+
+RSpecRails:
+  Enabled: true
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+
+RSpec/ExampleLength:
+  Max: 25
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/NestedGroups:
+  Max: 5
+

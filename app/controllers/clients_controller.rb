@@ -50,7 +50,7 @@ class ClientsController < ApplicationController
       redirect_to edit_client_path(@client),
         notice: "Client was created. Please add hair details."
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -63,7 +63,7 @@ class ClientsController < ApplicationController
     if @client.update(client_params.except(:photos))
       redirect_to @client, notice: "Client was successfully updated."
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe AppointmentServicesRelation, type: :model do
+RSpec.describe AppointmentServicesRelation do
   describe "associations" do
     it { is_expected.to belong_to(:appointment).inverse_of(:appointment_services_relations) }
     it { is_expected.to belong_to(:service).inverse_of(:appointment_services_relations) }
@@ -12,11 +12,11 @@ RSpec.describe AppointmentServicesRelation, type: :model do
 
     let(:appointment) { create(:appointment, main_service: service_coloring) }
 
-    let!(:relation1) do
+    let!(:main_relation) do
       appointment.appointment_services_relations.first
     end
 
-    let!(:relation2) do
+    before do
       create(:appointment_services_relation,
         appointment: appointment,
         service: service_preparation
@@ -26,46 +26,46 @@ RSpec.describe AppointmentServicesRelation, type: :model do
     it "returns relations for given service type" do
       result = described_class.by_service_type("service")
 
-      expect(result).to contain_exactly(relation1)
+      expect(result).to contain_exactly(main_relation)
     end
   end
 
   describe "scope .for_user" do
-    let(:user1) { create(:user) }
-    let(:user2) { create(:user) }
+    let(:main_user) { create(:user) }
+    let(:add_user) { create(:user) }
 
     let(:service) { create(:service) }
 
-    let(:appointment1) do
+    let(:main_appointment) do
       create(:appointment,
-        user: user1,
+        user: main_user,
         main_service: service,
         appointment_time: Time.zone.parse("10:00"),
         end_time: Time.zone.parse("10:30")
       )
     end
 
-    let(:appointment2) do
+    let(:add_appointment) do
       create(:appointment,
-        user: user2,
+        user: add_user,
         main_service: service,
         appointment_time: Time.zone.parse("11:00"),
         end_time: Time.zone.parse("11:30")
       )
     end
 
-    let!(:relation1) do
-      appointment1.appointment_services_relations.first
+    let!(:main_relation) do
+      main_appointment.appointment_services_relations.first
     end
 
-    let!(:relation2) do
-      appointment2.appointment_services_relations.first
+    before do
+      add_appointment.appointment_services_relations.first
     end
 
     it "returns relations for given user" do
-      result = described_class.for_user(user1.id)
+      result = described_class.for_user(main_user.id)
 
-      expect(result).to contain_exactly(relation1)
+      expect(result).to contain_exactly(main_relation)
     end
   end
 end

@@ -38,20 +38,25 @@ class AppointmentsController < ApplicationController
   end
 
   def create
+    appointment_data = params.require(:appointment)
+
     client = Client.find_or_create_by_full_name(
       user: current_user,
-      full_name: params[:appointment][:client_name],
-      phone: params[:appointment][:phone]
+      full_name: appointment_data[:client_name],
+      phone: appointment_data[:phone]
     )
 
     @appointment = current_user.appointments.build(appointment_params.except(:service_ids))
+
     @appointment.client = client
-    @appointment.services = Service.where(id: params[:appointment][:service_ids])
+    @appointment.services = Service.where(
+      id: appointment_data[:service_ids]
+    )
 
     if @appointment.save
       redirect_to @appointment
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -73,7 +78,7 @@ class AppointmentsController < ApplicationController
     if @appointment.update(appointment_params.except(:service_ids))
       redirect_to @appointment, notice: "Appointment was successfully updated."
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

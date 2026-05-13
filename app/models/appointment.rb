@@ -13,7 +13,6 @@ class Appointment < ApplicationRecord
   validate :valid_end_time
   validate :no_time_conflicts
   validate :time_step_interval
-  # validate :must_have_main_service
 
   before_validation :set_default_end_time, if: -> { appointment_time.present? && end_time.blank? }
   before_save :set_service_name
@@ -56,10 +55,15 @@ class Appointment < ApplicationRecord
   end
 
   def combined_service_name
-    if service_note&.services&.any?
-      service_note.services.map(&:subtype).join(" + ")
+    note_services = service_note&.services.to_a
+
+    if note_services.present?
+      note_services.map(&:subtype).join(" + ")
     else
-      services.map(&:subtype).join(" + ")
+      Service.joins(:appointment_services_relations)
+            .where(appointment_services_relations: { appointment_id: id })
+            .pluck(:subtype)
+            .join(" + ")
     end
   end
 
@@ -102,8 +106,17 @@ class Appointment < ApplicationRecord
       slot_start = slot[:start]
       slot_end = slot[:end]
 
-      while pointer < appointments.length &&
-            appointments[pointer].end_time <= slot_start
+      while pointer < appointments.length
+        current_appointment = appointments[pointer]
+
+        current_end_time = current_appointment.end_time.change(
+          year: date.year,
+          month: date.month,
+          day: date.day
+        )
+
+        break unless current_end_time <= slot_start
+
         pointer += 1
       end
 

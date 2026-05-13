@@ -19,7 +19,7 @@ class ExpensesController < ApplicationController
     if @expense.save
       redirect_to expenses_path, notice: "Витрату успішно додано"
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -30,7 +30,7 @@ class ExpensesController < ApplicationController
     if @expense.update(expense_params)
       redirect_to expenses_path, notice: "Витрату оновлено"
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

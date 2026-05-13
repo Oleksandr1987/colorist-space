@@ -279,6 +279,20 @@ button:hover {
   text-align: left;
 }
 
+.form-errors {
+  margin: 12px 16px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #ffe5e5;
+  border: 1px solid #ffb3b3;
+}
+
+.form-error {
+  color: #c62828;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 /* MOBILE LOGIN */
 @media (max-width: 480px) {
   .screen__content {

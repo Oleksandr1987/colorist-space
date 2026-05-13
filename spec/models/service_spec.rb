@@ -1,12 +1,14 @@
 require "rails_helper"
 
-RSpec.describe Service, type: :model do
+RSpec.describe Service do
   include ActiveSupport::Testing::TimeHelpers
 
-  around do |example|
-    travel_to(Time.zone.local(2026, 1, 1, 10, 0, 0)) do
-      example.run
-    end
+  before do
+    travel_to(Time.zone.local(2026, 1, 1, 10, 0, 0))
+  end
+
+  after do
+    travel_back
   end
 
   describe "validations" do
@@ -49,15 +51,15 @@ RSpec.describe Service, type: :model do
 
     let(:prep) { create(:service, :preparation, user: user, price: 50) }
 
-    let(:appointment_in_range_1) { Date.current + 9.days }
-    let(:appointment_in_range_2) { Date.current + 11.days }
+    let(:appointment_one) { Date.current + 9.days }
+    let(:appointment_two) { Date.current + 11.days }
     let(:appointment_out_of_range) { Date.current + 31.days }
 
     before do
       create(:appointment,
         user: user,
         client: client,
-        appointment_date: appointment_in_range_1,
+        appointment_date: appointment_one,
         appointment_time: Time.zone.parse("10:00"),
         end_time: Time.zone.parse("10:30"),
         main_service: main_service,
@@ -67,7 +69,7 @@ RSpec.describe Service, type: :model do
       create(:appointment,
         user: user,
         client: client,
-        appointment_date: appointment_in_range_2,
+        appointment_date: appointment_two,
         appointment_time: Time.zone.parse("11:00"),
         end_time: Time.zone.parse("11:30"),
         main_service: main_service_b
@@ -95,7 +97,7 @@ RSpec.describe Service, type: :model do
       create(:appointment,
         user: other_user,
         client: other_client,
-        appointment_date: appointment_in_range_1,
+        appointment_date: appointment_one,
         appointment_time: Time.zone.parse("12:00"),
         end_time: Time.zone.parse("12:30"),
         main_service: other_users_service
@@ -154,12 +156,26 @@ RSpec.describe Service, type: :model do
 
       expect(monthly.keys).to include("service", "preparation")
 
-      month_label = appointment_in_range_1.strftime("%B %Y")
+      month_label = appointment_one.strftime("%B %Y")
 
       expect(monthly["service"].keys).to include(month_label)
       expect(monthly["preparation"].keys).to include(month_label)
 
       expect(monthly.dig("service", appointment_out_of_range.strftime("%B %Y"))).to be_nil
+    end
+
+    it ".grouped_income groups by name for non-service types" do
+      from = Date.current
+      to   = Date.current + 30.days
+
+      scope = described_class
+        .income_for_user_between(user, from, to)
+        .apply_income_filters(service_type: "preparation")
+
+      grouped = described_class.grouped_income(scope, "preparation")
+
+      expect(grouped.keys).to include(prep.name)
+      expect(grouped[prep.name]).to eq(50)
     end
   end
 end

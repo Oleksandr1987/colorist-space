@@ -12,6 +12,7 @@ class ServiceNote < ApplicationRecord
   accepts_nested_attributes_for :formula_steps, allow_destroy: true
 
   validates :appointment_id, uniqueness: true
+  validate :must_have_services
 
   scope :for_client, ->(client_id) { where(client_id: client_id).order(created_at: :desc) }
 
@@ -21,15 +22,6 @@ class ServiceNote < ApplicationRecord
   after_save :sync_appointment_services
   after_save :sync_appointment_notes
   after_destroy :clear_appointment_services
-
-  def short_title
-    case service_type
-    when "haircut" then "Стрижка"
-    when "coloring" then "Фарбування"
-    when "care" then "Догляд"
-    else service_type.to_s.capitalize
-    end
-  end
 
   def decorated_photos
     photos.map { |p| PhotoDecorator.decorate(p) }
@@ -90,6 +82,7 @@ class ServiceNote < ApplicationRecord
 
   def sync_appointment_services
     return unless appointment.present?
+    return if services.empty?
 
     appointment.services = services
 
@@ -111,5 +104,15 @@ class ServiceNote < ApplicationRecord
 
     appointment.services = []
     appointment.update_column(:service_name, nil)
+  end
+
+  def must_have_services
+    return if services.any?
+    return if appointment&.services&.any?
+
+    errors.add(
+      :base,
+      I18n.t("service_notes.errors.services_required")
+    )
   end
 end
