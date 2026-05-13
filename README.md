@@ -2,7 +2,7 @@
 
 ## RUBY VERSION
 
-Ruby 3.2.6  
+Ruby 3.3.7 
 Rails 8.1.2
 
 
