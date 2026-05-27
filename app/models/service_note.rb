@@ -11,6 +11,10 @@ class ServiceNote < ApplicationRecord
 
   accepts_nested_attributes_for :formula_steps, allow_destroy: true
 
+  has_many :haircut_steps, dependent: :destroy, inverse_of: :service_note
+
+  accepts_nested_attributes_for :haircut_steps, allow_destroy: true
+
   validates :appointment_id, uniqueness: true
   validate :must_have_services
 

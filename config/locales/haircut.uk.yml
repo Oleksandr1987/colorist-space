@@ -1,0 +1,50 @@
+uk:
+  haircut:
+    title: "Стрижка"
+    step: "Крок"
+
+    add_zone: "+ Додати зону"
+    select_zone: "Оберіть зону"
+
+    zone: "Зона"
+    instrument: "Інструмент"
+    parting: "Проділ"
+    elevation: "Відтяжка"
+    cut_type: "Тип зрізу"
+
+    select_instrument: "Оберіть інструмент"
+    select_parting: "Оберіть проділ"
+    select_elevation: "Оберіть відтяжку"
+    select_cut_type: "Оберіть тип зрізу"
+
+    zones:
+      lower_occipital: "Нижня потилична"
+      upper_occipital: "Верхня потилична"
+      temporal: "Скронева"
+      fringe: "Чубчик"
+      crown: "Маківка"
+      all_over: "Вся голова"
+
+    instruments:
+      scissors: "Ножиці"
+      clipper: "Машинка"
+      razor: "Бритва"
+      texturizer: "Філірувальні"
+
+    partings:
+      vertical: "Вертикальний"
+      horizontal: "Горизонтальний"
+      diagonal_forward: "Діагональ вперед"
+      diagonal_back: "Діагональ назад"
+
+    elevations:
+      "0": "0°"
+      "45": "45°"
+      "90": "90°"
+      "180": "180°"
+
+    cut_types:
+      classic: "Класичний"
+      slide_cut: "Слайсинг"
+      point_cut: "Пойнтинг"
+      blunt: "Тупий зріз"

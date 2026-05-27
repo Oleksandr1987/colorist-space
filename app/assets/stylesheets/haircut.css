@@ -1,0 +1,32 @@
+.haircut-zones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.zone-chip {
+  border: none;
+  background: #f1f1f1;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.zone-chip.active {
+  background: #5b21b6;
+  color: white;
+}
+
+.haircut-zone-title {
+  text-transform: uppercase;
+}
+
+.haircut-zones-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.empty-haircut-step {
+  margin-top: 12px;
+}

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_08_155808) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_092025) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -120,6 +120,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_08_155808) do
     t.index ["service_note_id"], name: "index_formula_steps_on_service_note_id"
   end
 
+  create_table "haircut_steps", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "cut_type"
+    t.string "elevation"
+    t.string "instrument"
+    t.text "notes"
+    t.string "parting"
+    t.integer "service_note_id", null: false
+    t.datetime "updated_at", null: false
+    t.string "zone"
+    t.index ["service_note_id"], name: "index_haircut_steps_on_service_note_id"
+  end
+
   create_table "service_note_services", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "service_id", null: false
@@ -204,6 +217,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_08_155808) do
   add_foreign_key "expenses", "users"
   add_foreign_key "formula_ingredients", "formula_steps"
   add_foreign_key "formula_steps", "service_notes"
+  add_foreign_key "haircut_steps", "service_notes"
   add_foreign_key "service_note_services", "service_notes"
   add_foreign_key "service_note_services", "services"
   add_foreign_key "service_notes", "appointments"

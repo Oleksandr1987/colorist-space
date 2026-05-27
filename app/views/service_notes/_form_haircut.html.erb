@@ -1,0 +1,216 @@
+<div class="haircut-container"
+     data-controller="haircut"
+
+     data-haircut-title-value="<%= t('haircut.title') %>"
+     data-haircut-select-zone-value="<%= t('haircut.select_zone') %>"
+
+     data-haircut-zones-value="<%= {
+       "lower occipital" => t("haircut.zones.lower_occipital"),
+				"upper occipital" => t("haircut.zones.upper_occipital"),
+				"temporal" => t("haircut.zones.temporal"),
+				"fringe" => t("haircut.zones.fringe"),
+				"crown" => t("haircut.zones.crown"),
+				"all over" => t("haircut.zones.all_over")
+     }.to_json %>">
+
+  <div class="haircut-steps"
+       data-haircut-target="container">
+
+    <%= f.fields_for :haircut_steps do |step_form| %>
+
+      <div class="formula-step-wrapper"
+           data-controller="collapse">
+
+        <!-- HEADER -->
+        <div class="formula-step-header"
+             data-action="click->collapse#toggle">
+
+          <span>
+						<%= t("haircut.step") %>
+						<span class="step-number"></span>
+					</span>
+
+          <svg class="chevron"
+               xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 24 24"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="2">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="formula-step-content"
+             data-collapse-target="content">
+
+          <div class="formula-card">
+
+            <!-- HEADER -->
+            <div class="formula-header">
+
+              <span class="haircut-zone-title">
+                <%= step_form.object.zone.present? ?
+										t("haircut.zones.#{step_form.object.zone.parameterize(separator: '_')}") :
+										t("haircut.zone") %>
+              </span>
+
+              <div class="step-remove">
+
+                <%= step_form.hidden_field :_destroy,
+                      value: 0,
+                      class: "destroy-field" %>
+
+                <%= step_form.hidden_field :zone %>
+
+                <button type="button"
+                        data-action="click->haircut#removeStep">
+                  ✕
+                </button>
+
+              </div>
+            </div>
+
+            <!-- INSTRUMENT -->
+            <div class="formula-block">
+
+              <div class="block-title">
+                <span><%= t("haircut.instrument") %></span>
+              </div>
+
+              <%= step_form.select :instrument,
+									HaircutStep::INSTRUMENTS.map { |instrument|
+										[
+											t("haircut.instruments.#{instrument}"),
+											instrument
+										]
+									},
+									{
+										include_blank: t("haircut.select_instrument")
+									},
+									class: "input-line" %>
+
+            </div>
+
+            <!-- PARTING -->
+            <div class="formula-block">
+
+              <div class="block-title">
+                <span><%= t("haircut.parting") %></span>
+              </div>
+
+              <%= step_form.select :parting,
+									HaircutStep::PARTINGS.map { |parting|
+										[
+											t("haircut.partings.#{parting}"),
+											parting
+										]
+									},
+									{
+										include_blank: t("haircut.select_parting")
+									},
+									class: "input-line" %>
+
+            </div>
+
+            <!-- ELEVATION -->
+            <div class="formula-block">
+
+              <div class="block-title">
+                <span><%= t("haircut.elevation") %></span>
+              </div>
+
+              <%= step_form.select :elevation,
+									HaircutStep::ELEVATIONS.map { |elevation|
+										[
+											t("haircut.elevations.#{elevation}"),
+											elevation
+										]
+									},
+									{
+										include_blank: t("haircut.select_elevation")
+									},
+									class: "input-line" %>
+
+            </div>
+
+            <!-- CUT -->
+            <div class="formula-block">
+
+              <div class="block-title">
+                <span><%= t("haircut.cut_type") %></span>
+              </div>
+
+              <%= step_form.select :cut_type,
+									HaircutStep::CUT_TYPES.map { |cut|
+										[
+											t("haircut.cut_types.#{cut}"),
+											cut
+										]
+									},
+									{
+										include_blank: t("haircut.select_cut_type")
+									},
+									class: "input-line" %>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    <% end %>
+
+  </div>
+
+  <!-- ADD STEP -->
+  <div class="formula-add-step"
+       data-haircut-target="addStep"
+       data-controller="collapse">
+
+    <div class="add-step-btn"
+         data-action="click->collapse#toggle">
+
+      <span><%= t("haircut.add_zone") %></span>
+
+      <svg class="chevron"
+           xmlns="http://www.w3.org/2000/svg"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
+    </div>
+
+    <div class="add-step-content hidden"
+         data-collapse-target="content">
+
+      <div class="haircut-zones-grid">
+
+        <% HaircutStep::ZONES.each do |zone| %>
+
+          <button type="button"
+                  class="section-btn"
+                  data-action="click->haircut#createStep click->collapse#close"
+                  data-zone="<%= zone %>">
+
+            <%= t("haircut.zones.#{zone.parameterize(separator: '_')}") %>
+
+          </button>
+
+        <% end %>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <%= render "service_notes/empty_haircut_step" if @service_note.haircut_steps.empty? %>
+
+  <%= render "service_notes/haircut_step_template" %>
+
+</div>

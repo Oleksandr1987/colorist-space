@@ -13,6 +13,8 @@ class ServiceNotesController < ApplicationController
       appointment: @appointment
     )
 
+    @service_note.haircut_steps.build
+
     @selected_service_ids = @appointment.service_ids
     @preparations = current_user.services.where(service_type: "preparation")
   end
@@ -57,6 +59,7 @@ class ServiceNotesController < ApplicationController
     @appointment = @service_note.appointment
 
     @selected_service_ids = @service_note.service_ids
+    @service_note.haircut_steps.build if @service_note.haircut_steps.empty?
     @preparations = current_user.services.where(service_type: "preparation")
   end
 
@@ -128,6 +131,12 @@ class ServiceNotesController < ApplicationController
       care_products: [ :name, :price, :qty ],
       photos: [],
       service_ids: [],
+      haircut_steps_attributes: [
+        :id, :zone, :instrument,
+        :parting, :elevation,
+        :cut_type, :notes,
+        :_destroy
+      ],
       formula_steps_attributes: [
         :id, :section, :oxidant, :time, :_destroy,
         formula_ingredients_attributes: {}

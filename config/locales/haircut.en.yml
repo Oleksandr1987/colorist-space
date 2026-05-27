@@ -1,0 +1,50 @@
+en:
+  haircut:
+    title: "Haircut"
+    step: "Step"
+
+    add_zone: "+ Add zone"
+    select_zone: "Select zone"
+
+    zone: "Zone"
+    instrument: "Instrument"
+    parting: "Parting"
+    elevation: "Elevation"
+    cut_type: "Cut type"
+
+    select_instrument: "Select instrument"
+    select_parting: "Select parting"
+    select_elevation: "Select elevation"
+    select_cut_type: "Select cut type"
+
+    zones:
+      lower_occipital: "Lower occipital"
+      upper_occipital: "Upper occipital"
+      temporal: "Temporal"
+      fringe: "Fringe"
+      crown: "Crown"
+      all_over: "All over"
+
+    instruments:
+      scissors: "Scissors"
+      clipper: "Clipper"
+      razor: "Razor"
+      texturizer: "Texturizer"
+
+    partings:
+      vertical: "Vertical"
+      horizontal: "Horizontal"
+      diagonal_forward: "Diagonal forward"
+      diagonal_back: "Diagonal back"
+
+    elevations:
+      "0": "0°"
+      "45": "45°"
+      "90": "90°"
+      "180": "180°"
+
+    cut_types:
+      classic: "Classic"
+      slide_cut: "Slide cut"
+      point_cut: "Point cut"
+      blunt: "Blunt"
