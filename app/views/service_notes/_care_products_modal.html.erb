@@ -1,0 +1,92 @@
+<div class="care-products-modal hidden"
+     data-care-products-target="modal"
+     data-action="click->care-products#closeModal">
+
+  <div class="care-products-modal-content"
+       data-action="click->care-products#stop">
+
+    <div class="care-products-modal-header">
+      <h3><%= t("care_products.title") %></h3>
+
+      <button type="button"
+              data-action="click->care-products#closeModal">
+        ×
+      </button>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="care-products-modal-search">
+      <input type="text"
+             class="form-input"
+             placeholder="<%= t('care_products.search') %>"
+             data-care-products-target="search"
+             data-action="input->care-products#search">
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="care-products-modal-list"
+         data-care-products-target="productsList">
+
+      <% current_user.services.where(service_type: "care_product").order(:subtype).each do |product| %>
+
+        <div class="care-product-option">
+
+          <div>
+            <strong><%= product.subtype %></strong>
+            <small><%= product.price %> ₴</small>
+          </div>
+
+          <button type="button"
+                  data-action="click->care-products#addProduct"
+                  data-id="<%= product.id %>"
+                  data-name="<%= product.subtype %>"
+                  data-price="<%= product.price %>">
+            +
+          </button>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- NEW PRODUCT -->
+    <div class="care-products-new">
+      <button type="button"
+              class="button secondary"
+              data-action="click->care-products#showNewForm">
+        + <%= t("care_products.new_product") %>
+      </button>
+    </div>
+
+    <!-- CREATE FORM -->
+    <div class="hidden"
+         data-care-products-target="newForm">
+
+      <div class="form-section">
+        <input type="text"
+               class="form-input"
+               placeholder="<%= t('care_products.name') %>"
+               data-care-products-target="newName">
+      </div>
+
+      <div class="form-section">
+        <input type="number"
+               class="form-input"
+               placeholder="<%= t('care_products.price') %>"
+               data-care-products-target="newPrice">
+      </div>
+
+      <div class="form-actions-row">
+        <button type="button"
+                class="button primary"
+                data-action="click->care-products#createProduct">
+          <%= t("common.save") %>
+        </button>
+
+        <button type="button"
+                class="button secondary"
+                data-action="click->care-products#hideNewForm">
+          <%= t("common.cancel") %>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

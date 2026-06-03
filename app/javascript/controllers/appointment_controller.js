@@ -4,15 +4,13 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "checkboxes", "total", "modal", "list", "selected", "field",
-    "serviceSelected", "preparationSelected", "careProductSelected", "hiddenInput",
+    "serviceSelected", "hiddenInput",
     "appointmentTime", "endTime", "timeError", "saveButton"
   ]
 
   connect() {
     this.selected = {
-      service: [],
-      preparation: [],
-      care_product: []
+      service: []
     }
 
     if (this.hasHiddenInputTarget && this.hiddenInputTarget.value) {
@@ -80,7 +78,7 @@ export default class extends Controller {
   }
 
   updateSelected() {
-    const all = [...this.selected.service, ...this.selected.preparation, ...this.selected.care_product]
+    const all = [...this.selected.service]
 
     if (this.hasHiddenInputTarget) {
       const container = this.hiddenInputTarget.parentElement
@@ -98,8 +96,6 @@ export default class extends Controller {
     }
 
     this.updateTargetContent("serviceSelected", this.selected.service)
-    this.updateTargetContent("preparationSelected", this.selected.preparation)
-    this.updateTargetContent("careProductSelected", this.selected.care_product)
   }
 
   updateTargetContent(targetName, items) {
@@ -121,7 +117,7 @@ export default class extends Controller {
 
   recalculate() {
     let total = 0
-    const all = [...this.selected.service, ...this.selected.preparation, ...this.selected.care_product]
+    const all = [...this.selected.service]
     all.forEach(item => {
       const price = parseInt(item.price)
       if (!isNaN(price)) total += price

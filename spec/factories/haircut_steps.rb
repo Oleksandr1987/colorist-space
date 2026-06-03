@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :haircut_step do
-    service_note { nil }
+    association :service_note
     zone { "MyString" }
     instrument { "MyString" }
     parting { "MyString" }

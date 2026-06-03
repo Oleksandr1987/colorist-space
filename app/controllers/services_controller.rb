@@ -84,10 +84,24 @@ class ServicesController < ApplicationController
     @service.service_type = "care_product"
 
     if @service.save
-      redirect_to care_products_services_path, notice: "Care product created successfully."
+      respond_to do |format|
+        format.html do
+          redirect_to care_products_services_path,
+            notice: "Care product created successfully."
+        end
+
+        format.json do
+          render json: {
+            id: @service.id,
+            name: @service.subtype,
+            price: @service.price
+          }
+        end
+      end
     else
-      @care_products = current_user.services.where(service_type: "care_product").order(:subtype)
-      render :care_products, status: :unprocessable_content
+      render json: {
+        errors: @service.errors.full_messages
+      }, status: :unprocessable_content
     end
   end
 

@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["tab", "tabContent", "priceValue", "priceInput", "servicesList", "developerPrice", "developerAmount", "developerList", "finalPrice"]
+  static targets = ["tab", "tabContent", "priceValue", "priceInput", "servicesList", "developerPrice", "developerAmount", "developerList", "finalPrice", "careProductsList"]
 
   connect() {
     this.handleServicesChanged = () => {
@@ -17,17 +17,26 @@ export default class extends Controller {
       this.calculateFinal()
     }
 
+    this.handleCareProductsChanged = () => {
+      this.renderCareProducts()
+      this.calculateFinal()
+    }
+
     window.addEventListener("formula:changed", this.handleFormulaChanged)
 
     window.addEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
 
+    window.addEventListener("care-products:changed", this.handleCareProductsChanged)
+
     this.handleServicesChanged()
+    this.renderCareProducts()
   }
 
   disconnect() {
     window.removeEventListener("services:changed", this.handleServicesChanged)
     window.removeEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
     window.removeEventListener("formula:changed", this.handleFormulaChanged)
+    window.removeEventListener("care-products:changed", this.handleCareProductsChanged)
   }
 
   showTab(event) {
@@ -109,6 +118,7 @@ export default class extends Controller {
 
     window.dispatchEvent(new CustomEvent("services:changed"))
   }
+
   calculateServices() {
     let total = 0
 
@@ -197,17 +207,48 @@ export default class extends Controller {
     })
   }
 
-  calculateCareProducts() {
-    let total = 0
+  renderCareProducts() {
+    if (!this.hasCareProductsListTarget) return
 
-    this.element.querySelectorAll("[data-care-products-item]").forEach(item => {
-      const price = parseFloat(item.dataset.price || 0)
-      const qty = parseInt(item.dataset.qty || 0)
+    this.careProductsListTarget.innerHTML = ""
 
-      total += price * qty
+    document.querySelectorAll(".care-product-row").forEach(row => {
+      this.careProductsListTarget.insertAdjacentHTML(
+        "beforeend",
+        row.outerHTML
+      )
     })
+  }
 
-    return total
+  calculateCareProducts() {
+    const input = document.querySelector(
+      "input[name='service_note[care_products]']"
+    )
+
+    if (!input) return 0
+
+    let products = []
+
+    try {
+      products = JSON.parse(input.value || "[]")
+
+      if (typeof products === "string") {
+        products = JSON.parse(products)
+      }
+
+      if (!Array.isArray(products)) {
+        products = []
+      }
+    } catch {
+      return 0
+    }
+
+    return products.reduce((sum, item) => {
+      return sum + (
+        parseFloat(item.price || 0) *
+        parseFloat(item.qty || 0)
+      )
+    }, 0)
   }
 
   calculateFinal() {

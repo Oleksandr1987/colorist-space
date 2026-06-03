@@ -39,6 +39,18 @@ RSpec.describe "ServiceNotes" do
 
       expect(response.body).to include(service.subtype)
     end
+
+    it "builds haircut step in edit flow when empty" do
+      service_note = create(:service_note)
+
+      service_note.haircut_steps.destroy_all
+
+      expect(service_note.haircut_steps).to be_empty
+
+      service_note.haircut_steps.build
+
+      expect(service_note.haircut_steps.size).to eq(1)
+    end
   end
 
   describe "POST /service_notes" do
@@ -108,6 +120,60 @@ RSpec.describe "ServiceNotes" do
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include(I18n.t("service_notes.errors.services_required"))
     end
+
+    it "creates service note with blank care_products" do
+      service = create(:service, user: user)
+
+      post client_service_notes_path(client), params: {
+        appointment_id: appointment.id,
+        service_note: {
+          service_type: "coloring",
+          service_ids: [ service.id ],
+          care_products: ""
+        }
+      }
+
+      expect(ServiceNote.last.care_products).to eq([])
+    end
+
+    it "parses care_products json on create" do
+      service = create(:service, user: user)
+
+      post client_service_notes_path(client), params: {
+        appointment_id: appointment.id,
+        service_note: {
+          service_type: "coloring",
+          service_ids: [ service.id ],
+          care_products: [
+            {
+              service_id: 1,
+              name: "Mask",
+              price: 100,
+              qty: 2
+            }
+          ].to_json
+        }
+      }
+
+      expect(ServiceNote.last.care_products).to eq(
+        [ { "service_id" => 1, "name" => "Mask", "price" => 100, "qty" => 2 } ]
+      )
+    end
+
+    it "handles invalid care_products json" do
+      service = create(:service, user: user)
+
+      post client_service_notes_path(client), params: {
+        appointment_id: appointment.id,
+        service_note: {
+          service_type: "coloring",
+          service_ids: [ service.id ],
+          care_products: "{invalid-json"
+        }
+      }
+
+      expect(ServiceNote.last.care_products).to eq([])
+    end
   end
 
   describe "PATCH /service_notes/:id" do
@@ -144,6 +210,32 @@ RSpec.describe "ServiceNotes" do
       }
 
       expect(service_note.reload.service_ids).to eq([ service.id ])
+    end
+
+    it "updates care_products from json" do
+      patch client_service_note_path(client, service_note), params: {
+        service_note: {
+          care_products: [
+            {
+              service_id: 1,
+              name: "Shampoo",
+              price: 50,
+              qty: 3
+            }
+          ].to_json
+        }
+      }
+
+      expect(service_note.reload.care_products).to eq(
+        [
+          {
+            "service_id" => 1,
+            "name" => "Shampoo",
+            "price" => 50,
+            "qty" => 3
+          }
+        ]
+      )
     end
   end
 

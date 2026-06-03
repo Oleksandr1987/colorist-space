@@ -120,7 +120,6 @@
     <div class="form-section">
       <label>
         <%= t("appointments.form.services") %>
-        <span class="required-asterisk">*</span>
       </label>
       <div class="fake-input"
            data-action="click->appointment#open"
@@ -128,32 +127,6 @@
         <span data-appointment-target="serviceSelected"
               class="placeholder">
           <%= t("appointments.form.select_services") %>
-        </span>
-      </div>
-    </div>
-
-    <!-- Preparations -->
-    <div class="form-section">
-      <label><%= t("appointments.form.preparations") %></label>
-      <div class="fake-input"
-           data-action="click->appointment#open"
-           data-type="preparation">
-        <span data-appointment-target="preparationSelected"
-              class="placeholder">
-          <%= t("appointments.form.select_preparations") %>
-        </span>
-      </div>
-    </div>
-
-    <!-- Care Products -->
-    <div class="form-section">
-      <label><%= t("appointments.form.care_products") %></label>
-      <div class="fake-input"
-           data-action="click->appointment#open"
-           data-type="care_product">
-        <span data-appointment-target="careProductSelected"
-              class="placeholder">
-          <%= t("appointments.form.select_care_products") %>
         </span>
       </div>
     </div>
@@ -187,7 +160,5 @@
 
     <!-- Modals -->
     <%= render "appointments/modals/service_modal" %>
-    <%= render "appointments/modals/preparation_modal" %>
-    <%= render "appointments/modals/care_product_modal" %>
   <% end %>
 </div>

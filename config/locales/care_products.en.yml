@@ -1,0 +1,10 @@
+en:
+  care_products:
+    title: "Care Products"
+    total: "Total"
+    new_product: "New product"
+    name: "Name"
+    price: "Price"
+
+    add: "Add"
+    search: "Search"

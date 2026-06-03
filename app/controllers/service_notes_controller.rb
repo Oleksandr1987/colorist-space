@@ -23,7 +23,12 @@ class ServiceNotesController < ApplicationController
     service_ids = params[:service_note][:service_ids]&.uniq
 
     @service_note = @client.service_notes.build(
-      service_note_params.except(:photos).merge(user: current_user)
+      service_note_params
+        .except(:photos)
+        .merge(
+          user: current_user,
+          care_products: parse_care_products
+        )
     )
     # :nocov:
     if params[:appointment_id].present?
@@ -65,10 +70,16 @@ class ServiceNotesController < ApplicationController
 
   def update
     service_ids = params[:service_note][:service_ids]&.uniq || []
+    care_products = parse_care_products
 
     if @service_note.update(
-        service_note_params.except(:photos).merge(service_ids: service_ids)
-      )
+        service_note_params
+         .except(:photos)
+         .merge(
+           service_ids: service_ids,
+           care_products: care_products
+          )
+        )
       attach_photos
 
       respond_to do |format|
@@ -128,7 +139,7 @@ class ServiceNotesController < ApplicationController
   def service_note_params
     params.require(:service_note).permit(
       :service_type, :notes, :price,
-      care_products: [ :name, :price, :qty ],
+      :care_products,
       photos: [],
       service_ids: [],
       haircut_steps_attributes: [
@@ -142,6 +153,16 @@ class ServiceNotesController < ApplicationController
         formula_ingredients_attributes: {}
       ]
     )
+  end
+
+  def parse_care_products
+    value = params.dig(:service_note, :care_products)
+
+    return [] if value.blank?
+
+    JSON.parse(value)
+  rescue JSON::ParserError
+    []
   end
 
   # :nocov:
