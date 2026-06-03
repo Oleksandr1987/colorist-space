@@ -2,14 +2,17 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type","selected"]
+  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type","selected", "toggleButton"]
 
   static values = {
     categories: Object,
-    subtypes: Object
+    subtypes: Object,
+    addLabel: String,
+    saveLabel: String
   }
 
   connect() {
+    this.hasChanges = false
     this.boundOutsideClick = this.handleOutsideClick.bind(this)
     window.addEventListener("click", this.boundOutsideClick)
 
@@ -48,6 +51,15 @@ export default class extends Controller {
   }
 
   toggleMenu() {
+    if (!this.menuTarget.classList.contains("hidden") && this.hasChanges) {
+      this.closeMenu()
+
+      this.hasChanges = false
+      this.toggleButtonTarget.textContent = this.addLabelValue
+
+      return
+    }
+
     this.menuTarget.classList.toggle("hidden")
   }
 
@@ -165,6 +177,9 @@ export default class extends Controller {
       this.removeSelected(id)
     }
 
+    this.hasChanges = true
+    this.toggleButtonTarget.textContent = this.saveLabelValue
+
     this.dispatchServicesChanged()
   }
 
@@ -201,6 +216,9 @@ export default class extends Controller {
     if (checkbox) checkbox.checked = false
 
     row.remove()
+
+    this.hasChanges = true
+    this.toggleButtonTarget.textContent = this.saveLabelValue
 
     this.dispatchServicesChanged()
   }

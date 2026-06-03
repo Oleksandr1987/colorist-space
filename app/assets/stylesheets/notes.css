@@ -74,3 +74,14 @@
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
 }
+
+.notes-care-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.notes-care-total {
+  margin-top: 8px;
+  font-weight: 600;
+}

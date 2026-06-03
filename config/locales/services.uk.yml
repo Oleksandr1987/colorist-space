@@ -74,5 +74,9 @@ uk:
       search: "Пошук..."
 
   service_notes:
+    services:
+      add: "Додати послугу"
+      save: "Зберегти"
+
     errors:
       services_required: "Будь ласка, оберіть хоча б одну послугу"

@@ -94,11 +94,6 @@ export default class extends Controller {
       const html = `
         <div class="notes-service-item" data-id="${id}">
           <span>${name}</span>
-          <button type="button"
-                  class="remove"
-                  data-action="click->service-note#removeFromNotes">
-            ×
-          </button>
         </div>
       `
 
@@ -190,34 +185,85 @@ export default class extends Controller {
 
     this.developerListTarget.innerHTML = ""
 
+    let total = 0
+
     Object.values(grouped).forEach(dev => {
+      total += dev.total
+
       const html = `
         <div class="notes-dev-row">
-          <span class="notes-dev-name">
-            ${dev.name}
-          </span>
-
-          <span class="notes-dev-info">
-            ${dev.amount}g ${dev.total} ₴
-          </span>
+          <span>${dev.name}</span>
+          <span>${dev.amount}g</span>
         </div>
       `
 
-      this.developerListTarget.insertAdjacentHTML("beforeend", html)
+      this.developerListTarget.insertAdjacentHTML(
+        "beforeend",
+        html
+      )
     })
+
+    if (this.hasDeveloperPriceTarget) {
+      this.developerPriceTarget.innerHTML = `
+        Developer price: ${total} ₴
+      `
+    }
   }
 
   renderCareProducts() {
     if (!this.hasCareProductsListTarget) return
 
+    const input = document.querySelector(
+      "input[name='service_note[care_products]']"
+    )
+
+    if (!input) return
+
+    let products = []
+
+    try {
+      products = JSON.parse(input.value || "[]")
+
+      if (typeof products === "string") {
+        products = JSON.parse(products)
+      }
+
+      if (!Array.isArray(products)) {
+        products = []
+      }
+    } catch {
+      products = []
+    }
+
+    let total = 0
+
     this.careProductsListTarget.innerHTML = ""
 
-    document.querySelectorAll(".care-product-row").forEach(row => {
+    products.forEach(product => {
+      const qty = parseFloat(product.qty || 0)
+      const price = parseFloat(product.price || 0)
+
+      total += qty * price
+
       this.careProductsListTarget.insertAdjacentHTML(
         "beforeend",
-        row.outerHTML
+        `
+          <div class="notes-care-row">
+            <span>${product.name}</span>
+            <span> ${qty}</span>
+          </div>
+        `
       )
     })
+
+    this.careProductsListTarget.insertAdjacentHTML(
+      "beforeend",
+      `
+        <div class="notes-care-total">
+          Care products price: ${total} ₴
+        </div>
+      `
+    )
   }
 
   calculateCareProducts() {
@@ -281,12 +327,12 @@ export default class extends Controller {
       this.finalPriceTarget.textContent = final
     }
 
-    if (this.hasDeveloperPriceTarget) {
-      this.developerPriceTarget.textContent = developer + " ₴"
-    }
+    // if (this.hasDeveloperPriceTarget) {
+    //   this.developerPriceTarget.textContent = developer + " ₴"
+    // }
 
-    if (this.hasDeveloperAmountTarget) {
-      this.developerAmountTarget.textContent = developerGrams + "g"
-    }
+    // if (this.hasDeveloperAmountTarget) {
+    //   this.developerAmountTarget.textContent = developerGrams + "g"
+    // }
   }
 }
