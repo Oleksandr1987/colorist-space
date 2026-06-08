@@ -55,7 +55,7 @@ export default class extends Controller {
 
     try {
       const parsed = JSON.parse(this.inputTarget.value || "{}")
-      hasValue = !!parsed.service_id
+      hasValue = !!parsed.formula_product_id
     } catch {
       hasValue = false
     }
@@ -86,11 +86,11 @@ export default class extends Controller {
     if (isEdit && this.inputTarget.value) {
       const data = JSON.parse(this.inputTarget.value)
 
-      this.selectedServiceId = data.service_id
+      this.selectedServiceId = data.formula_product_id
       this.selectedPrice = parseFloat(data.price || 0)
       this.selectedRatio = data.ratio
 
-      this.serviceSelectTarget.value = data.service_id
+      this.serviceSelectTarget.value = data.formula_product_id
 
       this.highlightRatio(data.ratio)
 
@@ -247,7 +247,7 @@ export default class extends Controller {
     if (!this.selectedServiceId) return
 
     const result = {
-      service_id: this.selectedServiceId,
+      formula_product_id: this.selectedServiceId,
       price: this.selectedPrice,
       ratio: this.selectedRatio,
       amount: amount
@@ -325,6 +325,12 @@ export default class extends Controller {
 
   // ---------------- SAVE ----------------
   save() {
+
+    console.log("SAVE", {
+      serviceId: this.selectedServiceId,
+      ratio: this.selectedRatio,
+      price: this.selectedPrice
+    })
     if (!this.selectedServiceId) return
 
     const amount = parseFloat(
@@ -332,7 +338,7 @@ export default class extends Controller {
     )
 
     const result = {
-      service_id: this.selectedServiceId,
+      formula_product_id: this.selectedServiceId,
       price: this.selectedPrice,
       ratio: this.selectedRatio,
       amount: amount
@@ -411,7 +417,7 @@ export default class extends Controller {
 
     this.colorAmount = event.detail.total || 0
 
-    this.selectedServiceId = data.service_id
+    this.selectedServiceId = data.formula_product_id
     this.selectedPrice = parseFloat(data.price || 0)
     this.selectedRatio = data.ratio
 
@@ -424,7 +430,7 @@ export default class extends Controller {
     }
 
     const updated = {
-      service_id: this.selectedServiceId,
+      formula_product_id: this.selectedServiceId,
       price: this.selectedPrice,
       ratio: this.selectedRatio,
       amount: amount
@@ -453,32 +459,39 @@ export default class extends Controller {
       return
     }
 
-    fetch("/services/create_preparation", {
+    fetch("/formula_products/create_oxidant", {
       method: "POST",
       headers: {
-        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+        "X-CSRF-Token": document.querySelector(
+          'meta[name="csrf-token"]'
+        ).content,
         "Content-Type": "application/json",
         "Accept": "application/json"
       },
       body: JSON.stringify({
-        service: {
-          subtype: name,
-          price: price,
-          service_type: "preparation"
-        }
+        name: name,
+        price_per_unit: price,
+        unit: "ml"
       })
     })
       .then(r => r.json())
       .then(data => {
         const option = document.createElement("option")
+
         option.value = data.id
-        option.textContent = `${data.subtype} (${data.price} ₴)`
+        option.textContent =
+          `${data.name} (${data.price} ₴ / ${data.unit})`
+
         option.dataset.price = data.price
 
         this.serviceSelectTarget.appendChild(option)
         this.serviceSelectTarget.value = data.id
 
         this.selectService()
+        console.log("NEW OXIDANT", {
+          id: data.id,
+          selected: this.selectedServiceId
+        })
 
         this.newNameTarget.value = ""
         this.newPriceTarget.value = ""

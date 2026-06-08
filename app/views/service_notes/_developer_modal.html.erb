@@ -22,9 +22,9 @@
                 class="input-line">
           <option value="">Choose...</option>
 
-          <% current_user.services.where(service_type: "preparation").each do |prep| %>
-            <option value="<%= prep.id %>" data-price="<%= prep.price %>">
-              <%= prep.subtype %> (<%= prep.price %> ₴ / <%= prep.unit %>)
+          <% current_user.formula_products.where(category: "oxidant").each do |oxid| %>
+            <option value="<%= oxid.id %>" data-price="<%= oxid.price_per_unit %>">
+              <%= oxid.name %> (<%= oxid.price_per_unit %> ₴ / <%= oxid.unit %>)
             </option>
           <% end %>
         </select>

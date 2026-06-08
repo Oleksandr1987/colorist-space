@@ -1,7 +1,6 @@
 <div class="color-modal hidden"
      data-controller="color"
-     data-color-target="modal"
-     data-action="click->color#closeModal">
+     data-color-target="modal">
 
   <div class="color-sheet"
        data-action="click->color#stop">
@@ -26,15 +25,103 @@
     <!-- BODY -->
     <div class="sheet-body">
 
+      <div class="color-selector">
+
+        <select data-color-target="productSelect"
+                data-action="change->color#addRow"
+                class="input-line">
+
+          <option value="" disabled selected hidden>
+            Select color...
+          </option>
+
+          <% current_user.formula_products.where(category: "color").order(:brand, :name).each do |color| %>
+
+            <option
+              value="<%= color.id %>"
+              data-brand="<%= color.brand %>"
+              data-name="<%= color.name %>"
+              data-price="<%= color.price_per_unit %>">
+
+              <%= color.brand %> - <%= color.name %>
+
+            </option>
+
+          <% end %>
+
+        </select>
+
+      </div>
+
       <div class="color-rows"
            data-color-target="rows">
       </div>
 
       <button type="button"
               class="add-color-btn"
-              data-action="click->color#addRow">
+              data-action="click->color#showNewColorForm">
         + ADD COLOR
       </button>
+
+      <div class="service-form-wrapper hidden"
+           data-color-target="newColorForm">
+
+        <div class="form-section">
+          <label>Brand</label>
+
+          <input type="text"
+                class="form-input"
+                data-color-target="newBrand">
+        </div>
+
+        <div class="form-section">
+          <label>Color name</label>
+
+          <input type="text"
+                class="form-input"
+                data-color-target="newName">
+        </div>
+
+        <div class="form-section">
+          <label>Unit</label>
+
+          <select class="form-input"
+                  data-color-target="newUnit">
+
+            <option value="g">
+              Gram
+            </option>
+
+            <option value="ml">
+              Milliliter
+            </option>
+
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label>Price per unit</label>
+
+          <input type="number"
+                step="0.01"
+                class="form-input"
+                data-color-target="newPrice">
+        </div>
+
+        <div class="form-actions-row">
+          <button type="button"
+                  class="form-button primary"
+                  data-action="click->color#createColor">
+            Save
+          </button>
+
+          <button type="button"
+                  class="form-button cancel"
+                  data-action="click->color#hideNewColorForm">
+            Cancel
+          </button>
+        </div>
+      </div>
 
     </div>
 

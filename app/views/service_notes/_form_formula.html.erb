@@ -120,6 +120,14 @@
                     data-field="amount">
 
                   <input type="hidden"
+                    name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][formula_product_id]"
+                    data-field="formula_product_id">
+
+                  <input type="hidden"
+                    name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][price]"
+                    data-field="price">
+
+                  <input type="hidden"
                     name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][_destroy]"
                     value="0"
                     data-field="destroy">
@@ -135,7 +143,10 @@
                 <button type="button"
                         class="add-btn-small add-dev-btn"
                         data-action="click->developer#openModal"
-                        style="<%= 'display: none;' if step_form.object.oxidant_data&.dig("service_id").present? %>">
+                        style="<%= 'display: none;' if (
+                          step_form.object.oxidant_data&.dig("formula_product_id").present? ||
+                          step_form.object.oxidant_data&.dig("service_id").present?
+                        ) %>">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 </button>
               </div>
@@ -146,15 +157,20 @@
               <div class="dev-display"
                    data-developer-target="display">
 
-                <% if step_form.object.oxidant_data&.dig("service_id").present? %>
+                <% if (
+                    step_form.object.oxidant_data&.dig("formula_product_id").present? ||
+                    step_form.object.oxidant_data&.dig("service_id").present?
+                  ) %>
                   <% data = step_form.object.oxidant_data || {} %>
-                  <% service = current_user.services.find_by(id: data["service_id"]) %>
+                  <% oxidant = current_user.formula_products.find_by(
+                        id: data["formula_product_id"] || data["service_id"]
+                      ) %>
 
                   <div class="dev-row-display">
 
                     <div class="dev-left">
                       <span class="dev-name">
-                        <%= service&.subtype || "Unknown" %>
+                        <%= oxidant&.name || "Unknown" %>
                       </span>
 
                       <% if data["ratio"].present? %>

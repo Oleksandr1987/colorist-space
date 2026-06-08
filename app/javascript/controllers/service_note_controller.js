@@ -147,7 +147,7 @@ export default class extends Controller {
         return
       }
 
-      const serviceId = data.service_id
+      const serviceId = data.formula_product_id || data.service_id
       const amount = parseFloat(data.amount || 0)
       const price = parseFloat(data.price || 0)
 
@@ -187,26 +187,105 @@ export default class extends Controller {
 
     let total = 0
 
-    Object.values(grouped).forEach(dev => {
-      total += dev.total
+    //
+    // COLORS
+    //
+    const colors = {}
 
-      const html = `
-        <div class="notes-dev-row">
-          <span>${dev.name}</span>
-          <span>${dev.amount}g</span>
-        </div>
-      `
+    document.querySelectorAll(
+      ".ingredient-fields"
+    ).forEach(wrapper => {
+
+      const destroy =
+        wrapper.querySelector(
+          "[data-field='destroy']"
+        )
+
+      if (destroy?.value === "1") return
+
+      const shade =
+        wrapper.querySelector(
+          "[data-field='shade']"
+        )?.value
+
+      const amount =
+        parseFloat(
+          wrapper.querySelector(
+            "[data-field='amount']"
+          )?.value || 0
+        )
+
+      if (!shade || amount <= 0) return
+
+      if (!colors[shade]) {
+        colors[shade] = 0
+      }
+
+      colors[shade] += amount
+    })
+
+    if (Object.keys(colors).length > 0) {
 
       this.developerListTarget.insertAdjacentHTML(
         "beforeend",
-        html
+        `
+          <div class="notes-subtitle">
+            Colors
+          </div>
+        `
       )
-    })
+
+      Object.entries(colors).forEach(([name, amount]) => {
+
+        this.developerListTarget.insertAdjacentHTML(
+          "beforeend",
+          `
+            <div class="notes-dev-row">
+              <span>${name}</span>
+              <span>${amount}g</span>
+            </div>
+          `
+        )
+      })
+    }
+
+    //
+    // OXIDANTS
+    //
+    if (Object.keys(grouped).length > 0) {
+
+      this.developerListTarget.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="notes-subtitle">
+            Oxidants
+          </div>
+        `
+      )
+
+      Object.values(grouped).forEach(dev => {
+
+        total += dev.total
+
+        this.developerListTarget.insertAdjacentHTML(
+          "beforeend",
+          `
+            <div class="notes-dev-row">
+              <span>${dev.name}</span>
+              <span>${dev.amount}g</span>
+            </div>
+          `
+        )
+      })
+    }
+
+    const colorsPrice = this.calculateColorsPrice()
+
+    total += colorsPrice
 
     if (this.hasDeveloperPriceTarget) {
-      this.developerPriceTarget.innerHTML = `
-        Developer price: ${total} ₴
-      `
+      this.developerPriceTarget.innerHTML =
+        `Formula Ingredients price: ${total} ₴`
     }
   }
 
@@ -266,6 +345,39 @@ export default class extends Controller {
     )
   }
 
+  calculateColorsPrice() {
+    let total = 0
+
+    document.querySelectorAll(".ingredient-fields")
+      .forEach(wrapper => {
+
+        const destroy =
+          wrapper.querySelector(
+            "[data-field='destroy']"
+          )
+
+        if (destroy?.value === "1") return
+
+        const amount =
+          parseFloat(
+            wrapper.querySelector(
+              "[data-field='amount']"
+            )?.value || 0
+          )
+
+        const price =
+          parseFloat(
+            wrapper.querySelector(
+              "[data-field='price']"
+            )?.value || 0
+          )
+
+        total += amount * price
+      })
+
+    return total
+  }
+
   calculateCareProducts() {
     const input = document.querySelector(
       "input[name='service_note[care_products]']"
@@ -299,7 +411,8 @@ export default class extends Controller {
 
   calculateFinal() {
     const services = this.calculateServices()
-    const developer = this.calculateDeveloper()
+    const oxidants = this.calculateDeveloper()
+    const colors = this.calculateColorsPrice()
     const care = this.calculateCareProducts()
 
     let developerGrams = 0
@@ -317,7 +430,7 @@ export default class extends Controller {
       } catch {}
     })
 
-    const final = services + developer + care
+    const final = services + oxidants + colors + care
 
     if (this.hasPriceValueTarget) {
       this.priceValueTarget.textContent = services
@@ -326,13 +439,5 @@ export default class extends Controller {
     if (this.hasFinalPriceTarget) {
       this.finalPriceTarget.textContent = final
     }
-
-    // if (this.hasDeveloperPriceTarget) {
-    //   this.developerPriceTarget.textContent = developer + " ₴"
-    // }
-
-    // if (this.hasDeveloperAmountTarget) {
-    //   this.developerAmountTarget.textContent = developerGrams + "g"
-    // }
   }
 }

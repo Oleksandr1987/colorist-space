@@ -21,9 +21,13 @@ class FormulaStep < ApplicationRecord
   end
 
   def oxidant_service
-    return unless oxidant["service_id"]
+    id =
+      oxidant["formula_product_id"] ||
+      oxidant["service_id"]
 
-    Service.find_by(id: oxidant["service_id"])
+    return unless id
+
+    FormulaProduct.find_by(id: id)
   end
 
   def oxidant_data
@@ -39,7 +43,9 @@ class FormulaStep < ApplicationRecord
         {}
       end
 
-    return {} unless data["service_id"].present?
+    id = data["formula_product_id"] || data["service_id"]
+
+    return {} unless id.present?
 
     data
   end
@@ -58,6 +64,10 @@ class FormulaStep < ApplicationRecord
 
   def oxidant_total_price
     oxidant_price * oxidant_amount
+  end
+
+  def colors_total_price
+    formula_ingredients.sum(&:total_price)
   end
 
   private

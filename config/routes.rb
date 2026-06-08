@@ -7,16 +7,6 @@ Rails.application.routes.draw do
              omniauth_callbacks: "users/omniauth_callbacks"
            }
 
-  #     post :add_ingredient, on: :member
-  #     resources :formula_steps, only: [ :create, :update, :destroy ] do
-  #       member do
-  #         patch :clear_oxidant   # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_oxidant
-  #         patch :clear_time      # PATCH /clients/:client_id/service_notes/:service_note_id/formula_steps/:id/clear_time
-  #       end
-  #     end
-  #   end
-  # end
-
   resources :clients do
     resources :service_notes do
       member do
@@ -60,13 +50,19 @@ Rails.application.routes.draw do
       get :main
       get :section
       get :filter
-      get :preparations
       get :care_products
 
-      post :create_preparation
       post :create_care_product
     end
   end
+
+  resources :formula_products do
+    collection do
+      post :create_oxidant
+    end
+  end
+
+  resources :care_products
 
   resource :subscription, only: [] do
     get :wayforpay, to: "subscriptions#wayforpay_form"

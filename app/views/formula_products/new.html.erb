@@ -1,0 +1,9 @@
+<div class="service-wrapper">
+  <div class="category-header">
+    <%= link_to "← Back",
+          formula_products_path(category: params[:category]),
+          class: "back" %>
+  </div>
+
+  <%= render "form" %>
+</div>

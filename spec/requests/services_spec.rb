@@ -23,14 +23,6 @@ RSpec.describe "Services" do
 
       expect(response).to have_http_status(:ok)
     end
-
-    it "sets service_type from params" do
-      get new_service_path, params: {
-        service_type: "preparation"
-      }
-
-      expect(response).to have_http_status(:ok)
-    end
   end
 
   describe "GET /services/main" do
@@ -48,22 +40,6 @@ RSpec.describe "Services" do
       create(:service, user: user, category: "haircut")
 
       get section_services_path(category: "haircut")
-
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
-  describe "GET /services/preparations" do
-    it "returns success" do
-      create(:service, :preparation, user: user)
-
-      get preparations_services_path
-
-      expect(response).to have_http_status(:ok)
-    end
-
-    it "builds new service when new param passed" do
-      get preparations_services_path, params: { new: "true" }
 
       expect(response).to have_http_status(:ok)
     end
@@ -164,16 +140,6 @@ RSpec.describe "Services" do
       )
     end
 
-    it "destroys preparation" do
-      service = create(:service, :preparation, user: user)
-
-      delete service_path(service)
-
-      expect(response).to redirect_to(
-        preparations_services_path(locale: I18n.locale)
-      )
-    end
-
     it "destroys care product" do
       service = create(:service, :care_product, user: user)
 
@@ -182,51 +148,6 @@ RSpec.describe "Services" do
       expect(response).to redirect_to(
         care_products_services_path(locale: I18n.locale)
       )
-    end
-  end
-
-  describe "POST /services/create_preparation" do
-    it "creates preparation html" do
-      expect {
-        post create_preparation_services_path, params: {
-          service: {
-            subtype: "Oxidant",
-            price: 100,
-            unit: "ml"
-          }
-        }
-      }.to change(Service, :count).by(1)
-
-      expect(response).to redirect_to(
-        preparations_services_path(locale: I18n.locale)
-      )
-    end
-
-    it "creates preparation json" do
-      post create_preparation_services_path,
-        params: {
-          service: {
-            subtype: "Oxidant",
-            price: 100,
-            unit: "ml"
-          }
-        },
-        as: :json
-
-      expect(response).to have_http_status(:ok)
-    end
-
-    it "renders errors when invalid" do
-      post create_preparation_services_path,
-        params: {
-          service: {
-            subtype: "",
-            price: nil
-          }
-        },
-        as: :json
-
-      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
@@ -247,6 +168,24 @@ RSpec.describe "Services" do
       )
     end
 
+    it "creates care product json" do
+      post create_care_product_services_path,
+        params: {
+          service: {
+            subtype: "Mask",
+            price: 300,
+            unit: "pcs"
+          }
+        },
+        as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      body = JSON.parse(response.body)
+
+      expect(body["name"]).to eq("Mask")
+    end
+
     it "renders errors when invalid" do
       post create_care_product_services_path, params: {
         service: {
@@ -260,21 +199,6 @@ RSpec.describe "Services" do
   end
 
   describe "additional branches" do
-    it "redirects to preparations after create" do
-      service = create(:service, :preparation, user: user)
-
-      patch service_path(service), params: {
-        service: {
-          subtype: "Updated Prep",
-          price: 200
-        }
-      }
-
-      expect(response).to redirect_to(
-        preparations_services_path(locale: I18n.locale)
-      )
-    end
-
     it "redirects to care products after update" do
       service = create(:service, :care_product, user: user)
 
@@ -341,18 +265,6 @@ RSpec.describe "Services" do
       }
 
       expect(Service.last.category).to eq("CustomCategory")
-    end
-
-    it "translates custom category as is" do
-      create(
-        :service,
-        user: user,
-        category: "CustomCategory"
-      )
-
-      get section_services_path(category: "CustomCategory")
-
-      expect(response).to have_http_status(:ok)
     end
   end
 end

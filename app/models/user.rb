@@ -16,6 +16,8 @@ class User < ApplicationRecord
   has_many :slot_rules, dependent: :destroy
   has_many :services, dependent: :destroy
   has_many :expenses, dependent: :destroy
+  has_many :formula_products, dependent: :destroy
+  has_many :care_products, dependent: :destroy
 
   class << self
     def find_for_database_authentication(warden_conditions)

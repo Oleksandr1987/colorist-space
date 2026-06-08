@@ -19,10 +19,6 @@ class ServicePolicy < ApplicationPolicy
     owns_record?
   end
 
-  def create_preparation?
-    create?
-  end
-
   def create_care_product?
     create?
   end

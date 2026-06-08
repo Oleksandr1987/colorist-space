@@ -70,10 +70,14 @@ export default class extends Controller {
   filter() {
     const query = this.searchTarget.value.toLowerCase()
 
-    this.listTarget.querySelectorAll(".service-item").forEach(item => {
-      const name = item.dataset.name
-      item.classList.toggle("hidden", !name.includes(query))
-    })
+    this.listTarget
+      .querySelectorAll("[data-name]")
+      .forEach(item => {
+        item.classList.toggle(
+          "hidden",
+          !item.dataset.name.includes(query)
+        )
+      })
   }
 
   sort() {

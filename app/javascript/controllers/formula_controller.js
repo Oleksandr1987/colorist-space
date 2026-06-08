@@ -214,16 +214,19 @@ export default class extends Controller {
     )
 
     if (!hidden) {
-      console.error("❌ hidden not found for id:", id)
       displayRow.remove()
       return
     }
 
     const destroyInput = hidden.querySelector("[data-field='destroy']")
 
-    if (destroyInput) {
+    const persisted = !hidden.dataset.id.startsWith("new_")
+
+    if (persisted) {
       destroyInput.value = "1"
       hidden.style.display = "none"
+    } else {
+      hidden.remove()
     }
 
     displayRow.remove()

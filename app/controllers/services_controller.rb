@@ -2,8 +2,8 @@ class ServicesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_service, only: %i[edit update destroy]
 
-  auto_authorize :service, only: %i[new create create_preparation create_care_product edit update destroy]
-  after_action :verify_authorized, only: %i[new create create_preparation create_care_product edit update destroy]
+  auto_authorize :service, only: %i[new create create_care_product edit update destroy]
+  after_action :verify_authorized, only: %i[new create create_care_product edit update destroy]
 
   # СЛОВНИК ДЕФОЛТНИХ КАТЕГОРІЙ
   DEFAULT_CATEGORIES = {
@@ -33,11 +33,6 @@ class ServicesController < ApplicationController
       .order(:subtype)
   end
 
-  def preparations
-    @service = Service.new if params[:new] == "true"
-    @preparations = current_user.services.where(service_type: "preparation").order(:subtype)
-  end
-
   def care_products
     @service = Service.new if params[:new] == "true"
     @care_products = current_user.services.where(service_type: "care_product").order(:subtype)
@@ -60,21 +55,6 @@ class ServicesController < ApplicationController
       redirect_to redirect_path_for(@service), notice: "Service created successfully."
     else
       render :new, status: :unprocessable_content
-    end
-  end
-
-  def create_preparation
-    @service = current_user.services.build(service_params)
-    @service.name = @service.subtype
-    @service.service_type = "preparation"
-
-    if @service.save
-      respond_to do |format|
-        format.html { redirect_to preparations_services_path, notice: "Preparation created successfully." }
-        format.json { render json: @service }
-      end
-    else
-      render json: { errors: @service.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -157,8 +137,6 @@ class ServicesController < ApplicationController
     case service.service_type
     when "service"
       section_services_path(category: service.category)
-    when "preparation"
-      preparations_services_path
     when "care_product"
       care_products_services_path
     else
@@ -170,8 +148,6 @@ class ServicesController < ApplicationController
     case service_type
     when "service"
       section_services_path(category: category)
-    when "preparation"
-      preparations_services_path
     when "care_product"
       care_products_services_path
     else

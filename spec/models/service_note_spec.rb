@@ -8,13 +8,6 @@ RSpec.describe ServiceNote do
   let(:step_one) { instance_double(FormulaStep, oxidant_amount: 10, oxidant_total_price: 50) }
   let(:step_two) { instance_double(FormulaStep, oxidant_amount: 15, oxidant_total_price: 75) }
 
-  def stub_totals(note, developer: 0, care: 0)
-    allow(note).to receive_messages(
-      developer_total_price: developer,
-      care_products_total: care
-    )
-  end
-
   describe "associations" do
     it { is_expected.to belong_to(:user) }
     it { is_expected.to belong_to(:client) }
@@ -276,12 +269,13 @@ RSpec.describe ServiceNote do
   end
 
   describe "#final_price" do
-    it "returns services + developer + care products total" do
+    it "returns services + formula + care products total" do
       note.services = [ service, extra_service ]
 
-      stub_totals(note, developer: 75)
-
-      allow(note).to receive(:care_products_total).and_return(100)
+      allow(note).to receive_messages(
+        formula_ingredients_total_price: 75,
+        care_products_total: 100
+      )
 
       expect(note.final_price).to eq(475)
     end
@@ -289,7 +283,10 @@ RSpec.describe ServiceNote do
     it "returns only services total when others absent" do
       note.services = [ service ]
 
-      stub_totals(note)
+      allow(note).to receive_messages(
+        formula_ingredients_total_price: 0,
+        care_products_total: 0
+      )
 
       expect(note.final_price).to eq(100)
     end

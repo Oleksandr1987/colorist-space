@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_092025) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_04_144918) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -63,6 +63,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_092025) do
     t.index ["user_id"], name: "index_appointments_on_user_id"
   end
 
+  create_table "care_products", force: :cascade do |t|
+    t.string "brand"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.integer "purchase_price"
+    t.integer "sale_price"
+    t.integer "stock_quantity"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_care_products_on_user_id"
+  end
+
   create_table "client_phones", force: :cascade do |t|
     t.integer "client_id", null: false
     t.datetime "created_at", null: false
@@ -104,10 +117,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_092025) do
     t.string "amount", null: false
     t.string "brand"
     t.datetime "created_at", null: false
+    t.integer "formula_product_id"
     t.integer "formula_step_id", null: false
+    t.decimal "price", precision: 10, scale: 2, default: "0.0"
     t.string "shade", null: false
     t.datetime "updated_at", null: false
+    t.index ["formula_product_id"], name: "index_formula_ingredients_on_formula_product_id"
     t.index ["formula_step_id"], name: "index_formula_ingredients_on_formula_step_id"
+  end
+
+  create_table "formula_products", force: :cascade do |t|
+    t.string "brand"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.integer "price_per_unit"
+    t.string "unit"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_formula_products_on_user_id"
   end
 
   create_table "formula_steps", force: :cascade do |t|
@@ -212,10 +240,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_092025) do
   add_foreign_key "appointment_services_relations", "services"
   add_foreign_key "appointments", "clients"
   add_foreign_key "appointments", "users"
+  add_foreign_key "care_products", "users"
   add_foreign_key "client_phones", "clients"
   add_foreign_key "clients", "users"
   add_foreign_key "expenses", "users"
   add_foreign_key "formula_ingredients", "formula_steps"
+  add_foreign_key "formula_products", "users"
   add_foreign_key "formula_steps", "service_notes"
   add_foreign_key "haircut_steps", "service_notes"
   add_foreign_key "service_note_services", "service_notes"

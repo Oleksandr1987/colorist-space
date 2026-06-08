@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "rows", "list"]
+  static targets = ["modal", "rows", "list", "productSelect", "newColorForm", "newBrand", "newName", "newUnit", "newPrice"]
 
   connect() {
     this.handleOpen = this.handleOpen.bind(this)
@@ -16,9 +16,8 @@ export default class extends Controller {
     this.currentStep = event.detail.step
     this.modalTarget.classList.remove("hidden")
 
-    if (this.rowsTarget.children.length === 0) {
-      this.addRow()
-    }
+    this.productSelectTarget.selectedIndex = 0
+    this.rowsTarget.innerHTML = ""
   }
 
   get rowsContainer() {
@@ -35,29 +34,132 @@ export default class extends Controller {
 
   // ---------- ADD ROW ----------
   addRow() {
-    const container = this.rowsTarget
+    const option = this.productSelectTarget.selectedOptions[0]
+
+    if (!option || !option.value) {
+      return
+    }
+
+    const shade = option.dataset.name
+    const brand = option.dataset.brand
+    const productId = option.value
+    const price = option.dataset.price || 0
+
     const row = document.createElement("div")
+
     row.className = "color-row"
 
+    row.dataset.productId = productId
+    row.dataset.price = price
+
     row.innerHTML = `
-      <input type="text" placeholder="Color">
-      <input type="text" placeholder="Brand">
-      <input type="text" placeholder="Amount">
-      <button type="button" class="color-remove">×</button>
+      <input type="text"
+            value="${shade}"
+            readonly>
+
+      <input type="text"
+            value="${brand}"
+            readonly>
+
+      <input type="text"
+            placeholder="Amount">
+
+      <button type="button"
+              class="color-remove">
+        ×
+      </button>
     `
 
-    row.querySelector(".color-remove").onclick = () => row.remove()
+    const removeButton = row.querySelector(".color-remove")
 
-    const amountInput = row.querySelector("input:last-of-type")
+    removeButton.onclick = () => row.remove()
+
+    const amountInput = row.querySelectorAll("input")[2]
 
     amountInput.addEventListener("input", () => {
-      let val = amountInput.value
-      val = val.replace(/[^0-9.,]/g, "")
-      val = val.replace("-", "")
-      amountInput.value = val
+      let value = amountInput.value
+
+      value = value.replace(/[^0-9.,]/g, "")
+
+      amountInput.value = value
+
+      amountInput.classList.remove("color-error")
     })
 
     this.rowsContainer.appendChild(row)
+
+    this.productSelectTarget.selectedIndex = 0
+  }
+
+  showNewColorForm() {
+    this.newColorFormTarget.classList.toggle("hidden")
+  }
+
+  async createColor() {
+    const brand =
+      this.newBrandTarget.value.trim()
+
+    const name =
+      this.newNameTarget.value.trim()
+
+    if (!brand || !name) return
+
+    const token =
+      document.querySelector(
+        "meta[name='csrf-token']"
+      ).content
+
+    const response = await fetch(
+      "/formula_products",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": token,
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          formula_product: {
+            category: "color",
+            brand: brand,
+            name: name,
+            unit: this.newUnitTarget.value,
+            price_per_unit: parseFloat(
+              this.newPriceTarget.value || 0
+            )
+          }
+        })
+      }
+    )
+
+    if (!response.ok) return
+
+    const color = await response.json()
+
+    const option =
+      document.createElement("option")
+
+    option.value = color.id
+    option.dataset.brand = color.brand
+    option.dataset.name = color.name
+
+    option.textContent =
+      `${color.brand} - ${color.name}`
+
+    this.productSelectTarget.appendChild(option)
+
+    this.productSelectTarget.value = color.id
+
+    this.newBrandTarget.value = ""
+    this.newNameTarget.value = ""
+    this.newPriceTarget.value = ""
+    this.newUnitTarget.value = "g"
+
+    this.newColorFormTarget.classList.add("hidden")
+  }
+
+  hideNewColorForm() {
+    this.newColorFormTarget.classList.add("hidden")
   }
 
   save() {
@@ -67,6 +169,23 @@ export default class extends Controller {
 
     const stepId = this.currentStep.dataset.stepId
 
+    let hasErrors = false
+
+    rows.forEach(row => {
+      const amountInput =
+        row.querySelectorAll("input")[2]
+
+      if (!amountInput.value.trim()) {
+        amountInput.classList.add("color-error")
+        amountInput.focus()
+        hasErrors = true
+      }
+    })
+
+    if (hasErrors) {
+      return
+    }
+
     rows.forEach(row => {
       const [shadeInput, brandInput, amountInput] = row.querySelectorAll("input")
 
@@ -74,10 +193,11 @@ export default class extends Controller {
       let brand = brandInput.value.trim()
       let amount = amountInput.value.trim()
 
-      if (!shade || !amount) return
-
       amount = amount.replace(",", ".")
-      if (parseFloat(amount) <= 0) return
+
+      if (parseFloat(amount) <= 0) {
+        return
+      }
 
       const template = this.currentStep.querySelector(
         "[data-formula-target='ingredientTemplate']"
@@ -98,6 +218,8 @@ export default class extends Controller {
       hidden.querySelector("[data-field='shade']").value = shade
       hidden.querySelector("[data-field='brand']").value = brand
       hidden.querySelector("[data-field='amount']").value = amount
+      hidden.querySelector("[data-field='formula_product_id']").value = row.dataset.productId
+      hidden.querySelector("[data-field='price']").value = row.dataset.price
 
       const hiddenContainer = this.currentStep.querySelector(
         "[data-formula-target='colorsList']"

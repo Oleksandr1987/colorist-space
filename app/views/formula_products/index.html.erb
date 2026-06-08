@@ -1,0 +1,53 @@
+<div class="service-wrapper" data-controller="service">
+
+  <div class="category-header with-search">
+    <div class="category-title">
+      <%= link_to "Colors",
+          formula_products_path(category: "color"),
+          class: (@category == "color" ? "active" : "") %>
+
+      <%= link_to "Oxidants",
+          formula_products_path(category: "oxidant"),
+          class: (@category == "oxidant" ? "active" : "") %>
+    </div>
+
+    <div class="header-right">
+      <div class="service-search-wrapper inline-search">
+        <input type="text"
+               placeholder="Search..."
+               class="service-search-input"
+               data-service-target="search"
+               data-action="input->service#filter">
+      </div>
+      <%= link_to raw('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>'),
+            new_formula_product_path(category: @category),
+            class: "plus-icon" %>
+    </div>
+  </div>
+
+  <div class="service-list"
+       data-service-target="list">
+
+    <% @formula_products.each do |product| %>
+      <div class="service-item"
+           data-name="<%= "#{product.brand} #{product.name}".downcase %>">
+        <div class="service-info">
+          <div class="service-name">
+            <strong><%= product.brand %></strong>
+            <%= product.name %>
+          </div>
+
+          <div class="service-price">
+            <%= product.price_per_unit %> ₴ / <%= product.unit %>
+          </div>
+        </div>
+
+        <div class="service-actions">
+          <%= link_to "✎",
+                edit_formula_product_path(product),
+                class: "edit-link" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

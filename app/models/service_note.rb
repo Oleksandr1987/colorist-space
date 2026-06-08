@@ -50,6 +50,13 @@ class ServiceNote < ApplicationRecord
     formula_steps.sum(&:oxidant_total_price)
   end
 
+  def formula_ingredients_total_price
+    formula_steps.sum do |step|
+      step.colors_total_price +
+        step.oxidant_total_price
+    end
+  end
+
   def care_products_total
     return 0 unless care_products.is_a?(Array)
 
@@ -60,7 +67,7 @@ class ServiceNote < ApplicationRecord
 
   def final_price
     services.sum(&:price) +
-      developer_total_price +
+      formula_ingredients_total_price +
       care_products_total
   end
 

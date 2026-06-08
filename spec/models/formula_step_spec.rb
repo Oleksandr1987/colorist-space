@@ -86,17 +86,17 @@ RSpec.describe FormulaStep do
       expect(formula_step.oxidant_service).to be_nil
     end
 
-    it "returns service by service_id" do
-      service = create(:service)
+    it "returns formula product by formula_product_id" do
+      product = create(:formula_product, :oxidant)
 
       formula_step = build(
         :formula_step,
         oxidant: {
-          "service_id" => service.id
+          "formula_product_id" => product.id
         }
       )
 
-      expect(formula_step.oxidant_service).to eq(service)
+      expect(formula_step.oxidant_service).to eq(product)
     end
   end
 
