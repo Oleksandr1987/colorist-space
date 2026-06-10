@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_08_214611) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_10_180748) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -81,8 +81,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_214611) do
     t.datetime "created_at", null: false
     t.string "phone", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_id"
     t.index ["client_id"], name: "index_client_phones_on_client_id"
-    t.index ["phone"], name: "index_client_phones_on_phone", unique: true
+    t.index ["user_id", "phone"], name: "index_client_phones_on_user_id_and_phone", unique: true
+    t.index ["user_id"], name: "index_client_phones_on_user_id"
   end
 
   create_table "clients", force: :cascade do |t|
@@ -242,6 +244,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_08_214611) do
   add_foreign_key "appointments", "users"
   add_foreign_key "care_products", "users"
   add_foreign_key "client_phones", "clients"
+  add_foreign_key "client_phones", "users"
   add_foreign_key "clients", "users"
   add_foreign_key "expenses", "users"
   add_foreign_key "formula_ingredients", "formula_steps"

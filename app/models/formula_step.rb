@@ -21,9 +21,7 @@ class FormulaStep < ApplicationRecord
   end
 
   def oxidant_product
-    id =
-      oxidant["formula_product_id"] ||
-      oxidant["service_id"]
+    id = oxidant_data["formula_product_id"] || oxidant_data["service_id"]
 
     return unless id
 
@@ -36,7 +34,11 @@ class FormulaStep < ApplicationRecord
     data =
       case oxidant
       when String
-        JSON.parse(oxidant) rescue {}
+        begin
+          JSON.parse(oxidant)
+        rescue JSON::ParserError
+          {}
+        end
       when Hash
         oxidant
       else
@@ -77,7 +79,7 @@ class FormulaStep < ApplicationRecord
       begin
         parsed = oxidant.is_a?(String) ? JSON.parse(oxidant) : oxidant
         self.oxidant = parsed
-      rescue
+      rescue JSON::ParserError, TypeError
         self.oxidant = nil
       end
     end

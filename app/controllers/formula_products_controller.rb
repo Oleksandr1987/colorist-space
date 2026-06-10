@@ -4,7 +4,7 @@ class FormulaProductsController < ApplicationController
                 only: %i[edit update destroy]
 
   def index
-    @category = params[:category] || "color"
+    @category = params[:category].presence || "color"
 
     @formula_products =
       current_user.formula_products
@@ -20,52 +20,49 @@ class FormulaProductsController < ApplicationController
   end
 
   def create
-    @formula_product =
-      current_user.formula_products.build(
-        formula_product_params
-      )
+    @formula_product = current_user.formula_products.build(formula_product_params)
 
     if @formula_product.save
       respond_to do |format|
         format.html do
-          redirect_to formula_products_path(
-            category: @formula_product.category
-          )
-      end
+          redirect_to formula_products_path(category: @formula_product.category)
+        end
 
-      format.json do
-        render json: {
-          id: @formula_product.id,
-          brand: @formula_product.brand,
-          name: @formula_product.name
-        }
+        format.json do
+          render json: {
+            id: @formula_product.id,
+            brand: @formula_product.brand,
+            name: @formula_product.name
+          }
+        end
       end
-    end
-
     else
-      render :new,
-             status: :unprocessable_content
+      respond_to do |format|
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: { errors: @formula_product.errors.full_messages }, status: :unprocessable_content }
+      end
     end
   end
 
   def create_oxidant
-    @formula_product =
-      current_user.formula_products.create(
-        category: "oxidant",
-        brand: "Generic",
-        name: params[:name],
-        price_per_unit: params[:price_per_unit],
-        unit: params[:unit] || "ml"
-      )
+    @formula_product = current_user.formula_products.build(
+      category: "oxidant",
+      brand: "Generic",
+      name: params[:name],
+      price_per_unit: params[:price_per_unit],
+      unit: params[:unit].presence || "ml"
+    )
 
-    Rails.logger.info @formula_product.errors.full_messages
-
-    render json: {
-      id: @formula_product.id,
-      name: @formula_product.name,
-      price: @formula_product.price_per_unit,
-      unit: @formula_product.unit
-    }
+    if @formula_product.save
+      render json: {
+        id: @formula_product.id,
+        name: @formula_product.name,
+        price: @formula_product.price_per_unit,
+        unit: @formula_product.unit
+      }
+    else
+      render json: { errors: @formula_product.errors.full_messages }, status: :unprocessable_content
+    end
   end
 
   def edit

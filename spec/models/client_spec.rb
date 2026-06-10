@@ -1,6 +1,9 @@
 require "rails_helper"
 
 RSpec.describe Client do
+  let(:user) { create(:user) }
+  let(:client) { create(:client, user: user) }
+
   describe "associations" do
     it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:appointments).dependent(:destroy) }
@@ -12,12 +15,22 @@ RSpec.describe Client do
 
     it { is_expected.to validate_presence_of(:first_name) }
     it { is_expected.to validate_presence_of(:last_name) }
+
+    it "does not allow primary phone that already exists in client_phones" do
+      client1 = create(:client, user: user, phone: "+380501112234")
+      client1.client_phones.create!(user: user, phone: "+380501112233")
+      client2 = build(:client, user: user, phone: "+380501112233")
+
+      expect(client2).not_to be_valid
+
+      expect(
+        client2.errors[:phone]
+      ).to include("already exists as additional phone")
+    end
   end
 
   describe ".alphabetical" do
     it "orders clients by first_name case insensitive" do
-      user = create(:user)
-
       client_b = create(:client, user: user, first_name: "Bob")
       client_a = create(:client, user: user, first_name: "alice")
 
@@ -30,8 +43,6 @@ RSpec.describe Client do
 
   describe ".search_by_name" do
     it "finds clients by first name" do
-      user = create(:user)
-
       client = create(:client, user: user, first_name: "Alex", last_name: "Smith")
       create(:client, user: user, first_name: "John", last_name: "Doe")
 
@@ -41,8 +52,6 @@ RSpec.describe Client do
     end
 
     it "finds clients by last name" do
-      user = create(:user)
-
       client = create(:client, user: user, first_name: "Alex", last_name: "Smith")
 
       result = user.clients.search_by_name("smith")
@@ -51,8 +60,6 @@ RSpec.describe Client do
     end
 
     it "returns empty relation if nothing matches" do
-      user = create(:user)
-
       create(:client, user: user, first_name: "Alex", last_name: "Smith")
 
       result = user.clients.search_by_name("zzz")
@@ -71,7 +78,7 @@ RSpec.describe Client do
 
   describe "#attach_photos" do
     it "attaches photos" do
-      client = create(:client)
+      client = create(:client, user: user)
 
       file = fixture_file_upload(
         Rails.root.join("spec/fixtures/files/test_image.jpg"),
@@ -86,7 +93,7 @@ RSpec.describe Client do
 
   describe "#delete_photo" do
     it "removes a specific photo" do
-      client = create(:client)
+      client = create(:client, user: user)
 
       file = fixture_file_upload(
         Rails.root.join("spec/fixtures/files/test_image.jpg"),
@@ -105,7 +112,7 @@ RSpec.describe Client do
 
   describe "#delete_all_photos" do
     it "removes all photos" do
-      client = create(:client)
+      client = create(:client, user: user)
 
       file = fixture_file_upload(
         Rails.root.join("spec/fixtures/files/test_image.jpg"),
@@ -122,7 +129,7 @@ RSpec.describe Client do
 
   describe "#decorated_photos" do
     it "decorates attached photos" do
-      client = create(:client)
+      client = create(:client, user: user)
 
       file = fixture_file_upload(
         Rails.root.join("spec/fixtures/files/test_image.jpg"),
@@ -141,7 +148,7 @@ RSpec.describe Client do
     end
 
     it "returns empty array when no photos" do
-      client = create(:client)
+      client = create(:client, user: user)
 
       expect(client.decorated_photos).to eq([])
     end
@@ -149,8 +156,6 @@ RSpec.describe Client do
 
   describe ".find_or_create_by_full_name" do
     it "returns existing client if found" do
-      user = create(:user)
-
       existing_client = create(
         :client,
         user: user,
@@ -168,8 +173,6 @@ RSpec.describe Client do
     end
 
     it "creates client if not found" do
-      user = create(:user)
-
       result = described_class.find_or_create_by_full_name(
         user: user,
         full_name: "Alex Smith",
@@ -182,8 +185,6 @@ RSpec.describe Client do
     end
 
     it "returns nil if first name missing" do
-      user = create(:user)
-
       result = described_class.find_or_create_by_full_name(
         user: user,
         full_name: "",
@@ -196,7 +197,7 @@ RSpec.describe Client do
 
   describe "#make_primary!" do
     it "moves current phone to client_phones and updates primary phone" do
-      client = create(:client, phone: "+380111111111")
+      client = create(:client, user: user, phone: "+380111111111")
 
       client.client_phones.create!(phone: "+380222222222")
 

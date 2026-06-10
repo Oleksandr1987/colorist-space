@@ -15,6 +15,8 @@ class Client < ApplicationRecord
     message: "Client with this phone number already exists"
   }
 
+  validate :phone_not_used_in_client_phones
+
   before_save :ensure_primary_phone
 
   scope :alphabetical, -> { order("LOWER(first_name)") }
@@ -47,21 +49,18 @@ class Client < ApplicationRecord
   end
 
   def self.find_or_create_by_full_name(user:, full_name:, phone:)
-    first_name, last_name = full_name.to_s.strip.split(" ", 2)
+    first_name, last_name = full_name.to_s.split(/\s+/, 2)
+    normalized_phone = PhoneValidator.normalize(phone)
 
     return nil if first_name.blank?
 
-    client = user.clients.find_by(
-      first_name: first_name,
-      last_name: last_name
-    )
-
+    client = user.clients.find_by(first_name: first_name, last_name: last_name)
     return client if client
 
     user.clients.create!(
       first_name: first_name,
-      last_name: last_name,
-      phone: phone
+      last_name: last_name.presence || "",
+      phone: normalized_phone
     )
   end
 
@@ -85,6 +84,18 @@ class Client < ApplicationRecord
     if phone.blank? && client_phones.any?
       self.phone = client_phones.first.phone
       client_phones.first.mark_for_destruction
+    end
+  end
+
+  private
+
+  def phone_not_used_in_client_phones
+    return if phone.blank?
+
+    if ClientPhone.where(user_id: user_id)
+                  .where.not(client_id: id)
+                  .exists?(phone: phone)
+      errors.add(:phone, "already exists as additional phone")
     end
   end
 end

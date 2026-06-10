@@ -1,4 +1,5 @@
 class FormulaStepsController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_client
   before_action :set_service_note
   before_action :set_formula_step, only: [ :update, :destroy, :clear_oxidant, :clear_time ]
