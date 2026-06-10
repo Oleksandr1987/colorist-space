@@ -51,7 +51,7 @@ class Appointment < ApplicationRecord
   }
 
   scope :for_styles, -> {
-    includes(service_note: [photos_attachments: :blob])
+    includes(service_note: [ photos_attachments: :blob ])
       .order(
         appointment_date: :desc,
         appointment_time: :desc
