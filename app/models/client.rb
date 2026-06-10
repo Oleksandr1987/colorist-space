@@ -78,6 +78,10 @@ class Client < ApplicationRecord
     end
   end
 
+  def style_appointments
+    appointments.for_styles
+  end
+
   private
 
   def ensure_primary_phone
@@ -86,8 +90,6 @@ class Client < ApplicationRecord
       client_phones.first.mark_for_destruction
     end
   end
-
-  private
 
   def phone_not_used_in_client_phones
     return if phone.blank?

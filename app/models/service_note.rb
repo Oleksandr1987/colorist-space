@@ -13,7 +13,7 @@ class ServiceNote < ApplicationRecord
 
   has_many :haircut_steps, dependent: :destroy, inverse_of: :service_note
 
-  accepts_nested_attributes_for :haircut_steps, allow_destroy: true
+  accepts_nested_attributes_for :haircut_steps, allow_destroy: true, reject_if: :reject_empty_haircut_step?
 
   validates :appointment_id, uniqueness: true
   validate :must_have_services
@@ -269,5 +269,12 @@ class ServiceNote < ApplicationRecord
       current_qty&.dig("qty").to_i
 
     product.stock_quantity.to_i + current_qty
+  end
+
+  def reject_empty_haircut_step?(attrs)
+    attrs.except(
+      "_destroy",
+      "id"
+    ).values.all?(&:blank?)
   end
 end

@@ -1,5 +1,5 @@
 <div data-controller="client-profile photo"
-     data-client-profile-id-value="<%= @client.id %>" 
+     data-client-profile-id-value="<%= @client.id %>"
      class="client-profile-container">
 
   <!-- Header -->
@@ -38,98 +38,66 @@
 
   <!-- STYLES TAB  -->
   <div id="styles-tab"
-       data-client-profile-target="tabContent"
-       class="tab-content active">
+     data-client-profile-target="tabContent"
+     class="tab-content active">
 
-    <% @client.service_notes.order(created_at: :desc).each do |note| %>
+    <% @client.style_appointments.each do |appointment| %>
+
+      <% service_note = appointment.service_note %>
+
+      <% target_path =
+        if service_note.present?
+          client_service_note_path(@client, service_note)
+        else
+          new_client_service_note_path(
+            @client,
+            appointment_id: appointment.id
+          )
+        end
+      %>
+
       <div class="style-card">
 
-        <!-- CLICKABLE THUMBNAIL → SHOW PAGE -->
-        <%= link_to client_service_note_path(@client, note),
-                    class: "style-photo-wrapper-link" do %>
+        <%= link_to target_path, class: "style-photo-wrapper-link" do %>
 
           <div class="style-photo-wrapper">
 
-            <% if note.photos.attached? %>
-
-              <%= image_tag thumb(note.photos.first),
-                    class: "style-photo" %>
-
-              <% if note.photos.count > 1 %>
+            <% if service_note&.photos&.attached? %>
+              <%= image_tag thumb(service_note.photos.first), class: "style-photo" %>
+              <% if service_note.photos.count > 1 %>
                 <div class="style-photo-count">
-                  +<%= note.photos.count - 1 %>
+                  +<%= service_note.photos.count - 1 %>
                 </div>
               <% end %>
-
             <% else %>
-              <div class="style-no-photo">No photo</div>
+              <div class="style-no-photo">
+                No photo
+              </div>
             <% end %>
 
             <div class="style-info-overlay">
-              <div class="style-date"><%= l(note.appointment_date, format: "%B %d") %></div>
-              <div class="style-service"><%= note.service_type.capitalize %></div>
+              <div class="style-date">
+                <%= l(appointment.appointment_date, format: "%B %d") %>
+
+                <% if appointment.appointment_date > Date.current %>
+                  <span class="future-badge">
+                    FUTURE
+                  </span>
+                <% end %>
+
+              </div>
+
+              <% if service_note.present? %>
+                <div class="style-service">
+                  <%= service_note.service_type&.capitalize %>
+                </div>
+              <% end %>
             </div>
-
           </div>
-
         <% end %>
-
       </div>
     <% end %>
-
-  <div class="appointments-tabs">
-    <button class="tab-button active"
-            data-action="click->client-profile#toggleAppointments"
-            data-type="future">
-      Upcoming
-    </button>
-
-    <button class="tab-button"
-            data-action="click->client-profile#toggleAppointments"
-            data-type="past">
-      History
-    </button>
   </div>
-
-  <div data-client-profile-target="futureAppointments" class="appointments-block active">
-
-    <% @future_appointments.each do |a| %>
-      <div class="appointment-card future">
-
-        <div class="appointment-time">
-          <%= l(a.appointment_date, format: :long) %>
-          <span>
-            <%= a.appointment_time.strftime("%H:%M") %>–<%= a.end_time.strftime("%H:%M") %>
-          </span>
-        </div>
-
-        <div class="appointment-service">
-          <%= a.combined_service_name %>
-        </div>
-
-      </div>
-    <% end %>
-
-  </div>
-
-  <div data-client-profile-target="pastAppointments" class="appointments-block hidden">
-
-    <% @past_appointments.each do |a| %>
-      <div class="appointment-card past">
-
-        <div class="appointment-time">
-          <%= l(a.appointment_date, format: :long) %>         
-        </div>
-
-        <div class="appointment-service">
-          <%= a.combined_service_name %>
-        </div>
-
-      </div>
-    <% end %>
-
-  </div>
-
 
   <!-- INFO TAB  -->
   <div id="info-tab"

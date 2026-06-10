@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="client-profile"
 export default class extends Controller {
-  static targets = ["tab", "tabContent", "menu", "futureAppointments", "pastAppointments"]
+  static targets = ["tab", "tabContent", "menu"]
   static values = { id: Number }
 
   connect() {
@@ -29,17 +29,6 @@ export default class extends Controller {
 
   toggleMenu() {
     this.menuTarget.classList.toggle("hidden")
-  }
-
-    toggleAppointments(event) {
-    const type = event.currentTarget.dataset.type
-
-    this.futureAppointmentsTarget.classList.toggle("hidden", type !== "future")
-    this.pastAppointmentsTarget.classList.toggle("hidden", type !== "past")
-
-    event.currentTarget.parentElement.querySelectorAll("button").forEach(btn => {
-      btn.classList.toggle("active", btn === event.currentTarget)
-    })
   }
 
   copyPhone(event) {
