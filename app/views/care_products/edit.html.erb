@@ -1,0 +1,12 @@
+<div class="service-wrapper">
+
+  <div class="category-header">
+    <%= link_to "← Back",
+          care_products_path,
+          class: "back" %>
+  </div>
+
+  <%= render "form",
+        care_product: @care_product %>
+
+</div>

@@ -20,7 +20,7 @@ class FormulaStep < ApplicationRecord
     update!(time: nil)
   end
 
-  def oxidant_service
+  def oxidant_product
     id =
       oxidant["formula_product_id"] ||
       oxidant["service_id"]

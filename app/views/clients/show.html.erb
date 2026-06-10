@@ -77,15 +77,6 @@
       </div>
     <% end %>
 
-    <!-- ADD STYLE BUTTON -->
-    <div class="add-style-wrapper" style="margin-top: 1.5rem; text-align:center;">
-      <%= link_to new_client_service_note_path(@client),
-                  class: "button small new-appointment-button add-style-button" do %>
-        + <%= t("clients.show.add_style") %>
-      <% end %>
-    </div>
-  </div>
-
   <div class="appointments-tabs">
     <button class="tab-button active"
             data-action="click->client-profile#toggleAppointments"

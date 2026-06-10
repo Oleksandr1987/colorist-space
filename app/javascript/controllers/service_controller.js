@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type","selected", "toggleButton"]
+  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type", "selected", "toggleButton"]
 
   static values = {
     categories: Object,
@@ -30,6 +30,8 @@ export default class extends Controller {
   }
 
   handleOutsideClick(event) {
+    if (!this.hasMenuTarget) return
+
     const menu = this.menuTarget
     const toggleButton = this.element.querySelector(".menu-toggle")
 
@@ -51,6 +53,8 @@ export default class extends Controller {
   }
 
   toggleMenu() {
+     if (!this.hasMenuTarget) return
+
     if (!this.menuTarget.classList.contains("hidden") && this.hasChanges) {
       this.closeMenu()
 
@@ -64,6 +68,8 @@ export default class extends Controller {
   }
 
   closeMenu() {
+    if (!this.hasMenuTarget) return
+
     this.menuTarget.classList.add("hidden")
   }
 

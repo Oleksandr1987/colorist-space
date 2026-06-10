@@ -35,7 +35,7 @@
     <!-- DEVELOPER -->
     <% if step.oxidant.present? %>
       <% data = step.oxidant || {} %>
-      <% service = step.oxidant_service %>
+      <% product = step.oxidant_product%>
 
       <div class="formula-preview-group">
 
@@ -52,10 +52,13 @@
         <div class="formula-content">
           <div class="formula-row">
             <span>
-              <%= service&.subtype || "Unknown" %>
+              <%= [product&.brand, product&.name].compact.join(" ").presence || "Unknown" %>
               <%= data["ratio"] %>
             </span>
-            <span><%= data["amount"] %>g</span>
+
+            <span>
+              <%= data["amount"] %><%= product&.unit || "g" %>
+            </span>
           </div>
         </div>
 

@@ -38,9 +38,8 @@ uk:
       styles_tab: "Стилі"
       photos_tab: "Фото"
       info_tab: "Інформація"
-      add_style: "Додати стиль"
 
-      new_appointment: "Нова зустріч"
+      new_appointment: "Новий запис"
       edit_client: "Редагувати клієнта"
       delete_client: "Видалити клієнта"
       delete_client_confirm: "Ви впевнені, що хочете видалити клієнта та всі його записи?"

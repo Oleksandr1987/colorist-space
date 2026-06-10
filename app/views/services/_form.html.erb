@@ -34,13 +34,6 @@
       <%= f.number_field :price, class: "form-input", required: true %>
     </div>
 
-    <div class="form-section"
-         style="<%= service.service_type == "preparation" || service.service_type == "care_product" ? '' : 'display:none;' %>"
-         data-service-target="unitField">
-      <%= f.label :unit, t("services.form.unit") %>
-      <%= f.text_field :unit, class: "form-input", placeholder: "g, ml, etc." %>
-    </div>
-
     <%= f.hidden_field :service_type, value: service.service_type, data: { service_target: "typeSelect" } %>
 
     <div class="form-actions">

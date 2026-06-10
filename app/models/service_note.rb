@@ -17,6 +17,7 @@ class ServiceNote < ApplicationRecord
 
   validates :appointment_id, uniqueness: true
   validate :must_have_services
+  validate :care_products_stock_available
 
   scope :for_client, ->(client_id) { where(client_id: client_id).order(created_at: :desc) }
 
@@ -25,6 +26,13 @@ class ServiceNote < ApplicationRecord
 
   after_save :sync_appointment_services
   after_save :sync_appointment_notes
+
+  after_create :decrease_care_products_stock
+
+  after_update :sync_care_products_stock,
+             if: :saved_change_to_care_products?
+
+  after_destroy :restore_care_products_stock
   after_destroy :clear_appointment_services
 
   def decorated_photos
@@ -125,5 +133,141 @@ class ServiceNote < ApplicationRecord
       :base,
       I18n.t("service_notes.errors.services_required")
     )
+  end
+
+  def decrease_care_products_stock
+    return unless care_products.is_a?(Array)
+
+    care_products.each do |item|
+      product = CareProduct.find_by(
+        id: item["care_product_id"]
+      )
+
+      next unless product
+
+      qty = item["qty"].to_i
+
+      next if qty <= 0
+
+      current_stock =
+        product.stock_quantity.to_i
+
+      product.update!(
+        stock_quantity: [
+          current_stock - qty,
+          0
+        ].max
+      )
+    end
+  end
+
+  def restore_care_products_stock
+    return unless care_products.is_a?(Array)
+
+    care_products.each do |item|
+      product = CareProduct.find_by(
+        id: item["care_product_id"]
+      )
+
+      next unless product
+
+      qty = item["qty"].to_i
+
+      next if qty <= 0
+
+      product.increment!(
+        :stock_quantity,
+        qty
+      )
+    end
+  end
+
+  def sync_care_products_stock
+    old_products =
+      care_products_before_last_save || []
+
+    new_products =
+      care_products || []
+
+    old_hash =
+      old_products.index_by do |item|
+        item["care_product_id"].to_s
+      end
+
+    new_hash =
+      new_products.index_by do |item|
+        item["care_product_id"].to_s
+      end
+
+    product_ids =
+      old_hash.keys | new_hash.keys
+
+    product_ids.each do |product_id|
+      product =
+        CareProduct.find_by(id: product_id)
+
+      next unless product
+
+      old_qty =
+        old_hash[product_id]&.dig("qty").to_i
+
+      new_qty =
+        new_hash[product_id]&.dig("qty").to_i
+
+      diff = new_qty - old_qty
+
+      next if diff.zero?
+
+      if diff.positive?
+        product.decrement!(
+          :stock_quantity,
+          diff
+        )
+      else
+        product.increment!(
+          :stock_quantity,
+          diff.abs
+        )
+      end
+    end
+  end
+
+  def care_products_stock_available
+    return unless care_products.is_a?(Array)
+
+    care_products.each do |item|
+      product =
+        CareProduct.find_by(
+          id: item["care_product_id"]
+        )
+
+      next unless product
+
+      requested_qty =
+        item["qty"].to_i
+
+      available_qty =
+        available_stock_for(product)
+
+      if requested_qty > available_qty
+        errors.add(
+          :base,
+          "#{product.name}: only #{available_qty} left in stock"
+        )
+      end
+    end
+  end
+
+  def available_stock_for(product)
+    current_qty =
+      care_products_before_last_save&.find do |item|
+        item["care_product_id"].to_s ==
+          product.id.to_s
+      end
+
+    current_qty =
+      current_qty&.dig("qty").to_i
+
+    product.stock_quantity.to_i + current_qty
   end
 end

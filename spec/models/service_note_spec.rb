@@ -356,4 +356,197 @@ RSpec.describe ServiceNote do
       expect { note.send(:clear_appointment_services) }.not_to raise_error
     end
   end
+
+  describe "care products stock management" do
+    let(:care_product) { create(:care_product, stock_quantity: 10) }
+
+    describe "#decrease_care_products_stock" do
+      it "decreases stock quantity" do
+        note = build(
+          :service_note,
+          care_products: [
+            {
+              "care_product_id" => care_product.id,
+              "qty" => 3
+            }
+          ]
+        )
+
+        note.send(:decrease_care_products_stock)
+
+        expect(care_product.reload.stock_quantity).to eq(7)
+      end
+
+      it "does not go below zero" do
+        care_product.update!(stock_quantity: 2)
+
+        note = build(
+          :service_note,
+          care_products: [
+            {
+              "care_product_id" => care_product.id,
+              "qty" => 10
+            }
+          ]
+        )
+
+        note.send(:decrease_care_products_stock)
+
+        expect(care_product.reload.stock_quantity).to eq(0)
+      end
+
+      it "ignores missing products" do
+        note = build(
+          :service_note,
+          care_products: [
+            {
+              "care_product_id" => 999_999,
+              "qty" => 3
+            }
+          ]
+        )
+
+        expect { note.send(:decrease_care_products_stock) }.not_to raise_error
+      end
+
+      it "ignores zero quantity" do
+        note = build(
+          :service_note,
+          care_products: [
+            {
+              "care_product_id" => care_product.id,
+              "qty" => 0
+            }
+          ]
+        )
+
+        expect {
+          note.send(:decrease_care_products_stock)
+        }.not_to change {
+          care_product.reload.stock_quantity
+        }
+      end
+    end
+
+    describe "#restore_care_products_stock" do
+      it "restores stock quantity" do
+        note = build(
+          :service_note,
+          care_products: [
+            {
+              "care_product_id" => care_product.id,
+              "qty" => 4
+            }
+          ]
+        )
+
+        note.send(:restore_care_products_stock)
+
+        expect(care_product.reload.stock_quantity).to eq(14)
+      end
+
+      it "ignores missing products" do
+        note = build(
+          :service_note,
+          care_products: [
+            {
+              "care_product_id" => 999_999,
+              "qty" => 4
+            }
+          ]
+        )
+
+        expect { note.send(:restore_care_products_stock) }.not_to raise_error
+      end
+    end
+
+    it "decreases stock when qty increased" do
+      note = build(:service_note)
+
+
+      allow(note).to receive_messages(care_products_before_last_save: [
+          {
+            "care_product_id" => care_product.id,
+            "qty" => 2
+          }
+        ], care_products: [
+          {
+            "care_product_id" => care_product.id,
+            "qty" => 5
+          }
+        ])
+
+      note.send(:sync_care_products_stock)
+
+      expect(care_product.reload.stock_quantity).to eq(7)
+    end
+
+    describe "#care_products_stock_available" do
+      it "is valid when enough stock available" do
+        note = build(
+          :service_note,
+          care_products: [
+            {
+              "care_product_id" => care_product.id,
+              "qty" => 5
+            }
+          ]
+        )
+
+        note.valid?
+
+        expect(note.errors[:base]).to be_empty
+      end
+
+      it "adds validation error when stock insufficient" do
+        note = build(
+          :service_note,
+          care_products: [
+            {
+              "care_product_id" => care_product.id,
+              "qty" => 20
+            }
+          ]
+        )
+
+        note.valid?
+
+        expect(
+          note.errors[:base]
+        ).to include(
+          "#{care_product.name}: only 10 left in stock"
+        )
+      end
+    end
+
+    describe "#available_stock_for" do
+      it "returns current stock for new record" do
+        note = build(:service_note)
+
+        expect(
+          note.send(
+            :available_stock_for,
+            care_product
+          )
+        ).to eq(10)
+      end
+
+      it "includes previous quantity during update" do
+        care_product.update!(stock_quantity: 7)
+
+        note = build(:service_note)
+
+        allow(note).to receive(:care_products_before_last_save).and_return(
+          [
+            {
+              "care_product_id" => care_product.id,
+              "qty" => 3
+            }
+          ]
+        )
+
+        expect(note.send(:available_stock_for, care_product)).to eq(10)
+      end
+    end
+  end
 end

@@ -16,7 +16,6 @@ class ServiceNotesController < ApplicationController
     @service_note.haircut_steps.build
 
     @selected_service_ids = @appointment.service_ids
-    # @preparations = current_user.services.where(service_type: "preparation")
   end
 
   def create
@@ -54,7 +53,6 @@ class ServiceNotesController < ApplicationController
     else
       @appointment = @service_note.appointment
       @selected_service_ids = service_ids || []
-      # @preparations = current_user.services.where(service_type: "preparation")
 
       render :new, status: :unprocessable_content
     end
@@ -65,7 +63,6 @@ class ServiceNotesController < ApplicationController
 
     @selected_service_ids = @service_note.service_ids
     @service_note.haircut_steps.build if @service_note.haircut_steps.empty?
-    # @preparations = current_user.services.where(service_type: "preparation")
   end
 
   def update
@@ -89,7 +86,6 @@ class ServiceNotesController < ApplicationController
     else
       @appointment = @service_note.appointment
       @selected_service_ids = service_ids
-      # @preparations = current_user.services.where(service_type: "preparation")
 
       render :edit, status: :unprocessable_content
     end

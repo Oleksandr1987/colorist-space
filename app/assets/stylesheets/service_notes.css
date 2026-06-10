@@ -965,3 +965,24 @@
   background: #eee;
   font-size: 13px;
 }
+
+/* Formula Products only */
+
+.formula-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.formula-tab {
+  padding: 6px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #888;
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+.formula-tab.active {
+  background: #7e3af2;
+  color: white;
+}

@@ -12,13 +12,15 @@ RSpec.describe Service do
   end
 
   describe "validations" do
-    it "requires category only for service_type == service" do
-      service = build(:service, service_type: "service", category: nil)
+    it "requires category for service" do
+      service = build(
+        :service,
+        service_type: "service",
+        category: nil
+      )
+
       expect(service).not_to be_valid
       expect(service.errors[:category]).to be_present
-
-      prep = build(:service, :preparation, category: nil)
-      expect(prep).to be_valid
     end
   end
 
@@ -49,8 +51,6 @@ RSpec.describe Service do
       )
     end
 
-    let(:prep) { create(:service, :preparation, user: user, price: 50) }
-
     let(:appointment_one) { Date.current + 9.days }
     let(:appointment_two) { Date.current + 11.days }
     let(:appointment_out_of_range) { Date.current + 31.days }
@@ -62,8 +62,7 @@ RSpec.describe Service do
         appointment_date: appointment_one,
         appointment_time: Time.zone.parse("10:00"),
         end_time: Time.zone.parse("10:30"),
-        main_service: main_service,
-        extra_services: [ prep ]
+        main_service: main_service
       )
 
       create(:appointment,
@@ -110,7 +109,7 @@ RSpec.describe Service do
 
       scope = described_class.income_for_user_between(user, from, to)
 
-      expect(scope).to include(main_service, main_service_b, prep)
+      expect(scope).to include(main_service, main_service_b)
       expect(scope.pluck(:price)).not_to include(999)
     end
 
@@ -128,7 +127,6 @@ RSpec.describe Service do
 
       expect(filtered).to include(main_service)
       expect(filtered).not_to include(main_service_b)
-      expect(filtered).not_to include(prep)
     end
 
     it ".grouped_income groups by subtype for service_type service" do
@@ -154,28 +152,13 @@ RSpec.describe Service do
 
       monthly = described_class.monthly_income(scope)
 
-      expect(monthly.keys).to include("service", "preparation")
+      expect(monthly.keys).to include("service")
 
       month_label = appointment_one.strftime("%B %Y")
 
       expect(monthly["service"].keys).to include(month_label)
-      expect(monthly["preparation"].keys).to include(month_label)
 
       expect(monthly.dig("service", appointment_out_of_range.strftime("%B %Y"))).to be_nil
-    end
-
-    it ".grouped_income groups by name for non-service types" do
-      from = Date.current
-      to   = Date.current + 30.days
-
-      scope = described_class
-        .income_for_user_between(user, from, to)
-        .apply_income_filters(service_type: "preparation")
-
-      grouped = described_class.grouped_income(scope, "preparation")
-
-      expect(grouped.keys).to include(prep.name)
-      expect(grouped[prep.name]).to eq(50)
     end
   end
 end

@@ -2,8 +2,8 @@ class ServicesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_service, only: %i[edit update destroy]
 
-  auto_authorize :service, only: %i[new create create_care_product edit update destroy]
-  after_action :verify_authorized, only: %i[new create create_care_product edit update destroy]
+  auto_authorize :service, only: %i[new create edit update destroy]
+  after_action :verify_authorized, only: %i[new create edit update destroy]
 
   # СЛОВНИК ДЕФОЛТНИХ КАТЕГОРІЙ
   DEFAULT_CATEGORIES = {
@@ -26,16 +26,10 @@ class ServicesController < ApplicationController
 
   def section
     @category = normalize_category(params[:category])
-    @translated_category = translate_category(@category)
 
-    @services = current_user.services
-      .where(service_type: "service", category: @category)
-      .order(:subtype)
-  end
+    @translated_category = DEFAULT_CATEGORIES[@category] || @category
 
-  def care_products
-    @service = Service.new if params[:new] == "true"
-    @care_products = current_user.services.where(service_type: "care_product").order(:subtype)
+    @services = current_user.services.where(service_type: "service", category: @category).order(:subtype)
   end
 
   def new
@@ -55,33 +49,6 @@ class ServicesController < ApplicationController
       redirect_to redirect_path_for(@service), notice: "Service created successfully."
     else
       render :new, status: :unprocessable_content
-    end
-  end
-
-  def create_care_product
-    @service = current_user.services.build(service_params)
-    @service.name = @service.subtype
-    @service.service_type = "care_product"
-
-    if @service.save
-      respond_to do |format|
-        format.html do
-          redirect_to care_products_services_path,
-            notice: "Care product created successfully."
-        end
-
-        format.json do
-          render json: {
-            id: @service.id,
-            name: @service.subtype,
-            price: @service.price
-          }
-        end
-      end
-    else
-      render json: {
-        errors: @service.errors.full_messages
-      }, status: :unprocessable_content
     end
   end
 
@@ -137,8 +104,6 @@ class ServicesController < ApplicationController
     case service.service_type
     when "service"
       section_services_path(category: service.category)
-    when "care_product"
-      care_products_services_path
     else
       services_path
     end
@@ -148,8 +113,6 @@ class ServicesController < ApplicationController
     case service_type
     when "service"
       section_services_path(category: category)
-    when "care_product"
-      care_products_services_path
     else
       services_path
     end

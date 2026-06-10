@@ -15,6 +15,7 @@
     </div>
 
     <!-- SEARCH -->
+
     <div class="care-products-modal-search">
       <input type="text"
              class="form-input"
@@ -23,25 +24,87 @@
              data-action="input->care-products#search">
     </div>
 
+    <!-- CATEGORY FILTER -->
+
+    <div class="care-products-filters">
+
+      <button type="button"
+              class="filter-button active"
+              data-category=""
+              data-action="click->care-products#filterCategory">
+        All
+      </button>
+
+      <% CareProduct::CATEGORIES.each do |category| %>
+
+        <button type="button"
+                class="filter-button"
+                data-category="<%= category %>"
+                data-action="click->care-products#filterCategory">
+
+          <%= category %>
+
+        </button>
+
+      <% end %>
+
+    </div>
+
     <!-- PRODUCTS -->
+
     <div class="care-products-modal-list"
          data-care-products-target="productsList">
 
-      <% current_user.services.where(service_type: "care_product").order(:subtype).each do |product| %>
+      <% current_user.care_products.order(:brand, :name).each do |product| %>
 
-        <div class="care-product-option">
+        <div class="care-product-option
+             <%= "out-of-stock" if product.stock_quantity.to_i <= 0 %>"
+             data-category="<%= product.category %>">
 
           <div>
-            <strong><%= product.subtype %></strong>
-            <small><%= product.price %> ₴</small>
+
+            <strong>
+              <%= product.brand.presence || "Unknown Brand" %>
+            </strong>
+
+            <div>
+              <%= product.name %>
+            </div>
+
+            <small>
+              <%= product.category %>
+            </small>
+
+            <br>
+
+            <small>
+              <%= product.sale_price %> ₴
+            </small>
+
+            <br>
+
+            <small>
+              Stock: <%= product.stock_quantity.to_i %>
+            </small>
+
+            <% if product.stock_quantity.to_i <= 0 %>
+              <br>
+
+              <small class="out-of-stock-label">
+                Out of stock
+              </small>
+            <% end %>
+
           </div>
 
-          <button type="button"
+         <button type="button"
                   data-action="click->care-products#addProduct"
                   data-id="<%= product.id %>"
-                  data-name="<%= product.subtype %>"
-                  data-price="<%= product.price %>">
-            +
+                  data-name="<%= product.name %>"
+                  data-price="<%= product.sale_price %>"
+                  data-stock="<%= product.stock_quantity.to_i %>"
+                  <%= "disabled" if product.stock_quantity.to_i <= 0 %>>
+            <%= product.stock_quantity.to_i <= 0 ? "×" : "+" %>
           </button>
         </div>
       <% end %>
@@ -63,14 +126,35 @@
       <div class="form-section">
         <input type="text"
                class="form-input"
-               placeholder="<%= t('care_products.name') %>"
+               placeholder="Brand"
+               data-care-products-target="newBrand">
+      </div>
+
+      <div class="form-section">
+        <input type="text"
+               class="form-input"
+               placeholder="Name"
                data-care-products-target="newName">
+      </div>
+
+      <div class="form-section">
+        <input type="text"
+               class="form-input"
+               list="care-product-categories"
+               placeholder="Category"
+               data-care-products-target="newCategory">
+
+        <datalist id="care-product-categories">
+          <% CareProduct::CATEGORIES.each do |category| %>
+            <option value="<%= category %>">
+          <% end %>
+        </datalist>
       </div>
 
       <div class="form-section">
         <input type="number"
                class="form-input"
-               placeholder="<%= t('care_products.price') %>"
+               placeholder="Sale price"
                data-care-products-target="newPrice">
       </div>
 

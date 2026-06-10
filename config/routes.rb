@@ -50,9 +50,6 @@ Rails.application.routes.draw do
       get :main
       get :section
       get :filter
-      get :care_products
-
-      post :create_care_product
     end
   end
 
@@ -62,7 +59,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :care_products
+  resources :care_products, except: :show
 
   resource :subscription, only: [] do
     get :wayforpay, to: "subscriptions#wayforpay_form"

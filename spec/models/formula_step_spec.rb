@@ -76,14 +76,14 @@ RSpec.describe FormulaStep do
     end
   end
 
-  describe "#oxidant_service" do
+  describe "#oxidant_product" do
     it "returns nil when service_id absent" do
       formula_step = build(
         :formula_step,
         oxidant: {}
       )
 
-      expect(formula_step.oxidant_service).to be_nil
+      expect(formula_step.oxidant_product).to be_nil
     end
 
     it "returns formula product by formula_product_id" do
@@ -96,7 +96,7 @@ RSpec.describe FormulaStep do
         }
       )
 
-      expect(formula_step.oxidant_service).to eq(product)
+      expect(formula_step.oxidant_product).to eq(product)
     end
   end
 

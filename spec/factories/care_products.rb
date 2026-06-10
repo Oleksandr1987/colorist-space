@@ -1,11 +1,13 @@
 FactoryBot.define do
   factory :care_product do
-    user { nil }
-    brand { "MyString" }
-    name { "MyString" }
-    category { "MyString" }
-    purchase_price { 1 }
-    sale_price { 1 }
-    stock_quantity { 1 }
+    association :user
+
+    brand { "Londa" }
+    name { "Shampoo" }
+    category { "Shampoo" }
+
+    purchase_price { 100 }
+    sale_price { 200 }
+    stock_quantity { 10 }
   end
 end

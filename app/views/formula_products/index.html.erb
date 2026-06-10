@@ -1,27 +1,44 @@
 <div class="service-wrapper" data-controller="service">
 
-  <div class="category-header with-search">
-    <div class="category-title">
+  <div class="formula-header">
+
+    <div class="formula-tabs">
       <%= link_to "Colors",
           formula_products_path(category: "color"),
-          class: (@category == "color" ? "active" : "") %>
+          class: "formula-tab #{'active' if @category == 'color'}" %>
 
       <%= link_to "Oxidants",
           formula_products_path(category: "oxidant"),
-          class: (@category == "oxidant" ? "active" : "") %>
+          class: "formula-tab #{'active' if @category == 'oxidant'}" %>
     </div>
 
-    <div class="header-right">
-      <div class="service-search-wrapper inline-search">
-        <input type="text"
-               placeholder="Search..."
-               class="service-search-input"
-               data-service-target="search"
-               data-action="input->service#filter">
-      </div>
-      <%= link_to raw('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>'),
-            new_formula_product_path(category: @category),
-            class: "plus-icon" %>
+    <div class="formula-actions">
+
+      <input type="text"
+             placeholder="Search..."
+             class="formula-search-input"
+             data-service-target="search"
+             data-action="input->service#filter">
+
+      <%= link_to new_formula_product_path(category: @category),
+            class: "formula-add-button" do %>
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="24"
+             height="24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             stroke-linecap="round"
+             stroke-linejoin="round">
+
+          <path d="M5 12h14"/>
+          <path d="M12 5v14"/>
+
+        </svg>
+
+      <% end %>
+
     </div>
   </div>
 
@@ -42,10 +59,50 @@
           </div>
         </div>
 
-        <div class="service-actions">
-          <%= link_to "✎",
-                edit_formula_product_path(product),
-                class: "edit-link" %>
+        <div class="service-actions"
+             data-controller="popover">
+
+          <button type="button"
+                  class="icon-button"
+                  data-action="click->popover#toggle">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="lucide lucide-pencil"
+                 width="20"
+                 height="20"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+
+              <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z"/>
+              <path d="M16 5l3 3"/>
+
+            </svg>
+
+          </button>
+
+          <div class="popover-menu hidden"
+               data-popover-target="menu">
+
+            <%= link_to "Edit",
+                  edit_formula_product_path(product),
+                  class: "popover-item" %>
+
+            <%= button_to "Delete",
+                  formula_product_path(product),
+                  method: :delete,
+                  form: {
+                    data: {
+                      turbo_confirm: "Delete product?"
+                    }
+                  },
+                  class: "popover-item delete" %>
+
+          </div>
+
         </div>
       </div>
     <% end %>

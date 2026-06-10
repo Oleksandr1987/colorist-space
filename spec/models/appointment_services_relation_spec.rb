@@ -6,30 +6,6 @@ RSpec.describe AppointmentServicesRelation do
     it { is_expected.to belong_to(:service).inverse_of(:appointment_services_relations) }
   end
 
-  describe "scope .by_service_type" do
-    let(:service_coloring) { create(:service, service_type: "service") }
-    let(:service_preparation) { create(:service, service_type: "preparation") }
-
-    let(:appointment) { create(:appointment, main_service: service_coloring) }
-
-    let!(:main_relation) do
-      appointment.appointment_services_relations.first
-    end
-
-    before do
-      create(:appointment_services_relation,
-        appointment: appointment,
-        service: service_preparation
-      )
-    end
-
-    it "returns relations for given service type" do
-      result = described_class.by_service_type("service")
-
-      expect(result).to contain_exactly(main_relation)
-    end
-  end
-
   describe "scope .for_user" do
     let(:main_user) { create(:user) }
     let(:add_user) { create(:user) }

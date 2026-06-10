@@ -250,3 +250,98 @@
 .care-products-new .button {
   width: 100%;
 }
+
+.service-category {
+  font-size: 13px;
+  color: #777;
+}
+
+.service-purchase-price,
+.service-stock {
+  font-size: 13px;
+}
+
+.care-product-warning {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.care-products-filters {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin: 12px 0 16px;
+}
+
+.filter-button {
+  border: none;
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  background: #e8dcff;
+
+  color: #5c2ab8;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all .2s ease;
+}
+
+.filter-button:hover {
+  background: #dcc8ff;
+}
+
+.filter-button.active {
+  background: #6f2dbd;
+  color: #fff;
+}
+/* Chrome, Safari, Edge */
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.qty-control button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.out-of-stock {
+  opacity: .5;
+}
+
+.out-of-stock button {
+  cursor: not-allowed;
+}
+
+.out-of-stock-label {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.care-product-option button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}

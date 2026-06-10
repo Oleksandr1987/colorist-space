@@ -4,7 +4,7 @@
   <div class="category-header">
     <div class="category-title">
       <%= link_to t("services.pages.back"), services_path, class: "back" %>
-      <%= t("services.categories.#{@category.downcase}") %> <%= t("services.pages.services") %>
+      <%= @translated_category %>
     </div>
 
     <%= render "services/menu" %>
@@ -18,7 +18,7 @@
 
   <div class="create-button">
     <%= link_to t("services.pages.new_item", 
-              item: t("services.categories.#{@category.downcase}").singularize),
+              item: @translated_category),
             new_service_path(service_type: "service", category: @category),
             class: "button primary full" %>
   </div>

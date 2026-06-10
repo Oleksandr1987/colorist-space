@@ -8,7 +8,7 @@ class Service < ApplicationRecord
   validates :category, presence: true, if: -> { service_type == "service" }
   validates :subtype, presence: true
   validates :price, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :service_type, inclusion: { in: %w[service preparation care_product] }
+  validates :service_type, inclusion: { in: %w[service] }
 
   scope :income_for_user_between, ->(user, from, to) {
     joins(:appointments)
