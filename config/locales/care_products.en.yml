@@ -8,3 +8,7 @@ en:
 
     add: "Add"
     search: "Search"
+    empty: "No care products added yet"
+    stock: "Stock"
+    out_of_stock: "Out of Stock"
+    unknown_brand: "Unknown Brand"

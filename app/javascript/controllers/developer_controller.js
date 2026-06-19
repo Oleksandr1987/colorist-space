@@ -5,8 +5,6 @@ export default class extends Controller {
   static targets = [
     "modal", "input", "display",
     "serviceSelect",
-    "newName",
-    "newPrice",
     "saveBtn",
     "amountInput",
     "customInput",
@@ -447,55 +445,6 @@ export default class extends Controller {
     }
 
     window.dispatchEvent(new CustomEvent("formula:changed"))
-  }
-
-  // ---------------- CREATE PREPARATION ----------------
-  createPreparation() {
-    const name = this.newNameTarget.value.trim()
-    const price = parseFloat(this.newPriceTarget.value)
-
-    if (!name || isNaN(price)) {
-      alert("Fill name and price")
-      return
-    }
-
-    fetch("/formula_products/create_oxidant", {
-      method: "POST",
-      headers: {
-        "X-CSRF-Token": document.querySelector(
-          'meta[name="csrf-token"]'
-        ).content,
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({
-        name: name,
-        price_per_unit: price,
-        unit: "ml"
-      })
-    })
-      .then(r => r.json())
-      .then(data => {
-        const option = document.createElement("option")
-
-        option.value = data.id
-        option.textContent =
-          `${data.name} (${data.price} ₴ / ${data.unit})`
-
-        option.dataset.price = data.price
-
-        this.serviceSelectTarget.appendChild(option)
-        this.serviceSelectTarget.value = data.id
-
-        this.selectService()
-        console.log("NEW OXIDANT", {
-          id: data.id,
-          selected: this.selectedServiceId
-        })
-
-        this.newNameTarget.value = ""
-        this.newPriceTarget.value = ""
-      })
   }
 
   // ---------------- OVERLAY ----------------

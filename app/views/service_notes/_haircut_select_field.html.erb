@@ -1,0 +1,43 @@
+<div class="formula-block">
+
+  <div class="block-title">
+    <span><%= title %></span>
+  </div>
+
+  <% if value.present? %>
+
+    <div class="haircut-value-row">
+
+      <span class="haircut-value">
+        <%= t("#{translation_scope}.#{value}") %>
+      </span>
+
+      <button type="button"
+              class="clear-value-btn"
+              data-action="click->haircut#clearField">
+
+        <%= image_tag "delete.png",
+              class: "clear-icon" %>
+      </button>
+
+    </div>
+
+    <%= form.select field,
+          collection.map { |item|
+            [t("#{translation_scope}.#{item}"), item]
+          },
+          { include_blank: placeholder },
+          class: "input-line hidden" %>
+
+  <% else %>
+
+    <%= form.select field,
+          collection.map { |item|
+            [t("#{translation_scope}.#{item}"), item]
+          },
+          { include_blank: placeholder },
+          class: "input-line" %>
+
+  <% end %>
+
+</div>

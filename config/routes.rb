@@ -53,11 +53,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :formula_products do
-    collection do
-      post :create_oxidant
-    end
-  end
+  resources :formula_products
 
   resources :care_products, except: :show
 

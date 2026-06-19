@@ -11,6 +11,7 @@ uk:
     discard: "Відхилити"
     unsaved_changes_title: "Незбережені зміни"
     unsaved_changes_message: "У вас є незбережені зміни. Зберегти їх перед виходом?"
+    all: "Все"
   date:
     formats:
       long: "%-d %B %Y"

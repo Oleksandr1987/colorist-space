@@ -7,13 +7,6 @@ export default class extends Controller {
     "modal",
     "input",
     "total",
-
-    "newForm",
-    "newBrand",
-    "newName",
-    "newCategory",
-    "newPrice",
-
     "search",
     "productsList"
   ]
@@ -61,73 +54,6 @@ export default class extends Controller {
     this.render()
     this.save()
     this.closeModal()
-  }
-
-  async createProduct() {
-    const brand =
-      this.newBrandTarget.value.trim()
-
-    const name =
-      this.newNameTarget.value.trim()
-
-    const category =
-      this.newCategoryTarget.value.trim()
-
-    const price =
-      parseFloat(this.newPriceTarget.value)
-
-    if (!name || isNaN(price)) {
-      return
-    }
-
-    const token =
-      document.querySelector(
-        "meta[name='csrf-token']"
-      ).content
-
-    const response = await fetch(
-      "/care_products",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": token,
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({
-          care_product: {
-            brand: brand,
-            name: name,
-            category: category,
-            sale_price: price
-          }
-        })
-      }
-    )
-
-    if (!response.ok) return
-
-    const product = await response.json()
-
-    this.appendProductToModal(product)
-
-    this.products.push({
-      care_product_id: productId,
-      name: productName,
-      price: price,
-      qty: 1,
-      stock: parseInt(button.dataset.stock, 10) || 0
-    })
-
-    this.render()
-    this.save()
-
-    this.newBrandTarget.value = ""
-    this.newNameTarget.value = ""
-    this.newCategoryTarget.value = ""
-    this.newPriceTarget.value = ""
-
-    this.hideNewForm()
   }
 
   load() {
@@ -182,11 +108,6 @@ export default class extends Controller {
     this.listTarget.innerHTML = ""
 
     let total = 0
-
-    // this.products.forEach((item, index) => {
-    //   const lineTotal = item.price * item.qty
-
-    //   total += lineTotal
 
     this.products.forEach((item, index) => {
       const lineTotal = item.price * item.qty
@@ -264,34 +185,6 @@ export default class extends Controller {
     this.totalTarget.textContent = `${total} ₴`
   }
 
-  // increaseQty(event) {
-  //   const index = parseInt(
-  //     event.currentTarget.dataset.index,
-  //     10
-  //   )
-
-  //   const product =
-  //     this.products[index]
-
-  //   if (!product) return
-
-  //   const stock =
-  //     parseInt(product.stock || 0, 10)
-
-  //   if (product.qty >= stock) {
-  //     alert(
-  //       `Only ${stock} item(s) left in stock`
-  //     )
-
-  //     return
-  //   }
-
-  //   product.qty += 1
-
-  //   this.render()
-  //   this.save()
-  // }
-
   increaseQty(event) {
   const index = parseInt(
     event.currentTarget.dataset.index,
@@ -350,14 +243,6 @@ export default class extends Controller {
     this.save()
   }
 
-  showNewForm() {
-    this.newFormTarget.classList.remove("hidden")
-  }
-
-  hideNewForm() {
-    this.newFormTarget.classList.add("hidden")
-  }
-
   search() {
     const query =
       this.searchTarget.value.toLowerCase()
@@ -372,49 +257,6 @@ export default class extends Controller {
             .includes(query)
         )
       })
-  }
-
-  appendProductToModal(product) {
-    this.productsListTarget.insertAdjacentHTML(
-      "beforeend",
-      `
-        <div class="care-product-option"
-            data-category="${product.category || ""}">
-
-          <div>
-
-            <strong>
-              ${product.brand || ""}
-            </strong>
-
-            <div>
-              ${product.name}
-            </div>
-
-            <small>
-              ${product.category || ""}
-            </small>
-
-            <br>
-
-            <small>
-              ${product.sale_price} ₴
-            </small>
-
-          </div>
-
-          <button type="button"
-                  data-action="click->care-products#addProduct"
-                  data-id="${product.id}"
-                  data-name="${product.name}"
-                  data-price="${product.sale_price}"
-                  data-stock="${product.stock_quantity || 0}">
-                  +
-          </button>
-
-        </div>
-      `
-    )
   }
 
   remove(event) {

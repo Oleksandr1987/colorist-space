@@ -44,27 +44,6 @@ class FormulaProductsController < ApplicationController
     end
   end
 
-  def create_oxidant
-    @formula_product = current_user.formula_products.build(
-      category: "oxidant",
-      brand: "Generic",
-      name: params[:name],
-      price_per_unit: params[:price_per_unit],
-      unit: params[:unit].presence || "ml"
-    )
-
-    if @formula_product.save
-      render json: {
-        id: @formula_product.id,
-        name: @formula_product.name,
-        price: @formula_product.price_per_unit,
-        unit: @formula_product.unit
-      }
-    else
-      render json: { errors: @formula_product.errors.full_messages }, status: :unprocessable_content
-    end
-  end
-
   def edit
   end
 

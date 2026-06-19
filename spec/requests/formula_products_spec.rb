@@ -97,53 +97,6 @@ RSpec.describe "FormulaProducts" do
     end
   end
 
-  describe "POST /formula_products/create_oxidant" do
-    it "creates oxidant" do
-      expect {
-        post create_oxidant_formula_products_path,
-             params: {
-               name: "Oxidant 6%",
-               price_per_unit: 5,
-               unit: "ml"
-             },
-             as: :json
-      }.to change(
-        FormulaProduct,
-        :count
-      ).by(1)
-
-      product = FormulaProduct.last
-
-      expect(product.category).to eq("oxidant")
-      expect(product.name).to eq("Oxidant 6%")
-      expect(product.unit).to eq("ml")
-    end
-
-    it "uses ml as default unit" do
-      post create_oxidant_formula_products_path,
-           params: {
-             name: "Oxidant 9%",
-             price_per_unit: 7
-           },
-           as: :json
-
-      expect(
-        FormulaProduct.last.unit
-      ).to eq("ml")
-    end
-
-    it "returns json response" do
-      post create_oxidant_formula_products_path,
-           params: {
-             name: "Oxidant 3%",
-             price_per_unit: 5
-           },
-           as: :json
-
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   describe "PATCH /formula_products/:id" do
     it "updates formula product" do
       product = create(

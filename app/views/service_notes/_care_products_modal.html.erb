@@ -10,7 +10,8 @@
 
       <button type="button"
               data-action="click->care-products#closeModal">
-        ×
+        <%= image_tag "delete.png",
+              class: "clear-icon" %>
       </button>
     </div>
 
@@ -32,7 +33,7 @@
               class="filter-button active"
               data-category=""
               data-action="click->care-products#filterCategory">
-        All
+        <%= t("common.all") %>
       </button>
 
       <% CareProduct::CATEGORIES.each do |category| %>
@@ -55,122 +56,93 @@
     <div class="care-products-modal-list"
          data-care-products-target="productsList">
 
-      <% current_user.care_products.order(:brand, :name).each do |product| %>
+      <% products = current_user.care_products.order(:brand, :name) %>
 
-        <div class="care-product-option
-             <%= "out-of-stock" if product.stock_quantity.to_i <= 0 %>"
-             data-category="<%= product.category %>">
+      <% if products.any? %>
 
-          <div>
+        <% products.each do |product| %>
 
-            <strong>
-              <%= product.brand.presence || "Unknown Brand" %>
-            </strong>
+          <div class="care-product-option
+               <%= "out-of-stock" if product.stock_quantity.to_i <= 0 %>"
+               data-category="<%= product.category %>">
 
             <div>
-              <%= product.name %>
-            </div>
 
-            <small>
-              <%= product.category %>
-            </small>
+              <strong>
+                <%= product.brand.presence || t("care_products.unknown_brand") %>
+              </strong>
 
-            <br>
+              <div>
+                <%= product.name %>
+              </div>
 
-            <small>
-              <%= product.sale_price %> ₴
-            </small>
+              <small>
+                <%= product.category %>
+              </small>
 
-            <br>
-
-            <small>
-              Stock: <%= product.stock_quantity.to_i %>
-            </small>
-
-            <% if product.stock_quantity.to_i <= 0 %>
               <br>
 
-              <small class="out-of-stock-label">
-                Out of stock
+              <small>
+                <%= product.sale_price %> ₴
               </small>
-            <% end %>
+
+              <br>
+
+              <small>
+                <%= t("care_products.stock") %>:
+                <%= product.stock_quantity.to_i %>
+              </small>
+
+              <% if product.stock_quantity.to_i <= 0 %>
+
+                <br>
+
+                <small class="out-of-stock-label">
+                  <%= t("care_products.out_of_stock") %>
+                </small>
+
+              <% end %>
+
+            </div>
+
+            <button type="button"
+                    data-action="click->care-products#addProduct"
+                    data-id="<%= product.id %>"
+                    data-name="<%= product.name %>"
+                    data-price="<%= product.sale_price %>"
+                    data-stock="<%= product.stock_quantity.to_i %>"
+                    <%= "disabled" if product.stock_quantity.to_i <= 0 %>>
+
+              <%= product.stock_quantity.to_i <= 0 ? "×" : "+" %>
+
+            </button>
 
           </div>
 
-         <button type="button"
-                  data-action="click->care-products#addProduct"
-                  data-id="<%= product.id %>"
-                  data-name="<%= product.name %>"
-                  data-price="<%= product.sale_price %>"
-                  data-stock="<%= product.stock_quantity.to_i %>"
-                  <%= "disabled" if product.stock_quantity.to_i <= 0 %>>
-            <%= product.stock_quantity.to_i <= 0 ? "×" : "+" %>
-          </button>
+        <% end %>
+
+      <% else %>
+
+        <div class="empty-products">
+
+          <%= image_tag "care_products.png",
+                width: 48,
+                height: 48 %>
+
+          <p>
+            <%= t("care_products.empty") %>
+          </p>
+
+          <%= link_to t("care_products.add"),
+                new_care_product_path,
+                class: "button" %>
+
         </div>
+
       <% end %>
+
     </div>
 
-    <!-- NEW PRODUCT -->
-    <div class="care-products-new">
-      <button type="button"
-              class="button secondary"
-              data-action="click->care-products#showNewForm">
-        + <%= t("care_products.new_product") %>
-      </button>
-    </div>
-
-    <!-- CREATE FORM -->
-    <div class="hidden"
-         data-care-products-target="newForm">
-
-      <div class="form-section">
-        <input type="text"
-               class="form-input"
-               placeholder="Brand"
-               data-care-products-target="newBrand">
-      </div>
-
-      <div class="form-section">
-        <input type="text"
-               class="form-input"
-               placeholder="Name"
-               data-care-products-target="newName">
-      </div>
-
-      <div class="form-section">
-        <input type="text"
-               class="form-input"
-               list="care-product-categories"
-               placeholder="Category"
-               data-care-products-target="newCategory">
-
-        <datalist id="care-product-categories">
-          <% CareProduct::CATEGORIES.each do |category| %>
-            <option value="<%= category %>">
-          <% end %>
-        </datalist>
-      </div>
-
-      <div class="form-section">
-        <input type="number"
-               class="form-input"
-               placeholder="Sale price"
-               data-care-products-target="newPrice">
-      </div>
-
-      <div class="form-actions-row">
-        <button type="button"
-                class="button primary"
-                data-action="click->care-products#createProduct">
-          <%= t("common.save") %>
-        </button>
-
-        <button type="button"
-                class="button secondary"
-                data-action="click->care-products#hideNewForm">
-          <%= t("common.cancel") %>
-        </button>
-      </div>
-    </div>
   </div>
+
 </div>

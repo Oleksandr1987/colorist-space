@@ -30,3 +30,45 @@
 .empty-haircut-step {
   margin-top: 12px;
 }
+
+.haircut-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+
+  padding: 4px 0 10px;
+}
+
+.haircut-value {
+  font-size: 18px;
+  color: #111;
+}
+
+.clear-value-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+
+  padding: 0;
+  margin: 0;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.clear-icon {
+  width: 18px;
+  height: 18px;
+  opacity: .55;
+}
+
+.clear-value-btn:hover .clear-icon {
+  opacity: 1;
+}

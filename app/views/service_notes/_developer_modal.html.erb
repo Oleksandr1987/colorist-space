@@ -8,96 +8,136 @@
     <button type="button"
             class="dev-close"
             data-action="click->developer#closeModal">
-      ✕
+      <%= image_tag "delete.png",
+            class: "clear-icon" %>
     </button>
 
     <div class="dev-body">
-      <h2>Add Oxidant</h2>
 
-      <div class="dev-preparations">
-        <label>Select oxidant</label>
+      <h2><%= t("developer.oxidant_modal.title") %></h2>
 
-        <select data-developer-target="serviceSelect"
-                data-action="change->developer#selectService"
-                class="input-line">
-          <option value="">Choose...</option>
+      <% oxidants = current_user.formula_products.where(category: "oxidant") %>
 
-          <% current_user.formula_products.where(category: "oxidant").each do |oxid| %>
-            <option value="<%= oxid.id %>" data-price="<%= oxid.price_per_unit %>">
-              <%= oxid.name %> (<%= oxid.price_per_unit %> ₴ / <%= oxid.unit %>)
+      <% if oxidants.any? %>
+
+        <div class="dev-preparations">
+
+          <label><%= t("developer.oxidant_modal.oxidant") %></label>
+
+          <select data-developer-target="serviceSelect"
+                  data-action="change->developer#selectService"
+                  class="input-line">
+
+            <option value="">
+              <%= t("developer.oxidant_modal.choose") %>
             </option>
+
+            <% oxidants.each do |oxid| %>
+              <option value="<%= oxid.id %>"
+                      data-price="<%= oxid.price_per_unit %>">
+
+                <%= oxid.name %>
+                (<%= oxid.price_per_unit %> ₴ / <%= oxid.unit %>)
+
+              </option>
+            <% end %>
+
+          </select>
+
+        </div>
+
+        <div class="dev-ratio">
+
+          <% ["1:1", "1:1.5", "1:2", "1:3"].each do |r| %>
+
+            <button type="button"
+                    data-action="click->developer#setRatio"
+                    data-ratio="<%= r %>">
+
+              <%= r %>
+
+            </button>
+
           <% end %>
-        </select>
 
-        <div class="dev-add-preparation">
-          <input type="text"
-                 placeholder="New preparation name"
-                 data-developer-target="newName">
+          <div class="dev-ratio-custom"
+               data-developer-target="customRatio">
 
-          <input type="number"
-                 placeholder="Price"
-                 data-developer-target="newPrice">
+            <input type="text"
+                   inputmode="decimal"
+                   placeholder="1:"
+                   value="1:"
+                   data-developer-target="customInput"
+                   data-action="
+                     focus->developer#highlightCustomRatio
+                     input->developer#normalizeCustomRatio
+                   ">
 
-          <button type="button"
-                  data-action="click->developer#createPreparation">
-            + Create
-          </button>
-        </div>
-      </div>
+            <button type="button"
+                    data-action="click->developer#addCustom">
+              + <%= t("developer.oxidant_modal.add_ratio") %>
+            </button>
 
-      <div class="dev-ratio">
-        <% ["1:1", "1:1.5", "1:2", "1:3"].each do |r| %>
-          <button type="button"
-                  data-action="click->developer#setRatio"
-                  data-ratio="<%= r %>">
-            <%= r %>
-          </button>
-        <% end %>
-
-        <div class="dev-ratio-custom"
-            data-developer-target="customRatio">
-
-          <input type="text"
-                 inputmode="decimal"
-                 placeholder="1:"
-                 value="1:"
-                 data-developer-target="customInput"
-                 data-action="
-                  focus->developer#highlightCustomRatio
-                  input->developer#normalizeCustomRatio
-                 " />
-
-          <button type="button"
-                  data-action="click->developer#addCustom">
-            + ADD
-          </button>
+          </div>
 
         </div>
-      </div>
 
-      <div class="dev-hint">
-        <%= t("formula.ratio_hint_html").html_safe %>
-      </div>
+        <div class="dev-hint">
+          <%= t("formula.ratio_hint_html").html_safe %>
+        </div>
 
-      <div class="dev-amount">
-        <label>Oxidant amount:</label>
-        <div class="dev-amount-row">
-          <input type="text"
-                 value="0"
-                 class="dev-amount-input"
-                 data-developer-target="amountInput"
-                 data-action="input->developer#manualAmountChanged">
+        <div class="dev-amount">
+
+          <label>
+            <%= t("developer.oxidant_modal.amount") %>
+          </label>
+
+          <div class="dev-amount-row">
+
+            <input type="text"
+                   value="0"
+                   class="dev-amount-input"
+                   data-developer-target="amountInput"
+                   data-action="input->developer#manualAmountChanged">
+
             <span>g</span>
+
+          </div>
+
         </div>
-      </div>
+
+      <% else %>
+
+        <div class="empty-products">
+
+          <%= image_tag "oxidant.png",
+                width: 48,
+                height: 48 %>
+
+          <p>
+            <%= t("formula.oxidant.empty") %>
+          </p>
+
+          <%= link_to t("formula.oxidant.add"),
+                new_formula_product_path(category: "oxidant"),
+                class: "button" %>
+
+        </div>
+
+      <% end %>
+
     </div>
 
-    <button type="button"
-            class="dev-save"
-            data-action="click->developer#save"
-            data-developer-target="saveBtn"
-            disabled>
-      SAVE
-    </button>
+    <% if oxidants.any? %>
+      <button type="button"
+        class="dev-save"
+        data-action="click->developer#save"
+        data-developer-target="saveBtn"
+        disabled>
+        <%= t("developer.oxidant_modal.save") %>
+      </button>
+    <% end %>
+
   </div>
+
 </div>

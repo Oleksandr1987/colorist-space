@@ -1,0 +1,6 @@
+en:
+  formula:
+    oxidant:
+      empty: "No oxidants added yet"
+      add: "Add oxidant"
+      select: "Select oxidant"

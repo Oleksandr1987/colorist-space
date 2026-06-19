@@ -216,4 +216,20 @@ export default class extends Controller {
 			`
 		}).join("")
 	}
+
+  clearField(event) {
+    event.preventDefault()
+
+    const block = event.currentTarget.closest(".formula-block")
+
+    const valueRow = block.querySelector(".haircut-value-row")
+    const select = block.querySelector("select")
+
+    if (select) {
+      select.value = ""
+      select.classList.remove("hidden")
+    }
+
+    valueRow?.remove()
+  }
 }

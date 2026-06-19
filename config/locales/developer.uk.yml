@@ -1,0 +1,9 @@
+uk:
+  developer:
+    oxidant_modal:
+      title: "Додати окисник"
+      oxidant: "Окисник"
+      choose: "Оберіть..."
+      add_ratio: "ДОДАТИ"
+      amount: "Кількість окисника:"
+      save: "ЗБЕРЕГТИ"

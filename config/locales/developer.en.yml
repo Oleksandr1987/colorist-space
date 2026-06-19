@@ -1,0 +1,9 @@
+en:
+  developer:
+    oxidant_modal:
+      title: "Add Oxidant"
+      oxidant: "Oxidant"
+      choose: "Choose..."
+      add_ratio: "ADD"
+      amount: "Oxidant amount:"
+      save: "SAVE"

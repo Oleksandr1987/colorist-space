@@ -64,95 +64,60 @@
 
                 <button type="button"
                         data-action="click->haircut#removeStep">
-                  ✕
+                  <%= image_tag "delete.png",
+                      class: "clear-icon" %>
                 </button>
 
               </div>
             </div>
 
             <!-- INSTRUMENT -->
-            <div class="formula-block">
-
-              <div class="block-title">
-                <span><%= t("haircut.instrument") %></span>
-              </div>
-
-              <%= step_form.select :instrument,
-									HaircutStep::INSTRUMENTS.map { |instrument|
-										[
-											t("haircut.instruments.#{instrument}"),
-											instrument
-										]
-									},
-									{
-										include_blank: t("haircut.select_instrument")
-									},
-									class: "input-line" %>
-
-            </div>
+            <%= render(
+              "service_notes/haircut_select_field",
+              form: step_form,
+              field: :instrument,
+              value: step_form.object.instrument,
+              collection: HaircutStep::INSTRUMENTS,
+              title: t("haircut.instrument"),
+              translation_scope: "haircut.instruments",
+              placeholder: t("haircut.select_instrument")
+            ) %>
 
             <!-- PARTING -->
-            <div class="formula-block">
-
-              <div class="block-title">
-                <span><%= t("haircut.parting") %></span>
-              </div>
-
-              <%= step_form.select :parting,
-									HaircutStep::PARTINGS.map { |parting|
-										[
-											t("haircut.partings.#{parting}"),
-											parting
-										]
-									},
-									{
-										include_blank: t("haircut.select_parting")
-									},
-									class: "input-line" %>
-
-            </div>
+            <%= render(
+              "service_notes/haircut_select_field",
+              form: step_form,
+              field: :parting,
+              value: step_form.object.parting,
+              collection: HaircutStep::PARTINGS,
+              title: t("haircut.parting"),
+              translation_scope: "haircut.partings",
+              placeholder: t("haircut.select_parting")
+            ) %>
 
             <!-- ELEVATION -->
-            <div class="formula-block">
-
-              <div class="block-title">
-                <span><%= t("haircut.elevation") %></span>
-              </div>
-
-              <%= step_form.select :elevation,
-									HaircutStep::ELEVATIONS.map { |elevation|
-										[
-											t("haircut.elevations.#{elevation}"),
-											elevation
-										]
-									},
-									{
-										include_blank: t("haircut.select_elevation")
-									},
-									class: "input-line" %>
-
-            </div>
+            <%= render(
+              "service_notes/haircut_select_field",
+              form: step_form,
+              field: :elevation,
+              value: step_form.object.elevation,
+              collection: HaircutStep::ELEVATIONS,
+              title: t("haircut.elevation"),
+              translation_scope: "haircut.elevations",
+              placeholder: t("haircut.select_elevation")
+            ) %>
 
             <!-- CUT -->
-            <div class="formula-block">
-
-              <div class="block-title">
-                <span><%= t("haircut.cut_type") %></span>
-              </div>
-
-              <%= step_form.select :cut_type,
-									HaircutStep::CUT_TYPES.map { |cut|
-										[
-											t("haircut.cut_types.#{cut}"),
-											cut
-										]
-									},
-									{
-										include_blank: t("haircut.select_cut_type")
-									},
-									class: "input-line" %>
-
-            </div>
+            <%= render(
+              "service_notes/haircut_select_field",
+              form: step_form,
+              field: :cut_type,
+              value: step_form.object.cut_type,
+              collection: HaircutStep::CUT_TYPES,
+              title: t("haircut.cut_type"),
+              translation_scope: "haircut.cut_types",
+              placeholder: t("haircut.select_cut_type")
+            ) %>
 
           </div>
 

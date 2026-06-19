@@ -46,7 +46,8 @@
               class="clear-client-btn hidden"
               data-calendar-target="clearButton"
               data-action="click->calendar#clearClientField">
-        ✕
+        <%= image_tag "delete.png",
+                      class: "clear-icon" %>
       </button>
 
       <datalist id="client-list" data-calendar-target="clientList">

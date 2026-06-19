@@ -111,3 +111,22 @@
   background: white;
   color: black;
 }
+
+.empty-products {
+  padding: 24px;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-products p {
+  margin: 0;
+  color: #666;
+}
+
+.empty-products .button {
+  min-width: 180px;
+}
