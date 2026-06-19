@@ -8,9 +8,8 @@
          data-action="click->collapse#toggle">
 
       <span>
-				<%= t("haircut.step") %>
-				<span class="step-number"></span>
-			</span>
+        STEP <span class="step-number"></span>
+      </span>
 
       <svg class="chevron"
            xmlns="http://www.w3.org/2000/svg"
@@ -65,10 +64,6 @@
                   class="input-line">
 
             <option value="">
-              Select instrument
-            </option>
-
-            <option value="">
 							<%= t("haircut.select_instrument") %>
 						</option>
 
@@ -93,10 +88,6 @@
 
           <select name="service_note[haircut_steps_attributes][NEW_RECORD][parting]"
                   class="input-line">
-
-            <option value="">
-              Select parting
-            </option>
 
             <option value="">
 							<%= t("haircut.select_parting") %>
@@ -125,10 +116,6 @@
                   class="input-line">
 
             <option value="">
-              Select elevation
-            </option>
-
-            <option value="">
 							<%= t("haircut.select_elevation") %>
 						</option>
 
@@ -153,10 +140,6 @@
 
           <select name="service_note[haircut_steps_attributes][NEW_RECORD][cut_type]"
                   class="input-line">
-
-            <option value="">
-              Select cut type
-            </option>
 
             <option value="">
 							<%= t("haircut.select_cut_type") %>

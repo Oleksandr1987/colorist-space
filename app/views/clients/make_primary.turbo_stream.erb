@@ -1,0 +1,13 @@
+<%= turbo_stream.replace "client_primary_phone" do %>
+  <%= turbo_frame_tag "client_primary_phone" do %>
+    <p class="client-phone">
+      <%= @client.phone %>
+    </p>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.replace "client_phones" do %>
+  <%= turbo_frame_tag "client_phones" do %>
+    <%= render "phones", client: @client %>
+  <% end %>
+<% end %>

@@ -200,7 +200,7 @@ RSpec.describe "Clients" do
         .to receive(:make_primary!)
         .with("+380111111111")
 
-      patch make_primary_client_path(client), params: {
+      patch make_primary_client_path(client, format: :turbo_stream), params: {
         phone: "+380111111111"
       }
 

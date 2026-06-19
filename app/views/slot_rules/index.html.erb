@@ -14,7 +14,12 @@
             </div>
 
             <div class="slot-rule-actions">
-              <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">✎</button>
+              <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">
+                 <%= image_tag "pencil.png",
+                      class: "wiz-icon",
+                      width: 24,
+                      height: 24 %>
+              </button>
               <div class="popover-menu hidden" data-popover-target="menu">
                 <%= link_to t("slot_rules.actions.edit"), edit_slot_rule_path(rule), class: "menu-item" %>
 

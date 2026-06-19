@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["container", "template"]
+  static targets = ["container", "template", "addStep"]
 
 	static values = {
 		title: String,
@@ -15,30 +15,62 @@ export default class extends Controller {
   }
 
   createStep(event) {
-		event.preventDefault()
+    event.preventDefault()
 
-		const zone = event.currentTarget.dataset.zone
-		const id = Date.now()
+    const zone = event.currentTarget.dataset.zone
 
-		let html = this.templateTarget.innerHTML
-			.replace(/NEW_RECORD/g, id)
-			.replace(/__ZONE__/g, zone)
+    const existingZones = Array.from(
+      this.containerTarget.querySelectorAll(
+        "input[name*='[zone]']"
+      )
+    )
+      .map(el => el.value)
+      .filter(Boolean)
 
-		this.containerTarget.insertAdjacentHTML(
-			"beforeend",
-			html
-		)
+    if (existingZones.includes(zone)) {
+      return
+    }
 
-		const empty = this.element.querySelector(
-			".empty-haircut-step"
-		)
+    const id = Date.now()
 
-		if (empty) {
-			empty.remove()
-		}
+    let html = this.templateTarget.innerHTML
+      .replace(/NEW_RECORD/g, id)
+      .replace(/__ZONE__/g, zone)
 
-		this.updateNumbers()
-	}
+    this.containerTarget.insertAdjacentHTML(
+      "beforeend",
+      html
+    )
+
+    const newStep = this.containerTarget.lastElementChild
+
+    const content =
+      newStep?.querySelector(
+        "[data-collapse-target='content']"
+      )
+
+    if (content) {
+      content.classList.remove("hidden")
+    }
+
+    if (newStep) {
+      newStep.classList.add("open")
+    }
+
+    const empty = this.element.querySelector(
+      ".empty-haircut-step"
+    )
+
+    if (empty) {
+      empty.remove()
+    }
+
+    if (this.hasAddStepTarget) {
+      this.addStepTarget.classList.remove("hidden")
+    }
+
+    this.updateNumbers()
+  }
 
   removeStep(event) {
 		event.preventDefault()
@@ -128,7 +160,7 @@ export default class extends Controller {
 				<div class="formula-step-header"
 						data-action="click->collapse#toggle">
 
-					<span>${this.titleValue}</span>
+					<span>STEP 1</span>
 
 					<svg class="chevron"
 							xmlns="http://www.w3.org/2000/svg"

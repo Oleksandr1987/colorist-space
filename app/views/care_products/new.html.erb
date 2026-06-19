@@ -1,12 +1,13 @@
 <div class="service-wrapper">
 
   <div class="category-header">
-    <%= link_to "← Back",
-          care_products_path,
-          class: "back" %>
+    <%= link_to care_products_path do %>
+      <%= image_tag "back.png",
+            class: "wiz-icon",
+            width: 24,
+            height: 24 %>
+    <% end %>
   </div>
 
-  <%= render "form",
-        care_product: @care_product %>
-
+  <%= render "form", care_product: @care_product %>
 </div>

@@ -1,0 +1,31 @@
+<% return if care_products.blank? %>
+
+<div class="note-section">
+
+  <div class="note-section-title">
+     <%= image_tag "skincare.png",
+          class: "wiz-icon",
+          width: 34,
+          height: 34 %>
+    <span>CARE PRODUCTS</span>
+  </div>
+
+  <% care_products.each do |item| %>
+
+    <% product = CareProduct.find_by(id: item["care_product_id"]) %>
+
+    <div class="note-row">
+
+      <strong>
+        <%= product&.brand || item["brand"] %>
+      </strong>
+
+      <span>
+        <%= product&.name || item["name"] || item["category"] %>
+      </span>
+
+    </div>
+
+  <% end %>
+
+</div>

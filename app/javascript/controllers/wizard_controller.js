@@ -10,6 +10,7 @@ export default class extends Controller {
     "nextButton",
     "nextLabel",
     "nextIcon",
+    "saveIcon",
     "prevButton",
     "unsavedModal",
     "unsavedTitle",
@@ -17,6 +18,7 @@ export default class extends Controller {
   ]
 
   static values = {
+    initialStep: String,
     unsavedTitle: String,
     unsavedMessage: String,
     saveLabel: String,
@@ -27,7 +29,16 @@ export default class extends Controller {
   connect() {
     console.log("Wizard controller connected")
 
-    this.current = 0
+    const steps = {
+      services: 0,
+      haircut: 1,
+      formula: 2,
+      care_products: 3,
+      photos: 4,
+      notes: 5
+    }
+
+    this.current = steps[this.initialStepValue] ?? 0
     this.steps = this.stepTargets
     this.nav = this.element.querySelectorAll(".wiz-item")
     this.isDirty = false
@@ -147,11 +158,15 @@ export default class extends Controller {
     if (isLast) {
       this.nextLabelTarget.textContent = "SAVE"
       this.nextButtonTarget.type = "submit"
+
       this.nextIconTarget.style.display = "none"
+      this.saveIconTarget.style.display = "inline-block"
     } else {
       this.nextLabelTarget.textContent = "NEXT"
       this.nextButtonTarget.type = "button"
+
       this.nextIconTarget.style.display = "inline-block"
+      this.saveIconTarget.style.display = "none"
     }
   }
 

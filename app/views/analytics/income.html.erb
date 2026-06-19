@@ -1,5 +1,10 @@
 <div class="analytics-header-bar">
-  <%= link_to "←", income_analytics_path(from: params[:from], to: params[:to]), class: "back-button-inline", title: t("analytics.back") %>
+  <%= link_to income_analytics_path(from: params[:from], to: params[:to]), class: "back-button-inline", title: t("analytics.back") do %>
+    <%= image_tag "back.png",
+          class: "wiz-icon",
+          width: 24,
+          height: 24 %>
+  <% end %>
   <h1><%= t("analytics.income.title") %></h1>
 </div>
 

@@ -1,0 +1,16 @@
+en:
+  formula_products:
+    tabs:
+      colors: "Colors"
+      oxidants: "Oxidants"
+
+    menu:
+      search_placeholder: "Search..."
+
+    actions:
+      edit: "Edit"
+      delete: "Delete"
+      confirm_delete: "Delete product?"
+
+    pages:
+      title: "Formula Ingredients"

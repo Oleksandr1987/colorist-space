@@ -1,7 +1,12 @@
 <div class="service-wrapper" data-controller="service">
   <div class="category-header with-search">
     <div class="category-title">
-      <%= link_to t("services.pages.back"), services_path, class: "back" %>
+      <%= link_to services_path, class: "back" do %>
+        <%= image_tag "back.png",
+              class: "wiz-icon",
+              width: 24,
+              height: 24 %>
+      <% end %>
       <span><%= t("services.pages.care_products") %></span>
     </div>
 
@@ -9,14 +14,17 @@
       <div class="service-search-wrapper inline-search">
         <input type="text"
                placeholder="<%= t('services.pages.search') %>"
-               class="service-search-input"
+               class="formula-search-input"
                data-service-target="search"
                data-action="input->service#filter">
       </div>
 
-      <%= link_to raw('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>'),
-          new_care_product_path,
-          class: "plus-icon" %>
+      <%= link_to new_care_product_path,
+          class: "formula-add-button" do %>
+          <%= image_tag "plus.png",
+              width: 38,
+              height: 38 %>
+      <% end %>
     </div>
   </div>
 

@@ -104,7 +104,13 @@ class ClientsController < ApplicationController
 
     @client.make_primary!(params[:phone])
 
-    head :ok
+    @client = current_user.clients
+                          .includes(:client_phones)
+                          .find(params[:id])
+
+    respond_to do |format|
+      format.turbo_stream
+    end
   end
 
   private

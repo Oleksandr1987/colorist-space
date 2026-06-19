@@ -1,8 +1,11 @@
 <div class="service-wrapper">
   <div class="category-header">
-    <%= link_to "← Back",
-          formula_products_path(category: @formula_product.category),
-          class: "back" %>
+    <%= link_to formula_products_path(category: @formula_product.category) do %>
+      <%= image_tag "back.png",
+            class: "wiz-icon",
+            width: 24,
+            height: 24 %>
+    <% end %>
   </div>
 
   <%= render "form" %>

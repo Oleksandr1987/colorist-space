@@ -205,6 +205,17 @@ body {
   font-family: "Montserrat", sans-serif;
 }
 
+.nav-item .icon img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(0.35);
+}
+
+.nav-item.active .icon img {
+  filter: brightness(0) saturate(100%) invert(31%) sepia(91%) saturate(3111%) hue-rotate(253deg) brightness(96%) contrast(93%);
+}
+
 .nav-item {
   text-align: center;
   color: #666;

@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["monthLabel", "calendarDays", "selectedDateLabel", "timeline"]
-  static values = { translations: Object, datesWithAppointments: Array, clientId: Number }
+  static values = { translations: Object, datesWithAppointments: Array, clientId: Number, pencilIcon: String }
 
   connect() {
     this.t = this.translationsValue
@@ -66,8 +66,8 @@ export default class extends Controller {
       const hasAppointment = this.datesWithAppointmentsValue.includes(dateStr)
 
       html += `
-        <div class="day ${isToday ? "today" : ""} 
-                      ${isSelected ? "selected" : ""} 
+        <div class="day ${isToday ? "today" : ""}
+                      ${isSelected ? "selected" : ""}
                       ${hasAppointment ? "has-appointment" : ""}"
              data-date="${dateStr}"
              data-action="click->calendar-view#selectDate">
@@ -237,7 +237,7 @@ export default class extends Controller {
                 data-id="${slot.data.id}"
                 data-client-id="${slot.data.client_id}"
                 data-service-note-id="${slot.data.service_note_id || ""}">
-                
+
               ${startTime}–${endTime} — ${slot.data.service} (${slot.data.client_name})
             </div>
 
@@ -245,7 +245,9 @@ export default class extends Controller {
             <div class="slot-icon-wrapper">
               <button class="popover-toggle"
                       data-id="${slot.data.id}">
-                ✎
+                <img src="${this.pencilIconValue}"
+                     alt="Edit"
+                     class="popover-pencil-icon">
               </button>
 
               <div class="popover-menu hidden" id="popover-${slot.data.id}">

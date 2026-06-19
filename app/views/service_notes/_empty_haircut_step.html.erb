@@ -4,7 +4,7 @@
   <div class="formula-step-header"
        data-action="click->collapse#toggle">
 
-    <span><%= t("haircut.title") %></span>
+    <span>STEP 1</span>
 
     <svg class="chevron"
          xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +26,6 @@
       <div class="haircut-zones-grid">
 
         <% HaircutStep::ZONES.each do |zone| %>
-
           <button type="button"
                   class="section-btn"
                   data-action="click->haircut#createStep click->collapse#stop"
@@ -35,7 +34,6 @@
             <%= t("haircut.zones.#{zone.parameterize(separator: '_')}") %>
 
           </button>
-
         <% end %>
 
       </div>

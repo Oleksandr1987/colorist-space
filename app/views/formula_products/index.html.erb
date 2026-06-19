@@ -3,11 +3,11 @@
   <div class="formula-header">
 
     <div class="formula-tabs">
-      <%= link_to "Colors",
+      <%= link_to t("formula_products.tabs.colors"),
           formula_products_path(category: "color"),
           class: "formula-tab #{'active' if @category == 'color'}" %>
 
-      <%= link_to "Oxidants",
+      <%= link_to t("formula_products.tabs.oxidants"),
           formula_products_path(category: "oxidant"),
           class: "formula-tab #{'active' if @category == 'oxidant'}" %>
     </div>
@@ -15,28 +15,16 @@
     <div class="formula-actions">
 
       <input type="text"
-             placeholder="Search..."
+             placeholder="<%= t('formula_products.menu.search_placeholder') %>"
              class="formula-search-input"
              data-service-target="search"
              data-action="input->service#filter">
 
       <%= link_to new_formula_product_path(category: @category),
             class: "formula-add-button" do %>
-
-        <svg xmlns="http://www.w3.org/2000/svg"
-             width="24"
-             height="24"
-             fill="none"
-             stroke="currentColor"
-             stroke-width="2"
-             stroke-linecap="round"
-             stroke-linejoin="round">
-
-          <path d="M5 12h14"/>
-          <path d="M12 5v14"/>
-
-        </svg>
-
+        <%= image_tag "plus.png",
+              width: 38,
+              height: 38 %>
       <% end %>
 
     </div>
@@ -66,37 +54,26 @@
                   class="icon-button"
                   data-action="click->popover#toggle">
 
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="lucide lucide-pencil"
-                 width="20"
-                 height="20"
-                 viewBox="0 0 24 24"
-                 fill="none"
-                 stroke="currentColor"
-                 stroke-width="2"
-                 stroke-linecap="round"
-                 stroke-linejoin="round">
-
-              <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z"/>
-              <path d="M16 5l3 3"/>
-
-            </svg>
+            <%= image_tag "pencil.png",
+                  class: "wiz-icon",
+                  width: 24,
+                  height: 24 %>
 
           </button>
 
           <div class="popover-menu hidden"
                data-popover-target="menu">
 
-            <%= link_to "Edit",
+            <%= link_to t("formula_products.actions.edit"),
                   edit_formula_product_path(product),
                   class: "popover-item" %>
 
-            <%= button_to "Delete",
+            <%= button_to t("formula_products.actions.delete"),
                   formula_product_path(product),
                   method: :delete,
                   form: {
                     data: {
-                      turbo_confirm: "Delete product?"
+                      turbo_confirm: t("formula_products.actions.confirm_delete")
                     }
                   },
                   class: "popover-item delete" %>

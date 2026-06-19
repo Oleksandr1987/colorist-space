@@ -97,13 +97,18 @@
 
 /* ACTIVE STEP */
 .wiz-item.active {
-  background: #1c1c1c;
+  background: #fff;
+  border: 2px solid #1c1c1c;
   transform: scale(1.15);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
 
 .wiz-item.active svg {
-  stroke: white;
+  stroke: #1c1c1c;
+}
+
+.wiz-item.active img {
+  filter: none;
 }
 
 /* HOVER (optional) */
@@ -158,4 +163,21 @@
   display: flex;
   justify-content: space-between;
   z-index: 10;
+}
+
+.wizard-nav-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.wizard-bottom button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wiz-icon-close {
+  width: 20px;
+  height: 20px;
 }

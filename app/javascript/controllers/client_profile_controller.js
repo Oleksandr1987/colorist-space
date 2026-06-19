@@ -7,7 +7,9 @@ export default class extends Controller {
   static values = { id: Number }
 
   connect() {
-    this.showTabByName("styles") // Default tab on page load
+    const savedTab = localStorage.getItem("client-tab") || "styles"
+
+    this.showTabByName(savedTab)
   }
 
   showTab(event) {
@@ -16,12 +18,12 @@ export default class extends Controller {
   }
 
   showTabByName(tabName) {
-    // Tabs content (sections)
+    localStorage.setItem("client-tab", tabName)
+
     this.tabContentTargets.forEach((el) =>
       el.classList.toggle("active", el.id === `${tabName}-tab`)
     )
 
-    // Tab buttons (highlight active)
     this.tabTargets.forEach((el) =>
       el.classList.toggle("active", el.dataset.tabName === tabName)
     )
@@ -41,20 +43,5 @@ export default class extends Controller {
     setTimeout(() => {
       event.currentTarget.classList.remove("copied")
     }, 1000)
-  }
-
-  makePrimary(event) {
-    const phone = event.currentTarget.dataset.phone
-
-    fetch(`/clients/${this.idValue}/make_primary`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
-      },
-      body: JSON.stringify({ phone: phone })
-    }).then(() => {
-      window.location.reload()
-    })
   }
 }

@@ -26,9 +26,8 @@
              data-action="click->collapse#toggle">
 
           <span>
-						<%= t("haircut.step") %>
-						<span class="step-number"></span>
-					</span>
+            STEP <span class="step-number"></span>
+          </span>
 
           <svg class="chevron"
                xmlns="http://www.w3.org/2000/svg"
@@ -166,14 +165,14 @@
   </div>
 
   <!-- ADD STEP -->
-  <div class="formula-add-step"
+  <div class="formula-add-step <%= 'hidden' if @service_note.haircut_steps.empty? %>"
        data-haircut-target="addStep"
        data-controller="collapse">
 
     <div class="add-step-btn"
          data-action="click->collapse#toggle">
 
-      <span><%= t("haircut.add_zone") %></span>
+      <span><%= t("haircut.step") %></span>
 
       <svg class="chevron"
            xmlns="http://www.w3.org/2000/svg"

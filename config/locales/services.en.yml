@@ -23,7 +23,7 @@ en:
       treatment: "Treatment"
 
     subtypes:
-      haircut: 
+      haircut:
         - "Short haircut with clippers"
         - "Long haircut with scissors"
         - "Fade haircut"

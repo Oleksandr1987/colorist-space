@@ -14,13 +14,8 @@
        ">
 
     <button class="photo-back-btn" onclick="history.back()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="m12 8-4 4 4 4"/>
-        <path d="M16 12H8"/>
-      </svg>
+       <%= image_tag "back.png",
+                class: "wiz-icon-close" %>
     </button>
 
     <% if @service_note.photos.attached? %>
@@ -28,7 +23,24 @@
             class: "note-photo",
             data: { photo_target: "photo" } %>
     <% else %>
-      <div class="note-no-photo">No Photo</div>
+      <div class="note-no-photo">
+
+        <%= link_to edit_client_service_note_path(
+              @client,
+              @service_note,
+              step: "photos"
+            ),
+            class: "add-photo-button" do %>
+
+          <%= image_tag "camera.png",
+                width: 28,
+                height: 28 %>
+
+          <span>ADD PHOTO</span>
+
+        <% end %>
+
+      </div>
     <% end %>
   </div>
 
@@ -52,157 +64,208 @@
     </div>
 
     <div class="note-actions-modern">
-      <%= link_to edit_client_service_note_path(@client, @service_note) do %>
-        <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil" width="20" height="20"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z" />
-          <path d="M16 5l3 3" />
-        </svg>
-      <% end %>
+      <div class="note-popover"
+       data-controller="popover">
 
-      <%= button_to client_service_note_path(@client, @service_note),
-            method: :delete,
-            data: { turbo_confirm: "Delete?" } do %>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis-vertical-icon lucide-ellipsis-vertical">
-        <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-      <% end %>
+        <button type="button"
+                class="edit-btn"
+                data-action="click->popover#toggle">
+
+          <%= image_tag "pencil.png",
+                class: "wiz-icon",
+                width: 24,
+                height: 24 %>
+
+        </button>
+
+        <div class="popover-menu hidden"
+            data-popover-target="menu">
+
+          <%= link_to "Edit",
+                edit_client_service_note_path(
+                  @client,
+                  @service_note
+                ) %>
+
+          <%= button_to "Delete",
+                client_service_note_path(
+                  @client,
+                  @service_note
+                ),
+                method: :delete,
+                form: {
+                  data: {
+                    turbo_confirm: "Delete?"
+                  }
+                } %>
+
+        </div>
+      </div>
     </div>
   </div>
+
+  <%
+    haircut_steps = @service_note.haircut_steps.reject do |step|
+      step.instrument.blank? &&
+      step.parting.blank? &&
+      step.elevation.blank? &&
+      step.cut_type.blank?
+    end
+
+    formula_steps = @service_note.formula_steps.select do |step|
+      step.formula_ingredients.any? ||
+      step.oxidant.present? ||
+      step.time.present?
+    end
+  %>
 
   <!-- CONTENT -->
   <div class="note-content">
 
-    <% if @service_note.haircut_steps.any? %>
+    <% if haircut_steps.any? %>
+      <div class="note-section">
 
-      <!-- HAIRCUT -->
+        <div class="note-section-title">
+          <%= image_tag "brush.png",
+                class: "wiz-icon",
+                width: 34,
+                height: 34 %>
+          <span><%= t("haircut.title") %></span>
+        </div>
+
+        <% haircut_steps.each_with_index do |step, index| %>
+          <div data-controller="collapse" class="note-step">
+
+            <div class="note-step-pill"
+                data-action="click->collapse#toggle">
+
+              <span>
+                STEP <%= index + 1 %>
+              </span>
+
+              <svg class="chevron"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </div>
+
+            <div class="note-step-content hidden"
+                data-collapse-target="content">
+
+              <%= render "service_notes/haircut_preview",
+                    step: step %>
+
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+
+    <% if formula_steps.any? %>
       <div class="note-section">
 
         <div class="note-section-title">
 
-          ✂️
+           <%= image_tag "formula.png",
+                class: "wiz-icon",
+                width: 34,
+                height: 34 %>
 
-          <span>
-            <%= t("haircut.title") %>
-          </span>
-
+          <span>FORMULA</span>
         </div>
 
-        <div data-controller="collapse"
-            class="note-step">
+        <% formula_steps.each_with_index do |step, index| %>
+          <div data-controller="collapse"
+              class="note-step">
 
-          <!-- HEADER -->
-          <div class="note-step-pill"
-              data-action="click->collapse#toggle">
+            <div class="note-step-pill"
+                data-action="click->collapse#toggle">
 
-            <span>
+              <span>
+                STEP <%= index + 1 %>
+              </span>
 
-              <%= pluralize(
-                    @service_note.haircut_steps.count,
-                    "ZONE"
-                  ) %>
+              <svg class="chevron"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </div>
 
-            </span>
+            <div class="note-step-content hidden"
+                data-collapse-target="content">
 
-            <svg class="chevron"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2">
-
-              <path d="m6 9 6 6 6-6"/>
-
-            </svg>
-
+              <%= render "service_notes/formula_preview",
+                    step: step %>
+            </div>
           </div>
-
-          <!-- CONTENT -->
-          <div class="note-step-content hidden"
-              data-collapse-target="content">
-
-            <%= render "service_notes/haircut_preview",
-                  service_note: @service_note %>
-
-          </div>
-
-        </div>
-
+        <% end %>
       </div>
-
     <% end %>
 
-    <!-- FORMULA -->
-    <div class="note-section">
-      <div class="note-section-title"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg>
-        <span>FORMULA</span>
-      </div>
-
-      <div data-controller="collapse" class="note-step">
-
-        <!-- HEADER (кнопка) -->
-        <div class="note-step-pill"
-            data-action="click->collapse#toggle">
-
-          <span>STEP 1</span>
-
-          <!-- стрілка -->
-          <svg class="chevron"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2">
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
+    <% if @service_note.services.any? %>
+      <div class="note-section">
+        <div class="note-section-title">
+          <%= image_tag "services.png",
+              class: "wiz-icon",
+              width: 34,
+              height: 34 %>
+          <span>SERVICES</span>
         </div>
 
-        <!-- CONTENT -->
-        <div class="note-step-content hidden"
-            data-collapse-target="content">
-
-          <%= render "service_notes/formula_preview",
-                service_note: @service_note %>
-
-        </div>
-
-      </div>
-    </div>
-
-    <!-- SERVICES -->
-    <div class="note-section">
-      <div class="note-section-title"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>
-        <span>SERVICES</span>
-      </div>
-
-      <% if @service_note.services.any? %>
         <% @service_note.services.each do |service| %>
-          <div class="note-row"><%= service.name %></div>
+          <div class="note-row">
+            <%= service.name %>
+          </div>
         <% end %>
-      <% else %>
-        <div class="note-row empty">No services</div>
-      <% end %>
-    </div>
-
-    <!-- NOTES -->
-    <div class="note-section">
-      <div class="note-section-title"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wiz-icon"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg>
-        <span>NOTES</span>
       </div>
+    <% end %>
 
-      <div class="note-label">Final price</div>
-      <div class="note-value">
-        <%= @service_note.final_price || 0 %>
-      </div>
+    <%= render(
+          "service_notes/care_products_preview",
+          care_products: @service_note.care_products
+        ) %>
 
-      <% if @service_note.notes.present? %>
-        <div class="note-label">Notes</div>
-        <div class="note-value">
-          <%= @service_note.notes %>
+
+    <% if @service_note.notes.present? ||
+          @service_note.final_price.to_i.positive? %>
+      <div class="note-section">
+        <div class="note-section-title">
+          <%= image_tag "notes.png",
+              class: "wiz-icon",
+              width: 34,
+              height: 34 %>
+          <span>NOTES</span>
         </div>
-      <% end %>
-    </div>
 
+        <% if @service_note.final_price.to_i.positive? %>
+          <div class="note-label">
+            Final price
+          </div>
+
+          <div class="note-value">
+            <%= @service_note.final_price %>
+          </div>
+        <% end %>
+
+        <% if @service_note.notes.present? %>
+          <div class="note-label">
+            Notes
+          </div>
+
+          <div class="note-value">
+            <%= @service_note.notes %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>

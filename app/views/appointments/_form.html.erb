@@ -1,6 +1,11 @@
 <div class="appointment-container">
   <div class="appointment-header">
-    <%= link_to "←", appointments_path, class: "back-link inline" %>
+    <%= link_to appointments_path, class: "back-link inline" do %>
+      <%= image_tag "back.png",
+            class: "wiz-icon",
+            width: 24,
+            height: 24 %>
+    <% end %>
     <h2>
       <%= @appointment.new_record? ?
           t("appointments.new") :

@@ -1,84 +1,87 @@
-<% service_note.haircut_steps.each do |step| %>
+<div class="formula-preview-card">
 
-  <div class="formula-preview-card">
-
-    <!-- TITLE -->
-    <div class="formula-preview-title">
-      <%= t("haircut.zones.#{step.zone.parameterize(separator: '_')}") %>
-    </div>
-
-    <!-- INSTRUMENT -->
-    <% if step.instrument.present? %>
-
-      <div class="formula-preview-group">
-
-        <div class="formula-content">
-
-          <div class="formula-row">
-            <span><%= t("haircut.instrument") %></span>
-            <span><%= t("haircut.instruments.#{step.instrument}") %></span>
-          </div>
-
-        </div>
-
-      </div>
-
-    <% end %>
-
-    <!-- PARTING -->
-    <% if step.parting.present? %>
-
-      <div class="formula-preview-group">
-
-        <div class="formula-content">
-
-          <div class="formula-row">
-            <span><%= t("haircut.parting") %></span>
-            <span><%= step.parting %></span>
-          </div>
-
-        </div>
-
-      </div>
-
-    <% end %>
-
-    <!-- ELEVATION -->
-    <% if step.elevation.present? %>
-
-      <div class="formula-preview-group">
-
-        <div class="formula-content">
-
-          <div class="formula-row">
-            <span><%= t("haircut.elevation") %></span>
-            <span><%= step.elevation %></span>
-          </div>
-
-        </div>
-
-      </div>
-
-    <% end %>
-
-    <!-- CUT TYPE -->
-    <% if step.cut_type.present? %>
-
-      <div class="formula-preview-group">
-
-        <div class="formula-content">
-
-          <div class="formula-row">
-            <span><%= t("haircut.cut_type") %></span>
-            <span><%= step.cut_type %></span>
-          </div>
-
-        </div>
-
-      </div>
-
-    <% end %>
-
+  <div class="formula-preview-title">
+    <%= t("haircut.zones.#{step.zone.parameterize(separator: '_')}") %>
   </div>
 
-<% end %>
+  <% if step.instrument.present? %>
+
+    <div class="formula-preview-group">
+
+      <div class="formula-content">
+
+        <div class="formula-row">
+          <span><%= t("haircut.instrument") %></span>
+
+          <span>
+            <%= t("haircut.instruments.#{step.instrument}") %>
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+  <% end %>
+
+  <% if step.parting.present? %>
+
+    <div class="formula-preview-group">
+
+      <div class="formula-content">
+
+        <div class="formula-row">
+          <span><%= t("haircut.parting") %></span>
+
+          <span>
+            <%= t("haircut.partings.#{step.parting}") %>
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+  <% end %>
+
+  <% if step.elevation.present? %>
+
+    <div class="formula-preview-group">
+
+      <div class="formula-content">
+
+        <div class="formula-row">
+          <span><%= t("haircut.elevation") %></span>
+
+          <span>
+            <%= t("haircut.elevations.#{step.elevation}") %>
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+  <% end %>
+
+  <% if step.cut_type.present? %>
+
+    <div class="formula-preview-group">
+
+      <div class="formula-content">
+
+        <div class="formula-row">
+          <span><%= t("haircut.cut_type") %></span>
+
+          <span>
+            <%= t("haircut.cut_types.#{step.cut_type}") %>
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+  <% end %>
+
+</div>

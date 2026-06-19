@@ -1,0 +1,16 @@
+uk:
+  formula_products:
+    tabs:
+      colors: "Кольори"
+      oxidants: "Окисники"
+
+    menu:
+      search_placeholder: "Пошук..."
+
+    actions:
+      edit: "Редагувати"
+      delete: "Видалити"
+      confirm_delete: "Видалити продукт?"
+
+    pages:
+      title: "Інгредієнти формули"

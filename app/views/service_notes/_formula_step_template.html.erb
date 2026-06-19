@@ -57,12 +57,14 @@
         <!-- COLORS -->
         <div class="formula-block">
           <div class="block-title">
-            <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flask-conical-icon lucide-flask-conical"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg>COLORS</span>
+            <span> <%= image_tag "paint.png", class: "wiz-icon",
+                                width: 24,
+                                height: 24 %>COLORS</span>
 
             <button type="button"
                     class="add-btn-small add-color-btn"
                     data-action="click->formula#openColorModal">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+               <%= image_tag "plus.png", class: "add-icon" %>
             </button>
           </div>
 
@@ -112,11 +114,13 @@
         <!-- DEVELOPER -->
         <div class="formula-block">
           <div class="block-title">
-            <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-percent-icon lucide-percent"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>DEVELOPER</span>
+            <span> <%= image_tag "percent.png", class: "wiz-icon",
+                                width: 24,
+                                height: 24 %>DEVELOPER</span>
             <button type="button"
               class="add-btn-small add-dev-btn"
               data-action="click->developer#openModal">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+               <%= image_tag "plus.png", class: "add-icon" %>
             </button>
           </div>
 
@@ -132,10 +136,9 @@
         <!-- TIME -->
         <div class="formula-block">
           <div class="block-title">
-            <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-clock9-icon lucide-clock-9">
-              <circle cx="12" cy="12" r="10"/><path d="M12 6v6H8"/></svg> TIME</span>
+            <span> <%= image_tag "time.png", class: "wiz-icon",
+                                width: 24,
+                                height: 24 %>TIME</span>
           </div>
 
           <input type="text"

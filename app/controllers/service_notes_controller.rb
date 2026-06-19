@@ -13,8 +13,6 @@ class ServiceNotesController < ApplicationController
       appointment: @appointment
     )
 
-    @service_note.haircut_steps.build
-
     @selected_service_ids = @appointment.service_ids
   end
 
@@ -62,7 +60,6 @@ class ServiceNotesController < ApplicationController
     @appointment = @service_note.appointment
 
     @selected_service_ids = @service_note.service_ids
-    @service_note.haircut_steps.build if @service_note.haircut_steps.empty?
   end
 
   def update

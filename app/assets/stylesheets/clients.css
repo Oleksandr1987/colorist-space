@@ -387,6 +387,11 @@ textarea.login__input {
   background-color: #4b00b3;
 }
 
+.copy-icon {
+  width: 24px;
+  height: 24px;
+}
+
 /* === Default Page Title === */
 
 h1 {
