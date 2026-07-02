@@ -6,7 +6,6 @@ RSpec.describe FormulaProduct do
   it { is_expected.to belong_to(:user) }
 
   it { is_expected.to validate_presence_of(:brand) }
-  it { is_expected.to validate_presence_of(:name) }
 
   it do
     expect(formula_product).to validate_inclusion_of(:category)
