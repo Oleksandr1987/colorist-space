@@ -85,11 +85,7 @@
                       ),
                       class: "add-photo-button" do %>
 
-                    <%= image_tag "camera.png",
-                          width: 28,
-                          height: 28 %>
-
-                    <span>ADD PHOTO</span>
+                    <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
 
                   <% end %>
 
@@ -101,11 +97,7 @@
                       ),
                       class: "add-photo-button" do %>
 
-                    <%= image_tag "camera.png",
-                          width: 28,
-                          height: 28 %>
-
-                    <span>ADD PHOTO</span>
+                    <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
 
                   <% end %>
 
@@ -186,7 +178,9 @@
   <!-- FULLSCREEN -->
   <div data-photo-target="modal" class="fullscreen hidden">
     <div class="fullscreen-backdrop" data-action="click->photo#close"></div>
-    <button class="fullscreen-close" data-action="click->photo#close">×</button>
+    <button class="fullscreen-close" data-action="click->photo#close">
+      <%= image_tag "delete.png", class: "close-icon" %>
+    </button>
     <img data-photo-target="modalImage" class="fullscreen-image">
   </div>
 

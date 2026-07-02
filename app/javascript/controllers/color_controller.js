@@ -2,7 +2,11 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "rows", "list", "productSelect", "newColorForm", "newBrand", "newName", "newUnit", "newPrice"]
+  static targets = ["modal", "rows", "actions", "paletteTemplate", "shadeTemplate", "list" ]
+
+  static values = {
+    deleteIcon: String
+  }
 
   connect() {
     this.handleOpen = this.handleOpen.bind(this)
@@ -12,154 +16,123 @@ export default class extends Controller {
   disconnect() {
     window.removeEventListener("color:open", this.handleOpen)
   }
+
   handleOpen(event) {
     this.currentStep = event.detail.step
     this.modalTarget.classList.remove("hidden")
-
-    this.productSelectTarget.selectedIndex = 0
-    this.rowsTarget.innerHTML = ""
-  }
-
-  get rowsContainer() {
-    return this.rowsTarget
+    this.reset()
   }
 
   closeModal() {
-    const modal = document.querySelector("[data-color-target='modal']")
-    const rows = document.querySelector("[data-color-target='rows']")
-
-    modal.classList.add("hidden")
-    rows.innerHTML = ""
+    this.modalTarget.classList.add("hidden")
+    this.reset()
   }
 
-  // ---------- ADD ROW ----------
-  addRow() {
-    const option = this.productSelectTarget.selectedOptions[0]
+  reset() {
+    this.rowsTarget.innerHTML = ""
+    this.actionsTarget.classList.add("hidden")
+    this.currentPalette = null
+    this.addPalette()
+  }
 
-    if (!option || !option.value) {
+  addPalette() {
+    this.rowsTarget.insertAdjacentHTML(
+      "beforeend",
+      this.paletteTemplateTarget.innerHTML
+    )
+  }
+
+  selectPalette(event) {
+    const select = event.target
+    const option = select.selectedOptions[0]
+
+    if (!option) {
       return
     }
 
-    const shade = option.dataset.name
-    const brand = option.dataset.brand
-    const productId = option.value
-    const price = option.dataset.price || 0
+    this.currentPalette = {
+      id: option.value,
+      brand: option.dataset.brand,
+      price: option.dataset.price
+    }
 
-    const row = document.createElement("div")
+    select.closest(".palette-row").remove()
 
-    row.className = "color-row"
-
-    row.dataset.productId = productId
-    row.dataset.price = price
-
-    row.innerHTML = `
-      <input type="text"
-            value="${shade}"
-            readonly>
-
-      <input type="text"
-            value="${brand}"
-            readonly>
-
-      <input type="text"
-            placeholder="Amount">
-
-      <button type="button"
-              class="color-remove">
-        ×
-      </button>
-    `
-
-    const removeButton = row.querySelector(".color-remove")
-
-    removeButton.onclick = () => row.remove()
-
-    const amountInput = row.querySelectorAll("input")[2]
-
-    amountInput.addEventListener("input", () => {
-      let value = amountInput.value
-
-      value = value.replace(/[^0-9.,]/g, "")
-
-      amountInput.value = value
-
-      amountInput.classList.remove("color-error")
-    })
-
-    this.rowsContainer.appendChild(row)
-
-    this.productSelectTarget.selectedIndex = 0
+    this.actionsTarget.classList.remove("hidden")
+    this.createShadeRow()
   }
 
-  showNewColorForm() {
-    this.newColorFormTarget.classList.toggle("hidden")
-  }
+  createShadeRow() {
+    const wrapper = document.createElement("div")
 
-  async createColor() {
-    const brand =
-      this.newBrandTarget.value.trim()
+    wrapper.innerHTML = this.shadeTemplateTarget.innerHTML
 
-    const name =
-      this.newNameTarget.value.trim()
+    const row = wrapper.firstElementChild
 
-    if (!brand || !name) return
+    row.dataset.productId = this.currentPalette.id
+    row.dataset.price = this.currentPalette.price
+    row.dataset.brand = this.currentPalette.brand
 
-    const token =
-      document.querySelector(
-        "meta[name='csrf-token']"
-      ).content
+    row.querySelector(
+      ".color-brand"
+    ).textContent =
+      this.currentPalette.brand
 
-    const response = await fetch(
-      "/formula_products",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": token,
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({
-          formula_product: {
-            category: "color",
-            brand: brand,
-            name: name,
-            unit: this.newUnitTarget.value,
-            price_per_unit: parseFloat(
-              this.newPriceTarget.value || 0
-            )
-          }
-        })
+    const amountInput = row.querySelector(".color-amount")
+
+    amountInput.addEventListener(
+      "input",
+      () => {
+        let value = amountInput.value
+
+        value = value.replace(
+          /[^0-9.,]/g,
+          ""
+        )
+
+        amountInput.value = value
+
+        amountInput.classList.remove(
+          "color-error"
+        )
       }
     )
 
-    if (!response.ok) return
-
-    const color = await response.json()
-
-    const option =
-      document.createElement("option")
-
-    option.value = color.id
-    option.dataset.brand = color.brand
-    option.dataset.name = color.name
-
-    option.textContent =
-      `${color.brand} - ${color.name}`
-
-    this.productSelectTarget.appendChild(option)
-
-    this.productSelectTarget.value = color.id
-
-    this.newBrandTarget.value = ""
-    this.newNameTarget.value = ""
-    this.newPriceTarget.value = ""
-    this.newUnitTarget.value = "g"
-
-    this.newColorFormTarget.classList.add("hidden")
+    this.rowsTarget.appendChild(row)
   }
 
-  hideNewColorForm() {
-    this.newColorFormTarget.classList.add("hidden")
+    addShade() {
+    if (!this.currentPalette) {
+      return
+    }
+
+    this.createShadeRow()
+  }
+
+  changePalette() {
+    if (
+      this.rowsTarget.querySelector(".palette-row")
+    ) {
+      return
+    }
+    this.currentPalette = null
+    this.addPalette()
+  }
+
+  removeRow(event) {
+    event.target.closest(".color-row").remove()
+
+    if (
+      this.rowsTarget.querySelectorAll(".color-row").length === 0
+    ) {
+      this.actionsTarget.classList.add("hidden")
+
+      if (
+        this.rowsTarget.querySelectorAll(".palette-row").length === 0
+      ) {
+        this.addPalette()
+      }
+    }
   }
 
   save() {
@@ -167,17 +140,20 @@ export default class extends Controller {
 
     const rows = this.rowsTarget.querySelectorAll(".color-row")
 
-    const stepId = this.currentStep.dataset.stepId
-
     let hasErrors = false
 
     rows.forEach(row => {
-      const amountInput =
-        row.querySelectorAll("input")[2]
+      const shadeInput = row.querySelector(".color-shade")
+
+      const amountInput = row.querySelector(".color-amount")
+
+      if (!shadeInput.value.trim()) {
+        shadeInput.classList.add("color-error")
+        hasErrors = true
+      }
 
       if (!amountInput.value.trim()) {
         amountInput.classList.add("color-error")
-        amountInput.focus()
         hasErrors = true
       }
     })
@@ -186,12 +162,14 @@ export default class extends Controller {
       return
     }
 
-    rows.forEach(row => {
-      const [shadeInput, brandInput, amountInput] = row.querySelectorAll("input")
+    const stepId = this.currentStep.dataset.stepId
 
-      let shade = shadeInput.value.trim()
-      let brand = brandInput.value.trim()
-      let amount = amountInput.value.trim()
+    rows.forEach(row => {
+
+      const brand = row.dataset.brand
+      const shade = row.querySelector(".color-shade").value.trim()
+
+      let amount = row.querySelector(".color-amount").value.trim()
 
       amount = amount.replace(",", ".")
 
@@ -210,27 +188,26 @@ export default class extends Controller {
         .replace(/STEP_ID/g, stepId)
 
       const wrapper = document.createElement("div")
+
       wrapper.innerHTML = html
 
       const hidden = wrapper.querySelector(".ingredient-fields")
-      hidden.dataset.id = uid
 
-      hidden.querySelector("[data-field='shade']").value = shade
+      hidden.dataset.id = uid
       hidden.querySelector("[data-field='brand']").value = brand
+      hidden.querySelector("[data-field='shade']").value = shade
       hidden.querySelector("[data-field='amount']").value = amount
       hidden.querySelector("[data-field='formula_product_id']").value = row.dataset.productId
       hidden.querySelector("[data-field='price']").value = row.dataset.price
 
-      const hiddenContainer = this.currentStep.querySelector(
-        "[data-formula-target='colorsList']"
-      )
-
-      hiddenContainer.appendChild(hidden)
+      this.currentStep
+        .querySelector("[data-formula-target='colorsList']")
+        .appendChild(hidden)
 
       const display = document.createElement("div")
+
       display.className = "color-row-display"
       display.dataset.id = uid
-
       display.innerHTML = `
         <div class="color-left">
           <span class="shade">${shade}</span>
@@ -238,28 +215,38 @@ export default class extends Controller {
         </div>
         <div class="color-right">
           <span class="amount">${amount}g</span>
-          <button type="button" class="remove"
-            data-action="click->formula#removeColor">×</button>
+
+          <button
+            type="button"
+            class="remove"
+            data-action="click->formula#removeColor">
+            <img
+              src="${this.deleteIconValue}"
+              alt="Delete"
+              class="clear-icon">
+          </button>
         </div>
       `
-      const displayContainer = this.currentStep.querySelector(
-        "[data-color-target='list']"
-      )
 
-      displayContainer.appendChild(display)
+      this.currentStep
+        .querySelector("[data-color-target='list']")
+        .appendChild(display)
     })
 
-    this.rowsTarget.innerHTML = ""
     this.closeModal()
 
     requestAnimationFrame(() => {
+
       window.dispatchEvent(
-        new CustomEvent("formula:colorAmountChanged", {
-          detail: {
-            total: this.calculateTotalAmount(),
-            stepId: this.currentStep.dataset.stepId
+        new CustomEvent(
+          "formula:colorAmountChanged",
+          {
+            detail: {
+              total: this.calculateTotalAmount(),
+              stepId: this.currentStep.dataset.stepId
+            }
           }
-        })
+        )
       )
 
       window.dispatchEvent(

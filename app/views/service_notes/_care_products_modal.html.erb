@@ -113,7 +113,7 @@
                     data-stock="<%= product.stock_quantity.to_i %>"
                     <%= "disabled" if product.stock_quantity.to_i <= 0 %>>
 
-              <%= product.stock_quantity.to_i <= 0 ? "×" : "+" %>
+              <%= product.stock_quantity.to_i <= 0 ? "×" : "+" %> <!-- TODO: Replace with appropriate icon -->
 
             </button>
 

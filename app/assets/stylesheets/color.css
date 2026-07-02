@@ -2,9 +2,9 @@
 .color-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.25);
+  background: rgba(164, 161, 161, 0.25);
   display: flex;
-  align-items: flex-end;
+  /* align-items: flex-end; */
   z-index: 999;
 }
 

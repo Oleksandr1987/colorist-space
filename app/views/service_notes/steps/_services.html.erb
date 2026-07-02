@@ -22,6 +22,7 @@
                   .where(service_type: "service")
                   .order(:subtype)
                   .each do |s| %>
+                  <!-- TODO, move query to model method -->
 
       <label class="service-item">
         <%= check_box_tag "service_note[service_ids][]",

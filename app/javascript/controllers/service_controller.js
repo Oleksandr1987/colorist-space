@@ -214,7 +214,7 @@ export default class extends Controller {
     `
 
     container.insertAdjacentHTML("beforeend", html)
-  }
+  } // ---------------- TODO: Add png
 
   removeSelected(event) {
     const row = event.currentTarget.closest(".service-item")

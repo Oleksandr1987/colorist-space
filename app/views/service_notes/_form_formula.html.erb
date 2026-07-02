@@ -87,8 +87,8 @@
                         data-id="<%= uid %>">
 
                       <div class="color-left">
-                        <span class="shade"><%= ingredient_form.object.shade %></span>
                         <span class="brand"><%= ingredient_form.object.brand %></span>
+                        <span class="shade"><%= ingredient_form.object.shade %></span>
                       </div>
 
                       <div class="color-right">
@@ -97,7 +97,8 @@
                         <button type="button"
                                 class="remove"
                                 data-action="click->formula#removeColor">
-                          ×
+                          <%= image_tag "delete.png",
+                                class: "clear-icon" %>
                         </button>
                       </div>
 

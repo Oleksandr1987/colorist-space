@@ -2,7 +2,8 @@ class FormulaProduct < ApplicationRecord
   belongs_to :user
 
   validates :brand, presence: true
-  validates :name, presence: true
+  validates :unit, presence: true
+  validates :price_per_unit, presence: true
 
   validates :category,
     inclusion: {
@@ -18,4 +19,13 @@ class FormulaProduct < ApplicationRecord
     numericality: {
       greater_than_or_equal_to: 0
     }
+
+  scope :colors, -> { where(category: "color") }
+
+  scope :palette_list, -> {
+    colors
+      .select(:id, :brand, :unit, :price_per_unit)
+      .distinct
+      .order(:brand)
+  }
 end

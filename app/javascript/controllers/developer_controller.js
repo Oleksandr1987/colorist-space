@@ -319,7 +319,7 @@ export default class extends Controller {
 
       </div>
     `
-  }
+  } // ---------------- TODO: Add png
 
   // ---------------- SAVE ----------------
   save() {

@@ -32,7 +32,8 @@ class FormulaProductsController < ApplicationController
           render json: {
             id: @formula_product.id,
             brand: @formula_product.brand,
-            name: @formula_product.name
+            unit: @formula_product.unit,
+            price_per_unit: @formula_product.price_per_unit
           }
         end
       end

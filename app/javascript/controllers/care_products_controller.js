@@ -180,7 +180,7 @@ export default class extends Controller {
           </div>
         `
       )
-    })
+    }) // ---------------- TODO: Add png
 
     this.totalTarget.textContent = `${total} ₴`
   }
