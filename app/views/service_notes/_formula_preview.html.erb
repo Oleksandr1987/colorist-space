@@ -35,32 +35,39 @@
     </div>
   <% end %>
 
-  <% if step.oxidant.present? %>
-
-    <% data = step.oxidant || {} %>
-    <% product = step.oxidant_product %>
+  <% if step.oxidant_data.any? %>
 
     <div class="formula-preview-group">
 
       <div class="formula-icon">
-        <%= image_tag "percent.png", class: "wiz-icon",
-                            width: 24,
-                            height: 24 %>
+        <%= image_tag "percent.png",
+              class: "wiz-icon",
+              width: 24,
+              height: 24 %>
       </div>
 
       <div class="formula-content">
 
-        <div class="formula-row">
-          <span>
-            <%= [product&.brand, product&.name].compact.join(" ").presence || "Unknown" %>
-            <%= data["ratio"] %>
-          </span>
+        <% step.oxidant_data.each do |data| %>
 
-          <span>
-            <%= data["amount"] %><%= product&.unit || "g" %>
-          </span>
-        </div>
+          <% product = FormulaProduct.find_by(
+              id: data["formula_product_id"] || data["service_id"]
+            ) %>
 
+          <div class="formula-row">
+
+            <span>
+              <%= [product&.brand, product&.name].compact.join(" ").presence || "Unknown" %>
+              <%= data["ratio"] %>
+            </span>
+
+            <span>
+              <%= data["amount"] %><%= product&.unit || "g" %>
+            </span>
+
+          </div>
+
+        <% end %>
       </div>
 
     </div>

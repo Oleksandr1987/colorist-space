@@ -10,7 +10,7 @@ class FormulaStep < ApplicationRecord
 
   before_validation :normalize_values
 
-  attribute :oxidant, :json, default: {}
+  attribute :oxidant, :json, default: []
 
   def clear_oxidant!
     update!(oxidant: nil)
@@ -21,15 +21,17 @@ class FormulaStep < ApplicationRecord
   end
 
   def oxidant_product
-    id = oxidant_data["formula_product_id"] || oxidant_data["service_id"]
+    item = oxidant_data.first
 
-    return unless id
+    return unless item
 
-    FormulaProduct.find_by(id: id)
+    FormulaProduct.find_by(
+      id: item["formula_product_id"] || item["service_id"]
+    )
   end
 
   def oxidant_data
-    return {} if oxidant.blank?
+    return [] if oxidant.blank?
 
     data =
       case oxidant
@@ -37,31 +39,32 @@ class FormulaStep < ApplicationRecord
         begin
           JSON.parse(oxidant)
         rescue JSON::ParserError
-          {}
+          []
         end
-      when Hash
+      when Array
         oxidant
+      when Hash
+        [ oxidant ]
       else
-        {}
+        []
       end
 
-    id = data["formula_product_id"] || data["service_id"]
-
-    return {} unless id.present?
-
-    data
+    data.select do |item|
+      item["formula_product_id"].present? ||
+        item["service_id"].present?
+    end
   end
 
   def oxidant_amount
-    oxidant_data["amount"].to_f
+    oxidant_data.sum { |o| o["amount"].to_f }
   end
 
   def oxidant_price
-    oxidant_data["price"].to_f
+    oxidant_data.sum { |o| o["price"].to_f }
   end
 
   def oxidant_ratio
-    oxidant_data["ratio"]
+    oxidant_data.first&.dig("ratio")
   end
 
   def oxidant_total_price

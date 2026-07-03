@@ -129,9 +129,71 @@
           name="service_note[formula_steps_attributes][NEW_RECORD][oxidant]"
           data-developer-target="input" />
 
-          <div class="dev-display"
-              data-developer-target="display">
+          <div class="dev-list"
+              data-developer-target="list">
           </div>
+
+          <template data-developer-target="itemTemplate">
+
+            <div class="dev-row-display">
+
+              <div class="dev-left">
+
+                <span class="dev-name"></span>
+
+                <span class="dev-separator">|</span>
+
+                <span class="dev-ratio"></span>
+
+              </div>
+
+              <div class="dev-right">
+
+                <span class="dev-amount"></span>
+
+                <div class="dev-actions"
+                    data-controller="popover">
+
+                  <button
+                    type="button"
+                    class="edit-btn"
+                    data-action="click->popover#toggle">
+
+                    <%= image_tag "pencil.png",
+                          class: "wiz-icon",
+                          width: 18,
+                          height: 18 %>
+
+                  </button>
+
+                  <div class="popover-menu hidden"
+                      data-popover-target="menu">
+
+                    <button
+                      type="button"
+                      class="edit-item">
+
+                      Edit
+
+                    </button>
+
+                    <button
+                      type="button"
+                      class="delete-item">
+
+                      Delete
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </template>
         </div>
 
         <!-- TIME -->
