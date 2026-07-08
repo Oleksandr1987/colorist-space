@@ -54,12 +54,11 @@
   <!-- HEADER -->
   <div class="note-header-modern">
     <div>
+      <div class="note-client">
+        <strong><%= @client.full_name %></strong>
+      </div>
       <div class="note-date">
         <%= l(@service_note.appointment.appointment_date, format: "%B %d") %>
-      </div>
-
-      <div class="note-client">
-        <%= @client.full_name %>
       </div>
     </div>
 
@@ -126,7 +125,7 @@
                 class: "wiz-icon",
                 width: 34,
                 height: 34 %>
-          <span><%= t("haircut.title") %></span>
+          <span><strong><%= t("haircut.title") %></strong></span>
         </div>
 
         <% haircut_steps.each_with_index do |step, index| %>
@@ -172,7 +171,7 @@
                 width: 34,
                 height: 34 %>
 
-          <span>FORMULA</span>
+          <span><strong>FORMULA</strong></span>
         </div>
 
         <% formula_steps.each_with_index do |step, index| %>
@@ -214,7 +213,7 @@
               class: "wiz-icon",
               width: 34,
               height: 34 %>
-          <span>SERVICES</span>
+          <span><strong>SERVICES</strong></span>
         </div>
 
         <% @service_note.services.each do |service| %>
@@ -231,37 +230,31 @@
         ) %>
 
 
-    <% if @service_note.notes.present? ||
-          @service_note.final_price.to_i.positive? %>
+    <% if @service_note.notes.present? %>
       <div class="note-section">
         <div class="note-section-title">
           <%= image_tag "notes.png",
               class: "wiz-icon",
               width: 34,
               height: 34 %>
-          <span>NOTES</span>
+          <span><strong>NOTES</strong></span>
         </div>
-
-        <% if @service_note.final_price.to_i.positive? %>
-          <div class="note-label">
-            Final price
-          </div>
-
-          <div class="note-value">
-            <%= @service_note.final_price %>
-          </div>
-        <% end %>
-
-        <% if @service_note.notes.present? %>
-          <div class="note-label">
-            Notes
-          </div>
-
           <div class="note-value">
             <%= @service_note.notes %>
           </div>
-        <% end %>
       </div>
     <% end %>
+
+    <% if @service_note.final_price.to_i.positive? %>
+      <div class="note-label">
+        <strong>FINAL PRICE</strong>
+        <span>
+          <strong>
+            <%= @service_note.final_price %>
+          </strong>
+        </span>
+      </div>
+    <% end %>
+    </div>
   </div>
 </div>

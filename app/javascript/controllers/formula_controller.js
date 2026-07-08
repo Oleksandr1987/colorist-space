@@ -16,6 +16,7 @@ export default class extends Controller {
 
   disconnect() {
     window.removeEventListener("formula:firstStepFilled", this.showAddStepHandler)
+    window.removeEventListener("service-note:saved", this.savedHandler)
   }
 
   // ---------------- COLOR SUM ----------------

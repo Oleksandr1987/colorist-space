@@ -31,6 +31,10 @@ class CareProduct < ApplicationRecord
     },
     allow_nil: true
 
+  after_create_commit :broadcast_create
+  after_update_commit :broadcast_update
+  after_destroy_commit :broadcast_remove
+
   def incomplete?
     purchase_price.blank? ||
       stock_quantity.blank?
@@ -38,5 +42,36 @@ class CareProduct < ApplicationRecord
 
   def display_name
     [ brand, name ].compact.join(" ")
+  end
+
+  private
+
+  def broadcast_create
+    broadcast_append_to(
+      "care_products",
+      target: "care_products",
+      partial: "care_products/care_product",
+      locals: {
+        care_product: self
+      }
+    )
+  end
+
+  def broadcast_update
+    broadcast_replace_to(
+      "care_products",
+      target: "care_product_#{id}",
+      partial: "care_products/care_product",
+      locals: {
+        care_product: self
+      }
+    )
+  end
+
+  def broadcast_remove
+    broadcast_remove_to(
+      "care_products",
+      target: "care_product_#{id}"
+    )
   end
 end

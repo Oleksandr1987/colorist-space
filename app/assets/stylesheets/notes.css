@@ -30,7 +30,6 @@
 .price-label {
   margin-top: 6px;
   font-size: 13px;
-  color: #aaa;
 }
 
 /* ===== NOTES ===== */
@@ -40,7 +39,6 @@
 
 .notes-label {
   font-size: 16px;
-  color: #999;
   margin-bottom: 8px;
 }
 
@@ -83,5 +81,36 @@
 
 .notes-care-total {
   margin-top: 8px;
+  font-weight: 600;
+}
+
+/* ===== ROWS ===== */
+
+.price-display,
+.notes-dev-row,
+.notes-care-row,
+.notes-care-total,
+.price-final {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-display,
+.notes-care-total,
+.price-final {
+  margin-top: 8px;
+}
+
+.notes-dev-row,
+.notes-care-row {
+  margin-bottom: 4px;
+}
+
+.notes-dev-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
   font-weight: 600;
 }

@@ -60,7 +60,7 @@ class FormulaStep < ApplicationRecord
   end
 
   def oxidant_price
-    oxidant_data.sum { |o| o["price"].to_f }
+    oxidant_total_price
   end
 
   def oxidant_ratio
@@ -68,7 +68,9 @@ class FormulaStep < ApplicationRecord
   end
 
   def oxidant_total_price
-    oxidant_price * oxidant_amount
+    oxidant_data.sum do |o|
+      o["amount"].to_f * o["price"].to_f
+    end
   end
 
   def colors_total_price

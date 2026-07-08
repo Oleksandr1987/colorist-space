@@ -2,7 +2,19 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["tab", "tabContent", "priceValue", "priceInput", "servicesList", "developerPrice", "developerAmount", "developerList", "finalPrice", "careProductsList"]
+  static targets = [
+    "tab",
+    "tabContent",
+    "priceValue",
+    "priceInput",
+    "servicesList",
+    "colorsList",
+    "developerPrice",
+    "developerAmount",
+    "developerList",
+    "finalPrice",
+    "careProductsList"
+  ]
 
   connect() {
     this.handleServicesChanged = () => {
@@ -68,7 +80,7 @@ export default class extends Controller {
     })
 
     if (this.hasPriceValueTarget) {
-      this.priceValueTarget.textContent = total
+      this.priceValueTarget.innerHTML = `<strong>${total} ₴</strong>`
     }
 
     if (this.hasPriceInputTarget) {
@@ -138,44 +150,60 @@ export default class extends Controller {
     document.querySelectorAll("input[name*='[oxidant]']").forEach(input => {
       if (!input.value) return
 
-      let data
+      let items
 
       try {
-        data = JSON.parse(input.value)
+        items = JSON.parse(input.value)
       } catch {
         console.warn("Invalid oxidant JSON:", input.value)
         return
       }
 
-      const serviceId = data.formula_product_id || data.service_id
-      const amount = parseFloat(data.amount || 0)
-      const price = parseFloat(data.price || 0)
-
-      if (!serviceId || isNaN(amount) || isNaN(price)) return
-
-      const serviceOption = document.querySelector(
-        `option[value='${serviceId}']`
-      )
-
-      const name = serviceOption
-        ? serviceOption.textContent.split("(")[0].trim()
-        : "Developer"
-
-      if (!grouped[serviceId]) {
-        grouped[serviceId] = {
-          name,
-          amount: 0,
-          total: 0
-        }
+      if (!Array.isArray(items)) {
+        items = [items]
       }
 
-      grouped[serviceId].amount += amount
-      grouped[serviceId].total += amount * price
+      items.forEach(data => {
+        const serviceId = data.formula_product_id || data.service_id
 
-      total += amount * price
+        const amount = parseFloat(data.amount || 0)
+
+        const price = parseFloat(data.price || 0)
+
+        if (!serviceId || isNaN(amount) || isNaN(price)) return
+
+        const serviceOption = document.querySelector(
+          `option[value="${serviceId}"]`
+        )
+
+        const brand = serviceOption?.dataset.brand || ""
+
+        const name =
+          serviceOption
+            ? serviceOption.textContent.split("(")[0].trim()
+            : "Developer"
+
+        if (!grouped[serviceId]) {
+          grouped[serviceId] = {
+            name,
+            brand,
+            amount: 0,
+            total: 0
+          }
+        }
+
+        grouped[serviceId].amount += amount
+        grouped[serviceId].total += amount * price
+
+        total += amount * price
+      })
     })
 
+
     this.renderDeveloperList(grouped)
+    console.log({
+      oxidants: total,
+    })
 
     return total
   }
@@ -184,108 +212,76 @@ export default class extends Controller {
     if (!this.hasDeveloperListTarget) return
 
     this.developerListTarget.innerHTML = ""
+    this.colorsListTarget.innerHTML = ""
 
     let total = 0
 
-    //
-    // COLORS
-    //
     const colors = {}
 
-    document.querySelectorAll(
-      ".ingredient-fields"
-    ).forEach(wrapper => {
+    document.querySelectorAll(".ingredient-fields").forEach(wrapper => {
 
-      const destroy =
-        wrapper.querySelector(
-          "[data-field='destroy']"
-        )
+      const destroy = wrapper.querySelector("[data-field='destroy']")
 
       if (destroy?.value === "1") return
 
-      const shade =
-        wrapper.querySelector(
-          "[data-field='shade']"
-        )?.value
+      const brand = wrapper.querySelector("[data-field='brand']")?.value
+
+      const shade = wrapper.querySelector("[data-field='shade']")?.value
 
       const amount =
         parseFloat(
-          wrapper.querySelector(
-            "[data-field='amount']"
-          )?.value || 0
+          wrapper.querySelector("[data-field='amount']")?.value || 0
         )
 
-      if (!shade || amount <= 0) return
+      if (!brand || !shade || amount <= 0) return
 
-      if (!colors[shade]) {
-        colors[shade] = 0
+      const key = `${brand}|${shade}`
+
+      if (!colors[key]) {
+        colors[key] = {
+          brand,
+          shade,
+          amount: 0
+        }
       }
 
-      colors[shade] += amount
+      colors[key].amount += amount
     })
 
-    if (Object.keys(colors).length > 0) {
+
+    Object.values(colors).forEach(color => {
+
+      this.colorsListTarget.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="notes-dev-row">
+            <span>${color.brand} ${color.shade}</span>
+            <span>${color.amount}g</span>
+          </div>
+        `
+      )
+    })
+
+    Object.values(grouped).forEach(dev => {
+
+      total += dev.total
 
       this.developerListTarget.insertAdjacentHTML(
         "beforeend",
         `
-          <div class="notes-subtitle">
-            Colors
+          <div class="notes-dev-row">
+            <span>${dev.brand} ${dev.name}</span>
+            <span>${dev.amount}g</span>
           </div>
         `
       )
-
-      Object.entries(colors).forEach(([name, amount]) => {
-
-        this.developerListTarget.insertAdjacentHTML(
-          "beforeend",
-          `
-            <div class="notes-dev-row">
-              <span>${name}</span>
-              <span>${amount}g</span>
-            </div>
-          `
-        )
-      })
-    }
-
-    //
-    // OXIDANTS
-    //
-    if (Object.keys(grouped).length > 0) {
-
-      this.developerListTarget.insertAdjacentHTML(
-        "beforeend",
-        `
-          <div class="notes-subtitle">
-            Oxidants
-          </div>
-        `
-      )
-
-      Object.values(grouped).forEach(dev => {
-
-        total += dev.total
-
-        this.developerListTarget.insertAdjacentHTML(
-          "beforeend",
-          `
-            <div class="notes-dev-row">
-              <span>${dev.name}</span>
-              <span>${dev.amount}g</span>
-            </div>
-          `
-        )
-      })
-    }
-
-    const colorsPrice = this.calculateColorsPrice()
-
-    total += colorsPrice
+    })
 
     if (this.hasDeveloperPriceTarget) {
-      this.developerPriceTarget.innerHTML =
-        `Formula Ingredients price: ${total} ₴`
+      this.developerPriceTarget.innerHTML = `
+        <span><strong>FORMULA INGREDIENTS PRICE:</strong></span>
+        <span>${total} ₴</span>
+      `
     }
   }
 
@@ -339,7 +335,8 @@ export default class extends Controller {
       "beforeend",
       `
         <div class="notes-care-total">
-          Care products price: ${total} ₴
+          <span><strong>CARE PRODUCTS PRICE:</strong></span>
+          <span>${total} ₴</span>
         </div>
       `
     )
@@ -421,23 +418,30 @@ export default class extends Controller {
       if (!input.value) return
 
       try {
-        const data = JSON.parse(input.value)
-        const amount = parseFloat(data.amount || 0)
+        const items = JSON.parse(input.value)
 
-        if (!isNaN(amount)) {
-          developerGrams += amount
-        }
+        ;(Array.isArray(items) ? items : [items]).forEach(data => {
+          const amount = parseFloat(data.amount || 0)
+
+          if (!isNaN(amount)) {
+            developerGrams += amount
+          }
+        })
       } catch {}
     })
 
+    console.log({
+      services,
+      oxidants,
+      colors,
+      care
+    })
+
     const final = services + oxidants + colors + care
-
-    if (this.hasPriceValueTarget) {
-      this.priceValueTarget.textContent = services
-    }
-
+    console.log("FINAL =", final)
+ 
     if (this.hasFinalPriceTarget) {
-      this.finalPriceTarget.textContent = final
+      this.finalPriceTarget.innerHTML = `<strong>${final} ₴</strong>`
     }
   }
 }

@@ -1,3 +1,4 @@
+<%= turbo_stream_from "care_products" %>
 <div class="service-wrapper" data-controller="service">
   <div class="category-header with-search">
     <div class="category-title">
@@ -33,7 +34,9 @@
         care_product: @care_product %>
   <% end %>
 
-  <div class="service-list" data-service-target="list">
+  <div id="care_products"
+       class="service-list"
+       data-service-target="list">
     <%= render @care_products %>
   </div>
 </div>

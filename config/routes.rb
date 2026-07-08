@@ -55,7 +55,11 @@ Rails.application.routes.draw do
 
   resources :formula_products
 
-  resources :care_products, except: :show
+  resources :care_products, except: [:show] do
+    collection do
+      get :options
+    end
+  end
 
   resource :subscription, only: [] do
     get :wayforpay, to: "subscriptions#wayforpay_form"

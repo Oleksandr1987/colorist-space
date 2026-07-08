@@ -260,13 +260,13 @@ class ServiceNote < ApplicationRecord
 
   def available_stock_for(product)
     current_qty =
-      care_products_before_last_save&.find do |item|
-        item["care_product_id"].to_s ==
-          product.id.to_s
-      end
-
-    current_qty =
-      current_qty&.dig("qty").to_i
+      Array(attribute_in_database("care_products"))
+        .find do |item|
+          item["care_product_id"].to_s ==
+            product.id.to_s
+        end
+        &.dig("qty")
+        .to_i
 
     product.stock_quantity.to_i + current_qty
   end

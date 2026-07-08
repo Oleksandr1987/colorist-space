@@ -84,6 +84,22 @@ class CareProductsController < ApplicationController
       notice: "Care product deleted."
   end
 
+  def options
+    render json: current_user
+      .care_products
+      .order(:brand, :name)
+      .map do |product|
+        {
+          id: product.id,
+          brand: product.brand,
+          name: product.name,
+          category: product.category,
+          sale_price: product.sale_price.to_f,
+          stock_quantity: product.stock_quantity.to_i
+        }
+      end
+  end
+
   private
 
   def set_care_product
