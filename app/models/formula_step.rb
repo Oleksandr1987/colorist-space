@@ -37,7 +37,8 @@ class FormulaStep < ApplicationRecord
       case oxidant
       when String
         begin
-          JSON.parse(oxidant)
+          parsed = JSON.parse(oxidant)
+          parsed.is_a?(Array) ? parsed : [ parsed ]
         rescue JSON::ParserError
           []
         end
@@ -83,7 +84,16 @@ class FormulaStep < ApplicationRecord
     if oxidant.present?
       begin
         parsed = oxidant.is_a?(String) ? JSON.parse(oxidant) : oxidant
-        self.oxidant = parsed
+
+        self.oxidant =
+          case parsed
+          when Array
+            parsed
+          when Hash
+            [ parsed ]
+          else
+            nil
+          end
       rescue JSON::ParserError, TypeError
         self.oxidant = nil
       end

@@ -59,11 +59,13 @@ RSpec.describe "FormulaSteps" do
       )
 
       expect(formula_step.reload.oxidant_data).to eq(
-        {
+        [
+          {
           "service_id" => 1,
           "ratio" => "1:2",
           "amount" => 30
-        }
+          }
+        ]
       )
     end
 

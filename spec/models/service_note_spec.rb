@@ -536,14 +536,16 @@ RSpec.describe ServiceNote do
 
         note = build(:service_note)
 
-        allow(note).to receive(:care_products_before_last_save).and_return(
-          [
-            {
-              "care_product_id" => care_product.id,
-              "qty" => 3
-            }
-          ]
-        )
+        allow(note).to receive(:attribute_in_database)
+          .with("care_products")
+          .and_return(
+            [
+              {
+                "care_product_id" => care_product.id,
+                "qty" => 3
+              }
+            ]
+          )
 
         expect(note.send(:available_stock_for, care_product)).to eq(10)
       end

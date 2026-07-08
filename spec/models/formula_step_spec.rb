@@ -101,13 +101,13 @@ RSpec.describe FormulaStep do
   end
 
   describe "#oxidant_data" do
-    it "returns empty hash when oxidant blank" do
+    it "returns empty array when oxidant blank" do
       formula_step = build(
         :formula_step,
         oxidant: nil
       )
 
-      expect(formula_step.oxidant_data).to eq({})
+      expect(formula_step.oxidant_data).to eq([])
     end
 
     it "parses oxidant json string" do
@@ -120,14 +120,16 @@ RSpec.describe FormulaStep do
       )
 
       expect(formula_step.oxidant_data).to eq(
-        {
-          "service_id" => 1,
-          "amount" => 10
-        }
+        [
+          {
+            "service_id" => 1,
+            "amount" => 10
+          }
+        ]
       )
     end
 
-    it "returns hash oxidant as is" do
+    it "returns array with oxidant hash" do
       data = {
         "service_id" => 1,
         "amount" => 10
@@ -138,28 +140,28 @@ RSpec.describe FormulaStep do
         oxidant: data
       )
 
-      expect(formula_step.oxidant_data).to eq(data)
+      expect(formula_step.oxidant_data).to eq([ data ])
     end
 
-    it "returns empty hash for invalid json string" do
+    it "returns empty array for invalid json string" do
       formula_step = build(
         :formula_step,
         oxidant: "{invalid"
       )
 
-      expect(formula_step.oxidant_data).to eq({})
+      expect(formula_step.oxidant_data).to eq([])
     end
 
-    it "returns empty hash for unsupported oxidant type" do
+    it "returns empty array for unsupported oxidant type" do
       formula_step = build(
         :formula_step,
         oxidant: 123
       )
 
-      expect(formula_step.oxidant_data).to eq({})
+      expect(formula_step.oxidant_data).to eq([])
     end
 
-    it "returns empty hash when service_id missing" do
+    it "returns empty array when service_id missing" do
       formula_step = build(
         :formula_step,
         oxidant: {
@@ -167,7 +169,39 @@ RSpec.describe FormulaStep do
         }
       )
 
-      expect(formula_step.oxidant_data).to eq({})
+      expect(formula_step.oxidant_data).to eq([])
+    end
+
+    it "returns array oxidant as is" do
+      data = [
+        {
+          "service_id" => 1,
+          "amount" => 10
+        }
+      ]
+
+      formula_step = build(
+        :formula_step,
+        oxidant: data
+      )
+
+      expect(formula_step.oxidant_data).to eq(data)
+    end
+
+    it "parses oxidant json array string" do
+      data = [
+        {
+          "service_id" => 1,
+          "amount" => 10
+        }
+      ]
+
+      formula_step = build(
+        :formula_step,
+        oxidant: data.to_json
+      )
+
+      expect(formula_step.oxidant_data).to eq(data)
     end
   end
 
@@ -191,11 +225,12 @@ RSpec.describe FormulaStep do
         :formula_step,
         oxidant: {
           "service_id" => 1,
+          "amount" => 10,
           "price" => "7.5"
         }
       )
 
-      expect(formula_step.oxidant_price).to eq(7.5)
+      expect(formula_step.oxidant_price).to eq(75.0)
     end
   end
 
@@ -210,6 +245,15 @@ RSpec.describe FormulaStep do
       )
 
       expect(formula_step.oxidant_ratio).to eq("1:2")
+    end
+
+    it "returns nil when oxidant is empty" do
+      formula_step = build(
+        :formula_step,
+        oxidant: nil
+      )
+
+      expect(formula_step.oxidant_ratio).to be_nil
     end
   end
 
@@ -228,6 +272,32 @@ RSpec.describe FormulaStep do
     end
   end
 
+  describe "#colors_total_price" do
+    it "returns total price of formula ingredients" do
+      formula_step = create(:formula_step)
+
+      ingredient1 = build(
+        :formula_ingredient,
+        formula_step: formula_step
+      )
+
+      ingredient2 = build(
+        :formula_ingredient,
+        formula_step: formula_step
+      )
+
+      allow(ingredient1).to receive(:total_price).and_return(15)
+      allow(ingredient2).to receive(:total_price).and_return(25)
+
+      formula_step.formula_ingredients = [
+        ingredient1,
+        ingredient2
+      ]
+
+      expect(formula_step.colors_total_price).to eq(40)
+    end
+  end
+
   describe "before_validation normalize_values" do
     it "parses oxidant json string into hash" do
       formula_step = build(
@@ -240,13 +310,13 @@ RSpec.describe FormulaStep do
       formula_step.valid?
 
       expect(formula_step.oxidant).to eq(
-        {
-          "service_id" => 1
-        }
+        [
+          { "service_id"=>1 }
+        ]
       )
     end
 
-    it "keeps hash oxidant unchanged" do
+    it "keeps array of oxidant hashes unchanged" do
       data = {
         "service_id" => 1
       }
@@ -258,7 +328,7 @@ RSpec.describe FormulaStep do
 
       formula_step.valid?
 
-      expect(formula_step.oxidant).to eq(data)
+      expect(formula_step.oxidant).to eq([ data ])
     end
 
     it "sets oxidant nil for invalid json" do
@@ -292,6 +362,34 @@ RSpec.describe FormulaStep do
       formula_step.valid?
 
       expect(formula_step.time).to be_nil
+    end
+
+    it "keeps oxidant array unchanged" do
+      data = [
+        {
+          "service_id" => 1
+        }
+      ]
+
+      formula_step = build(
+        :formula_step,
+        oxidant: data
+      )
+
+      formula_step.valid?
+
+      expect(formula_step.oxidant).to eq(data)
+    end
+
+    it "sets oxidant nil for unsupported type" do
+      formula_step = build(
+        :formula_step,
+        oxidant: 123
+      )
+
+      formula_step.valid?
+
+      expect(formula_step.oxidant).to be_nil
     end
   end
 end
