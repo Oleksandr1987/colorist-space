@@ -1,0 +1,101 @@
+<div class="notes-block" data-controller="service-note">
+
+  <div class="notes-date">
+    <%= l(@appointment.appointment_date, format: :long) %>
+  </div>
+
+  <!-- SERVICES  -->
+  <div class="notes-label">
+    <%= image_tag "services.png",
+          class: "wiz-icon",
+          width: 22,
+          height: 22 %>
+    <span><strong>SERVICES</strong></span>
+  </div>
+
+  <div class="notes-services">
+    <div data-service-note-target="servicesList"></div>
+  </div>
+
+  <!-- PRICE -->
+  <div class="price-wrapper">
+    <div class="price-display">
+      <span class="price-label">
+        <strong>SERVICES PRICE:</strong>
+      </span>
+
+      <span class="price-value"
+            data-service-note-target="priceValue">
+        <strong><%= @service_note.price || 0 %> ₴</strong>
+      </span>
+    </div>
+    <%= f.hidden_field :price, data: { service_note_target: "priceInput" } %>
+  </div>
+
+  <!-- FORMULA INGREDIENTS -->
+  <div class="notes-label">
+    <%= image_tag "formula.png",
+          class: "wiz-icon",
+          width: 22,
+          height: 22 %>
+    <span><strong>FORMULA INGREDIENTS</strong></span>
+  </div>
+
+  <div class="notes-dev">
+    <div class="notes-subtitle">
+      <%= image_tag "paint.png",
+            class: "wiz-icon",
+            width: 22,
+            height: 22 %>
+      <strong>COLORS</strong>
+    </div>
+
+    <div data-service-note-target="colorsList"></div>
+
+    <div class="notes-subtitle">
+      <%= image_tag "percent.png",
+            class: "wiz-icon",
+            width: 22,
+            height: 22 %>
+      <strong>DEVELOPERS</strong>
+    </div>
+
+    <div data-service-note-target="developerList"></div>
+
+    <div class="notes-dev-total"
+        data-service-note-target="developerPrice">
+    </div>
+  </div>
+
+  <!-- CARE PRODUCTS -->
+  <div class="notes-label">
+    <%= image_tag "skincare.png",
+          class: "wiz-icon",
+          width: 22,
+          height: 22 %>
+    <span><strong>CARE PRODUCTS</strong></span></div>
+
+  <div class="notes-care-products">
+    <div data-service-note-target="careProductsList"></div>
+  </div>
+
+  <!-- FINAL PRICE -->
+  <div class="price-final">
+    <span>
+      <strong>TOTAL:</strong>
+    </span>
+
+    <span data-service-note-target="finalPrice">
+      <strong><%= @service_note.final_price %> ₴</strong>
+    </span>
+  </div>
+
+  <!-- NOTES -->
+  <div class="notes-wrapper">
+    <div class="notes-label">Notes</div>
+    <%= f.text_area :notes,
+      value: @service_note.notes.presence || @appointment&.notes,
+      class: "notes-textarea" %>
+  </div>
+
+</div>

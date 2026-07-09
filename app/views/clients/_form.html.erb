@@ -16,14 +16,55 @@
     <%= f.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
   </div>
 
+  <div class="login__field" data-controller="phones">
+
+    <div data-phones-target="container">
+      <%= f.fields_for :client_phones do |phone_form| %>
+        <div class="phone-row">
+          <%= phone_form.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
+
+          <%= phone_form.hidden_field :_destroy %>
+
+          <button type="button"
+                  class="remove-btn"
+                  data-action="phones#remove">
+            <%= image_tag "delete.png", class: "clear-icon" %>
+          </button>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- TEMPLATE -->
+    <template data-phones-target="template">
+      <div class="phone-row">
+        <input type="tel"
+              data-controller="phone-mask"
+              name="client[client_phones_attributes][NEW_RECORD][phone]"
+              class="login__input" />
+
+        <input type="hidden"
+              name="client[client_phones_attributes][NEW_RECORD][_destroy]"
+              value="false" />
+
+        <button type="button"
+                class="remove-btn"
+                data-action="phones#remove">
+          <%= image_tag "delete.png", class: "clear-icon" %>
+        </button>
+      </div>
+    </template>
+
+    <button type="button"
+        class="add-phone-text"
+        data-action="phones#add">
+      + Add phone
+    </button>
+  </div>
+
   <div data-controller="collapse" class="collapse-section">
     <button type="button" class="collapse-toggle" data-action="collapse#toggle">
       <span><%= t("clients.form.hair_info_title") %></span>
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-        stroke-linejoin="round" class="lucide lucide-plus">
-        <path d="M5 12h14"/><path d="M12 5v14"/>
-      </svg>
+       <%= image_tag "plus.png", class: "add-icon" %>
     </button>
 
     <div data-collapse-target="content" class="hidden">
@@ -96,11 +137,7 @@
   <div data-controller="collapse" class="collapse-section">
     <button type="button" class="collapse-toggle" data-action="collapse#toggle">
       <span><%= t("clients.form.note") %></span>
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-        stroke-linejoin="round" class="lucide lucide-plus">
-        <path d="M5 12h14"/><path d="M12 5v14"/>
-      </svg>
+       <%= image_tag "plus.png", class: "add-icon" %>
     </button>
 
     <div data-collapse-target="content" class="hidden">

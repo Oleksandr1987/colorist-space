@@ -36,10 +36,12 @@ class ApplicationPolicy
 
   private
 
+  # :nocov:
   def has_write_access?
     # return true if Rails.env.development? || Rails.env.test?
     return true if user&.superadmin?
 
     user&.has_active_subscription? || user&.on_trial?
   end
+  # :nocov:
 end

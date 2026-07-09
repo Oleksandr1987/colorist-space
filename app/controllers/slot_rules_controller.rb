@@ -17,7 +17,7 @@ class SlotRulesController < ApplicationController
       redirect_to slot_rules_path, notice: "Rule created."
     else
       @slot_rules = current_user.slot_rules.order(:start_time)
-      render :index, status: :unprocessable_entity
+      render :index, status: :unprocessable_content
     end
   end
 
@@ -27,7 +27,7 @@ class SlotRulesController < ApplicationController
     if @slot_rule.update(slot_rule_params)
       redirect_to slot_rules_path, notice: "Rule updated."
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

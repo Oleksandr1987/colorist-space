@@ -64,6 +64,7 @@ uk:
 
     pages:
       services: "Послуги"
+      formula_ingredients: "Інгредієнти фомули"
       preparations: "Препарати"
       care_products: "Засоби догляду"
       service_management: "Керування послугами"
@@ -72,3 +73,11 @@ uk:
       new_item: "+ Новий %{item}"
       back: "←"
       search: "Пошук..."
+
+  service_notes:
+    services:
+      add: "Додати послугу"
+      save: "Зберегти"
+
+    errors:
+      services_required: "Будь ласка, оберіть хоча б одну послугу"

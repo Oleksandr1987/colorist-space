@@ -4,7 +4,7 @@
      data-photo-index-value="0"
      class="note-viewer">
 
-  <!-- PHOTO VIEWER -->
+  <!-- PHOTO -->
   <div class="note-photo-wrapper"
        data-photo-target="photoContainer"
        data-action="
@@ -14,13 +14,8 @@
        ">
 
     <button class="photo-back-btn" onclick="history.back()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="m12 8-4 4 4 4"/>
-        <path d="M16 12H8"/>
-      </svg>
+       <%= image_tag "back.png",
+                class: "wiz-icon-close" %>
     </button>
 
     <% if @service_note.photos.attached? %>
@@ -28,7 +23,24 @@
             class: "note-photo",
             data: { photo_target: "photo" } %>
     <% else %>
-      <div class="note-no-photo">No Photo</div>
+      <div class="note-no-photo">
+
+        <%= link_to edit_client_service_note_path(
+              @client,
+              @service_note,
+              step: "photos"
+            ),
+            class: "add-photo-button" do %>
+
+          <%= image_tag "camera.png",
+                width: 28,
+                height: 28 %>
+
+          <span>ADD PHOTO</span>
+
+        <% end %>
+
+      </div>
     <% end %>
   </div>
 
@@ -39,65 +51,210 @@
     <% end %>
   </div>
 
-  <!-- TITLE + ACTIONS -->
-  <div class="note-title-block">
-    <div class="note-title-left">
-      <div class="note-title-date"><%= l(@service_note.created_at, format: "%B %d") %></div>
-      <div class="note-title-service"><%= @service_note.service_type.capitalize %></div>
+  <!-- HEADER -->
+  <div class="note-header-modern">
+    <div>
+      <div class="note-client">
+        <strong><%= @client.full_name %></strong>
+      </div>
+      <div class="note-date">
+        <%= l(@service_note.appointment.appointment_date, format: "%B %d") %>
+      </div>
     </div>
 
-    <div class="note-title-actions">
+    <div class="note-actions-modern">
+      <div class="note-popover"
+       data-controller="popover">
 
-      <%= link_to edit_client_service_note_path(@client, @service_note),
-                  class: "note-title-edit" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-pencil" width="20" height="20"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 2a2.828 2.828 0 1 1 4 4L7 21l-4 1 1-4Z" />
-          <path d="M16 5l3 3" />
-        </svg>
-      <% end %>
+        <button type="button"
+                class="edit-btn"
+                data-action="click->popover#toggle">
 
-      <%= button_to client_service_note_path(@client, @service_note),
-                    method: :delete,
-                    data: { turbo_confirm: "Delete?" },
-                    class: "note-title-delete" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-ellipsis-vertical-icon lucide-ellipsis-vertical">
-          <circle cx="12" cy="12" r="1"/>
-          <circle cx="12" cy="5" r="1"/>
-          <circle cx="12" cy="19" r="1"/>
-        </svg>
-      <% end %>
+          <%= image_tag "pencil.png" %>
+        </button>
 
+        <div class="popover-menu hidden"
+            data-popover-target="menu">
+
+          <%= link_to "Edit",
+                edit_client_service_note_path(
+                  @client,
+                  @service_note
+                ) %>
+
+          <%= button_to "Delete",
+                client_service_note_path(
+                  @client,
+                  @service_note
+                ),
+                method: :delete,
+                form: {
+                  data: {
+                    turbo_confirm: "Delete?"
+                  }
+                } %>
+
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- DETAILS -->
-  <div class="note-bottom">
+  <%
+    haircut_steps = @service_note.haircut_steps.reject do |step|
+      step.instrument.blank? &&
+      step.parting.blank? &&
+      step.elevation.blank? &&
+      step.cut_type.blank?
+    end
 
-    <% if @service_note.data.present? %>
-      <div class="note-block">
-        <h3>Formula</h3>
-        <pre><%= JSON.pretty_generate(@service_note.data) %></pre>
+    formula_steps = @service_note.formula_steps.select do |step|
+      step.formula_ingredients.any? ||
+      step.oxidant.present? ||
+      step.time.present?
+    end
+  %>
+
+  <!-- CONTENT -->
+  <div class="note-content">
+
+    <% if haircut_steps.any? %>
+      <div class="note-section">
+
+        <div class="note-section-title">
+          <%= image_tag "brush.png",
+                class: "wiz-icon",
+                width: 34,
+                height: 34 %>
+          <span><strong><%= t("haircut.title") %></strong></span>
+        </div>
+
+        <% haircut_steps.each_with_index do |step, index| %>
+          <div data-controller="collapse" class="note-step">
+
+            <div class="note-step-pill"
+                data-action="click->collapse#toggle">
+
+              <span>
+                STEP <%= index + 1 %>
+              </span>
+
+              <svg class="chevron"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </div>
+
+            <div class="note-step-content hidden"
+                data-collapse-target="content">
+
+              <%= render "service_notes/haircut_preview",
+                    step: step %>
+
+            </div>
+          </div>
+        <% end %>
       </div>
     <% end %>
+
+
+    <% if formula_steps.any? %>
+      <div class="note-section">
+
+        <div class="note-section-title">
+
+           <%= image_tag "formula.png",
+                class: "wiz-icon",
+                width: 34,
+                height: 34 %>
+
+          <span><strong>FORMULA</strong></span>
+        </div>
+
+        <% formula_steps.each_with_index do |step, index| %>
+          <div data-controller="collapse"
+              class="note-step">
+
+            <div class="note-step-pill"
+                data-action="click->collapse#toggle">
+
+              <span>
+                STEP <%= index + 1 %>
+              </span>
+
+              <svg class="chevron"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </div>
+
+            <div class="note-step-content hidden"
+                data-collapse-target="content">
+
+              <%= render "service_notes/formula_preview",
+                    step: step %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @service_note.services.any? %>
+      <div class="note-section">
+        <div class="note-section-title">
+          <%= image_tag "services.png",
+              class: "wiz-icon",
+              width: 34,
+              height: 34 %>
+          <span><strong>SERVICES</strong></span>
+        </div>
+
+        <% @service_note.services.each do |service| %>
+          <div class="note-row">
+            <%= service.name %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= render(
+          "service_notes/care_products_preview",
+          care_products: @service_note.care_products
+        ) %>
+
 
     <% if @service_note.notes.present? %>
-      <div class="note-block">
-        <h3>Notes</h3>
-        <p><%= @service_note.notes %></p>
+      <div class="note-section">
+        <div class="note-section-title">
+          <%= image_tag "notes.png",
+              class: "wiz-icon",
+              width: 34,
+              height: 34 %>
+          <span><strong>NOTES</strong></span>
+        </div>
+          <div class="note-value">
+            <%= @service_note.notes %>
+          </div>
       </div>
     <% end %>
 
-    <% if @service_note.price.present? %>
-      <div class="note-block">
-        <h3>Price</h3>
-        <p><%= @service_note.price %> ₴</p>
+    <% if @service_note.final_price.to_i.positive? %>
+      <div class="note-label">
+        <strong>FINAL PRICE</strong>
+        <span>
+          <strong>
+            <%= @service_note.final_price %>
+          </strong>
+        </span>
       </div>
     <% end %>
-
+    </div>
   </div>
 </div>

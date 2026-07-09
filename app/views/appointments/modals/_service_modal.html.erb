@@ -2,7 +2,9 @@
   <div class="modal-content">
     <div class="modal-header">
       <h3><%= t("appointments.modals.service.title") %></h3>
-      <button class="close" type="button" data-action="click->appointment#close">×</button>
+      <button class="close" type="button" data-action="click->appointment#close">
+        <%= image_tag "delete.png", class: "close-icon" %>
+      </button>
     </div>
 
     <input

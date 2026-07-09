@@ -23,7 +23,7 @@ en:
       treatment: "Treatment"
 
     subtypes:
-      haircut: 
+      haircut:
         - "Short haircut with clippers"
         - "Long haircut with scissors"
         - "Fade haircut"
@@ -64,6 +64,7 @@ en:
 
     pages:
       services: "Services"
+      formula_ingredients: "Formula Ingredients"
       preparations: "Preparations"
       care_products: "Care Products"
       service_management: "Service Management"
@@ -72,3 +73,11 @@ en:
       new_item: "+ New %{item}"
       back: "←"
       search: "Search..."
+
+  service_notes:
+    services:
+      add: "Add service"
+      save: "Save"
+
+    errors:
+      services_required: "Please select at least one service"

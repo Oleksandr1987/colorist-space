@@ -1,0 +1,287 @@
+/* MODAL BACKDROP */
+.dev-modal {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CONTENT */
+.dev-modal-content {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+/* BODY */
+.dev-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* CLOSE BUTTON */
+.dev-close {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: none;
+  border: none;
+  font-size: 22px;
+}
+
+/* TITLE */
+.dev-modal h2 {
+  font-size: 20px;
+  margin: 0 0 16px;
+  padding-left: 34px;
+  line-height: 1.2;
+}
+
+/* SWITCH */
+.dev-switch {
+  display: flex;
+  width: 140px;
+  background: #f3f3f3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dev-switch button {
+  flex: 1;
+  padding: 8px 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+}
+
+.dev-switch .active {
+  background: #1f2a30;
+  color: #fff;
+}
+
+/* PRESETS */
+.dev-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.dev-group button {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 13px;
+}
+
+.dev-group .active {
+  background: #1f2a30;
+  color: #fff;
+  border-color: #1f2a30;
+}
+
+/* ADD */
+.dev-ratio-custom {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.dev-ratio-custom input {
+  width: 32px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 12px;
+}
+
+.dev-ratio-custom button {
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+.dev-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #888;
+  line-height: 1.35;
+}
+
+/* RATIO */
+.dev-ratio {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dev-ratio button {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.dev-ratio::before {
+  width: 100%;
+  font-size: 12px;
+  color: #888;
+}
+
+.dev-ratio button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.dev-ratio button.active {
+  border-color: #1f2a30;
+}
+
+/* AMOUNT */
+.dev-amount {
+  margin-top: 10px;
+}
+
+.dev-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dev-amount input {
+  width: 100px;
+  padding: 8px;
+  border-bottom: 1px solid #000;
+}
+
+.dev-save {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-top: 10px;
+  background: #6200ea;
+  color: white;
+}
+
+.dev-save:disabled {
+  opacity: 0.5;
+}
+
+.time-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-input .input-line {
+  width: 50px;
+}
+
+.time-unit {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Hide number input arrows */
+.time-input input[type="number"]::-webkit-inner-spin-button,
+.time-input input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.time-input input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.unsaved-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+}
+
+.unsaved-modal.hidden {
+  display: none;
+}
+
+.unsaved-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.unsaved-modal-card {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translate(-50%, -50%);
+
+  width: calc(100% - 48px);
+  max-width: 340px;
+
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.unsaved-modal-card h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.unsaved-modal-card p {
+  margin: 0 0 18px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.unsaved-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.unsaved-modal-actions button {
+  flex: 1;
+  border-radius: 12px;
+  padding: 10px 8px;
+  font-size: 13px;
+}
+
+@media (max-width: 420px) {
+  .unsaved-modal-card {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translate(-50%, -50%);
+
+  width: calc(100% - 48px);
+  max-width: 340px;
+  box-sizing: border-box;
+
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+  /* .unsaved-modal-card h3 {
+    font-size: 18px;
+  }
+
+  .unsaved-modal-card p {
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .unsaved-modal-actions button {
+    font-size: 12px;
+    padding: 9px 6px;
+  } */
+}

@@ -1,11 +1,17 @@
-<div data-controller="client-profile photo" class="client-profile-container">
+<div data-controller="client-profile photo"
+     data-client-profile-id-value="<%= @client.id %>"
+     class="client-profile-container">
 
   <!-- Header -->
   <div class="client-header">
 
     <div class="client-header-left">
       <h1><%= @client.full_name %></h1>
-      <p class="client-phone"><%= @client.phone %></p>
+      <%= turbo_frame_tag "client_primary_phone" do %>
+        <p class="client-phone">
+          <%= @client.phone %>
+        </p>
+      <% end %>
     </div>
 
     <div class="client-header-right">
@@ -36,54 +42,93 @@
 
   <!-- STYLES TAB  -->
   <div id="styles-tab"
-       data-client-profile-target="tabContent"
-       class="tab-content active">
+     data-client-profile-target="tabContent"
+     class="tab-content active">
 
-    <% @client.service_notes.order(created_at: :desc).each do |note| %>
+    <% @client.style_appointments.each do |appointment| %>
+
+      <% service_note = appointment.service_note %>
+
+      <% target_path =
+        if service_note.present?
+          client_service_note_path(@client, service_note)
+        else
+          new_client_service_note_path(
+            @client,
+            appointment_id: appointment.id
+          )
+        end
+      %>
+
       <div class="style-card">
 
-        <!-- CLICKABLE THUMBNAIL → SHOW PAGE -->
-        <%= link_to client_service_note_path(@client, note),
-                    class: "style-photo-wrapper-link" do %>
+        <%= link_to target_path, class: "style-photo-wrapper-link" do %>
 
           <div class="style-photo-wrapper">
 
-            <% if note.photos.attached? %>
-
-              <%= image_tag thumb(note.photos.first),
-                    class: "style-photo" %>
-
-              <% if note.photos.count > 1 %>
+            <% if service_note&.photos&.attached? %>
+              <%= image_tag thumb(service_note.photos.first), class: "style-photo" %>
+              <% if service_note.photos.count > 1 %>
                 <div class="style-photo-count">
-                  +<%= note.photos.count - 1 %>
+                  +<%= service_note.photos.count - 1 %>
                 </div>
               <% end %>
-
             <% else %>
-              <div class="style-no-photo">No photo</div>
+              <div class="style-no-photo">
+
+                <% if service_note.present? %>
+
+                  <%= link_to edit_client_service_note_path(
+                        @client,
+                        service_note,
+                        step: "photos"
+                      ),
+                      class: "add-photo-button" do %>
+
+                    <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
+
+                  <% end %>
+
+                <% else %>
+
+                  <%= link_to new_client_service_note_path(
+                        @client,
+                        appointment_id: appointment.id
+                      ),
+                      class: "add-photo-button" do %>
+
+                    <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
+
+                  <% end %>
+
+                <% end %>
+
+              </div>
             <% end %>
 
             <div class="style-info-overlay">
-              <div class="style-date"><%= l(note.created_at, format: "%B %d") %></div>
-              <div class="style-service"><%= note.service_type.capitalize %></div>
+              <div class="style-date">
+                <%= l(appointment.appointment_date, format: "%B %d") %>
+
+                <% if appointment.appointment_date > Date.current %>
+                  <span class="future-badge">
+                    FUTURE
+                  </span>
+                <% end %>
+
+              </div>
+
+              <% if service_note.present? %>
+                <div class="style-service">
+                  <%= service_note.service_type&.capitalize %>
+                </div>
+              <% end %>
             </div>
-
           </div>
-
         <% end %>
-
       </div>
     <% end %>
-
-    <!-- ADD STYLE BUTTON -->
-    <div class="add-style-wrapper" style="margin-top: 1.5rem; text-align:center;">
-      <%= link_to new_client_service_note_path(@client),
-                  class: "button small new-appointment-button add-style-button" do %>
-        + <%= t("clients.show.add_style") %>
-      <% end %>
-    </div>
   </div>
-
 
   <!-- INFO TAB  -->
   <div id="info-tab"
@@ -92,8 +137,10 @@
 
     <div class="client-info">
 
-      <p><strong><%= t("clients.show.details.phone") %>:</strong>
-        <%= @client.phone %></p>
+      <p><strong><%= t("clients.show.details.phone") %>:</strong></p>
+        <%= turbo_frame_tag "client_phones" do %>
+            <%= render "phones", client: @client %>
+        <% end %>
 
       <p><strong><%= t("clients.show.details.hair_type") %>:</strong>
         <%= t("clients.hair.types.#{@client.hair_type.downcase}") if @client.hair_type %></p>
@@ -131,7 +178,9 @@
   <!-- FULLSCREEN -->
   <div data-photo-target="modal" class="fullscreen hidden">
     <div class="fullscreen-backdrop" data-action="click->photo#close"></div>
-    <button class="fullscreen-close" data-action="click->photo#close">×</button>
+    <button class="fullscreen-close" data-action="click->photo#close">
+      <%= image_tag "delete.png", class: "close-icon" %>
+    </button>
     <img data-photo-target="modalImage" class="fullscreen-image">
   </div>
 

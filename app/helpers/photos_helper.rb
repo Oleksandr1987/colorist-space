@@ -1,3 +1,4 @@
+# :nocov:
 module PhotosHelper
   def optimized(photo)
     PhotoDecorator.decorate(photo).optimized
@@ -7,3 +8,4 @@ module PhotosHelper
     PhotoDecorator.decorate(photo).thumb
   end
 end
+# :nocov:

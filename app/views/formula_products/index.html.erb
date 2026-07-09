@@ -1,0 +1,87 @@
+<div class="service-wrapper" data-controller="service">
+
+  <div class="formula-header">
+
+    <div class="formula-tabs">
+      <%= link_to t("formula_products.tabs.colors"),
+          formula_products_path(category: "color"),
+          class: "formula-tab #{'active' if @category == 'color'}" %>
+
+      <%= link_to t("formula_products.tabs.oxidants"),
+          formula_products_path(category: "oxidant"),
+          class: "formula-tab #{'active' if @category == 'oxidant'}" %>
+    </div>
+
+    <div class="formula-actions">
+
+      <input type="text"
+             placeholder="<%= t('formula_products.menu.search_placeholder') %>"
+             class="formula-search-input"
+             data-service-target="search"
+             data-action="input->service#filter">
+
+      <%= link_to new_formula_product_path(category: @category),
+            class: "formula-add-button" do %>
+        <%= image_tag "plus.png",
+              width: 38,
+              height: 38 %>
+      <% end %>
+
+    </div>
+  </div>
+
+  <div class="service-list"
+       data-service-target="list">
+
+    <% @formula_products.each do |product| %>
+      <div class="service-item"
+           data-name="<%= "#{product.brand} #{product.name}".downcase %>">
+        <div class="service-info">
+          <div class="service-name">
+            <strong><%= product.brand %></strong>
+            <%= product.name %>
+          </div>
+
+          <div class="service-price">
+            <%= product.price_per_unit %> ₴ / <%= product.unit %>
+          </div>
+        </div>
+
+        <div class="service-actions"
+             data-controller="popover">
+
+          <button type="button"
+                  class="icon-button"
+                  data-action="click->popover#toggle">
+
+            <%= image_tag "pencil.png",
+                  class: "wiz-icon",
+                  width: 24,
+                  height: 24 %>
+
+          </button>
+
+          <div class="popover-menu hidden"
+               data-popover-target="menu">
+
+            <%= link_to t("formula_products.actions.edit"),
+                  edit_formula_product_path(product),
+                  class: "popover-item" %>
+
+            <%= button_to t("formula_products.actions.delete"),
+                  formula_product_path(product),
+                  method: :delete,
+                  form: {
+                    data: {
+                      turbo_confirm: t("formula_products.actions.confirm_delete")
+                    }
+                  },
+                  class: "popover-item delete" %>
+
+          </div>
+
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

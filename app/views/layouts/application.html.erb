@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <%= favicon_link_tag 'favicon.png' %>  
+    <%= favicon_link_tag 'favicon.png' %>
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -22,7 +22,7 @@
     <% end %>
     <%= javascript_importmap_tags %>
   </head>
- 
+
   <body>
 
     <main>
@@ -47,7 +47,8 @@
            alt="">
 
       <button class="fullscreen-close"
-              data-action="click->photo#close">✕</button>
+              data-action="click->photo#close"><%= image_tag "delete.png",
+                      class: "clear-icon" %></button>
     </div>
 
   </body>

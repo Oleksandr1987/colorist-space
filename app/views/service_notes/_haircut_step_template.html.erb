@@ -1,0 +1,167 @@
+<template data-haircut-target="template">
+
+  <div class="formula-step-wrapper"
+       data-controller="collapse">
+
+    <!-- HEADER -->
+    <div class="formula-step-header"
+         data-action="click->collapse#toggle">
+
+      <span>
+        STEP <span class="step-number"></span>
+      </span>
+
+      <svg class="chevron"
+           xmlns="http://www.w3.org/2000/svg"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="formula-step-content"
+         data-collapse-target="content">
+
+      <div class="formula-card">
+
+        <!-- HEADER -->
+        <div class="formula-header">
+
+          <span class="haircut-zone-title">
+            __ZONE__
+          </span>
+
+          <div class="step-remove">
+
+            <input type="hidden"
+                   name="service_note[haircut_steps_attributes][NEW_RECORD][_destroy]"
+                   value="0"
+                   class="destroy-field">
+
+            <input type="hidden"
+                   name="service_note[haircut_steps_attributes][NEW_RECORD][zone]"
+                   value="__ZONE__">
+
+            <button type="button"
+                    data-action="click->haircut#removeStep">
+              <%= image_tag "delete.png",
+                      class: "clear-icon" %>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- INSTRUMENT -->
+        <div class="formula-block">
+
+          <div class="block-title">
+            <span><%= t("haircut.instrument") %></span>
+          </div>
+
+          <select name="service_note[haircut_steps_attributes][NEW_RECORD][instrument]"
+                  class="input-line">
+
+            <option value="">
+							<%= t("haircut.select_instrument") %>
+						</option>
+
+						<% HaircutStep::INSTRUMENTS.each do |instrument| %>
+
+							<option value="<%= instrument %>">
+								<%= t("haircut.instruments.#{instrument}") %>
+							</option>
+
+						<% end %>
+
+          </select>
+
+        </div>
+
+        <!-- PARTING -->
+        <div class="formula-block">
+
+          <div class="block-title">
+            <span><%= t("haircut.parting") %></span>
+          </div>
+
+          <select name="service_note[haircut_steps_attributes][NEW_RECORD][parting]"
+                  class="input-line">
+
+            <option value="">
+							<%= t("haircut.select_parting") %>
+						</option>
+
+						<% HaircutStep::PARTINGS.each do |parting| %>
+
+							<option value="<%= parting %>">
+								<%= t("haircut.partings.#{parting}") %>
+							</option>
+
+						<% end %>
+
+          </select>
+
+        </div>
+
+        <!-- ELEVATION -->
+        <div class="formula-block">
+
+          <div class="block-title">
+            <span><%= t("haircut.elevation") %></span>
+          </div>
+
+          <select name="service_note[haircut_steps_attributes][NEW_RECORD][elevation]"
+                  class="input-line">
+
+            <option value="">
+							<%= t("haircut.select_elevation") %>
+						</option>
+
+						<% HaircutStep::ELEVATIONS.each do |elevation| %>
+
+							<option value="<%= elevation %>">
+								<%= t("haircut.elevations.#{elevation}") %>
+							</option>
+
+						<% end %>
+
+          </select>
+
+        </div>
+
+        <!-- CUT TYPE -->
+        <div class="formula-block">
+
+          <div class="block-title">
+            <span><%= t("haircut.cut_type") %></span>
+          </div>
+
+          <select name="service_note[haircut_steps_attributes][NEW_RECORD][cut_type]"
+                  class="input-line">
+
+            <option value="">
+							<%= t("haircut.select_cut_type") %>
+						</option>
+
+						<% HaircutStep::CUT_TYPES.each do |cut| %>
+
+							<option value="<%= cut %>">
+								<%= t("haircut.cut_types.#{cut}") %>
+							</option>
+
+						<% end %>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</template>

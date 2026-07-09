@@ -4,6 +4,7 @@ class Appointment < ApplicationRecord
 
   has_many :appointment_services_relations, inverse_of: :appointment, dependent: :destroy
   has_many :services, through: :appointment_services_relations
+  has_one :service_note, dependent: :destroy
 
   validates :appointment_date, :appointment_time, presence: true
   validates :appointment_time, uniqueness: { scope: :appointment_date, message: "is already booked for this date" }
@@ -12,10 +13,11 @@ class Appointment < ApplicationRecord
   validate :valid_end_time
   validate :no_time_conflicts
   validate :time_step_interval
-  validate :must_have_main_service
 
   before_validation :set_default_end_time, if: -> { appointment_time.present? && end_time.blank? }
   before_save :set_service_name
+  after_update :sync_service_note_client, if: :saved_change_to_client_id?
+  after_save :sync_service_note_notes
 
   scope :by_date, ->(date) { where(appointment_date: date) }
 
@@ -48,12 +50,29 @@ class Appointment < ApplicationRecord
     )
   }
 
+  scope :for_styles, -> {
+    includes(service_note: [ photos_attachments: :blob ])
+      .order(
+        appointment_date: :desc,
+        appointment_time: :desc
+      )
+  }
+
   def total_price
     services.sum(:price)
   end
 
   def combined_service_name
-    services.map(&:subtype).join(" + ")
+    note_services = service_note&.services.to_a
+
+    if note_services.present?
+      note_services.map(&:subtype).join(" + ")
+    else
+      Service.joins(:appointment_services_relations)
+            .where(appointment_services_relations: { appointment_id: id })
+            .pluck(:subtype)
+            .join(" + ")
+    end
   end
 
   def as_calendar_json
@@ -62,8 +81,10 @@ class Appointment < ApplicationRecord
 
     {
       id: id,
+      client_id: client.id,
       client_name: client.full_name,
-      service: service_name,
+      service: combined_service_name.presence || service_name,
+      service_note_id: service_note&.id,
       phone: client.phone,
       start: "#{appointment_date}T#{start_time}",
       end: "#{appointment_date}T#{end_time_formatted}",
@@ -93,8 +114,17 @@ class Appointment < ApplicationRecord
       slot_start = slot[:start]
       slot_end = slot[:end]
 
-      while pointer < appointments.length &&
-            appointments[pointer].end_time <= slot_start
+      while pointer < appointments.length
+        current_appointment = appointments[pointer]
+
+        current_end_time = current_appointment.end_time.change(
+          year: date.year,
+          month: date.month,
+          day: date.day
+        )
+
+        break unless current_end_time <= slot_start
+
         pointer += 1
       end
 
@@ -131,10 +161,6 @@ class Appointment < ApplicationRecord
   end
 
   def set_service_name
-    self.service_name = combined_service_name
-  end
-
-  def set_service_name
     selected_services = services
 
     if selected_services.empty? && service_ids.present?
@@ -145,8 +171,11 @@ class Appointment < ApplicationRecord
   end
 
   def valid_date
-    return unless appointment_date.present? && appointment_date < Date.today
-    errors.add(:appointment_date, "can't be in the past")
+    return unless appointment_date.present?
+
+    if new_record? && appointment_date < Date.today
+      errors.add(:appointment_date, "can't be in the past")
+    end
   end
 
   def valid_end_time
@@ -173,15 +202,18 @@ class Appointment < ApplicationRecord
     end
   end
 
-  def must_have_main_service
-    selected_services = services
+  def sync_service_note_client
+    note = ServiceNote.find_by(appointment_id: id)
+    return unless note
 
-    if selected_services.empty? && service_ids.present?
-      selected_services = Service.where(id: service_ids)
-    end
+    note.update(client_id: client_id)
+  end
 
-    return if selected_services.any? { |s| s.service_type == "service" }
+  def sync_service_note_notes
+    return unless service_note.present?
 
-    errors.add(:base, "At least one main service must be selected")
+    return if service_note.notes == notes
+
+    service_note.update_column(:notes, notes)
   end
 end

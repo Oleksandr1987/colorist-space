@@ -1,0 +1,73 @@
+.haircut-zones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.zone-chip {
+  border: none;
+  background: #f1f1f1;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.zone-chip.active {
+  background: #5b21b6;
+  color: white;
+}
+
+.haircut-zone-title {
+  text-transform: uppercase;
+}
+
+.haircut-zones-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.empty-haircut-step {
+  margin-top: 12px;
+}
+
+.haircut-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+
+  padding: 4px 0 10px;
+}
+
+.haircut-value {
+  font-size: 18px;
+  color: #111;
+}
+
+.clear-value-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+
+  padding: 0;
+  margin: 0;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.clear-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.clear-value-btn:hover .clear-icon {
+  opacity: 1;
+}

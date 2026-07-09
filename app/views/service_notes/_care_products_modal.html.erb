@@ -1,0 +1,62 @@
+<div class="care-products-modal hidden"
+     data-care-products-target="modal"
+     data-action="click->care-products#closeModal">
+
+  <div class="care-products-modal-content"
+       data-action="click->care-products#stop">
+
+    <div class="care-products-modal-header">
+      <h3><%= t("care_products.title") %></h3>
+
+      <button type="button"
+              data-action="click->care-products#closeModal">
+        <%= image_tag "delete.png",
+              class: "clear-icon" %>
+      </button>
+    </div>
+
+    <!-- SEARCH -->
+
+    <div class="care-products-modal-search">
+      <input type="text"
+             class="form-input"
+             placeholder="<%= t('care_products.search') %>"
+             data-care-products-target="search"
+             data-action="input->care-products#search">
+    </div>
+
+    <!-- CATEGORY FILTER -->
+
+    <div class="care-products-filters">
+
+      <button type="button"
+              class="filter-button active"
+              data-category=""
+              data-action="click->care-products#filterCategory">
+        <%= t("common.all") %>
+      </button>
+
+      <% CareProduct::CATEGORIES.each do |category| %>
+
+        <button type="button"
+                class="filter-button"
+                data-category="<%= category %>"
+                data-action="click->care-products#filterCategory">
+
+          <%= category %>
+
+        </button>
+
+      <% end %>
+
+    </div>
+
+    <!-- PRODUCTS -->
+
+    <div class="care-products-modal-list"
+         data-care-products-target="productsList">
+    </div>
+
+  </div>
+
+</div>

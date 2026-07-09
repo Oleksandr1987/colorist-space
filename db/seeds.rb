@@ -72,6 +72,237 @@ end
 puts "✅ Default services seeded"
 
 # -------------------------------------------------------------------
+# Formula Products
+# -------------------------------------------------------------------
+
+puts "🌱 Seeding formula products..."
+
+formula_products = [
+
+  # COLORS
+
+  {
+    category: "color",
+    brand: "Wella",
+    name: "7/43",
+    unit: "g",
+    price_per_unit: 15
+  },
+
+  {
+    category: "color",
+    brand: "Schwarzkopf",
+    name: "8/43",
+    unit: "g",
+    price_per_unit: 25
+  },
+
+  {
+    category: "color",
+    brand: "Echosline",
+    name: "9/43",
+    unit: "g",
+    price_per_unit: 16
+  },
+
+  {
+    category: "color",
+    brand: "Lakme",
+    name: "6N",
+    unit: "g",
+    price_per_unit: 14
+  },
+
+  {
+    category: "color",
+    brand: "Matrix",
+    name: "8A",
+    unit: "g",
+    price_per_unit: 14
+  },
+
+  {
+    category: "color",
+    brand: "Londa",
+    name: "7/1",
+    unit: "g",
+    price_per_unit: 13
+  },
+
+  # OXIDANTS
+
+  {
+    category: "oxidant",
+    brand: "Wella",
+    name: "1.9%",
+    unit: "ml",
+    price_per_unit: 1.2
+  },
+
+  {
+    category: "oxidant",
+    brand: "Wella",
+    name: "3%",
+    unit: "ml",
+    price_per_unit: 1.3
+  },
+
+  {
+    category: "oxidant",
+    brand: "Nouvelle",
+    name: "6%",
+    unit: "ml",
+    price_per_unit: 1.5
+  },
+
+  {
+    category: "oxidant",
+    brand: "Inebrya",
+    name: "9%",
+    unit: "ml",
+    price_per_unit: 1.8
+  },
+
+  {
+    category: "oxidant",
+    brand: "Matrix",
+    name: "3%",
+    unit: "ml",
+    price_per_unit: 1.4
+  },
+
+  {
+    category: "oxidant",
+    brand: "Previa",
+    name: "6%",
+    unit: "ml",
+    price_per_unit: 1.6
+  }
+]
+
+formula_products.each do |attrs|
+  FormulaProduct.find_or_create_by!(
+    user: demo_user,
+    category: attrs[:category],
+    brand: attrs[:brand],
+    name: attrs[:name]
+  ) do |product|
+    product.unit = attrs[:unit]
+    product.price_per_unit = attrs[:price_per_unit]
+  end
+end
+
+puts "✅ Formula products seeded"
+
+# -------------------------------------------------------------------
+# Care Products (user 1)
+# -------------------------------------------------------------------
+
+puts "🌱 Seeding care products..."
+
+user = User.find_by(email: "solovij1987@gmail.com")
+
+if user.present?
+  care_products = [
+    {
+      brand: "Olaplex",
+      name: "No.4 Bond Maintenance Shampoo",
+      category: "Shampoo",
+      purchase_price: 650,
+      sale_price: 900,
+      stock_quantity: 8
+    },
+    {
+      brand: "Olaplex",
+      name: "No.5 Bond Maintenance Conditioner",
+      category: "Conditioner",
+      purchase_price: 700,
+      sale_price: 950,
+      stock_quantity: 6
+    },
+    {
+      brand: "Kérastase",
+      name: "Nutritive Mask",
+      category: "Mask",
+      purchase_price: 1200,
+      sale_price: 1600,
+      stock_quantity: 5
+    },
+    {
+      brand: "Kérastase",
+      name: "Elixir Ultime Oil",
+      category: "Oil",
+      purchase_price: 1400,
+      sale_price: 1900,
+      stock_quantity: 4
+    },
+    {
+      brand: "L'Oréal Professionnel",
+      name: "Absolut Repair Shampoo",
+      category: "Shampoo",
+      purchase_price: 500,
+      sale_price: 750,
+      stock_quantity: 10
+    },
+    {
+      brand: "L'Oréal Professionnel",
+      name: "Absolut Repair Mask",
+      category: "Mask",
+      purchase_price: 650,
+      sale_price: 950,
+      stock_quantity: 7
+    },
+    {
+      brand: "Davines",
+      name: "OI All In One Milk",
+      category: "Spray",
+      purchase_price: 800,
+      sale_price: 1200,
+      stock_quantity: 6
+    },
+    {
+      brand: "Davines",
+      name: "OI Oil",
+      category: "Oil",
+      purchase_price: 950,
+      sale_price: 1400,
+      stock_quantity: 5
+    },
+    {
+      brand: "Moroccanoil",
+      name: "Treatment Original",
+      category: "Oil",
+      purchase_price: 1000,
+      sale_price: 1500,
+      stock_quantity: 6
+    },
+    {
+      brand: "Redken",
+      name: "Acidic Bonding Concentrate",
+      category: "Treatment",
+      purchase_price: 900,
+      sale_price: 1300,
+      stock_quantity: 4
+    }
+  ]
+
+  care_products.each do |attrs|
+    CareProduct.find_or_create_by!(
+      user: user,
+      brand: attrs[:brand],
+      name: attrs[:name]
+    ) do |product|
+      product.category = attrs[:category]
+      product.purchase_price = attrs[:purchase_price]
+      product.sale_price = attrs[:sale_price]
+      product.stock_quantity = attrs[:stock_quantity]
+    end
+  end
+
+  puts "✅ Care products seeded"
+end
+
+# -------------------------------------------------------------------
 # Clients (A–Z, up to 15 per letter)
 # -------------------------------------------------------------------
 
@@ -130,16 +361,11 @@ puts "✅ Expenses seeded"
 
 puts "🌱 Seeding appointments (past)..."
 
-clients = demo_user.clients.to_a
-services_by_type = demo_user.services.group_by(&:service_type)
+  clients = demo_user.clients.to_a
+  services = demo_user.services.to_a
 
-main_services = services_by_type["service"] || []
-other_services =
-  (services_by_type["preparation"] || []) +
-  (services_by_type["care_product"] || [])
-
-if main_services.empty?
-  puts "⚠️ No main services found, skipping appointment seeding"
+if services.empty?
+  puts "⚠️ No services found, skipping appointment seeding"
 else
   200.times do
     client = clients.sample
@@ -152,11 +378,13 @@ else
       appointment_time: time
     )
 
-    appointment.services << main_services.sample
-    appointment.services << other_services.sample(rand(0..2))
+    appointment.services << services.sample
 
     if appointment.save
-      appointment.update_column(:service_name, appointment.combined_service_name)
+      appointment.update_column(
+        :service_name,
+        appointment.combined_service_name
+      )
     end
   end
 
@@ -169,11 +397,15 @@ end
 
 puts "🌱 Seeding future appointments..."
 
-(start_date = Date.today)..(end_date = Date.today + 4.months).each do |date|
+start_date = Date.today
+end_date = Date.today + 4.months
+
+(start_date..end_date).each do |date|
   rand(3..4).times do
     client = clients.sample
     hour = rand(9..16)
     minute = [ 0, 15, 30, 45 ].sample
+
     time = Time.zone.parse("#{hour}:#{minute}")
 
     appointment = demo_user.appointments.build(
@@ -182,11 +414,13 @@ puts "🌱 Seeding future appointments..."
       appointment_time: time
     )
 
-    appointment.services << main_services.sample
-    appointment.services << other_services.sample(rand(0..2))
+    appointment.services << services.sample
 
     if appointment.save
-      appointment.update_column(:service_name, appointment.combined_service_name)
+      appointment.update_column(
+        :service_name,
+        appointment.combined_service_name
+      )
     end
   end
 end

@@ -1,0 +1,36 @@
+<div class="service-form-wrapper">
+  <%= form_with model: @formula_product do |f| %>
+    <%= f.hidden_field :category %>
+    <div class="form-section">
+      <%= f.label :brand %>
+      <%= f.text_field :brand,
+            class: "form-input",
+            required: true %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :unit %>
+      <%= f.select :unit,
+            [["Gram", "g"],
+             ["Milliliter", "ml"]],
+            {},
+            class: "form-input" %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :price_per_unit %>
+      <%= f.number_field :price_per_unit,
+            class: "form-input",
+            step: :any,
+            required: true %>
+    </div>
+
+    <div class="form-actions-row">
+      <%= f.submit "Save",
+            class: "form-button primary" %>
+      <%= link_to "Cancel",
+            formula_products_path(category: @formula_product.category),
+            class: "form-button cancel" %>
+    </div>
+  <% end %>
+</div>

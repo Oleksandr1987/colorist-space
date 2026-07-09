@@ -2,16 +2,16 @@
 
 
 body {
-	background: #f5f3ff;		
+	background: #f5f3ff;
 }
 
 .notice, .alert {
   margin: 0;
 }
 
-.screen {		
-	background: #f5f3ff;		
-	position: relative;	
+.screen {
+	background: #f5f3ff;
+	position: relative;
 }
 
 .screen__content {
@@ -32,8 +32,8 @@ body {
 }
 
 .login__field {
-	padding: 5px 0px;	
-	position: relative;	
+	padding: 5px 0px;
+	position: relative;
 }
 
 .login__icon {
@@ -134,7 +134,7 @@ body {
   width: 100%;
 }
 
-.social-signup {	
+.social-signup {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -149,7 +149,7 @@ body {
 	margin-bottom: 15px;
 }
 
-.social-login {	
+.social-login {
 	position: relative;
 	width: 100%;
   display: flex;
@@ -176,12 +176,12 @@ body {
 .social-login__icon {
 	width: 40px;
   height: 40px;
-	text-decoration: none;	
+	text-decoration: none;
 	text-shadow: 0px 0px 8px #7875B5;
 }
 
 .social-login__icon:hover {
-	transform: scale(1.5);	
+	transform: scale(1.5);
 }
 
 button {
@@ -195,8 +195,8 @@ button {
 }
 
 button img {
-  width: 36px; /* Adjust as needed */
-  height: 36px;
+  width: 24px;
+  height: 24px;
 }
 
 button:focus,
@@ -205,25 +205,194 @@ button:hover {
   box-shadow: none;
 }
 
+.phone-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.remove-btn {
+  background: #ff5c5c;
+  color: white;
+  border: none;
+  padding: 0 10px;
+  border-radius: 6px;
+}
+
+.phones-list {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.phones-list li {
+  margin-bottom: 2px;
+}
+
+.phone-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+.phone-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* .phone-star.active {
+  color: #6d28d9;
+  display: flex;
+  align-items: center;
+}
+
+.phone-star-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #bdbdbd;
+  cursor: pointer;
+}
+
+.phone-star-btn:hover {
+  color: #6d28d9;
+} */
+
+/* .phone-star {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #bdbdbd;
+}
+
+.phone-star svg {
+  width: 20px;
+  height: 20px;
+}
+
+.phone-star.active {
+  color: #6d28d9;
+}
+
+.phone-star:hover {
+  color: #8b5cf6;
+} */
+
+.phone-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phone-link.full {
+  flex: 1;
+}
+
+.phone-number {
+  display: inline-flex;
+  align-items: center;
+}
+
+.primary-phone {
+  color: #6d28d9;
+  font-weight: 600;
+}
+
+.phone-star {
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.phone-star.active {
+  color: #6d28d9;
+}
+
+.phone-star-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  color: #bdbdbd;
+  cursor: pointer;
+}
+
+.phone-star-btn:hover {
+  color: #6d28d9;
+}
+
+.phone-star svg,
+.phone-star-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.phone-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.phone-right {
+  display: flex;
+  align-items: center;
+}
+
+.copy-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.7;
+}
+
+.copy-btn:hover {
+  opacity: 1;
+}
+
+.copy-btn.copied {
+  color: green;
+}
+
+.add-phone-text {
+  display: block;
+  margin-top: 6px;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  color: #6c5ce7;
+  cursor: pointer;
+
+  text-align: left;
+}
+
+.form-errors {
+  margin: 12px 16px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #ffe5e5;
+  border: 1px solid #ffb3b3;
+}
+
+.form-error {
+  color: #c62828;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 /* MOBILE LOGIN */
 @media (max-width: 480px) {
   .screen__content {
-    /* height: auto !important; */
     padding-top: 20px;
     padding-bottom: 40px;
     justify-content: flex-start !important;
   }
 
-  /* .language-switcher.top-right {
-    margin-top: 10px !important;
-    margin-bottom: 10px !important;
-  } */
-
   .login__field {
     display: flex;
     flex-direction: column;
-    /* align-items: center; */
-    /* gap: 4px; */
     padding: 2px 0 !important;
     margin-bottom: 6px !important;
   }

@@ -1,0 +1,38 @@
+<div class="care-products-step"
+     data-controller="care-products">
+  <!-- HEADER -->
+  <div class="care-products-header">
+    <h3><%= t("care_products.title") %></h3>
+    <button type="button"
+            class="add-care-btn"
+            data-action="click->care-products#openModal">
+
+      + <%= t("care_products.add") %>
+    </button>
+  </div>
+
+  <!-- LIST -->
+  <div class="care-products-list"
+       data-care-products-target="list">
+  </div>
+
+  <!-- TOTAL -->
+  <div class="care-products-total">
+    <span>
+      <%= t("care_products.total") %>
+    </span>
+    <strong data-care-products-target="total">
+      0 ₴
+    </strong>
+  </div>
+
+  <%= hidden_field_tag(
+      "service_note[care_products]",
+      @service_note.care_products.to_json,
+      data: {
+        care_products_target: "input"
+      }
+    ) %>
+
+  <%= render "service_notes/care_products_modal" %>
+</div>

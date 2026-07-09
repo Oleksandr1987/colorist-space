@@ -38,42 +38,47 @@ class AppointmentsController < ApplicationController
   end
 
   def create
+    appointment_data = params.require(:appointment)
+    service_ids = Array(appointment_data[:service_ids]).compact_blank
+
     client = Client.find_or_create_by_full_name(
       user: current_user,
-      full_name: params[:appointment][:client_name],
-      phone: params[:appointment][:phone]
+      full_name: appointment_data[:client_name],
+      phone: appointment_data[:phone]
     )
 
     @appointment = current_user.appointments.build(appointment_params.except(:service_ids))
+
     @appointment.client = client
-    @appointment.services = Service.where(id: params[:appointment][:service_ids])
+    @appointment.services = Service.where(id: service_ids)
 
     if @appointment.save
       redirect_to @appointment
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
   def edit; end
 
   def update
+    appointment_data = params.require(:appointment)
+    service_ids = Array(appointment_data[:service_ids]).compact_blank
+
     client = Client.find_or_create_by_full_name(
       user: current_user,
-      full_name: params[:appointment][:client_name],
-      phone: params[:appointment][:phone]
+      full_name: appointment_data[:client_name],
+      phone: appointment_data[:phone]
     )
 
     @appointment.client = client
 
-    if params[:appointment][:service_ids]
-      @appointment.services = Service.where(id: params[:appointment][:service_ids])
-    end
+    @appointment.services = Service.where(id: service_ids) if service_ids.present?
 
     if @appointment.update(appointment_params.except(:service_ids))
       redirect_to @appointment, notice: "Appointment was successfully updated."
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -90,10 +95,10 @@ class AppointmentsController < ApplicationController
   end
 
   def by_date
-    date = params[:date]&.to_date || Date.today
+    date = params[:date].presence&.to_date || Date.today
 
     @appointments = current_user.appointments
-      .includes(:client)
+      .includes(:client,  :service_note)
       .by_date(date)
       .order(:appointment_time)
 
@@ -101,7 +106,9 @@ class AppointmentsController < ApplicationController
   end
 
   def free_slots
-    date = params[:date].to_date
+    date = params[:date].presence&.to_date || Date.today
+
+    return render json: [] if date < Date.today
 
     slots = Appointment.available_slots(current_user, date)
 

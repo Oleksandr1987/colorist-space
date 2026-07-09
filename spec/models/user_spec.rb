@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe User, type: :model do
+RSpec.describe User do
   describe "associations" do
     it { is_expected.to have_many(:clients).dependent(:destroy) }
     it { is_expected.to have_many(:appointments).dependent(:destroy) }
@@ -40,6 +40,25 @@ RSpec.describe User, type: :model do
       )
 
       expect(result).to eq(user)
+    end
+
+    it "does not normalize login when email used" do
+      allow(PhoneValidator).to receive(:normalize).and_call_original
+
+      result = described_class.find_for_database_authentication(
+        login: "test@example.com"
+      )
+
+      expect(result).to eq(user)
+
+      expect(PhoneValidator)
+        .not_to have_received(:normalize)
+    end
+
+    it "returns nil when login missing" do
+      result = described_class.find_for_database_authentication({})
+
+      expect(result).to be_nil
     end
 
     it "finds user by normalized phone" do
@@ -169,7 +188,7 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context "on trial" do
+    context "when on trial" do
       subject(:user) { FactoryBot.create(:user, :trial) }
 
       it "returns true" do

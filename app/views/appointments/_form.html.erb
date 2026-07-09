@@ -1,6 +1,11 @@
 <div class="appointment-container">
   <div class="appointment-header">
-    <%= link_to "←", appointments_path, class: "back-link inline" %>
+    <%= link_to appointments_path, class: "back-link inline" do %>
+      <%= image_tag "back.png",
+            class: "wiz-icon",
+            width: 24,
+            height: 24 %>
+    <% end %>
     <h2>
       <%= @appointment.new_record? ?
           t("appointments.new") :
@@ -41,7 +46,8 @@
               class="clear-client-btn hidden"
               data-calendar-target="clearButton"
               data-action="click->calendar#clearClientField">
-        ✕
+        <%= image_tag "delete.png",
+                      class: "clear-icon" %>
       </button>
 
       <datalist id="client-list" data-calendar-target="clientList">
@@ -72,7 +78,7 @@
       </label>
 
       <%= text_field_tag "appointment[appointment_date]",
-        @appointment.appointment_date.strftime("%d.%m.%Y"),
+        (@appointment.appointment_date || Date.today).strftime("%d.%m.%Y"),
         class: "form-input",
         readonly: true,
         id: "appointment_date",
@@ -92,7 +98,6 @@
           step: 300,
           class: "form-input",
           data: {
-            controller: "appointment",
             appointment_target: "appointmentTime",
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
@@ -105,7 +110,6 @@
           step: 300,
           class: "form-input",
           data: {
-            controller: "appointment",
             appointment_target: "endTime",
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
@@ -122,7 +126,6 @@
     <div class="form-section">
       <label>
         <%= t("appointments.form.services") %>
-        <span class="required-asterisk">*</span>
       </label>
       <div class="fake-input"
            data-action="click->appointment#open"
@@ -130,32 +133,6 @@
         <span data-appointment-target="serviceSelected"
               class="placeholder">
           <%= t("appointments.form.select_services") %>
-        </span>
-      </div>
-    </div>
-
-    <!-- Preparations -->
-    <div class="form-section">
-      <label><%= t("appointments.form.preparations") %></label>
-      <div class="fake-input"
-           data-action="click->appointment#open"
-           data-type="preparation">
-        <span data-appointment-target="preparationSelected"
-              class="placeholder">
-          <%= t("appointments.form.select_preparations") %>
-        </span>
-      </div>
-    </div>
-
-    <!-- Care Products -->
-    <div class="form-section">
-      <label><%= t("appointments.form.care_products") %></label>
-      <div class="fake-input"
-           data-action="click->appointment#open"
-           data-type="care_product">
-        <span data-appointment-target="careProductSelected"
-              class="placeholder">
-          <%= t("appointments.form.select_care_products") %>
         </span>
       </div>
     </div>
@@ -183,11 +160,11 @@
 
     <!-- Submit -->
     <div class="form-actions" style="height: 80px;"></div>
-    <%= f.submit t("appointments.form.save"), class: "floating-save-button" %>
+    <%= f.submit t("appointments.form.save"),
+      class: "floating-save-button",
+      data: { "appointment-target": "saveButton" } %>
 
     <!-- Modals -->
     <%= render "appointments/modals/service_modal" %>
-    <%= render "appointments/modals/preparation_modal" %>
-    <%= render "appointments/modals/care_product_modal" %>
   <% end %>
 </div>

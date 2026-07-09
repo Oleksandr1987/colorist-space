@@ -1,3 +1,4 @@
+// app/javascript/controllers/popover_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -34,27 +35,4 @@ export default class extends Controller {
       this.menuTarget.classList.add("hidden")
     }
   }
-
-  // toggle(event) {
-  //   event.stopPropagation()
-  //   this.closeAllPopovers()
-  
-  //   if (this.menuTarget.classList.contains("show")) {
-  //     this.menuTarget.classList.remove("show")
-  //   } else {
-  //     this.menuTarget.classList.add("show")
-  //   }
-  // }
-  
-  // closeAllPopovers() {
-  //   document.querySelectorAll(".popover-menu").forEach(menu => {
-  //     menu.classList.remove("show")
-  //   })
-  // }
-  
-  // handleOutsideClick(event) {
-  //   if (!this.element.contains(event.target)) {
-  //     this.menuTarget.classList.remove("show")
-  //   }
-  // }
 }

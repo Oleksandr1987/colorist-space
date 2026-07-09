@@ -1,0 +1,77 @@
+<div id="<%= dom_id(care_product) %>"
+     class="service-item"
+     data-name="<%= "#{care_product.brand} #{care_product.name} #{care_product.category}".downcase %>">
+
+  <div class="service-info">
+
+    <div class="service-name">
+      <strong>
+        <%= care_product.brand.presence || "No brand" %>
+      </strong>
+
+      <%= care_product.name %>
+    </div>
+
+    <% if care_product.category.present? %>
+      <div class="service-category">
+        <%= care_product.category %>
+      </div>
+    <% end %>
+
+    <div class="service-price">
+      Sale: <%= care_product.sale_price || 0 %> ₴
+    </div>
+
+    <% if care_product.purchase_price.present? %>
+      <div class="service-purchase-price">
+        Purchase: <%= care_product.purchase_price %> ₴
+      </div>
+    <% end %>
+
+    <% if care_product.stock_quantity.present? %>
+      <div class="service-stock">
+        Stock: <%= care_product.stock_quantity %>
+      </div>
+    <% end %>
+
+    <% if care_product.incomplete? %>
+      <div class="care-product-warning">
+        ⚠ Need details
+      </div>
+    <% end %>
+
+  </div>
+
+  <div class="service-actions"
+       data-controller="popover">
+
+    <button type="button"
+            class="icon-button"
+            data-action="click->popover#toggle">
+      <%= image_tag "pencil.png",
+            class: "wiz-icon",
+            width: 16,
+            height: 16 %>
+    </button>
+
+    <div class="popover-menu hidden"
+         data-popover-target="menu">
+
+      <%= link_to "Edit",
+            edit_care_product_path(care_product),
+            class: "popover-item" %>
+
+      <%= button_to "Delete",
+            care_product_path(care_product),
+            method: :delete,
+            form: {
+              data: {
+                turbo_confirm: "Delete product?"
+              }
+            },
+            class: "popover-item delete" %>
+
+    </div>
+
+  </div>
+</div>

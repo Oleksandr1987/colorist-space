@@ -1,0 +1,14 @@
+en:
+  care_products:
+    title: "Care Products"
+    total: "Total"
+    new_product: "New product"
+    name: "Name"
+    price: "Price"
+
+    add: "Add"
+    search: "Search"
+    empty: "No care products added yet"
+    stock: "Stock"
+    out_of_stock: "Out of Stock"
+    unknown_brand: "Unknown Brand"

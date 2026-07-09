@@ -1,0 +1,44 @@
+<div class="services-list" data-controller="service"
+                           data-service-add-label-value="<%= t('service_notes.services.add') %>"
+                           data-service-save-label-value="<%= t('service_notes.services.save') %>">
+
+  <%= hidden_field_tag "service_note[service_type]", "", data: { service_target: "type" } %>
+
+  <!-- SELECTED -->
+  <div class="selected-services" data-service-target="selected"></div>
+
+  <!-- ➕ BUTTON -->
+  <button type="button"
+          class="button add-service-btn"
+          data-service-target="toggleButton"
+          data-action="click->service#toggleMenu">
+    <%= t("service_notes.services.add") %>
+  </button>
+
+  <!-- DROPDOWN -->
+  <div class="service-dropdown hidden" data-service-target="menu">
+
+    <% current_user.services
+                  .where(service_type: "service")
+                  .order(:subtype)
+                  .each do |s| %>
+                  <!-- TODO, move query to model method -->
+
+      <label class="service-item">
+        <%= check_box_tag "service_note[service_ids][]",
+            s.id,
+            @selected_service_ids.include?(s.id),
+            data: {
+              action: "change->service#toggleService",
+              price: s.price,
+              name: s.subtype
+            } %>
+
+        <div class="service-info">
+          <span><%= s.subtype %></span>
+          <span><%= s.price %> ₴</span>
+        </div>
+      </label>
+    <% end %>
+  </div>
+</div>

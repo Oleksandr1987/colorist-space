@@ -7,15 +7,25 @@
            class="search-input compact">
 
     <div class="client-list indexed">
-      <% if @clients.any? %>
+      <% if @clients.present? %>
         <% @clients.group_by { |c| c.first_name[0].upcase }.sort.each do |letter, list| %>
           <div class="client-group" data-client-search-target="group">
             <div class="letter-index"><%= letter %></div>
 
             <div class="letter-names">
               <% list.each do |client| %>
-                <div class="client-item" data-client-search-target="item">
-                  <%= link_to "#{client.first_name} #{client.last_name}", client_path(client), class: "client-link" %>
+
+                <div class="client-item"
+                     data-client-search-target="item"
+                     data-phone="<%= [
+                       client.phone,
+                       client.client_phones.map(&:phone)
+                     ].flatten.compact.join(' ') %>">
+
+                  <%= link_to "#{client.first_name} #{client.last_name}",
+                              client_path(client),
+                              class: "client-link" %>
+
                 </div>
               <% end %>
             </div>
@@ -27,10 +37,9 @@
     </div>
 
     <%= link_to new_client_path, class: "floating-add-button" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-       fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-        stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus">
-        <path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        <%= image_tag "plus.png",
+        width: 46,
+        height: 46 %>
     <% end %>
 
   </div>

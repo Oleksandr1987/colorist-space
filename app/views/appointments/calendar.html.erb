@@ -2,8 +2,9 @@
 
 <div
   data-controller="calendar-view"
-  data-calendar-view-client-id-value="<%= params[:client_id] %>"
-  data-calendar-view-dates-with-appointments-value="<%= @dates_with_appointments.to_json %>"
+  data-calendar-view-client-id-value="<%= params[:client_id] || @client&.id %>"
+  data-calendar-view-dates-with-appointments-value="<%= @dates_with_appointments.to_json%>"
+  data-calendar-view-pencil-icon-value="<%= asset_path('pencil.png') %>"
   data-calendar-view-translations-value='{
     "days": {
       "sun": "<%= t('appointments.calendar_view.days.sun') %>",
@@ -24,9 +25,13 @@
 >
 
   <div class="calendar-header">
-    <button class="nav-btn" data-action="click->calendar-view#prevMonth">←</button>
+    <button class="nav-btn" data-action="click->calendar-view#prevMonth">
+      <%= image_tag "back.png", class: "wizard-nav-icon" %>
+    </button>
     <h2 data-calendar-view-target="monthLabel"></h2>
-    <button class="nav-btn" data-action="click->calendar-view#nextMonth">→</button>
+    <button class="nav-btn" data-action="click->calendar-view#nextMonth">
+      <%= image_tag "next.png", class: "wizard-nav-icon" %>
+    </button>
   </div>
 
   <div class="calendar-grid" data-calendar-view-target="calendarDays"></div>

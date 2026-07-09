@@ -40,5 +40,8 @@
 # Debug
 .byebug_history
 
+# Test coverage
+/coverage
+
 # IDE
 .idea/

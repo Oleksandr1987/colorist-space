@@ -4,20 +4,41 @@ FactoryBot.define do
     association :client
 
     appointment_date { Date.current + 1.day }
-    appointment_time { Time.zone.parse("10:00") }
-    end_time { Time.zone.parse("10:30") }
+
+    sequence(:appointment_time) do |n|
+      Time.zone.parse("10:00") + (n * 5).minutes
+    end
 
     transient do
-      main_service { create(:service) }
+      main_service { nil }
       extra_services { [] }
     end
 
-    after(:build) do |appointment, evaluator|
-      appointment.services << evaluator.main_service
+    after(:build) do |appointment|
+      appointment.appointment_time =
+        Time.zone.parse(appointment.appointment_time.to_s)
+
+      appointment.end_time ||= appointment.appointment_time + 30.minutes
+    end
+
+    after(:create) do |appointment, evaluator|
+      next if evaluator.main_service.blank? && evaluator.extra_services.blank?
+
+      if evaluator.main_service.present?
+        AppointmentServicesRelation.create!(
+          appointment: appointment,
+          service: evaluator.main_service
+        )
+      end
 
       evaluator.extra_services.each do |svc|
-        appointment.services << svc
+        AppointmentServicesRelation.create!(
+          appointment: appointment,
+          service: svc
+        )
       end
+
+      appointment.reload
     end
   end
 end

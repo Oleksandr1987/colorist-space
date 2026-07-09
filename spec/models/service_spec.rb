@@ -1,22 +1,26 @@
 require "rails_helper"
 
-RSpec.describe Service, type: :model do
+RSpec.describe Service do
   include ActiveSupport::Testing::TimeHelpers
 
-  around do |example|
-    travel_to(Time.zone.local(2026, 1, 1, 10, 0, 0)) do
-      example.run
-    end
+  before do
+    travel_to(Time.zone.local(2026, 1, 1, 10, 0, 0))
+  end
+
+  after do
+    travel_back
   end
 
   describe "validations" do
-    it "requires category only for service_type == service" do
-      service = build(:service, service_type: "service", category: nil)
+    it "requires category for service" do
+      service = build(
+        :service,
+        service_type: "service",
+        category: nil
+      )
+
       expect(service).not_to be_valid
       expect(service.errors[:category]).to be_present
-
-      prep = build(:service, :preparation, category: nil)
-      expect(prep).to be_valid
     end
   end
 
@@ -47,27 +51,24 @@ RSpec.describe Service, type: :model do
       )
     end
 
-    let(:prep) { create(:service, :preparation, user: user, price: 50) }
-
-    let(:appointment_in_range_1) { Date.current + 9.days }
-    let(:appointment_in_range_2) { Date.current + 11.days }
+    let(:appointment_one) { Date.current + 9.days }
+    let(:appointment_two) { Date.current + 11.days }
     let(:appointment_out_of_range) { Date.current + 31.days }
 
     before do
       create(:appointment,
         user: user,
         client: client,
-        appointment_date: appointment_in_range_1,
+        appointment_date: appointment_one,
         appointment_time: Time.zone.parse("10:00"),
         end_time: Time.zone.parse("10:30"),
-        main_service: main_service,
-        extra_services: [ prep ]
+        main_service: main_service
       )
 
       create(:appointment,
         user: user,
         client: client,
-        appointment_date: appointment_in_range_2,
+        appointment_date: appointment_two,
         appointment_time: Time.zone.parse("11:00"),
         end_time: Time.zone.parse("11:30"),
         main_service: main_service_b
@@ -95,7 +96,7 @@ RSpec.describe Service, type: :model do
       create(:appointment,
         user: other_user,
         client: other_client,
-        appointment_date: appointment_in_range_1,
+        appointment_date: appointment_one,
         appointment_time: Time.zone.parse("12:00"),
         end_time: Time.zone.parse("12:30"),
         main_service: other_users_service
@@ -108,7 +109,7 @@ RSpec.describe Service, type: :model do
 
       scope = described_class.income_for_user_between(user, from, to)
 
-      expect(scope).to include(main_service, main_service_b, prep)
+      expect(scope).to include(main_service, main_service_b)
       expect(scope.pluck(:price)).not_to include(999)
     end
 
@@ -126,7 +127,6 @@ RSpec.describe Service, type: :model do
 
       expect(filtered).to include(main_service)
       expect(filtered).not_to include(main_service_b)
-      expect(filtered).not_to include(prep)
     end
 
     it ".grouped_income groups by subtype for service_type service" do
@@ -152,12 +152,11 @@ RSpec.describe Service, type: :model do
 
       monthly = described_class.monthly_income(scope)
 
-      expect(monthly.keys).to include("service", "preparation")
+      expect(monthly.keys).to include("service")
 
-      month_label = appointment_in_range_1.strftime("%B %Y")
+      month_label = appointment_one.strftime("%B %Y")
 
       expect(monthly["service"].keys).to include(month_label)
-      expect(monthly["preparation"].keys).to include(month_label)
 
       expect(monthly.dig("service", appointment_out_of_range.strftime("%B %Y"))).to be_nil
     end

@@ -1,8 +1,9 @@
+// app/javascript/controllers/calendar_view_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["monthLabel", "calendarDays", "selectedDateLabel", "timeline"]
-  static values = { translations: Object, datesWithAppointments: Array, clientId: Number }
+  static values = { translations: Object, datesWithAppointments: Array, clientId: Number, pencilIcon: String }
 
   connect() {
     this.t = this.translationsValue
@@ -14,10 +15,20 @@ export default class extends Controller {
     this.loadAppointments(this.selectedDate)
     this.scrollToToday()
     document.addEventListener("click", this.closePopoverOnClickOutside.bind(this))
+    this.startAutoRefresh()
+    this.startLiveSlotUpdates()
   }
 
   disconnect() {
     document.removeEventListener("click", this.closePopoverOnClickOutside)
+
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval)
+    }
+
+    if (this.liveInterval) {
+      clearInterval(this.liveInterval)
+    }
   }
 
   renderCalendar() {
@@ -55,8 +66,8 @@ export default class extends Controller {
       const hasAppointment = this.datesWithAppointmentsValue.includes(dateStr)
 
       html += `
-        <div class="day ${isToday ? "today" : ""} 
-                      ${isSelected ? "selected" : ""} 
+        <div class="day ${isToday ? "today" : ""}
+                      ${isSelected ? "selected" : ""}
                       ${hasAppointment ? "has-appointment" : ""}"
              data-date="${dateStr}"
              data-action="click->calendar-view#selectDate">
@@ -128,10 +139,27 @@ export default class extends Controller {
 
   loadAppointments(date) {
     const formatted = this.formatDate(date)
-    Promise.all([
-      fetch(`/appointments/by_date?date=${formatted}`).then(r => r.json()),
-      fetch(`/appointments/free_slots?date=${formatted}`).then(r => r.json())
-    ]).then(([appointments, slots]) => {
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const selected = new Date(date)
+    selected.setHours(0, 0, 0, 0)
+
+    const isPast = selected < today
+    const isToday = selected.getTime() === today.getTime()
+
+    const requests = [
+      fetch(`/appointments/by_date?date=${formatted}`).then(r => r.json())
+    ]
+
+    if (!isPast) {
+      requests.push(
+        fetch(`/appointments/free_slots?date=${formatted}`).then(r => r.json())
+      )
+    }
+
+    Promise.all(requests).then(([appointments, slots = []]) => {
 
       const normalizedAppointments = appointments.map(a => ({
         ...a,
@@ -139,9 +167,36 @@ export default class extends Controller {
         end: a.end || a.end_time
       }))
 
-      const combinedFreeSlots = this.mergeAdjacentFreeSlots(slots)
+      let mergedFreeSlots = []
 
-      const mergedFreeSlots = this.mergeFreeSlots(combinedFreeSlots, normalizedAppointments)
+      if (!isPast) {
+        let filteredSlots = slots
+
+        if (isToday) {
+          const now = new Date()
+
+          filteredSlots = slots
+            .map(slot => {
+              let start = this.parseTime(slot.start)
+              let end = this.parseTime(slot.end)
+
+              if (end <= now) return null
+
+              if (start < now) {
+                start = now
+              }
+
+              return {
+                start: this.formatTime(start),
+                end: this.formatTime(end)
+              }
+            })
+            .filter(Boolean)
+        }
+
+        const combinedFreeSlots = this.mergeAdjacentFreeSlots(filteredSlots)
+        mergedFreeSlots = this.mergeFreeSlots(combinedFreeSlots, normalizedAppointments)
+      }
 
       this.renderTimeline(normalizedAppointments, mergedFreeSlots)
     })
@@ -172,14 +227,28 @@ export default class extends Controller {
 
       if (slot.type === "booked") {
         el.classList.add("slot-booked")
+
         el.innerHTML = `
           <div class="slot-content">
-            <div class="slot-text">
+
+            <!-- CLICKABLE AREA -->
+            <div class="slot-text clickable"
+                data-action="click->calendar-view#createServiceNote"
+                data-id="${slot.data.id}"
+                data-client-id="${slot.data.client_id}"
+                data-service-note-id="${slot.data.service_note_id || ""}">
+
               ${startTime}–${endTime} — ${slot.data.service} (${slot.data.client_name})
             </div>
 
+            <!-- ICON AREA -->
             <div class="slot-icon-wrapper">
-              <button class="popover-toggle" data-id="${slot.data.id}">✎</button>
+              <button class="popover-toggle"
+                      data-id="${slot.data.id}">
+                <img src="${this.pencilIconValue}"
+                     alt="Edit"
+                     class="popover-pencil-icon">
+              </button>
 
               <div class="popover-menu hidden" id="popover-${slot.data.id}">
                 <a href="/appointments/${slot.data.id}/edit">${this.t.edit}</a>
@@ -195,6 +264,7 @@ export default class extends Controller {
                 </form>
               </div>
             </div>
+
           </div>
         `
       } else {
@@ -358,5 +428,95 @@ export default class extends Controller {
   csrfToken() {
     const meta = document.querySelector("meta[name='csrf-token']")
     return meta ? meta.content : ""
+  }
+
+  startAutoRefresh() {
+    const now = new Date()
+
+    const delay = (60 - now.getSeconds()) * 1000 - now.getMilliseconds()
+
+    setTimeout(() => {
+      this.loadAppointments(this.selectedDate)
+
+      this.refreshInterval = setInterval(() => {
+        this.loadAppointments(this.selectedDate)
+      }, 60000)
+
+    }, delay)
+  }
+
+  startLiveSlotUpdates() {
+    const now = new Date()
+
+    const delay = (10 - (now.getSeconds() % 10)) * 1000 - now.getMilliseconds()
+
+    setTimeout(() => {
+      this.updateLiveSlots()
+
+      this.liveInterval = setInterval(() => {
+        this.updateLiveSlots()
+      }, 10000)
+
+    }, delay)
+  }
+
+  updateLiveSlots() {
+    const today = new Date()
+    const selected = new Date(this.selectedDate)
+
+    if (!this.isSameDate(today, selected)) return
+
+    const now = new Date()
+
+    const slots = this.timelineTarget.querySelectorAll(".slot-free")
+
+    slots.forEach(slot => {
+      const content = slot.querySelector(".slot-content")
+      if (!content) return
+
+      const match = content.textContent.match(/(\d{2}:\d{2})–(\d{2}:\d{2})/)
+      if (!match) return
+
+      let [_, startStr, endStr] = match
+
+      let start = this.parseTime(startStr)
+      let end = this.parseTime(endStr)
+
+      if (end <= now) {
+        slot.remove()
+        return
+      }
+
+      if (start < now) {
+        start = now
+
+        const newStart = this.formatTime(start)
+
+        content.innerHTML = `
+          ${newStart}–${this.formatTime(end)} (${this.t.available})
+        `
+      }
+    })
+  }
+
+  createServiceNote(event) {
+    event.stopPropagation()
+
+    const appointmentId = event.currentTarget.dataset.id
+    const clientId = event.currentTarget.dataset.clientId
+    const serviceNoteId = event.currentTarget.dataset.serviceNoteId
+
+    if (!clientId || clientId === "0") {
+      console.error("❌ invalid clientId:", clientId)
+      return
+    }
+
+    if (serviceNoteId) {
+      window.location.href =
+        `/clients/${clientId}/service_notes/${serviceNoteId}/edit?appointment_id=${appointmentId}`
+    } else {
+      window.location.href =
+        `/clients/${clientId}/service_notes/new?appointment_id=${appointmentId}`
+    }
   }
 }

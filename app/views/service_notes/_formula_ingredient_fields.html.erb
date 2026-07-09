@@ -1,6 +1,15 @@
-<div class="color-row">
-  <%= f.text_field :shade, placeholder: "Color, e.g., 5.1", class: "input" %>
-  <%= f.text_field :brand, placeholder: "Brand", class: "input" %>
-  <%= f.text_field :amount, placeholder: "Amount", class: "input amount" %> g
-  <button type="button" class="remove-btn" data-action="click->formula#removeColor">×</button>
+<% uid = local_assigns[:uid] || f.object.id || SecureRandom.hex(6) %>
+
+<div class="ingredient-fields"
+     data-id="<%= uid %>">
+
+  <%= f.hidden_field :id %>
+
+  <%= f.hidden_field :shade, data: { field: "shade" } %>
+  <%= f.hidden_field :brand, data: { field: "brand" } %>
+  <%= f.hidden_field :amount, data: { field: "amount" } %>
+  <%= f.hidden_field :formula_product_id, data: { field: "formula_product_id" } %>
+  <%= f.hidden_field :price,  data: { field: "price" } %>
+  <%= f.hidden_field :_destroy, value: 0, data: { field: "destroy" } %>
+
 </div>

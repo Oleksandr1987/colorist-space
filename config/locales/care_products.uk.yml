@@ -1,0 +1,14 @@
+uk:
+  care_products:
+    title: "Засоби Догляду"
+    total: "Разом"
+    new_product: "Новий засіб"
+    name: "Назва"
+    price: "Ціна"
+
+    add: "Додати"
+    search: "Пошук"
+    empty: "Ще не додано жодного засобу догляду"
+    stock: "Залишок"
+    out_of_stock: "Немає в наявності"
+    unknown_brand: "Невідомий бренд"

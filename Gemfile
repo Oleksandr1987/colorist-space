@@ -1,5 +1,7 @@
 source "https://rubygems.org"
 
+ruby "3.3.7"
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.2"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
@@ -19,12 +21,12 @@ gem "jbuilder"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
-gem "devise", "~> 4.9", ">= 4.9.4"
+gem "devise", github: "heartcombo/devise", branch: "main"
 gem "omniauth"
 gem "omniauth-facebook", "~> 10.0"
 gem "omniauth-google-oauth2", "~> 1.2", ">= 1.2.1"
 gem "omniauth-instagram-api", "~> 0.1.0"
-gem "omniauth-rails_csrf_protection"
+gem "omniauth-rails_csrf_protection", ">= 2.0.1"
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
@@ -72,4 +74,8 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem "shoulda-matchers", "~> 7.0", ">= 7.0.1"
+
+  gem "simplecov", require: false
+  gem "simplecov-console", require: false
+  gem "simplecov_json_formatter", require: false
 end

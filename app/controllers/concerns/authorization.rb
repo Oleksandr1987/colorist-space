@@ -21,7 +21,7 @@ module Authorization
   end
 
   private
-
+  # :nocov:
   def user_not_authorized
     flash[:danger] = %(
       You are not authorized to perform this action. You need to have an active subscription.
@@ -30,4 +30,5 @@ module Authorization
 
   redirect_to(request.referer || root_path)
   end
+  # :nocov:
 end

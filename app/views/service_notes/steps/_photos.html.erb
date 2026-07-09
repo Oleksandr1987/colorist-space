@@ -1,0 +1,42 @@
+<!-- BUTTONS (TOP) -->
+<div class="photos-actions">
+  <!-- CAMERA -->
+  <label class="upload-btn">
+    TAKE PHOTO
+    <%= f.file_field :photos,
+          multiple: true,
+          accept: "image/*",
+          capture: "environment",
+          class: "hidden-file-input" %>
+  </label>
+
+  <!-- GALLERY -->
+  <label class="upload-btn light">
+    FROM GALLERY
+    <%= f.file_field :photos,
+          multiple: true,
+          accept: "image/*",
+          class: "hidden-file-input" %>
+  </label>
+</div>
+
+<!-- GRID -->
+<div class="photos-grid" data-controller="photo">
+  <% @service_note.decorated_photos.each do |photo| %>
+    <div class="photo-item"
+      data-photo-id="<%= photo.id %>"
+      data-delete-url="<%= delete_photo_client_service_note_path(@client, @service_note, photo_id: photo.id) %>">
+
+      <%= image_tag photo.thumb.processed,
+        class: "photo-preview",
+        loading: "lazy" %>
+
+      <button type="button"
+              class="delete-photo"
+              data-action="click->photo#remove">
+        <%= image_tag "delete.png",
+                      class: "clear-icon" %>
+      </button>
+    </div>
+  <% end %>
+</div>

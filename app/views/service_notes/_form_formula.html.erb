@@ -1,31 +1,61 @@
-<div class="formula-steps">
-  <%= f.fields_for :formula_steps do |step_form| %>
-    <div class="formula-step">
-      <!-- Step Header -->
-      <h4><%= step_form.object.section.presence || "New Step" %></h4>
+<div class="formula-container" data-controller="formula" data-service-note-id="<%= @service_note.id %>" data-client-id="<%= @client.id %>">
 
-      <!-- Ingredients -->
-      <div class="formula-ingredients">
-        <%= step_form.fields_for :formula_ingredients do |ingredient_form| %>
-          <div class="formula-ingredient">
-            <%= ingredient_form.text_field :shade, placeholder: "Shade", class: "input" %>
-            <%= ingredient_form.text_field :brand, placeholder: "Brand", class: "input" %>
-            <%= ingredient_form.text_field :amount, placeholder: "Amount (g)", class: "input" %>
-          </div>
-        <% end %>
-        <%= link_to "+ Add ingredient", "#", class: "button small" %>
+  <!-- STEP 1 -->
+  <div class="formula-steps"
+     data-formula-target="container">
+
+    <%= f.fields_for :formula_steps do |step_form| %>
+      <!-- STEP WRAPPER -->
+      <%= render("service_notes/formula_step", step_form: step_form) %>
+    <% end %>
+     <!-- ADD STEP -->
+    <% add_step_hidden = @service_note.new_record? && @service_note.formula_steps.empty? %>
+
+    <div class="formula-add-step <%= 'hidden' if add_step_hidden %>"
+        data-formula-target="addStep"
+        data-controller="collapse">
+
+      <!-- BUTTON -->
+      <div class="add-step-btn"
+          data-action="click->collapse#toggle">
+
+        <span>+ ADD STEP</span>
+
+        <svg class="chevron"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
       </div>
 
-      <!-- Oxidant & Time -->
-      <div class="oxidant-time">
-        <%= step_form.text_field :oxidant, placeholder: "Oxidant (e.g. 20vol)", class: "input" %>
-        <%= step_form.text_field :time, placeholder: "Time (min)", class: "input" %>
+      <!-- DROPDOWN -->
+      <div class="add-step-content hidden"
+          data-collapse-target="content">
+          <!-- ADD SECTION -->
+
+          <h5>Add section</h5>
+
+        <div class="sections-grid">
+          <% [:roots, :midshaft, :length, :strands, :all_over].each do |section| %>
+            <button type="button"
+                    class="section-btn"
+                    data-action="click->formula#createStep click->collapse#close click->collapse#stop"
+                    data-section="<%= section %>">
+              <%= t("formula.sections.#{section}") %>
+            </button>
+          <% end %>
+        </div>
       </div>
     </div>
-  <% end %>
 
-  <!-- Add Step -->
-  <div class="actions">
-    <%= link_to "+ Add Step", "#", class: "button primary" %>
   </div>
+  <%= render "service_notes/empty_formula_step" if @service_note.formula_steps.empty? %>
+
+  <!-- TEMPLATE -->
+  <%= render "service_notes/formula_step_template" %>
+
+  <%= render "service_notes/color_modal" %>
 </div>

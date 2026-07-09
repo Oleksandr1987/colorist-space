@@ -1,0 +1,124 @@
+<div class="color-modal hidden"
+     data-controller="color"
+     data-color-target="modal"
+     data-color-delete-icon-value="<%= asset_path('delete.png') %>">
+
+  <div class="color-sheet"
+       data-action="click->color#stop">
+
+    <div class="sheet-header">
+
+      <button type="button"
+              class="sheet-back"
+              data-action="click->color#closeModal">
+        <%= image_tag "delete.png",
+              class: "clear-icon" %>
+      </button>
+
+      <h2>Add Color</h2>
+
+      <button type="button"
+              class="sheet-save"
+              data-action="click->color#save">
+        SAVE
+      </button>
+
+    </div>
+
+    <div class="sheet-body">
+
+      <div class="color-rows"
+           data-color-target="rows">
+      </div>
+
+      <!-- Palette -->
+
+      <template data-color-target="paletteTemplate">
+        <div class="palette-row">
+          <select
+            class="input-line"
+            data-action="change->color#selectPalette">
+
+            <option value=""
+                    disabled
+                    selected
+                    hidden>
+              Select palette...
+            </option>
+
+            <% current_user.formula_products.palette_list.each do |palette| %>
+
+              <option
+                value="<%= palette.id %>"
+                data-brand="<%= palette.brand %>"
+                data-price="<%= palette.price_per_unit %>">
+
+                <%= palette.brand %>
+
+              </option>
+
+            <% end %>
+          </select>
+        </div>
+      </template>
+
+      <!-- Shade -->
+
+      <template data-color-target="shadeTemplate">
+
+        <div class="color-row"
+             data-product-id=""
+             data-price=""
+             data-brand="">
+
+          <div class="color-brand"
+               data-color-target="brand">
+          </div>
+
+          <input type="text"
+                 class="form-input color-shade"
+                 placeholder="Shade">
+
+          <input type="text"
+                 class="form-input color-amount"
+                 placeholder="Amount">
+
+          <button type="button"
+                  class="color-remove"
+                  data-action="click->color#removeRow">
+
+            <%= image_tag "delete.png",
+                  class: "clear-icon" %>
+
+          </button>
+
+        </div>
+
+      </template>
+
+      <div class="color-actions hidden"
+           data-color-target="actions">
+
+        <button type="button"
+                class="add-color-btn"
+                data-action="click->color#addShade">
+
+          + ADD COLOR
+
+        </button>
+
+        <button type="button"
+                class="secondary-button"
+                data-action="click->color#changePalette">
+
+          + ADD PALETTE
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

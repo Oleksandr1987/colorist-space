@@ -1,0 +1,14 @@
+<%= render "service_notes/save_status" %>
+
+<%= fields_for :service_note, @service_note do |f| %>
+
+  <%= f.fields_for :formula_steps do |step_form| %>
+
+    <%= turbo_stream.replace "formula_step_#{step_form.object.id}" do %>
+      <%= render "service_notes/formula_step",
+            step_form: step_form %>
+    <% end %>
+
+  <% end %>
+
+<% end %>
