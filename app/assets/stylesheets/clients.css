@@ -324,46 +324,6 @@
   display: none;
 }
 
-/* === Reusable form styles === */
-
-.login__field {
-  display: flex;
-  flex-direction: column;
-  /* margin-bottom: 1rem; */
-  width: 100%;
-}
-
-.login__field label {
-  margin-bottom: 0.3rem;
-  font-weight: 500;
-  font-size: 0.95rem;
-  color: #333;
-}
-
-.login__field input,
-.login__field select,
-.login__field textarea {
-  /* width: 100%; */
-  padding: 0.6rem 0.8rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
-  box-sizing: border-box;
-}
-
-.login__field.remember-me {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-}
-
-textarea.login__input {
-  resize: vertical;
-  min-height: 80px;
-}
-
 /* === Reusable action section (bottom buttons) === */
 
 .actions {

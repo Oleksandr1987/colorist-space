@@ -35,7 +35,7 @@ en:
 
     # Show page
     show:
-      styles_tab: "Styles"
+      records_tab: "Records"
       photos_tab: "Photos"
       info_tab: "Info"
 
@@ -53,6 +53,7 @@ en:
       delete_all_photos_confirm: "Delete ALL photos?"
 
       details:
+        name: "Name"
         phone: "Phone"
         hair_type: "Hair Type"
         hair_length: "Hair Length"

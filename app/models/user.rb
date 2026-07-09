@@ -9,6 +9,20 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :omniauthable, omniauth_providers: %i[facebook google_oauth2 instagram]
 
+  PASSWORD_FORMAT = /\A
+    (?=.*[A-Z])          # хоча б одна велика літера
+    (?=.*\d)             # хоча б одна цифра
+    (?=.*[[:^alnum:]])   # хоча б один спецсимвол
+    .+
+  \z/x.freeze
+
+  validates :password,
+            format: {
+              with: PASSWORD_FORMAT,
+              message: :weak_password
+            },
+            if: :password_required?
+
   validates_acceptance_of :tos_agreement, allow_nil: false, on: :create
 
   has_many :clients, dependent: :destroy

@@ -35,7 +35,7 @@ uk:
 
     # Show page
     show:
-      styles_tab: "Стилі"
+      records_tab: "Записи"
       photos_tab: "Фото"
       info_tab: "Інформація"
 

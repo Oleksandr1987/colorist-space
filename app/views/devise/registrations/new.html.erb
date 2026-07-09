@@ -34,21 +34,9 @@
 
         <div class="login__field remember-me">
           <%= f.check_box :tos_agreement %>
-          <%= f.label :tos_agreement,
-              "#{t("auth.tos_agreement")} #{link_to(t("terms_of_service",
-              default: "Terms of Service"), terms_path, target: '_blank')}".html_safe %>
-        </div>
+          <%= f.label :tos_agreemen,
 
-        <div class="actions">
-          <%= f.submit t("auth.signup"), class: "button signup__submit" %>
-        </div>
-
-      <% end %>
-
-      <div class="social-signup">
-        <h3><%= t("auth.signup_with") %></h3>
-        <p class="oauth-consent-text">
-          <%= t(
+          t(
             "auth.oauth_consent_html",
             terms: link_to(
               t("terms_of_service", default: "Terms of Service"),
@@ -63,7 +51,16 @@
               rel: "noopener"
             )
           ).html_safe %>
-        </p>
+        </div>
+
+        <div class="actions">
+          <%= f.submit t("auth.signup"), class: "button signup__submit" %>
+        </div>
+
+      <% end %>
+
+      <div class="social-signup">
+        <h3><%= t("auth.signup_with") %></h3>
 
         <div class="social-icons">
           <% if devise_mapping.omniauthable? %>
