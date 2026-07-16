@@ -3,17 +3,61 @@
      class="client-profile-container">
 
   <!-- Header -->
+
   <div class="client-header">
+    <div class="client-top-bar">
+      <%= link_to clients_path,
+                  class: "client-back-button" do %>
 
-    <div class="client-header-left">
-      <h1><%= @client.full_name %></h1>
-    </div>
+        <%= image_tag "back.png",
+              width: 24,
+              height: 24,
+              class: "wiz-icon" %>
+      <% end %>
 
-    <div class="client-header-right">
       <%= link_to calendar_appointments_path(client_id: @client.id),
                   class: "button small new-appointment-button",
                   data: { turbo: false } do %>
         <%= t("clients.show.new_appointment") %>
+      <% end %>
+    </div>
+
+    <div class="client-title-center">
+      <div class="client-name-row">
+        <h1><%= @client.full_name %></h1>
+        <div class="client-actions-row">
+          <%= link_to edit_client_path(@client),
+                      class: "client-edit-button" do %>
+            <%= image_tag "pencil.png",
+                  width: 16,
+                  height: 16,
+                  class: "wiz-icon" %>
+          <% end %>
+
+          <%= button_to client_path(@client),
+                        method: :delete,
+                        form: {
+                          data: {
+                            turbo_confirm: t("clients.show.delete_client_confirm")
+                          }
+                        },
+                        class: "client-delete-button" do %>
+            <%= image_tag "menu.png",
+                  width: 18,
+                  height: 18,
+                  class: "wiz-icon" %>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @client.birthday.present? %>
+        <div class="client-birthday">
+          <%= image_tag "cake.png",
+                width: 20,
+                height: 20,
+                class: "wiz-icon" %>
+          <%= @client.decorate.formatted_birthday %>
+        </div>
       <% end %>
     </div>
   </div>
@@ -142,37 +186,7 @@
           <%= @client.full_name %>
         </div>
 
-        <div class="menu-wrapper"
-            data-controller="popover">
 
-          <button type="button"
-                  class="icon-button"
-                  data-action="click->popover#toggle">
-            <%= image_tag "pencil.png",
-                  class: "wiz-icon",
-                  width: 16,
-                  height: 16 %>
-          </button>
-
-          <div class="menu hidden"
-              data-popover-target="menu">
-
-            <%= link_to t("clients.show.edit_client"),
-                        edit_client_path(@client),
-                        class: "menu-item" %>
-
-            <%= button_to t("clients.show.delete_client"),
-                          client_path(@client),
-                          method: :delete,
-                          form: {
-                            data: {
-                              turbo_confirm: t("clients.show.delete_client_confirm")
-                            }
-                          },
-                          class: "menu-item delete" %>
-
-          </div>
-        </div>
 
       </div>
 
@@ -184,39 +198,80 @@
         <%= render "phones", client: @client %>
       <% end %>
 
-      <p>
-        <strong><%= t("clients.show.details.hair_type") %>:</strong>
-        <%= t("clients.hair.types.#{@client.hair_type.downcase}") if @client.hair_type %>
-      </p>
+      <%
+      hair_info_present =
+        @client.hair_type.present? ||
+        @client.hair_length.present? ||
+        @client.hair_structure.present? ||
+        @client.hair_density.present? ||
+        @client.scalp_condition.present?
 
-      <p>
-        <strong><%= t("clients.show.details.hair_length") %>:</strong>
-        <%= t("clients.hair.lengths.#{@client.hair_length.downcase}") if @client.hair_length %>
-      </p>
+      notes_present = @client.note.present?
+      %>
 
-      <p>
-        <strong><%= t("clients.show.details.hair_structure") %>:</strong>
-        <%= t("clients.hair.structures.#{@client.hair_structure.downcase}") if @client.hair_structure %>
-      </p>
+      <% if hair_info_present %>
 
-      <p>
-        <strong><%= t("clients.show.details.hair_density") %>:</strong>
-        <%= t("clients.hair.density.#{@client.hair_density.downcase}") if @client.hair_density %>
-      </p>
+        <div class="info-section-title">
+          Hair Information
+        </div>
 
-      <p>
-        <strong><%= t("clients.show.details.scalp_condition") %>:</strong>
-        <%= t("clients.hair.scalp.#{@client.scalp_condition.downcase}") if @client.scalp_condition %>
-      </p>
+        <% if @client.hair_type.present? %>
+          <p>
+            <strong><%= t("clients.show.details.hair_type") %>:</strong>
+            <%= t("clients.hair.types.#{@client.hair_type.downcase}") %>
+          </p>
+        <% end %>
 
-      <p>
-        <strong><%= t("clients.show.details.note") %>:</strong>
-      </p>
+        <% if @client.hair_length.present? %>
+          <p>
+            <strong><%= t("clients.show.details.hair_length") %>:</strong>
+            <%= t("clients.hair.lengths.#{@client.hair_length.downcase}") %>
+          </p>
+        <% end %>
 
-      <div>
-        <%= @client.note %>
-      </div>
+        <% if @client.hair_structure.present? %>
+          <p>
+            <strong><%= t("clients.show.details.hair_structure") %>:</strong>
+            <%= t("clients.hair.structures.#{@client.hair_structure.downcase}") %>
+          </p>
+        <% end %>
 
+        <% if @client.hair_density.present? %>
+          <p>
+            <strong><%= t("clients.show.details.hair_density") %>:</strong>
+            <%= t("clients.hair.density.#{@client.hair_density.downcase}") %>
+          </p>
+        <% end %>
+
+        <% if @client.scalp_condition.present? %>
+          <p>
+            <strong><%= t("clients.show.details.scalp_condition") %>:</strong>
+            <%= t("clients.hair.scalp.#{@client.scalp_condition.downcase}") %>
+          </p>
+        <% end %>
+      <% end %>
+
+      <% if notes_present %>
+        <div class="info-section-title">
+          <%= t("clients.show.details.note") %>
+        </div>
+
+        <div class="client-note">
+          <%= @client.note %>
+        </div>
+      <% end %>
+
+      <% unless hair_info_present %>
+        <%= form_with model: @client, local: true do |f| %>
+          <%= render "hair_info_form", f: f %>
+        <% end %>
+      <% end %>
+
+      <% unless notes_present %>
+        <%= form_with model: @client, local: true do |f| %>
+          <%= render "notes_form", f: f %>
+        <% end %>
+      <% end %>
     </div>
   </div>
 

@@ -15,6 +15,7 @@ class Client < ApplicationRecord
     message: "Client with this phone number already exists"
   }
 
+  validate :birthday_must_be_valid
   validate :phone_not_used_in_client_phones
 
   before_save :ensure_primary_phone
@@ -83,6 +84,16 @@ class Client < ApplicationRecord
   end
 
   private
+
+  def birthday_must_be_valid
+    return if birthday.blank?
+
+    month, day = birthday.split("-").map(&:to_i)
+
+    Date.new(2000, month, day)
+  rescue Date::Error
+    errors.add(:birthday, :invalid)
+  end
 
   def ensure_primary_phone
     if phone.blank? && client_phones.any?

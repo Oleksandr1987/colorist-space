@@ -1,0 +1,39 @@
+<div class="inline-editor"
+     data-controller="inline-editor">
+  <!-- COLLAPSED -->
+  <div class="collapse-section"
+       data-inline-editor-target="collapsed">
+    <button type="button"
+            class="collapse-toggle"
+            data-action="inline-editor#open">
+      <span>
+        <%= t("clients.form.note") %>
+      </span>
+      <%= image_tag "plus.png",
+            class: "add-icon" %>
+    </button>
+  </div>
+  <!-- EXPANDED -->
+  <div class="inline-editor-panel hidden"
+       data-inline-editor-target="expanded">
+    <div class="wizard-top">
+      <button type="button"
+              data-action="inline-editor#close">
+        <%= image_tag "delete.png",
+              class: "wiz-icon-close" %>
+      </button>
+      <h3>
+        <%= t("clients.form.note") %>
+      </h3>
+      <%= f.submit t("common.save").upcase %>
+    </div>
+
+    <div class="login__field">
+      <%= f.text_area :note,
+            class: "login__input",
+            rows: 5,
+            maxlength: 500,
+            placeholder: t("clients.form.note") %>
+    </div>
+  </div>
+</div>

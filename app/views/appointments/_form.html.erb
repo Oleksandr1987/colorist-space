@@ -1,19 +1,25 @@
 <div class="appointment-container">
-  <div class="appointment-header">
-    <%= link_to appointments_path, class: "back-link inline" do %>
-      <%= image_tag "back.png",
-            class: "wiz-icon",
-            width: 24,
-            height: 24 %>
-    <% end %>
-    <h2>
-      <%= @appointment.new_record? ?
-          t("appointments.new") :
-          t("appointments.edit") %>
-    </h2>
-  </div>
-
   <%= form_with model: @appointment, local: true, data: { controller: "calendar appointment" } do |f| %>
+  <div class="appointment-header">
+    <div class="appointment-header-left">
+      <%= link_to appointments_path, class: "back-link inline" do %>
+        <%= image_tag "back.png",
+              class: "wiz-icon",
+              width: 24,
+              height: 24 %>
+      <% end %>
+
+      <h2>
+        <%= @appointment.new_record? ?
+            t("appointments.new") :
+            t("appointments.edit") %>
+      </h2>
+    </div>
+
+    <button type="submit" class="wizard-save-button">
+        <%= t("common.save").upcase %>
+    </button>
+  </div>
 
     <% if @appointment.errors.any? %>
       <div class="error-messages">
@@ -31,6 +37,10 @@
 
     <!-- Client Name -->
     <div class="client-input-wrapper">
+      <label>
+        <%= t("appointments.form.client_name") %>
+        <span class="required-asterisk">*</span>
+      </label>
       <%= text_field_tag "appointment[client_name]",
         @appointment.client&.full_name || "",
         class: "form-input client-name-input",
@@ -151,18 +161,6 @@
         rows: 2,
         placeholder: t("appointments.form.notes_placeholder") %>
     </div>
-
-    <!-- Total -->
-    <div class="total-price">
-      <strong><%= t("appointments.form.total") %>:</strong>
-      <span data-appointment-target="total">0</span> ₴
-    </div>
-
-    <!-- Submit -->
-    <div class="form-actions" style="height: 80px;"></div>
-    <%= f.submit t("appointments.form.save"),
-      class: "floating-save-button",
-      data: { "appointment-target": "saveButton" } %>
 
     <!-- Modals -->
     <%= render "appointments/modals/service_modal" %>

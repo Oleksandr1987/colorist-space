@@ -211,12 +211,6 @@
   scroll-padding-bottom: 8rem;
 }
 
-.client-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 /* === Popup меню для клієнта === */
 
 .menu-wrapper {
@@ -287,6 +281,84 @@
 .tab-content.active {
   display: block;
   margin-top: 1rem;
+}
+.client-header {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.client-top-bar {
+  position: relative;
+  height: 42px;
+}
+
+.client-back-button {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.new-appointment-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.client-title-center {
+  width: 100%;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.client-actions-row {
+  position: absolute;
+  left: calc(100% + 180px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-name-row {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.client-title-center h1 {
+  margin: 0;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.client-birthday {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #444;
+  font-size: 15px;
+}
+
+.client-edit-button,
+.client-delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.client-delete-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.client-delete-button form {
+  display: contents;
 }
 
 /* === Client Photo Section (show view) === */
@@ -577,5 +649,10 @@ h1 {
     bottom: 10px;
     right: 10px;
     padding: 0.25rem 0.5rem;
+  }
+
+  .client-actions-row {
+    left: calc(100% + 42px);
+    gap: 8px;
   }
 }

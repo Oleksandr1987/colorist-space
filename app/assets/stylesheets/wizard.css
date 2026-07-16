@@ -181,3 +181,11 @@
   width: 20px;
   height: 20px;
 }
+
+.inline-editor .wizard-top{
+    margin-bottom:20px;
+}
+
+.inline-editor.hidden{
+    display:none;
+}

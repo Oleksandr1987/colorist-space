@@ -16,6 +16,10 @@ en:
       first_name: "First Name"
       last_name: "Last Name"
       phone: "Phone Number"
+      birthday: "Birthday"
+      day: "Day"
+      month: "Month"
+      select_birthday: "Select Birthday"
       note: "Notes"
 
       hair_info_title: "Optional Hair Information"
