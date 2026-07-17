@@ -36,7 +36,7 @@
       <% current_user.services
                      .where(service_type: "service")
                      .order(:subtype)
-                     .each do |service| %>
+                     .each do |service| %> <!-- TODO, move query to model method -->
         <label class="wizard-check-row">
           <%= check_box_tag(
                 "appointment[modal_dummy][]",

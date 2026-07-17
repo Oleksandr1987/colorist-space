@@ -1,0 +1,78 @@
+<div class="expenses-scroll-wrapper">
+  <% @appointments_by_month.each do |month_name, appointments| %>
+    <div class="monthly-expense-group"
+         data-controller="collapse">
+      <div class="month-header-aligned"
+           data-action="click->collapse#toggle">
+        <span class="month-header-title">
+          <%= month_name %>
+        </span>
+        <div class="month-header-right">
+          <span class="month-header-amount">
+            <%= t("appointments.history.records",
+                  count: appointments.count) %>
+          </span>
+        </div>
+      </div>
+
+      <ul class="expenses-list collapsible hidden"
+          data-collapse-target="content">
+        <% appointments.sort_by { |a|
+             [a.appointment_date, a.appointment_time]
+           }.each do |appointment| %>
+          <li class="expense-item with-actions">
+            <div class="appointmnet-main-row">
+              <div class="appointment-info">
+                <strong>
+                  <%= l(
+                        appointment.appointment_date,
+                        format: :default
+                      ) %>
+                  /
+                  <%= appointment.appointment_time.strftime("%H:%M") %>
+                  <% if appointment.end_time.present? %>
+                    –
+                    <%= appointment.end_time.strftime("%H:%M") %>
+                  <% end %>
+                </strong>
+                — <%= appointment.client.full_name %>
+                <% if appointment.service_name.present? %>
+                  — <%= appointment.service_name %>
+                <% end %>
+              </div>
+              <div class="app-slot-icon-wrapper"
+                   data-controller="popover">
+                <button
+                  class="popover-toggle"
+                  data-popover-target="button"
+                  data-action="click->popover#toggle">
+                  <%= image_tag "pencil.png",
+                        class: "wiz-icon",
+                        width: 24,
+                        height: 24 %>
+                </button>
+                <div class="popover-menu hidden"
+                     data-popover-target="menu">
+                  <%= link_to edit_appointment_path(appointment) do %>
+                    <%= t("common.edit") %>
+                  <% end %>
+                  <%= button_to appointment_path(appointment),
+                        method: :delete,
+                        form: {
+                          data: {
+                            turbo_confirm:
+                              t("appointments.confirm.delete")
+                          }
+                        },
+                        class: "menu-item delete-button" do %>
+                    <%= t("common.delete") %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>

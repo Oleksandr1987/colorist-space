@@ -4,17 +4,7 @@ class AppointmentsController < ApplicationController
   before_action :normalize_time_params, only: %i[create update]
 
   auto_authorize :appointment, only: %i[new create edit update destroy show]
-  after_action :verify_authorized, except: %i[index history calendar by_date free_slots]
-
-  def index
-    @future_appointments = current_user.appointments.future.includes(:client)
-    @appointments_by_month = Appointment.grouped_by_month(@future_appointments)
-  end
-
-  def history
-    @past_appointments = current_user.appointments.past.includes(:client)
-    @appointments_by_month = Appointment.grouped_by_month(@past_appointments).reverse_each.to_h
-  end
+  after_action :verify_authorized, except: %i[all calendar by_date free_slots]
 
   def new
     @appointment = current_user.appointments.build
@@ -102,7 +92,41 @@ class AppointmentsController < ApplicationController
 
   def destroy
     @appointment.destroy
-    redirect_to appointments_path, notice: "Appointment was successfully deleted."
+    redirect_to calendar_appointments_path, notice: "Appointment was successfully deleted."
+  end
+
+  def all
+    base_scope =
+      current_user.appointments
+                  .with_client
+
+    @appointments =
+      base_scope
+        .search(params[:query])
+        .for_year(params[:year])
+        .for_month(
+          params[:year].presence || Date.current.year,
+          params[:month]
+        )
+        .for_categories(params[:categories])
+        .for_services(params[:service_ids])
+        .distinct
+        .ordered
+
+    @appointments_by_month =
+      Appointment.grouped_by_month(@appointments)
+
+    @stats =
+      Appointment.statistics(base_scope)
+
+    @available_years =
+      Appointment.available_years(base_scope)
+
+    @available_categories =
+      current_user.services.categories
+
+    @available_services =
+      current_user.services.for_filter
   end
 
   def calendar

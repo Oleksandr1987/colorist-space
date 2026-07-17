@@ -99,7 +99,7 @@ export default class extends Controller {
   updateAddButtonLink() {
     const dateStr = this.formatDate(this.selectedDate)
 
-    const btn = document.querySelector(".add-btn-wrapper a")
+    const btn = document.querySelector(".calendar-actions a")
     if (btn) {
       btn.href = `/appointments/new?date=${dateStr}`
     }

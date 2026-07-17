@@ -90,6 +90,10 @@ en:
       records:
         one: "%{count} record"
         other: "%{count} records"
+    filters:
+      years: "Years"
+      services: "Services"
+      categories: "Categories"
 
   common:
     save: "Save"

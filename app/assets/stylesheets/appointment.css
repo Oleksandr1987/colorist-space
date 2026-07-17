@@ -64,3 +64,83 @@
 .hidden {
   display: none;
 }
+
+.appointments-dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 18px 0 24px;
+}
+
+.dashboard-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 10px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+}
+
+.dashboard-card.active {
+  border: 2px solid #6200ea;
+  background: #f3edff;
+}
+
+.dashboard-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: #6200ea;
+  line-height: 1;
+}
+
+.dashboard-label {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.appointments-search {
+  margin-bottom: 20px;
+}
+
+.appointments-search-form {
+  width: 100%;
+}
+
+.appointments-filters {
+  margin: 20px 0;
+}
+
+.filter-section {
+  margin-bottom: 18px;
+}
+
+.filter-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.filter-chip {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  background: #ece8ff;
+  color: #6200ea;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-chip.active {
+  background: #6200ea;
+  color: white;
+}

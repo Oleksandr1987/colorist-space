@@ -10,6 +10,28 @@
   align-items: center;
 }
 
+.calendar-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.calendar-actions .button {
+  flex: 1;
+}
+
+.calendar-all-button {
+  width: 48px;
+  height: 48px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
 .nav-btn {
   font-size: 1.5rem;
   background: none;
@@ -54,12 +76,6 @@
   text-align: center;
   margin: 1rem 0;
   font-weight: bold;
-}
-
-.add-btn-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
 }
 
 .button.purple.full {

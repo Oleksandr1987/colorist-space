@@ -90,6 +90,10 @@ uk:
         one: "%{count} запис"
         few: "%{count} записи"
         many: "%{count} записів"
+    filters:
+      years: "Роки"
+      services: "Сервіси"
+      categories: "Категорії"
 
   common:
     save: "Зберегти"
