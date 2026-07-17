@@ -10,7 +10,7 @@ uk:
 
     form:
       client_name: "Ім'я клієнта"
-      client_name_placeholder: "Введіть або оберіть ім’я клієнта"
+      client_name_placeholder: "Введіть чи оберіть ім’я клієнта"
       phone: "Телефон"
       date: "Дата"
       start_time: "Час початку"

@@ -14,7 +14,6 @@ RSpec.describe Client do
     subject { build(:client) }
 
     it { is_expected.to validate_presence_of(:first_name) }
-    it { is_expected.to validate_presence_of(:last_name) }
 
     it "does not allow primary phone that already exists in client_phones" do
       client1 = create(:client, user: user, phone: "+380501112234")
@@ -154,7 +153,7 @@ RSpec.describe Client do
     end
   end
 
-  describe ".find_or_create_by_full_name" do
+  describe ".resolve_for_appointment" do
     it "returns existing client if found" do
       existing_client = create(
         :client,
@@ -163,7 +162,7 @@ RSpec.describe Client do
         last_name: "Smith"
       )
 
-      result = described_class.find_or_create_by_full_name(
+      result = described_class.resolve_for_appointment(
         user: user,
         full_name: "Alex Smith",
         phone: "+380930000001"
@@ -173,7 +172,7 @@ RSpec.describe Client do
     end
 
     it "creates client if not found" do
-      result = described_class.find_or_create_by_full_name(
+      result = described_class.resolve_for_appointment(
         user: user,
         full_name: "Alex Smith",
         phone: "+380930000001"
@@ -185,7 +184,7 @@ RSpec.describe Client do
     end
 
     it "returns nil if first name missing" do
-      result = described_class.find_or_create_by_full_name(
+      result = described_class.resolve_for_appointment(
         user: user,
         full_name: "",
         phone: "+380930000001"

@@ -3,10 +3,14 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = [
-    "checkboxes", "total", "modal", "list", "selected", "field",
+    "list", "selected",
     "serviceSelected", "hiddenInput",
     "appointmentTime", "endTime", "timeError", "saveButton"
   ]
+
+  static values = {
+    nothingSelected: String
+  }
 
   connect() {
     this.selected = {
@@ -42,20 +46,20 @@ export default class extends Controller {
   open(event) {
     const type = event.currentTarget.dataset.type
     this.closeAllModals()
-    const modal = document.querySelector(`.modal[data-type='${type}']`)
+    const modal = document.querySelector(`.wizard-modal[data-type='${type}']`)
     if (modal) modal.classList.remove("hidden")
   }
 
   close(event) {
     const modal =
-      event.currentTarget.closest(".modal") ||
-      event.currentTarget.closest(".modal-content")?.parentElement
+      event.currentTarget.closest(".wizard-modal") ||
+      event.currentTarget.closest(".wizard-modal-content")?.parentElement
 
     if (modal) modal.classList.add("hidden")
   }
 
   closeAllModals() {
-    document.querySelectorAll(".modal").forEach(m => m.classList.add("hidden"))
+    document.querySelectorAll(".wizard-modal").forEach(m => m.classList.add("hidden"))
   }
 
   toggleService(event) {
@@ -99,9 +103,14 @@ export default class extends Controller {
   }
 
   updateTargetContent(targetName, items) {
-    const el = this[`${targetName}Target`]
+    const target = `${targetName}Target`
+
+    if (!this[target]) return
+
+    const el = this[target]
+
     if (items.length === 0) {
-      el.innerHTML = `<span class="placeholder">${I18n.t("appointments.form.nothing_selected")}</span>`
+      el.innerHTML = `<span class="placeholder">${this.nothingSelectedValue}</span>`
     } else {
       el.innerHTML = items.map(s => `${s.subtype} (${s.price} ₴)`).join(", ")
     }
@@ -109,8 +118,8 @@ export default class extends Controller {
 
   search(event) {
     const query = event.target.value.toLowerCase()
-    const modal = event.target.closest(".modal")
-    modal.querySelectorAll(".service-option").forEach(opt => {
+    const modal = event.target.closest(".wizard-modal")
+    modal.querySelectorAll(".wizard-check-row").forEach(opt => {
       opt.classList.toggle("hidden", !opt.textContent.toLowerCase().includes(query))
     })
   }

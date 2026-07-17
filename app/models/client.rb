@@ -9,7 +9,7 @@ class Client < ApplicationRecord
   has_many :client_phones, dependent: :destroy
   accepts_nested_attributes_for :client_phones, allow_destroy: true
 
-  validates :first_name, :last_name, presence: true
+  validates :first_name, presence: true
   validates :phone, uniqueness: {
     scope: :user_id,
     message: "Client with this phone number already exists"
@@ -49,18 +49,35 @@ class Client < ApplicationRecord
     photos.purge
   end
 
-  def self.find_or_create_by_full_name(user:, full_name:, phone:)
-    first_name, last_name = full_name.to_s.split(/\s+/, 2)
+  def self.resolve_for_appointment(user:, full_name:, phone:)
     normalized_phone = PhoneValidator.normalize(phone)
+
+    first_name, last_name =
+      full_name.to_s.strip.split(/\s+/, 2)
 
     return nil if first_name.blank?
 
-    client = user.clients.find_by(first_name: first_name, last_name: last_name)
-    return client if client
+    if normalized_phone.present?
+      client = user.clients.find_by(phone: normalized_phone)
+      return client if client
+    end
+
+    client = user.clients.find_by(
+      first_name: first_name,
+      last_name: last_name.to_s
+    )
+
+    if client
+      if client.phone.blank? &&
+        normalized_phone.present?
+        client.update(phone: normalized_phone)
+      end
+      return client
+    end
 
     user.clients.create!(
       first_name: first_name,
-      last_name: last_name.presence || "",
+      last_name: last_name.to_s,
       phone: normalized_phone
     )
   end

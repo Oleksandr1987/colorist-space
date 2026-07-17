@@ -1,5 +1,4 @@
-/* === Clients Index: Основний список клієнтів зі скролом === */
-
+/* === Clients Index: List with scroll === */
 .client-list {
   padding: 0 1rem;
   max-width: 500px;
@@ -71,7 +70,7 @@
   color: #6200ea;
 }
 
-/* === Clients Index: Верхня панель === */
+/* === Clients Index: Lower panel === */
 .clients-title {
   font-size: 1.5rem;
   font-weight: bold;
@@ -84,8 +83,7 @@
   gap: 0.5rem;
 }
 
-/* === Clients Index: Пошук === */
-
+/* === Clients Index: Search === */
 .search-input {
   width: 100%;
   max-width: 400px;
@@ -100,8 +98,7 @@
   max-width: 80%;
 }
 
-/* === Універсальні кнопки === */
-
+/* === Buttons === */
 .button {
   background-color: #6200ea;
   color: white;
@@ -164,33 +161,7 @@
   height: 22px;
 }
 
-/* === Mobile === */
-
-@media (max-width: 600px) {
-  .clients-title {
-    font-size: 1.3rem;
-  }
-
-  .button.small {
-    font-size: 0.8rem;
-    padding: 0.3rem 0.6rem;
-  }
-
-  .search-input.compact {
-    width: 90%;
-  }
-
-  .letter-index {
-    font-size: 1rem;
-  }
-
-  .client-link {
-    font-size: 1rem;
-  }
-}
-
 /* === Client Profile / Form (show / new / edit) === */
-
 .client-form-container {
   max-width: 480px;
   margin: 0 auto;
@@ -211,8 +182,7 @@
   scroll-padding-bottom: 8rem;
 }
 
-/* === Popup меню для клієнта === */
-
+/* === Popup client menu === */
 .menu-wrapper {
   position: relative;
   display: flex;
@@ -251,7 +221,6 @@
 }
 
 /* === Tabs: Client show page === */
-
 .tabs {
   display: flex;
   justify-content: space-around;
@@ -304,22 +273,25 @@
   top: 0;
 }
 
-.client-title-center {
-  width: 100%;
-  margin-top: 14px;
+.client-title-row {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.client-title-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .client-actions-row {
-  position: absolute;
-  left: calc(100% + 180px);
-  top: 50%;
-  transform: translateY(-50%);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 4px;
 }
 
 .client-name-row {
@@ -328,19 +300,18 @@
   align-items: center;
 }
 
-.client-title-center h1 {
+.client-title-info h1 {
   margin: 0;
-  text-align: center;
-  line-height: 1.15;
+  text-align: left;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .client-birthday {
-  margin-top: 6px;
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #444;
-  font-size: 15px;
+  margin-top: 8px;
 }
 
 .client-edit-button,
@@ -362,7 +333,6 @@
 }
 
 /* === Client Photo Section (show view) === */
-
 .photos-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -384,7 +354,6 @@
 }
 
 /* === Client Info block (show) === */
-
 .client-info {
   background: #f5f5f5;
   padding: 1rem;
@@ -397,7 +366,6 @@
 }
 
 /* === Reusable action section (bottom buttons) === */
-
 .actions {
   display: flex;
   justify-content: center;
@@ -425,7 +393,6 @@
 }
 
 /* === Default Page Title === */
-
 h1 {
   font-size: 1.5rem;
   font-weight: bold;
@@ -435,7 +402,6 @@ h1 {
 }
 
 /* === Choose photo === */
-
 .photo-upload {
   display: flex;
   flex-direction: column;
@@ -464,7 +430,6 @@ h1 {
 }
 
 /* === Collapsible sections === */
-
 .collapse-section {
   margin-top: 1.5rem;
   border-radius: 10px;
@@ -495,10 +460,6 @@ h1 {
   display: none !important;
 }
 
-/* =========================
-   STYLE CARDS — Charm layout (FINAL)
-   ========================= */
-
 .style-card {
   position: relative;
   width: 100%;
@@ -522,8 +483,8 @@ h1 {
 .style-photo {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;   /* ======= КАДРУЄ ВЕРТИКАЛЬНЕ ФОТО, НЕ РОЗТЯГУЄ ======= */
-  object-position: center;        /* ======= центр кадру ======= */
+  object-fit: cover !important;
+  object-position: center;
   display: block;
   transition: transform 0.3s ease-in-out;
 }
@@ -534,17 +495,13 @@ h1 {
 }
 
 /* No photo */
-
 .style-no-photo {
   width: 100%;
   height: 100%;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: #f5f2fa;
-
   color: #999;
   font-size: 1.1rem;
   font-weight: 500;
@@ -573,17 +530,12 @@ h1 {
 .future-badge {
   display: inline-flex;
   align-items: center;
-
   padding: 4px 10px;
-
   background: #ff4d4f;
   color: white;
-
   border-radius: 999px;
-
   font-size: 0.75rem;
   font-weight: 700;
-
   line-height: 1;
 }
 
@@ -628,7 +580,6 @@ h1 {
   box-shadow: 0 2px 6px rgba(0,0,0,0.14);
 }
 
-/* popover fix */
 .popover-menu-client {
   right: 0;
   top: 2.2rem;
@@ -637,6 +588,27 @@ h1 {
 /* --- Mobile --- */
 
 @media (max-width: 600px) {
+  .clients-title {
+    font-size: 1.3rem;
+  }
+
+  .button.small {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .search-input.compact {
+    width: 90%;
+  }
+
+  .letter-index {
+    font-size: 1rem;
+  }
+
+  .client-link {
+    font-size: 1rem;
+  }
+
   .style-card {
     border-radius: 12px;
   }
@@ -649,10 +621,5 @@ h1 {
     bottom: 10px;
     right: 10px;
     padding: 0.25rem 0.5rem;
-  }
-
-  .client-actions-row {
-    left: calc(100% + 42px);
-    gap: 8px;
   }
 }

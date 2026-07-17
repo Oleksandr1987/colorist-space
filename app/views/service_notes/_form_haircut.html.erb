@@ -1,9 +1,7 @@
 <div class="haircut-container"
      data-controller="haircut"
-
      data-haircut-title-value="<%= t('haircut.title') %>"
      data-haircut-select-zone-value="<%= t('haircut.select_zone') %>"
-
      data-haircut-zones-value="<%= {
        "lower occipital" => t("haircut.zones.lower_occipital"),
 				"upper occipital" => t("haircut.zones.upper_occipital"),
@@ -15,16 +13,12 @@
 
   <div class="haircut-steps"
        data-haircut-target="container">
-
     <%= f.fields_for :haircut_steps do |step_form| %>
-
       <div class="formula-step-wrapper"
            data-controller="collapse">
-
         <!-- HEADER -->
         <div class="formula-step-header"
              data-action="click->collapse#toggle">
-
           <span>
             STEP <span class="step-number"></span>
           </span>
@@ -42,38 +36,29 @@
         <!-- CONTENT -->
         <div class="formula-step-content"
              data-collapse-target="content">
-
           <div class="formula-card">
-
             <!-- HEADER -->
             <div class="formula-header">
-
               <span class="haircut-zone-title">
                 <%= step_form.object.zone.present? ?
 										t("haircut.zones.#{step_form.object.zone.parameterize(separator: '_')}") :
 										t("haircut.zone") %>
               </span>
-
               <div class="step-remove">
-
                 <%= step_form.hidden_field :_destroy,
                       value: 0,
                       class: "destroy-field" %>
-
                 <%= step_form.hidden_field :zone %>
-
                 <button type="button"
                         data-action="click->haircut#removeStep">
                   <%= image_tag "delete.png",
                       class: "clear-icon" %>
                 </button>
-
               </div>
             </div>
-
             <!-- INSTRUMENT -->
             <%= render(
-              "service_notes/haircut_select_field",
+              "service_notes/haircut_picker_field",
               form: step_form,
               field: :instrument,
               value: step_form.object.instrument,
@@ -82,10 +67,9 @@
               translation_scope: "haircut.instruments",
               placeholder: t("haircut.select_instrument")
             ) %>
-
             <!-- PARTING -->
             <%= render(
-              "service_notes/haircut_select_field",
+              "service_notes/haircut_picker_field",
               form: step_form,
               field: :parting,
               value: step_form.object.parting,
@@ -94,10 +78,9 @@
               translation_scope: "haircut.partings",
               placeholder: t("haircut.select_parting")
             ) %>
-
             <!-- ELEVATION -->
             <%= render(
-              "service_notes/haircut_select_field",
+              "service_notes/haircut_picker_field",
               form: step_form,
               field: :elevation,
               value: step_form.object.elevation,
@@ -106,10 +89,9 @@
               translation_scope: "haircut.elevations",
               placeholder: t("haircut.select_elevation")
             ) %>
-
             <!-- CUT -->
             <%= render(
-              "service_notes/haircut_select_field",
+              "service_notes/haircut_picker_field",
               form: step_form,
               field: :cut_type,
               value: step_form.object.cut_type,
@@ -118,25 +100,18 @@
               translation_scope: "haircut.cut_types",
               placeholder: t("haircut.select_cut_type")
             ) %>
-
           </div>
-
         </div>
-
       </div>
-
     <% end %>
-
   </div>
 
   <!-- ADD STEP -->
   <div class="formula-add-step <%= 'hidden' if @service_note.haircut_steps.empty? %>"
        data-haircut-target="addStep"
        data-controller="collapse">
-
     <div class="add-step-btn"
          data-action="click->collapse#toggle">
-
       <span><%= t("haircut.step") %></span>
 
       <svg class="chevron"
@@ -151,30 +126,20 @@
 
     <div class="add-step-content hidden"
          data-collapse-target="content">
-
       <div class="haircut-zones-grid">
-
         <% HaircutStep::ZONES.each do |zone| %>
-
           <button type="button"
                   class="section-btn"
                   data-action="click->haircut#createStep click->collapse#close"
                   data-zone="<%= zone %>">
-
             <%= t("haircut.zones.#{zone.parameterize(separator: '_')}") %>
-
           </button>
-
         <% end %>
-
       </div>
-
     </div>
-
   </div>
 
   <%= render "service_notes/empty_haircut_step" if @service_note.haircut_steps.empty? %>
-
   <%= render "service_notes/haircut_step_template" %>
-
+  <%= render "service_notes/picker_modal" %>
 </div>

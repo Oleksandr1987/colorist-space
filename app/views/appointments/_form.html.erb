@@ -1,8 +1,8 @@
 <div class="appointment-container">
-  <%= form_with model: @appointment, local: true, data: { controller: "calendar appointment" } do |f| %>
+  <%= form_with model: @appointment, local: true, data: { controller: "calendar appointment", appointment_nothing_selected_value: t("appointments.nothing_selected") } do |f| %>
   <div class="appointment-header">
     <div class="appointment-header-left">
-      <%= link_to appointments_path, class: "back-link inline" do %>
+      <%= link_to calendar_appointments_path, class: "back-link inline" do %>
         <%= image_tag "back.png",
               class: "wiz-icon",
               width: 24,
@@ -16,7 +16,8 @@
       </h2>
     </div>
 
-    <button type="submit" class="wizard-save-button">
+    <button type="submit" class="wizard-save-button"
+            data-appointment-target="saveButton">
         <%= t("common.save").upcase %>
     </button>
   </div>

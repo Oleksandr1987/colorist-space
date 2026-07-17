@@ -39,18 +39,24 @@ class AppointmentsController < ApplicationController
 
   def create
     appointment_data = params.require(:appointment)
-    service_ids = Array(appointment_data[:service_ids]).compact_blank
 
-    client = Client.find_or_create_by_full_name(
+    service_ids =
+      Array(appointment_data[:service_ids])
+        .compact_blank
+        .map!(&:to_i)
+
+    client = Client.resolve_for_appointment(
       user: current_user,
       full_name: appointment_data[:client_name],
       phone: appointment_data[:phone]
     )
 
-    @appointment = current_user.appointments.build(appointment_params.except(:service_ids))
+    @appointment = current_user.appointments.build(
+      appointment_params.except(:service_ids)
+    )
 
     @appointment.client = client
-    @appointment.services = Service.where(id: service_ids)
+    @appointment.service_ids = service_ids if appointment_data.key?(:service_ids)
 
     if @appointment.save
       redirect_to @appointment
@@ -63,20 +69,32 @@ class AppointmentsController < ApplicationController
 
   def update
     appointment_data = params.require(:appointment)
-    service_ids = Array(appointment_data[:service_ids]).compact_blank
 
-    client = Client.find_or_create_by_full_name(
-      user: current_user,
-      full_name: appointment_data[:client_name],
-      phone: appointment_data[:phone]
-    )
+    new_name  = appointment_data[:client_name].to_s.strip
+    new_phone = PhoneValidator.normalize(appointment_data[:phone])
 
-    @appointment.client = client
+    current_name  = @appointment.client.full_name
+    current_phone = @appointment.client.phone
 
-    @appointment.services = Service.where(id: service_ids) if service_ids.present?
+    if new_name != current_name || new_phone != current_phone
+      @appointment.client = Client.resolve_for_appointment(
+        user: current_user,
+        full_name: new_name,
+        phone: new_phone
+      )
+    end
+
+    if appointment_data.key?(:service_ids)
+      service_ids = Array(appointment_data[:service_ids])
+        .compact_blank
+        .map!(&:to_i)
+
+      @appointment.service_ids = service_ids
+    end
 
     if @appointment.update(appointment_params.except(:service_ids))
-      redirect_to @appointment, notice: "Appointment was successfully updated."
+      redirect_to @appointment,
+        notice: "Appointment was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end
