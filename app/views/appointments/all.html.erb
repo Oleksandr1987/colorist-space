@@ -22,35 +22,42 @@
     <!-- YEAR -->
     <button
       type="button"
-      class="dashboard-card <%= "active" if params[:year].to_i == Date.current.year && params[:month].blank? %>"
+      class="dashboard-card <%= "active" if params[:year].to_i == (params[:year].presence || Date.current.year).to_i && params[:month].blank? %>"
       data-filter-group="dashboard"
       data-filter="year"
-      data-year="<%= Date.current.year %>"
+      data-year="<%= params[:year].presence || Date.current.year %>"
       data-action="click->appointments-filter#filterYear">
 
       <div class="dashboard-number">
         <%= @stats[:current_year] %>
       </div>
       <div class="dashboard-label">
-        <%= Date.current.year %>
+        <%= params[:year].presence || Date.current.year %>
       </div>
     </button>
 
     <!-- MONTH -->
     <button
       type="button"
-      class="dashboard-card <%= "active" if params[:month].to_i == Date.current.month %>"
+      class="dashboard-card <%= "active" if params[:month].to_i == (params[:month].presence || Date.current.month).to_i %>"
       data-filter-group="dashboard"
       data-filter="month"
-      data-year="<%= Date.current.year %>"
-      data-month="<%= Date.current.month %>"
+      data-year="<%= params[:year].presence || Date.current.year %>"
+      data-month="<%= params[:month].presence || Date.current.month %>"
       data-action="click->appointments-filter#filterMonth">
 
       <div class="dashboard-number">
         <%= @stats[:current_month] %>
       </div>
       <div class="dashboard-label">
-        <%= l(Date.current.beginning_of_month, format: "%B") %>
+        <%= l(
+              Date.new(
+                (params[:year].presence || Date.current.year).to_i,
+                (params[:month].presence || Date.current.month).to_i,
+                1
+              ),
+              format: "%B"
+            ) %>
       </div>
     </button>
   </div>

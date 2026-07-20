@@ -57,7 +57,7 @@
               class="clear-client-btn hidden"
               data-calendar-target="clearButton"
               data-action="click->calendar#clearClientField">
-        <%= image_tag "delete.png",
+        <%= image_tag "close.png",
                       class: "clear-icon" %>
       </button>
 
@@ -78,7 +78,10 @@
       <%= telephone_field_tag "appointment[phone]",
         @appointment.client&.phone || "",
         class: "form-input",
-        data: { "calendar-target": "clientPhone" } %>
+        data: {
+          controller: "phone-mask",
+          "calendar-target": "clientPhone"
+        } %>
     </div>
 
     <!-- Date -->
@@ -138,13 +141,36 @@
       <label>
         <%= t("appointments.form.services") %>
       </label>
-      <div class="fake-input"
-           data-action="click->appointment#open"
-           data-type="service">
-        <span data-appointment-target="serviceSelected"
-              class="placeholder">
-          <%= t("appointments.form.select_services") %>
-        </span>
+
+      <div class="service-selector">
+        <% if @appointment.service_ids.any? %>
+          <div class="service-selector-content"
+              data-action="click->appointment#open"
+              data-type="service">
+
+            <div data-appointment-target="serviceSelected">
+              <%= @appointment.services.map(&:name).join(", ") %>
+            </div>
+
+          </div>
+        <% else %>
+          <div class="collapse-section add-service-placeholder">
+            <button type="button"
+                    class="collapse-toggle"
+                    data-action="click->appointment#open"
+                    data-type="service">
+              <span>
+                <%= t("appointments.form.add_services") %>
+              </span>
+              <%= image_tag "plus.png",
+                    class: "add-icon" %>
+            </button>
+          </div>
+
+          <div data-appointment-target="serviceSelected"
+              class="hidden">
+          </div>
+        <% end %>
       </div>
     </div>
 

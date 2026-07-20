@@ -177,14 +177,11 @@ class Appointment < ApplicationRecord
         .reverse
     end
 
-    def statistics(scope)
-      current_year = Date.current.year
-      current_month = Date.current.month
+    def statistics(scope, year:, month:)
+      first_day_of_year = Date.new(year, 1, 1)
+      last_day_of_year = Date.new(year, 12, 31)
 
-      first_day_of_year = Date.new(current_year, 1, 1)
-      last_day_of_year = Date.new(current_year, 12, 31)
-
-      first_day_of_month = Date.new(current_year, current_month, 1)
+      first_day_of_month = Date.new(year, month, 1)
 
       {
         total: scope.count,

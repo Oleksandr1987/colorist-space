@@ -175,19 +175,14 @@
       class="tab-content">
 
     <div class="client-info">
-
       <p>
         <strong><%= t("clients.show.details.name") %>:</strong>
       </p>
 
       <div class="client-header">
-
         <div class="client-header-left">
           <%= @client.full_name %>
         </div>
-
-
-
       </div>
 
       <p>
@@ -279,7 +274,7 @@
   <div data-photo-target="modal" class="fullscreen hidden">
     <div class="fullscreen-backdrop" data-action="click->photo#close"></div>
     <button class="fullscreen-close" data-action="click->photo#close">
-      <%= image_tag "delete.png", class: "close-icon" %>
+      <%= image_tag "close.png", class: "close-icon" %>
     </button>
     <img data-photo-target="modalImage" class="fullscreen-image">
   </div>

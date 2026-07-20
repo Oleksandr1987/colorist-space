@@ -96,9 +96,7 @@ class AppointmentsController < ApplicationController
   end
 
   def all
-    base_scope =
-      current_user.appointments
-                  .with_client
+    base_scope = current_user.appointments.with_client
 
     @appointments =
       base_scope
@@ -113,20 +111,28 @@ class AppointmentsController < ApplicationController
         .distinct
         .ordered
 
-    @appointments_by_month =
-      Appointment.grouped_by_month(@appointments)
+    @appointments_by_month = Appointment.grouped_by_month(@appointments)
+
+    dashboard_scope =
+      base_scope
+        .search(params[:query])
+        .for_categories(params[:categories])
+        .for_services(params[:service_ids])
+        .distinct
+
+    dashboard_year = params[:year].present? ? params[:year].to_i : Date.current.year
+
+    dashboard_month = params[:month].present? ? params[:month].to_i : Date.current.month
 
     @stats =
-      Appointment.statistics(base_scope)
-
-    @available_years =
-      Appointment.available_years(base_scope)
-
-    @available_categories =
-      current_user.services.categories
-
-    @available_services =
-      current_user.services.for_filter
+      Appointment.statistics(
+        dashboard_scope,
+        year: dashboard_year,
+        month: dashboard_month
+      )
+    @available_years = Appointment.available_years(base_scope)
+    @available_categories = current_user.services.categories
+    @available_services = current_user.services.for_filter(params[:categories])
   end
 
   def calendar

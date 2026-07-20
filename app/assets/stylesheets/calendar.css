@@ -145,7 +145,7 @@
 .timeline {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .timeline-slot {
@@ -161,8 +161,8 @@
 }
 
 .slot-free {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background-color: #26922f;
+  color: #080808;
 }
 
 .slot-free:hover {
@@ -170,8 +170,8 @@
 }
 
 .slot-booked {
-  background-color: #ffebee;
-  color: #c62828;
+  background-color: #e12c38;
+  /* color: #c62828; */
   cursor: default;
 }
 
@@ -225,7 +225,7 @@
   transform: translateX(-50%);
   width: 6px;
   height: 6px;
-  background: #6200ea; /* фіолетова позначка */
+  background: #6200ea;
   border-radius: 50%;
 }
 
@@ -260,4 +260,41 @@
 
 .slot-text.clickable:hover {
   opacity: 0.7;
+}
+
+.calendar-record {
+  border-radius: 12px;
+}
+
+.calendar-record-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.calendar-record-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.calendar-record-date {
+  font-size: .95rem;
+}
+
+.calendar-record-client {
+  font-weight: 700;
+}
+
+.calendar-record-service {
+  font-size: .95rem;
+}
+
+.calendar-record-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }

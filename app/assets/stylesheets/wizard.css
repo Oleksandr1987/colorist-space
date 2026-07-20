@@ -39,8 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
-
+  gap: 20px;
   padding: 0 16px;
   margin: 20px 0 28px;
   overflow: visible;
@@ -72,17 +71,13 @@
 .wiz-item {
   position: relative;
   z-index: 1;
-
-  width: 54px;
-  height: 54px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-
   background: #f1f1f1;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   transition: all 0.25s ease;
   flex-shrink: 0;
 }
@@ -210,9 +205,9 @@
 .wizard-modal-content {
   width: 100%;
   max-width: 480px;
-  max-height: 88vh;
+  max-height: 100%;
   background: #fff;
-  border-radius: 22px 22px 0 0;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   overflow: hidden;

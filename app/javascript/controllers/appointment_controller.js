@@ -108,12 +108,24 @@ export default class extends Controller {
     if (!this[target]) return
 
     const el = this[target]
+    const placeholder = el.previousElementSibling
 
     if (items.length === 0) {
-      el.innerHTML = `<span class="placeholder">${this.nothingSelectedValue}</span>`
-    } else {
-      el.innerHTML = items.map(s => `${s.subtype} (${s.price} ₴)`).join(", ")
+      el.classList.add("hidden")
+
+      if (placeholder?.classList.contains("add-service-placeholder")) {
+        placeholder.classList.remove("hidden")
+      }
+
+      return
     }
+
+    if (placeholder?.classList.contains("add-service-placeholder")) {
+      placeholder.classList.add("hidden")
+    }
+
+    el.classList.remove("hidden")
+    el.innerHTML = items.map(s => `${s.subtype} (${s.price} ₴)`).join(", ")
   }
 
   search(event) {

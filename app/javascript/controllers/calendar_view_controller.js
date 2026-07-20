@@ -3,25 +3,28 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["monthLabel", "calendarDays", "selectedDateLabel", "timeline"]
-  static values = { translations: Object, datesWithAppointments: Array, clientId: Number, pencilIcon: String }
+  static values = {
+    translations: Object,
+    datesWithAppointments: Array,
+    clientId: Number,
+    clientIcon: String,
+    notesIcon: String,
+    deleteIcon: String
+  }
 
   connect() {
     this.t = this.translationsValue
     this.currentDate = new Date()
     this.selectedDate = new Date()
-    this.activePopover = null
 
     this.renderCalendar()
     this.loadAppointments(this.selectedDate)
     this.scrollToToday()
-    document.addEventListener("click", this.closePopoverOnClickOutside.bind(this))
     this.startAutoRefresh()
     this.startLiveSlotUpdates()
   }
 
   disconnect() {
-    document.removeEventListener("click", this.closePopoverOnClickOutside)
-
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval)
     }
@@ -227,46 +230,7 @@ export default class extends Controller {
 
       if (slot.type === "booked") {
         el.classList.add("slot-booked")
-
-        el.innerHTML = `
-          <div class="slot-content">
-
-            <!-- CLICKABLE AREA -->
-            <div class="slot-text clickable"
-                data-action="click->calendar-view#createServiceNote"
-                data-id="${slot.data.id}"
-                data-client-id="${slot.data.client_id}"
-                data-service-note-id="${slot.data.service_note_id || ""}">
-
-              ${startTime}–${endTime} — ${slot.data.service} (${slot.data.client_name})
-            </div>
-
-            <!-- ICON AREA -->
-            <div class="slot-icon-wrapper">
-              <button class="popover-toggle"
-                      data-id="${slot.data.id}">
-                <img src="${this.pencilIconValue}"
-                     alt="Edit"
-                     class="popover-pencil-icon">
-              </button>
-
-              <div class="popover-menu hidden" id="popover-${slot.data.id}">
-                <a href="/appointments/${slot.data.id}/edit">${this.t.edit}</a>
-
-                <form action="/appointments/${slot.data.id}" method="post"
-                      data-turbo-confirm="${this.t.delete_confirm}">
-                  <input type="hidden" name="_method" value="delete">
-                  <input type="hidden" name="authenticity_token" value="${this.csrfToken()}">
-
-                  <button type="submit" class="menu-item delete-button">
-                    ${this.t.delete}
-                  </button>
-                </form>
-              </div>
-            </div>
-
-          </div>
-        `
+        el.innerHTML = this.renderBookedSlot(slot.data)
       } else {
         el.classList.add("slot-free")
         el.innerHTML = `
@@ -280,13 +244,93 @@ export default class extends Controller {
 
       this.timelineTarget.appendChild(el)
     })
+  }
 
-    document.querySelectorAll(".popover-toggle").forEach(button => {
-      button.addEventListener("click", e => {
-        e.stopPropagation()
-        this.togglePopover(button.dataset.id)
-      })
-    })
+  renderBookedSlot(slot) {
+    const services =
+      slot.service
+        ? slot.service
+            .split(" + ")
+            .map(service =>
+              `<div class="calendar-record-service">${service}</div>`
+            )
+            .join("")
+        : ""
+
+    const noteUrl =
+      slot.service_note_id
+        ? `/clients/${slot.client_id}/service_notes/${slot.service_note_id}`
+        : `/clients/${slot.client_id}/service_notes/new?appointment_id=${slot.id}`
+
+    const start = this.formatTime(this.parseTime(slot.start))
+    const end = this.formatTime(this.parseTime(slot.end))
+
+    return `
+      <div class="calendar-record">
+        <div class="calendar-record-header">
+          <div class="calendar-record-content clickable"
+              data-action="click->calendar-view#editAppointment"
+              data-id="${slot.id}">
+            <div class="calendar-record-date">
+              <strong>
+                ${start}–${end}
+              </strong>
+            </div>
+            <div class="calendar-record-client">
+              ${slot.client_name}
+            </div>
+            ${services}
+          </div>
+
+          <div class="calendar-record-actions">
+            <a href="/clients/${slot.client_id}"
+              class="appointment-action-button"
+              data-turbo="false">
+              <img src="${this.clientIconValue}"
+                   class="wiz-icon"
+                   width="16"
+                   height="16">
+            </a>
+            <a href="${noteUrl}"
+              class="appointment-action-button"
+              data-turbo="false">
+              <img src="${this.notesIconValue}"
+                   class="wiz-icon"
+                   width="16"
+                   height="16">
+            </a>
+
+            <form
+              action="/appointments/${slot.id}"
+              method="post"
+              data-turbo-confirm="${this.t.delete_confirm}">
+              <input
+                type="hidden"
+                name="_method"
+                value="delete">
+              <input
+                type="hidden"
+                name="authenticity_token"
+                value="${this.csrfToken()}">
+              <button
+                type="submit"
+                class="appointment-action-button appointment-delete-button">
+                <img src="${this.deleteIconValue}"
+                     class="wiz-icon"
+                     width="16"
+                     height="16">
+              </button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    `
+  }
+
+  editAppointment(event) {
+    window.location.href =
+      `/appointments/${event.currentTarget.dataset.id}/edit`
   }
 
   mergeAdjacentFreeSlots(slots) {
@@ -371,30 +415,6 @@ export default class extends Controller {
       hour: "2-digit",
       minute: "2-digit"
     })
-  }
-
-  togglePopover(id) {
-    if (this.activePopover) {
-      this.activePopover.classList.add("hidden")
-      this.activePopover = null
-    }
-
-    const menu = document.getElementById(`popover-${id}`)
-    if (menu) {
-      menu.classList.remove("hidden")
-      this.activePopover = menu
-    }
-  }
-
-  closePopoverOnClickOutside(event) {
-    if (
-      this.activePopover &&
-      !event.target.closest(".popover-menu") &&
-      !event.target.closest(".popover-toggle")
-    ) {
-      this.activePopover.classList.add("hidden")
-      this.activePopover = null
-    }
   }
 
   selectSlot(event) {

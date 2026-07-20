@@ -36,7 +36,15 @@ class Service < ApplicationRecord
 
   scope :categories, -> { appointment_services.with_category.distinct.pluck(:category).sort }
 
-  scope :for_filter, -> { appointment_services.ordered_for_filter }
+  scope :for_filter, ->(categories = nil) {
+    scope = appointment_services
+
+    categories = Array(categories).reject(&:blank?)
+
+    scope = scope.where(category: categories) if categories.any?
+
+    scope.ordered_for_filter
+  }
 
   def self.grouped_income(scope, service_type)
     if service_type.present?

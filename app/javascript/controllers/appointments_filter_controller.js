@@ -58,6 +58,10 @@ export default class extends Controller {
       url.searchParams.append(param, value)
     }
 
+    if (param === "categories") {
+      url.searchParams.delete("service_ids")
+    }
+
     window.location = url
   }
 
@@ -65,7 +69,13 @@ export default class extends Controller {
     const button = event.currentTarget
     const param = button.dataset.param
     const url = new URL(window.location)
+
     url.searchParams.delete(param)
+
+    if (param === "categories") {
+      url.searchParams.delete("service_ids")
+    }
+
     window.location = url
   }
 }
