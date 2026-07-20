@@ -22,20 +22,6 @@
     </button>
   </div>
 
-    <% if @appointment.errors.any? %>
-      <div class="error-messages">
-        <h4>
-          <%= pluralize(@appointment.errors.count, "error") %>
-          prevented the appointment from being saved:
-        </h4>
-        <ul>
-          <% @appointment.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-
     <!-- Client Name -->
     <div class="client-input-wrapper">
       <label>
@@ -53,12 +39,17 @@
         list: "client-list",
         autocomplete: "off" %>
 
+      <% @appointment.errors.full_messages_for(:client_name).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
+
       <button type="button"
               class="clear-client-btn hidden"
               data-calendar-target="clearButton"
               data-action="click->calendar#clearClientField">
-        <%= image_tag "close.png",
-                      class: "clear-icon" %>
+        <%= image_tag "close.png", class: "clear-icon" %>
       </button>
 
       <datalist id="client-list" data-calendar-target="clientList">
@@ -82,6 +73,12 @@
           controller: "phone-mask",
           "calendar-target": "clientPhone"
         } %>
+
+      <% @appointment.errors.full_messages_for(:phone).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
     </div>
 
     <!-- Date -->
@@ -101,6 +98,12 @@
           datepicker_target: "input",
           min: Date.today.strftime("%Y-%m-%d")
         } %>
+
+      <% @appointment.errors.full_messages_for(:appointment_date).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
     </div>
 
     <!-- Start / End Time -->
@@ -115,6 +118,12 @@
             appointment_target: "appointmentTime",
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
+
+        <% @appointment.errors.full_messages_for(:appointment_time).each do |message| %>
+          <div class="inline-error">
+            <%= message %>
+          </div>
+        <% end %>
       </div>
 
       <div>
@@ -128,7 +137,11 @@
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
 
-        <!-- Inline error placeholder -->
+        <% @appointment.errors.full_messages_for(:end_time).each do |message| %>
+          <div class="inline-error">
+            <%= message %>
+          </div>
+        <% end %>
         <div data-appointment-target="timeError"
             class="inline-error hidden">
           <%= t("appointments.form.end_time_error", default: "Час завершення має бути пізніше часу початку") %>

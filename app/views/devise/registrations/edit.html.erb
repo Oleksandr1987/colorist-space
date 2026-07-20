@@ -1,48 +1,115 @@
 <div class="service-form-wrapper">
   <h3><%= t("auth.edit_title") %></h3>
+
   <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-    <%= render "devise/shared/error_messages", resource: resource %>
 
     <div class="login__field">
-      <%= f.label :name %><br />
+      <%= f.label :name do %>
+        <%= t("auth.name") %>
+        <span class="required-asterisk">*</span>
+      <% end %>
+
       <%= f.text_field :name, class: "login__input", autofocus: true, autocomplete: "name" %>
-    </div>
 
-    <div class="login__field">
-      <%= f.label :email %><br />
-      <%= f.email_field :email, class: "login__input", autofocus: true, autocomplete: "email" %>
-    </div>
-
-    <div class="login__field">
-      <%= f.label :phone %><br />
-      <%= f.telephone_field :phone, class: "login__input", autofocus: true, autocomplete: "phone", data: { controller: "phone-mask" } %>
-    </div>
-
-    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-      <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
-    <% end %>
-
-    <div class="login__field">
-     <%= f.label :password, t("auth.password") %> <i><%= t("auth.leave_blank") %></i><br />
-      <%= f.password_field :password, class: "login__input", autocomplete: "new-password" %>
-      <% if @minimum_password_length %>
-        <br />
-        <em><%= t("auth.min_length", count: @minimum_password_length) %></em>
+      <% resource.errors.full_messages_for(:name).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
       <% end %>
     </div>
 
     <div class="login__field">
-      <%= f.label :password_confirmation, t("auth.password_confirmation") %><br />
-      <%= f.password_field :password_confirmation, class: "login__input", autocomplete: "new-password" %>
+      <%= f.label :email do %>
+        <%= t("auth.email") %>
+        <span class="required-asterisk">*</span>
+      <% end %>
+
+      <%= f.email_field :email, class: "login__input", autocomplete: "email" %>
+
+      <% resource.errors.full_messages_for(:email).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
     </div>
 
     <div class="login__field">
-      <%= f.label :current_password, t("auth.current_password") %> <i><%= t("auth.need_current_password") %></i><br />
+      <%= f.label :phone do %>
+        <%= t("auth.phone") %>
+        <span class="required-asterisk">*</span>
+      <% end %>
+
+      <%= f.telephone_field :phone, class: "login__input", autocomplete: "tel", data: { controller: "phone-mask" } %>
+
+      <% resource.errors.full_messages_for(:phone).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
+    </div>
+
+    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+      <div>
+        Currently waiting confirmation for:
+        <%= resource.unconfirmed_email %>
+      </div>
+    <% end %>
+
+    <div class="login__field">
+      <%= f.label :password do %>
+        <%= t("auth.password") %>
+      <% end %>
+
+      <i><%= t("auth.leave_blank") %></i>
+
+      <%= f.password_field :password, class: "login__input", autocomplete: "new-password" %>
+
+      <% if @minimum_password_length %>
+        <em><%= t("auth.min_length", count: @minimum_password_length) %></em>
+      <% end %>
+
+      <% resource.errors.full_messages_for(:password).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="login__field">
+      <%= f.label :password_confirmation do %>
+        <%= t("auth.password_confirmation") %>
+      <% end %>
+
+      <%= f.password_field :password_confirmation, class: "login__input", autocomplete: "new-password" %>
+
+      <% resource.errors.full_messages_for(:password_confirmation).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="login__field">
+      <%= f.label :current_password do %>
+        <%= t("auth.current_password") %>
+      <% end %>
+
+      <i><%= t("auth.need_current_password") %></i>
+
       <%= f.password_field :current_password, class: "login__input", autocomplete: "current-password" %>
+
+      <% resource.errors.full_messages_for(:current_password).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
     </div>
 
     <div class="form-actions-row">
-      <%= f.submit t("auth.update"), class: "form-button primary", style: "flex: 1;" %>
+      <%= f.submit t("auth.update"),
+            class: "form-button primary",
+            style: "flex: 1;" %>
+
       <%= link_to t("auth.cancel"), settings_path, class: "form-button cancel", data: { turbo: false } %>
     </div>
   <% end %>

@@ -30,6 +30,26 @@ class AppointmentsController < ApplicationController
   def create
     appointment_data = params.require(:appointment)
 
+    @appointment = current_user.appointments.build(
+      appointment_params.except(:service_ids)
+    )
+
+    @appointment.client_name = appointment_data[:client_name]
+    @appointment.phone = appointment_data[:phone]
+
+    if appointment_data[:client_name].blank?
+      @appointment.errors.add(:client_name, :blank)
+    end
+
+    if appointment_data[:phone].blank?
+      @appointment.errors.add(:phone, :blank)
+    end
+
+    if @appointment.errors.any?
+      render :new, status: :unprocessable_content
+      return
+    end
+
     service_ids =
       Array(appointment_data[:service_ids])
         .compact_blank
@@ -39,10 +59,6 @@ class AppointmentsController < ApplicationController
       user: current_user,
       full_name: appointment_data[:client_name],
       phone: appointment_data[:phone]
-    )
-
-    @appointment = current_user.appointments.build(
-      appointment_params.except(:service_ids)
     )
 
     @appointment.client = client
@@ -62,6 +78,17 @@ class AppointmentsController < ApplicationController
 
     new_name  = appointment_data[:client_name].to_s.strip
     new_phone = PhoneValidator.normalize(appointment_data[:phone])
+
+    @appointment.client_name = new_name
+    @appointment.phone = new_phone
+
+    @appointment.errors.add(:client_name, :blank) if new_name.blank?
+    @appointment.errors.add(:phone, :blank) if new_phone.blank?
+
+    if @appointment.errors.any?
+      render :edit, status: :unprocessable_content
+      return
+    end
 
     current_name  = @appointment.client.full_name
     current_phone = @appointment.client.phone

@@ -12,24 +12,27 @@ class Users::SessionsController < Devise::SessionsController
     root_path
   end
 
-  # GET /resource/sign_in
-  # def new
-  #   super
-  # end
+  def create
+    self.resource = resource_class.new(sign_in_params)
 
-  # POST /resource/sign_in
-  # def create
-  #   super
-  # end
+    normalize_login_phone
 
-  # DELETE /resource/sign_out
-  # def destroy
-  #   super
-  # end
+    user = User.find_for_database_authentication(
+      login: sign_in_params[:login]
+    )
 
-  # protected
+    if user&.valid_password?(sign_in_params[:password])
+      sign_in(resource_name, user)
+      redirect_to after_sign_in_path_for(user)
+    else
+      resource.errors.add(:base, t("devise.failure.invalid", authentication_keys: "login"))
+      clean_up_passwords(resource)
+      render :new, status: :unprocessable_content
+    end
+  end
 
-  # If you have extra params to permit, append them to the sanitizer.
+  private
+
   def normalize_login_phone
     return if params[:user].blank? || params[:user][:login].blank?
 

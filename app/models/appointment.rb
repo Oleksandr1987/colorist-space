@@ -2,6 +2,8 @@ class Appointment < ApplicationRecord
   belongs_to :user
   belongs_to :client
 
+  attr_accessor :client_name, :phone
+
   has_many :appointment_services_relations, inverse_of: :appointment, dependent: :destroy
   has_many :services, through: :appointment_services_relations
   has_one :service_note, dependent: :destroy
@@ -126,40 +128,6 @@ class Appointment < ApplicationRecord
     joins(:services).where(services: { id: ids })
   }
 
-  def total_price
-    services.sum(:price)
-  end
-
-  def combined_service_name
-    note_services = service_note&.services.to_a
-
-    if note_services.present?
-      note_services.map(&:subtype).join(" + ")
-    else
-      Service.joins(:appointment_services_relations)
-            .where(appointment_services_relations: { appointment_id: id })
-            .pluck(:subtype)
-            .join(" + ")
-    end
-  end
-
-  def as_calendar_json
-    start_time = appointment_time.strftime("%H:%M")
-    end_time_formatted = end_time&.strftime("%H:%M")
-
-    {
-      id: id,
-      client_id: client.id,
-      client_name: client.full_name,
-      service: combined_service_name.presence || service_name,
-      service_note_id: service_note&.id,
-      phone: client.phone,
-      start: "#{appointment_date}T#{start_time}",
-      end: "#{appointment_date}T#{end_time_formatted}",
-      appointment_time: start_time
-    }
-  end
-
   class << self
     def grouped_by_month(relation)
     relation.group_by { |a| a.appointment_date.strftime("%B %Y") }
@@ -253,6 +221,44 @@ class Appointment < ApplicationRecord
     end
   end
 
+  def total_price
+    services.sum(:price)
+  end
+
+  def combined_service_name
+    note_services = service_note&.services.to_a
+
+    if note_services.present?
+      note_services.map(&:subtype).join(" + ")
+    else
+      Service.joins(:appointment_services_relations)
+            .where(appointment_services_relations: { appointment_id: id })
+            .pluck(:subtype)
+            .join(" + ")
+    end
+  end
+
+  def as_calendar_json
+    start_time = appointment_time.strftime("%H:%M")
+    end_time_formatted = end_time&.strftime("%H:%M")
+
+    {
+      id: id,
+      client_id: client.id,
+      client_name: client.full_name,
+      service: combined_service_name.presence || service_name,
+      service_note_id: service_note&.id,
+      phone: client.phone,
+      start: "#{appointment_date}T#{start_time}",
+      end: "#{appointment_date}T#{end_time_formatted}",
+      appointment_time: start_time
+    }
+  end
+
+  def client_name
+    client&.full_name
+  end
+
   private
 
   def set_default_end_time
@@ -292,7 +298,7 @@ class Appointment < ApplicationRecord
       .where.not(id: id)
       .where("appointment_time < ? AND end_time > ?", end_time, appointment_time)
 
-    errors.add(:base, "This time slot is already taken by another appointment.") if conflicts.exists?
+    errors.add(:appointment_time, "This time slot is already taken by another appointment.") if conflicts.exists?
   end
 
   def time_step_interval

@@ -1,6 +1,4 @@
 <%= form_with model: @client, local: true, html: { multipart: true } do |f| %>
-  <%= render 'shared/error_messages', resource: @client %>
-
   <div class="wizard-top">
 
     <%= link_to(@client.new_record? ? clients_path : client_path(@client)) do %>
@@ -21,8 +19,18 @@
   </div>
 
   <div class="login__field">
-    <%= f.label :first_name, t("clients.form.first_name") %>
+    <%= f.label :first_name do %>
+      <%= t("clients.form.first_name") %>
+      <span class="required-asterisk">*</span>
+    <% end %>
+
     <%= f.text_field :first_name, class: "login__input" %>
+
+    <% @client.errors.full_messages_for(:first_name).each do |message| %>
+      <div class="inline-error">
+        <%= message %>
+      </div>
+    <% end %>
   </div>
 
   <div class="login__field">
@@ -31,19 +39,26 @@
   </div>
 
   <div class="login__field">
-    <%= f.label :phone, t("clients.form.phone") %>
+    <%= f.label :phone do %>
+      <%= t("clients.form.phone") %>
+      <span class="required-asterisk">*</span>
+    <% end %>
+
     <%= f.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
+
+    <% @client.errors.full_messages_for(:phone).each do |message| %>
+      <div class="inline-error">
+        <%= message %>
+      </div>
+    <% end %>
   </div>
 
   <div class="login__field" data-controller="phones">
-
     <div data-phones-target="container">
       <%= f.fields_for :client_phones do |phone_form| %>
         <div class="phone-row">
           <%= phone_form.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
-
           <%= phone_form.hidden_field :_destroy %>
-
           <button type="button"
                   class="remove-btn"
                   data-action="phones#remove">
@@ -60,7 +75,6 @@
               data-controller="phone-mask"
               name="client[client_phones_attributes][NEW_RECORD][phone]"
               class="login__input" />
-
         <input type="hidden"
               name="client[client_phones_attributes][NEW_RECORD][_destroy]"
               value="false" />
@@ -92,10 +106,13 @@
           data-action="click->birthday-picker#open"
           data-birthday-picker-target="display">
 
-    <%= f.hidden_field :birthday,
-        data: {
-          birthday_picker_target: "hidden"
-        } %>
+    <%= f.hidden_field :birthday, data: { birthday_picker_target: "hidden" } %>
+
+    <% @client.errors.full_messages_for(:birthday).each do |message| %>
+      <div class="inline-error">
+        <%= message %>
+      </div>
+    <% end %>
 
     <!-- Modal -->
     <div class="care-products-modal hidden"

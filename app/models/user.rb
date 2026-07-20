@@ -16,6 +16,8 @@ class User < ApplicationRecord
     .+
   \z/x.freeze
 
+  validates :name, presence: true
+
   validates :password,
             format: {
               with: PASSWORD_FORMAT,
