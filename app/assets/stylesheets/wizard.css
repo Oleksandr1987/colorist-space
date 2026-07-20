@@ -39,8 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
-
+  gap: 20px;
   padding: 0 16px;
   margin: 20px 0 28px;
   overflow: visible;
@@ -72,17 +71,13 @@
 .wiz-item {
   position: relative;
   z-index: 1;
-
-  width: 54px;
-  height: 54px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-
   background: #f1f1f1;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   transition: all 0.25s ease;
   flex-shrink: 0;
 }
@@ -180,4 +175,109 @@
 .wiz-icon-close {
   width: 20px;
   height: 20px;
+}
+
+.inline-editor .wizard-top{
+    margin-bottom:20px;
+}
+
+.inline-editor.hidden{
+    display:none;
+}
+
+/* --------------------------
+   Wizard Modal
+--------------------------- */
+.wizard-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.wizard-modal.hidden {
+  display: none;
+}
+
+.wizard-modal-content {
+  width: 100%;
+  max-width: 480px;
+  max-height: 100%;
+  background: #fff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid #ececec;
+  margin-bottom: 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+/* .wizard-modal-search {
+  padding: 16px 20px;
+} */
+
+.wizard-modal-list {
+  padding: 0 20px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.wizard-modal-close {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.wizard-modal-search {
+  padding: 16px 20px 10px;
+}
+
+/* .wizard-modal-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 0 20px;
+} */
+
+.wizard-check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f2f2f2;
+  cursor: pointer;
+}
+
+.wizard-check-row input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.wizard-check-title {
+  flex: 1;
+  font-size: 16px;
+}
+
+.wizard-check-price {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wizard-modal-footer {
+  padding: 16px 20px 24px;
+  border-top: 1px solid #ececec;
+  background: white;
 }

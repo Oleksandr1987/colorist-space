@@ -1,10 +1,10 @@
-<%= render 'shared/vertical_menu' %>
-
 <div
   data-controller="calendar-view"
   data-calendar-view-client-id-value="<%= params[:client_id] || @client&.id %>"
   data-calendar-view-dates-with-appointments-value="<%= @dates_with_appointments.to_json%>"
-  data-calendar-view-pencil-icon-value="<%= asset_path('pencil.png') %>"
+  data-calendar-view-client-icon-value="<%= asset_path('client.png') %>"
+  data-calendar-view-notes-icon-value="<%= asset_path('notes.png') %>"
+  data-calendar-view-delete-icon-value="<%= asset_path('delete.png') %>"
   data-calendar-view-translations-value='{
     "days": {
       "sun": "<%= t('appointments.calendar_view.days.sun') %>",
@@ -38,11 +38,18 @@
 
   <div class="calendar-today-label" data-calendar-view-target="selectedDateLabel"></div>
 
-  <div class="add-btn-wrapper">
+  <div class="calendar-actions">
     <%= link_to t("appointments.calendar_view.add"),
           new_appointment_path(date: params[:date]),
-          class: "button purple full",
+          class: "button purple",
           data: { action: "calendar-view#openNewAppointment" } %>
+
+    <%= link_to all_appointments_path, class: "calendar-all-button" do %>
+      <%= image_tag "notes.png",
+            class: "wiz-icon",
+            width: 22,
+            height: 22 %>
+    <% end %>
   </div>
 
   <div class="timeline-wrapper">

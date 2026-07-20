@@ -4,17 +4,7 @@ class AppointmentsController < ApplicationController
   before_action :normalize_time_params, only: %i[create update]
 
   auto_authorize :appointment, only: %i[new create edit update destroy show]
-  after_action :verify_authorized, except: %i[index history calendar by_date free_slots]
-
-  def index
-    @future_appointments = current_user.appointments.future.includes(:client)
-    @appointments_by_month = Appointment.grouped_by_month(@future_appointments)
-  end
-
-  def history
-    @past_appointments = current_user.appointments.past.includes(:client)
-    @appointments_by_month = Appointment.grouped_by_month(@past_appointments).reverse_each.to_h
-  end
+  after_action :verify_authorized, except: %i[all calendar by_date free_slots]
 
   def new
     @appointment = current_user.appointments.build
@@ -39,18 +29,40 @@ class AppointmentsController < ApplicationController
 
   def create
     appointment_data = params.require(:appointment)
-    service_ids = Array(appointment_data[:service_ids]).compact_blank
 
-    client = Client.find_or_create_by_full_name(
+    @appointment = current_user.appointments.build(
+      appointment_params.except(:service_ids)
+    )
+
+    @appointment.client_name = appointment_data[:client_name]
+    @appointment.phone = appointment_data[:phone]
+
+    if appointment_data[:client_name].blank?
+      @appointment.errors.add(:client_name, :blank)
+    end
+
+    if appointment_data[:phone].blank?
+      @appointment.errors.add(:phone, :blank)
+    end
+
+    if @appointment.errors.any?
+      render :new, status: :unprocessable_content
+      return
+    end
+
+    service_ids =
+      Array(appointment_data[:service_ids])
+        .compact_blank
+        .map!(&:to_i)
+
+    client = Client.resolve_for_appointment(
       user: current_user,
       full_name: appointment_data[:client_name],
       phone: appointment_data[:phone]
     )
 
-    @appointment = current_user.appointments.build(appointment_params.except(:service_ids))
-
     @appointment.client = client
-    @appointment.services = Service.where(id: service_ids)
+    @appointment.service_ids = service_ids if appointment_data.key?(:service_ids)
 
     if @appointment.save
       redirect_to @appointment
@@ -63,20 +75,43 @@ class AppointmentsController < ApplicationController
 
   def update
     appointment_data = params.require(:appointment)
-    service_ids = Array(appointment_data[:service_ids]).compact_blank
 
-    client = Client.find_or_create_by_full_name(
-      user: current_user,
-      full_name: appointment_data[:client_name],
-      phone: appointment_data[:phone]
-    )
+    new_name  = appointment_data[:client_name].to_s.strip
+    new_phone = PhoneValidator.normalize(appointment_data[:phone])
 
-    @appointment.client = client
+    @appointment.client_name = new_name
+    @appointment.phone = new_phone
 
-    @appointment.services = Service.where(id: service_ids) if service_ids.present?
+    @appointment.errors.add(:client_name, :blank) if new_name.blank?
+    @appointment.errors.add(:phone, :blank) if new_phone.blank?
+
+    if @appointment.errors.any?
+      render :edit, status: :unprocessable_content
+      return
+    end
+
+    current_name  = @appointment.client.full_name
+    current_phone = @appointment.client.phone
+
+    if new_name != current_name || new_phone != current_phone
+      @appointment.client = Client.resolve_for_appointment(
+        user: current_user,
+        full_name: new_name,
+        phone: new_phone
+      )
+    end
+
+    if appointment_data.key?(:service_ids)
+      service_ids = Array(appointment_data[:service_ids])
+        .compact_blank
+        .map!(&:to_i)
+
+      @appointment.service_ids = service_ids
+    end
 
     if @appointment.update(appointment_params.except(:service_ids))
-      redirect_to @appointment, notice: "Appointment was successfully updated."
+      redirect_to @appointment,
+        notice: "Appointment was successfully updated."
     else
       render :edit, status: :unprocessable_content
     end
@@ -84,7 +119,47 @@ class AppointmentsController < ApplicationController
 
   def destroy
     @appointment.destroy
-    redirect_to appointments_path, notice: "Appointment was successfully deleted."
+    redirect_to calendar_appointments_path, notice: "Appointment was successfully deleted."
+  end
+
+  def all
+    base_scope = current_user.appointments.with_client
+
+    @appointments =
+      base_scope
+        .search(params[:query])
+        .for_year(params[:year])
+        .for_month(
+          params[:year].presence || Date.current.year,
+          params[:month]
+        )
+        .for_categories(params[:categories])
+        .for_services(params[:service_ids])
+        .distinct
+        .ordered
+
+    @appointments_by_month = Appointment.grouped_by_month(@appointments)
+
+    dashboard_scope =
+      base_scope
+        .search(params[:query])
+        .for_categories(params[:categories])
+        .for_services(params[:service_ids])
+        .distinct
+
+    dashboard_year = params[:year].present? ? params[:year].to_i : Date.current.year
+
+    dashboard_month = params[:month].present? ? params[:month].to_i : Date.current.month
+
+    @stats =
+      Appointment.statistics(
+        dashboard_scope,
+        year: dashboard_year,
+        month: dashboard_month
+      )
+    @available_years = Appointment.available_years(base_scope)
+    @available_categories = current_user.services.categories
+    @available_services = current_user.services.for_filter(params[:categories])
   end
 
   def calendar

@@ -1,41 +1,66 @@
-<div class="modal hidden" data-type="service">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><%= t("appointments.modals.service.title") %></h3>
-      <button class="close" type="button" data-action="click->appointment#close">
-        <%= image_tag "delete.png", class: "close-icon" %>
+<div class="wizard-modal hidden"
+     data-type="service">
+  <div class="wizard-modal-content">
+    <!-- Header -->
+    <div class="appointment-header modal-header">
+      <div class="appointment-header-left">
+        <button type="button"
+                class="back-link inline"
+                data-action="click->appointment#close">
+          <%= image_tag "close.png",
+                class: "wiz-icon",
+                width: 24,
+                height: 24 %>
+        </button>
+        <h2>
+          <%= t("appointments.modals.service.title") %>
+        </h2>
+      </div>
+      <button type="button"
+              class="wizard-save-button"
+              data-action="click->appointment#close">
+        <%= t("common.save").upcase %>
       </button>
     </div>
-
-    <input
-      type="text"
-      placeholder="<%= t('appointments.modals.service.search') %>"
-      class="form-input"
-      data-action="input->appointment#search"
-    />
-
-    <div class="modal-list" data-appointment-target="list">
-      <% current_user.services.where(service_type: "service").order(:subtype).each do |service| %>
-        <label class="checkbox-item service-option">
-          <%= check_box_tag "appointment[modal_dummy][]",
-            service.id,
-            false,
-            data: {
-              subtype: service.subtype,
-              price: service.price,
-              type: "service",
-              action: "change->appointment#toggleService"
-            }
-          %>
-          <%= service.subtype %> — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
+    <!-- Search -->
+    <div class="wizard-modal-search">
+      <input
+        type="text"
+        class="form-input"
+        placeholder="<%= t('appointments.modals.service.search') %>"
+        data-action="input->appointment#search">
+    </div>
+    <!-- Services -->
+    <div class="wizard-modal-list"
+         data-appointment-target="list">
+      <% current_user.services
+                     .where(service_type: "service")
+                     .order(:subtype)
+                     .each do |service| %> <!-- TODO, move query to model method -->
+        <label class="wizard-check-row">
+          <%= check_box_tag(
+                "appointment[modal_dummy][]",
+                service.id,
+                false,
+                data: {
+                  subtype: service.subtype,
+                  price: service.price,
+                  type: "service",
+                  action: "change->appointment#toggleService"
+                }
+              ) %>
+          <span class="wizard-check-title">
+            <%= service.subtype %>
+          </span>
+          <span class="wizard-check-price">
+            <%= number_to_currency(
+                  service.price,
+                  unit: "",
+                  precision: 0
+                ) %> ₴
+          </span>
         </label>
       <% end %>
-    </div>
-
-    <div class="modal-footer">
-      <button class="button primary full" type="button" data-action="click->appointment#close">
-        <%= t("appointments.modals.service.apply") %>
-      </button>
     </div>
   </div>
 </div>

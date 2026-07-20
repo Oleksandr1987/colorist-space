@@ -16,6 +16,10 @@ uk:
       first_name: "Ім’я"
       last_name: "Прізвище"
       phone: "Телефон"
+      birthday: "День народження"
+      day: "День"
+      month: "Місяць"
+      select_birthday: "Оберіть день народження"
       note: "Нотатки"
 
       hair_info_title: "Додаткова інформація про волосся"
@@ -35,7 +39,7 @@ uk:
 
     # Show page
     show:
-      styles_tab: "Стилі"
+      records_tab: "Записи"
       photos_tab: "Фото"
       info_tab: "Інформація"
 

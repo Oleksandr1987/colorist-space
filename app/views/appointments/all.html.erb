@@ -1,0 +1,182 @@
+<h2><%= t("appointments.title") %></h2>
+
+<div data-controller="appointments-filter">
+  <!-- DASHBOARD -->
+  <div class="appointments-dashboard">
+    <!-- TOTAL -->
+    <button
+      type="button"
+      class="dashboard-card <%= "active" if params[:year].blank? %>"
+      data-filter-group="dashboard"
+      data-filter="all"
+      data-action="click->appointments-filter#showAllYears">
+
+      <div class="dashboard-number">
+        <%= @stats[:total] %>
+      </div>
+      <div class="dashboard-label">
+        <%= t("appointments.form.total") %>
+      </div>
+    </button>
+
+    <!-- YEAR -->
+    <button
+      type="button"
+      class="dashboard-card <%= "active" if params[:year].to_i == (params[:year].presence || Date.current.year).to_i && params[:month].blank? %>"
+      data-filter-group="dashboard"
+      data-filter="year"
+      data-year="<%= params[:year].presence || Date.current.year %>"
+      data-action="click->appointments-filter#filterYear">
+
+      <div class="dashboard-number">
+        <%= @stats[:current_year] %>
+      </div>
+      <div class="dashboard-label">
+        <%= params[:year].presence || Date.current.year %>
+      </div>
+    </button>
+
+    <!-- MONTH -->
+    <button
+      type="button"
+      class="dashboard-card <%= "active" if params[:month].to_i == (params[:month].presence || Date.current.month).to_i %>"
+      data-filter-group="dashboard"
+      data-filter="month"
+      data-year="<%= params[:year].presence || Date.current.year %>"
+      data-month="<%= params[:month].presence || Date.current.month %>"
+      data-action="click->appointments-filter#filterMonth">
+
+      <div class="dashboard-number">
+        <%= @stats[:current_month] %>
+      </div>
+      <div class="dashboard-label">
+        <%= l(
+              Date.new(
+                (params[:year].presence || Date.current.year).to_i,
+                (params[:month].presence || Date.current.month).to_i,
+                1
+              ),
+              format: "%B"
+            ) %>
+      </div>
+    </button>
+  </div>
+  <!-- SEARCH -->
+  <div class="appointments-search">
+    <%= form_with url: all_appointments_path,
+                  method: :get,
+                  local: true,
+                  class: "appointments-search-form" do %>
+      <%= text_field_tag :query,
+            params[:query],
+            class: "form-input",
+            placeholder: t("common.search") %>
+    <% end %>
+  </div>
+  <!-- FILTERS -->
+  <div class="appointments-filters">
+    <!-- YEARS -->
+    <div class="filter-section">
+      <div class="filter-title">
+        <%= t("appointments.filters.years") %>
+      </div>
+      <div class="filter-chips">
+        <button
+          type="button"
+          class="filter-chip <%= "active" if params[:year].blank? %>"
+          data-filter-group="years"
+          data-action="click->appointments-filter#showAllYears">
+          <%= t("common.all") %>
+        </button>
+
+        <% @available_years.each do |year| %>
+          <button
+            type="button"
+            class="filter-chip <%= "active" if params[:year].to_i == year %>"
+            data-filter-group="years"
+            data-year="<%= year %>"
+            data-action="click->appointments-filter#filterYear">
+            <%= year %>
+          </button>
+        <% end %>
+      </div>
+    </div>
+    <!-- CATEGORIES -->
+    <div class="filter-section">
+
+      <div class="filter-title">
+        <%= t("appointments.filters.categories") %>
+      </div>
+
+      <div class="filter-chips">
+
+        <button
+          type="button"
+          class="filter-chip <%= "active" if params[:categories].blank? %>"
+          data-param="categories"
+          data-action="click->appointments-filter#clearFilter">
+
+          <%= t("common.all") %>
+
+        </button>
+
+        <% @available_categories.each do |category| %>
+
+          <button
+            type="button"
+            class="filter-chip <%= "active" if Array(params[:categories]).include?(category) %>"
+            data-param="categories"
+            data-value="<%= category %>"
+            data-action="click->appointments-filter#toggleFilter">
+
+            <%= category %>
+
+          </button>
+
+        <% end %>
+
+      </div>
+
+    </div>
+
+    <!-- SERVICES -->
+
+    <div class="filter-section">
+
+      <div class="filter-title">
+        <%= t("appointments.filters.services") %>
+      </div>
+
+      <div class="filter-chips">
+
+        <button
+          type="button"
+          class="filter-chip <%= "active" if params[:service_ids].blank? %>"
+          data-param="service_ids"
+          data-action="click->appointments-filter#clearFilter">
+
+          <%= t("common.all") %>
+
+        </button>
+
+        <% @available_services.each do |service| %>
+
+          <button
+            type="button"
+            class="filter-chip <%= "active" if Array(params[:service_ids]).include?(service.id.to_s) %>"
+            data-param="service_ids"
+            data-value="<%= service.id %>"
+            data-action="click->appointments-filter#toggleFilter">
+
+            <%= service.subtype %>
+
+          </button>
+
+        <% end %>
+
+      </div>
+
+    </div>
+  </div>
+  <%= render "records_list" %>
+</div>

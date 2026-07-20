@@ -1,0 +1,98 @@
+<div class="inline-editor"
+     data-controller="inline-editor">
+  <!-- COLLAPSED -->
+  <div class="collapse-section"
+       data-inline-editor-target="collapsed">
+    <button type="button"
+            class="collapse-toggle"
+            data-action="inline-editor#open">
+      <span>
+        <%= t("clients.form.hair_info_title") %>
+      </span>
+      <%= image_tag "plus.png",
+            class: "add-icon" %>
+    </button>
+  </div>
+  <!-- EXPANDED -->
+  <div class="inline-editor-panel hidden"
+       data-inline-editor-target="expanded">
+    <div class="wizard-top">
+      <button type="button"
+              data-action="inline-editor#close">
+        <%= image_tag "close.png",
+              class: "wiz-icon-close" %>
+      </button>
+      <h3>
+        <%= t("clients.form.hair_info_title") %>
+      </h3>
+      <%= f.submit t("common.save").upcase %>
+    </div>
+
+    <div class="login__field">
+      <%= f.label :hair_type, t("clients.form.hair_type") %>
+
+      <%= f.select :hair_type,
+        [
+          [t("clients.hair.types.straight"), "Straight"],
+          [t("clients.hair.types.wavy"), "Wavy"],
+          [t("clients.hair.types.curly"), "Curly"],
+          [t("clients.hair.types.coily"), "Coily"]
+        ],
+        { include_blank: t("clients.form.select_hair_type") },
+        class: "login__input" %>
+    </div>
+
+    <div class="login__field">
+      <%= f.label :hair_length, t("clients.form.hair_length") %>
+
+      <%= f.select :hair_length,
+        [
+          [t("clients.hair.lengths.short"), "Short"],
+          [t("clients.hair.lengths.medium"), "Medium"],
+          [t("clients.hair.lengths.long"), "Long"]
+        ],
+        { include_blank: t("clients.form.select_hair_length") },
+        class: "login__input" %>
+    </div>
+
+    <div class="login__field">
+      <%= f.label :hair_structure, t("clients.form.hair_structure") %>
+
+      <%= f.select :hair_structure,
+        [
+          [t("clients.hair.structures.thin"), "Thin"],
+          [t("clients.hair.structures.medium"), "Medium"],
+          [t("clients.hair.structures.thick"), "Thick"]
+        ],
+        { include_blank: t("clients.form.select_hair_structure") },
+        class: "login__input" %>
+    </div>
+
+    <div class="login__field">
+      <%= f.label :hair_density, t("clients.form.hair_density") %>
+
+      <%= f.select :hair_density,
+        [
+          [t("clients.hair.density.sparse"), "Sparse"],
+          [t("clients.hair.density.medium"), "Medium"],
+          [t("clients.hair.density.dense"), "Dense"]
+        ],
+        { include_blank: t("clients.form.select_hair_density") },
+        class: "login__input" %>
+    </div>
+
+    <div class="login__field">
+      <%= f.label :scalp_condition, t("clients.form.scalp_condition") %>
+
+      <%= f.select :scalp_condition,
+        [
+          [t("clients.hair.scalp.normal"), "Normal"],
+          [t("clients.hair.scalp.dry"), "Dry"],
+          [t("clients.hair.scalp.oily"), "Oily"],
+          [t("clients.hair.scalp.sensitive"), "Sensitive"]
+        ],
+        { include_blank: t("clients.form.select_scalp_condition") },
+        class: "login__input" %>
+    </div>
+  </div>
+</div>

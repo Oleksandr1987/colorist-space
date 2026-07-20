@@ -36,9 +36,9 @@ Rails.application.routes.draw do
 
   resources :appointments do
     collection do
+      get :all
       get :calendar
       get :by_date
-      get :history
       get :free_slots
     end
   end

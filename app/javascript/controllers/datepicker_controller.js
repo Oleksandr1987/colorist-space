@@ -1,3 +1,4 @@
+// app/javascript/controllers/datepicker_controller.js
 import { Controller } from "@hotwired/stimulus"
 import "litepicker"
 
@@ -9,10 +10,10 @@ export default class extends Controller {
       const form = input.closest("form")
       const originalName = input.getAttribute("name")
       const displayValue = input.value.trim()
-  
+
       // Видаляємо name, щоб не сабмітилось у неправильному форматі
       input.removeAttribute("name")
-  
+
       // 👇 Якщо дата вже є (встановлено за замовчуванням), одразу створимо hidden input
       if (displayValue.match(/^\d{2}\.\d{2}\.\d{4}$/)) {
         const hidden = document.createElement("input")
@@ -21,7 +22,7 @@ export default class extends Controller {
         hidden.value = displayValue.split('.').reverse().join('-') // DD.MM.YYYY → YYYY-MM-DD
         form.appendChild(hidden)
       }
-  
+
       const picker = new window.Litepicker({
         element: input,
         format: "DD.MM.YYYY",
@@ -37,11 +38,11 @@ export default class extends Controller {
         setup: (picker) => {
           picker.on("selected", (date) => {
             input.value = date.format("DD.MM.YYYY")
-  
+
             // 🧼 Видалити попередній прихований
             const existing = form.querySelector(`input[type="hidden"][name="${originalName}"]`)
             if (existing) existing.remove()
-  
+
             // 🆕 Додати прихований input
             const hidden = document.createElement("input")
             hidden.type = "hidden"

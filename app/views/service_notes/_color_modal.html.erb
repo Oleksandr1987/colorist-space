@@ -1,7 +1,7 @@
 <div class="color-modal hidden"
      data-controller="color"
      data-color-target="modal"
-     data-color-delete-icon-value="<%= asset_path('delete.png') %>">
+     data-color-delete-icon-value="<%= asset_path('close.png') %>">
 
   <div class="color-sheet"
        data-action="click->color#stop">
@@ -11,7 +11,7 @@
       <button type="button"
               class="sheet-back"
               data-action="click->color#closeModal">
-        <%= image_tag "delete.png",
+        <%= image_tag "close.png",
               class: "clear-icon" %>
       </button>
 
@@ -87,7 +87,7 @@
                   class="color-remove"
                   data-action="click->color#removeRow">
 
-            <%= image_tag "delete.png",
+            <%= image_tag "close.png",
                   class: "clear-icon" %>
 
           </button>

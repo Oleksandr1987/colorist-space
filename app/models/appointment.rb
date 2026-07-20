@@ -2,12 +2,13 @@ class Appointment < ApplicationRecord
   belongs_to :user
   belongs_to :client
 
+  attr_accessor :client_name, :phone
+
   has_many :appointment_services_relations, inverse_of: :appointment, dependent: :destroy
   has_many :services, through: :appointment_services_relations
   has_one :service_note, dependent: :destroy
 
   validates :appointment_date, :appointment_time, presence: true
-  validates :appointment_time, uniqueness: { scope: :appointment_date, message: "is already booked for this date" }
 
   validate :valid_date
   validate :valid_end_time
@@ -58,6 +59,168 @@ class Appointment < ApplicationRecord
       )
   }
 
+  scope :with_client, -> { includes(:client) }
+
+  scope :ordered, -> {
+    order(
+      appointment_date: :desc,
+      appointment_time: :desc
+    )
+  }
+
+  scope :search, ->(query) {
+    next all if query.blank?
+
+    term = "%#{query.strip}%"
+
+    left_joins(:client)
+      .where(
+        <<~SQL,
+          clients.first_name LIKE :query
+          OR clients.last_name LIKE :query
+          OR clients.phone LIKE :query
+          OR appointments.service_name LIKE :query
+          OR appointments.notes LIKE :query
+        SQL
+        query: term
+      )
+  }
+
+  scope :for_year, ->(year) {
+    next all if year.blank?
+
+    where(
+      appointment_date:
+        Date.new(year.to_i, 1, 1)..
+        Date.new(year.to_i, 12, 31)
+    )
+  }
+
+  scope :for_month, ->(year, month) {
+    next all if month.blank?
+
+    first_day =
+      Date.new(
+        year.to_i,
+        month.to_i,
+        1
+      )
+
+    where(
+      appointment_date:
+        first_day..first_day.end_of_month
+    )
+  }
+
+  scope :for_categories, ->(categories) {
+    categories = Array(categories).reject(&:blank?)
+
+    next all if categories.empty?
+
+    joins(:services).where(services: { category: categories })
+  }
+
+  scope :for_services, ->(service_ids) {
+    ids = Array(service_ids).reject(&:blank?)
+
+    next all if ids.empty?
+
+    joins(:services).where(services: { id: ids })
+  }
+
+  class << self
+    def grouped_by_month(relation)
+    relation.group_by { |a| a.appointment_date.strftime("%B %Y") }
+            .sort_by { |month, appointments| appointments.first.appointment_date.beginning_of_month }
+            .to_h
+    end
+
+    def available_years(scope)
+      scope
+        .distinct
+        .pluck(:appointment_date)
+        .map(&:year)
+        .uniq
+        .sort
+        .reverse
+    end
+
+    def statistics(scope, year:, month:)
+      first_day_of_year = Date.new(year, 1, 1)
+      last_day_of_year = Date.new(year, 12, 31)
+
+      first_day_of_month = Date.new(year, month, 1)
+
+      {
+        total: scope.count,
+
+        current_year: scope.where(
+          appointment_date: first_day_of_year..last_day_of_year
+        ).count,
+
+        current_month: scope.where(
+          appointment_date: first_day_of_month..first_day_of_month.end_of_month
+        ).count
+      }
+    end
+
+    def available_slots(user, date)
+      slot_rules = user.slot_rules.select { |rule| rule.active_on?(date) }
+      slots = slot_rules.flat_map { |rule| rule.slots_for(date, 5) }
+
+      appointments = user.appointments
+        .by_date(date)
+        .order(:appointment_time)
+        .to_a
+
+      available = []
+      pointer = 0
+
+      slots.each do |slot|
+        slot_start = slot[:start]
+        slot_end = slot[:end]
+
+        while pointer < appointments.length
+          current_appointment = appointments[pointer]
+
+          current_end_time = current_appointment.end_time.change(
+            year: date.year,
+            month: date.month,
+            day: date.day
+          )
+
+          break unless current_end_time <= slot_start
+
+          pointer += 1
+        end
+
+        conflict = false
+
+        if pointer < appointments.length
+          app = appointments[pointer]
+
+          appointment_start = app.appointment_time.change(
+            year: date.year,
+            month: date.month,
+            day: date.day
+          )
+
+          appointment_end = app.end_time.change(
+            year: date.year,
+            month: date.month,
+            day: date.day
+          )
+
+          conflict = slot_start < appointment_end && slot_end > appointment_start
+        end
+
+        available << slot unless conflict
+      end
+
+      available
+    end
+  end
+
   def total_price
     services.sum(:price)
   end
@@ -92,66 +255,8 @@ class Appointment < ApplicationRecord
     }
   end
 
-  def self.grouped_by_month(relation)
-    relation.group_by { |a| a.appointment_date.strftime("%B %Y") }
-            .sort_by { |month, appointments| appointments.first.appointment_date.beginning_of_month }
-            .to_h
-  end
-
-  def self.available_slots(user, date)
-    slot_rules = user.slot_rules.select { |rule| rule.active_on?(date) }
-    slots = slot_rules.flat_map { |rule| rule.slots_for(date, 5) }
-
-    appointments = user.appointments
-      .by_date(date)
-      .order(:appointment_time)
-      .to_a
-
-    available = []
-    pointer = 0
-
-    slots.each do |slot|
-      slot_start = slot[:start]
-      slot_end = slot[:end]
-
-      while pointer < appointments.length
-        current_appointment = appointments[pointer]
-
-        current_end_time = current_appointment.end_time.change(
-          year: date.year,
-          month: date.month,
-          day: date.day
-        )
-
-        break unless current_end_time <= slot_start
-
-        pointer += 1
-      end
-
-      conflict = false
-
-      if pointer < appointments.length
-        app = appointments[pointer]
-
-        appointment_start = app.appointment_time.change(
-          year: date.year,
-          month: date.month,
-          day: date.day
-        )
-
-        appointment_end = app.end_time.change(
-          year: date.year,
-          month: date.month,
-          day: date.day
-        )
-
-        conflict = slot_start < appointment_end && slot_end > appointment_start
-      end
-
-      available << slot unless conflict
-    end
-
-    available
+  def client_name
+    client&.full_name
   end
 
   private
@@ -193,7 +298,7 @@ class Appointment < ApplicationRecord
       .where.not(id: id)
       .where("appointment_time < ? AND end_time > ?", end_time, appointment_time)
 
-    errors.add(:base, "This time slot is already taken by another appointment.") if conflicts.exists?
+    errors.add(:appointment_time, "This time slot is already taken by another appointment.") if conflicts.exists?
   end
 
   def time_step_interval

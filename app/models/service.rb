@@ -28,6 +28,24 @@ class Service < ApplicationRecord
     scope
   }
 
+  scope :appointment_services, -> { where(service_type: "service") }
+
+  scope :with_category, -> { where.not(category: [ nil, "" ]) }
+
+  scope :ordered_for_filter, -> { order(:category, :subtype) }
+
+  scope :categories, -> { appointment_services.with_category.distinct.pluck(:category).sort }
+
+  scope :for_filter, ->(categories = nil) {
+    scope = appointment_services
+
+    categories = Array(categories).reject(&:blank?)
+
+    scope = scope.where(category: categories) if categories.any?
+
+    scope.ordered_for_filter
+  }
+
   def self.grouped_income(scope, service_type)
     if service_type.present?
       if service_type == "service"

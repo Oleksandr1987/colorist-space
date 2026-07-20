@@ -3,17 +3,29 @@
     <div class="screen__content">
       <h2><%= t("auth.forgot_password_title") %></h2>
       <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-        <%= render "devise/shared/error_messages", resource: resource %>
         <div class="login__field">
-         <%= f.email_field :email, class: "login__input", placeholder: t("auth.placeholder_email") %>
+          <%= f.label :email do %>
+            <%= t("auth.email") %>
+            <span class="required-asterisk">*</span>
+          <% end %>
+
+          <%= f.email_field :email, class: "login__input", placeholder: "demo@colorist.com" %>
+
+          <% resource.errors.full_messages_for(:email).each do |message| %>
+            <div class="inline-error">
+              <%= message %>
+            </div>
+          <% end %>
         </div>
         <div class="actions">
           <%= f.submit t("auth.send_reset_link"), class: "button reset__submit" %>
         </div>
         <div class="home-page__logo">
-        <%= image_tag("logo_full_transpr.png", alt: "Colorist.Space", class: "logo-img") %>
-      </div>
-      <% end %>   
+          <%= image_tag("logo_full_transpr.png", alt: "Colorist.Space", class: "logo-img") %>
+        </div>
+
+      <% end %>
+
     </div>
   </div>
 </div>

@@ -1,0 +1,18 @@
+<div class="picker-modal hidden"
+     data-haircut-target="pickerModal"
+     data-action="click->haircut#closePicker">
+  <div class="picker-modal-content"
+       data-action="click->haircut#stop">
+    <div class="care-products-modal-header">
+      <h3 data-haircut-target="pickerTitle"></h3>
+      <button type="button"
+              data-action="click->haircut#closePicker">
+        <%= image_tag "close.png",
+              class: "clear-icon" %>
+      </button>
+    </div>
+    <div class="haircut-picker-list"
+         data-haircut-target="pickerList">
+    </div>
+  </div>
+</div>

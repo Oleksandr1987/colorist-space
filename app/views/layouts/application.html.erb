@@ -27,7 +27,13 @@
 
     <main>
       <% flash.each do |type, message| %>
-        <div class="flash <%= type %>"><%= message.html_safe %></div>
+          <% next if controller_name == "sessions" &&
+                    action_name == "new" &&
+                    type.to_sym == :alert %>
+
+          <div class="flash <%= type %>">
+            <%= message.html_safe %>
+          </div>
       <% end %>
 
       <%= yield %>
@@ -47,7 +53,7 @@
            alt="">
 
       <button class="fullscreen-close"
-              data-action="click->photo#close"><%= image_tag "delete.png",
+              data-action="click->photo#close"><%= image_tag "close.png",
                       class: "clear-icon" %></button>
     </div>
 

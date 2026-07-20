@@ -1,36 +1,33 @@
 <div class="appointment-container">
+  <%= form_with model: @appointment, local: true, data: { controller: "calendar appointment", appointment_nothing_selected_value: t("appointments.nothing_selected") } do |f| %>
   <div class="appointment-header">
-    <%= link_to appointments_path, class: "back-link inline" do %>
-      <%= image_tag "back.png",
-            class: "wiz-icon",
-            width: 24,
-            height: 24 %>
-    <% end %>
-    <h2>
-      <%= @appointment.new_record? ?
-          t("appointments.new") :
-          t("appointments.edit") %>
-    </h2>
+    <div class="appointment-header-left">
+      <%= link_to calendar_appointments_path, class: "back-link inline" do %>
+        <%= image_tag "back.png",
+              class: "wiz-icon",
+              width: 24,
+              height: 24 %>
+      <% end %>
+
+      <h2>
+        <%= @appointment.new_record? ?
+            t("appointments.new") :
+            t("appointments.edit") %>
+      </h2>
+    </div>
+
+    <button type="submit" class="wizard-save-button"
+            data-appointment-target="saveButton">
+        <%= t("common.save").upcase %>
+    </button>
   </div>
-
-  <%= form_with model: @appointment, local: true, data: { controller: "calendar appointment" } do |f| %>
-
-    <% if @appointment.errors.any? %>
-      <div class="error-messages">
-        <h4>
-          <%= pluralize(@appointment.errors.count, "error") %>
-          prevented the appointment from being saved:
-        </h4>
-        <ul>
-          <% @appointment.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
 
     <!-- Client Name -->
     <div class="client-input-wrapper">
+      <label>
+        <%= t("appointments.form.client_name") %>
+        <span class="required-asterisk">*</span>
+      </label>
       <%= text_field_tag "appointment[client_name]",
         @appointment.client&.full_name || "",
         class: "form-input client-name-input",
@@ -42,12 +39,17 @@
         list: "client-list",
         autocomplete: "off" %>
 
+      <% @appointment.errors.full_messages_for(:client_name).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
+
       <button type="button"
               class="clear-client-btn hidden"
               data-calendar-target="clearButton"
               data-action="click->calendar#clearClientField">
-        <%= image_tag "delete.png",
-                      class: "clear-icon" %>
+        <%= image_tag "close.png", class: "clear-icon" %>
       </button>
 
       <datalist id="client-list" data-calendar-target="clientList">
@@ -67,7 +69,16 @@
       <%= telephone_field_tag "appointment[phone]",
         @appointment.client&.phone || "",
         class: "form-input",
-        data: { "calendar-target": "clientPhone" } %>
+        data: {
+          controller: "phone-mask",
+          "calendar-target": "clientPhone"
+        } %>
+
+      <% @appointment.errors.full_messages_for(:phone).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
     </div>
 
     <!-- Date -->
@@ -87,6 +98,12 @@
           datepicker_target: "input",
           min: Date.today.strftime("%Y-%m-%d")
         } %>
+
+      <% @appointment.errors.full_messages_for(:appointment_date).each do |message| %>
+        <div class="inline-error">
+          <%= message %>
+        </div>
+      <% end %>
     </div>
 
     <!-- Start / End Time -->
@@ -101,6 +118,12 @@
             appointment_target: "appointmentTime",
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
+
+        <% @appointment.errors.full_messages_for(:appointment_time).each do |message| %>
+          <div class="inline-error">
+            <%= message %>
+          </div>
+        <% end %>
       </div>
 
       <div>
@@ -114,7 +137,11 @@
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
 
-        <!-- Inline error placeholder -->
+        <% @appointment.errors.full_messages_for(:end_time).each do |message| %>
+          <div class="inline-error">
+            <%= message %>
+          </div>
+        <% end %>
         <div data-appointment-target="timeError"
             class="inline-error hidden">
           <%= t("appointments.form.end_time_error", default: "Час завершення має бути пізніше часу початку") %>
@@ -127,13 +154,36 @@
       <label>
         <%= t("appointments.form.services") %>
       </label>
-      <div class="fake-input"
-           data-action="click->appointment#open"
-           data-type="service">
-        <span data-appointment-target="serviceSelected"
-              class="placeholder">
-          <%= t("appointments.form.select_services") %>
-        </span>
+
+      <div class="service-selector">
+        <% if @appointment.service_ids.any? %>
+          <div class="service-selector-content"
+              data-action="click->appointment#open"
+              data-type="service">
+
+            <div data-appointment-target="serviceSelected">
+              <%= @appointment.services.map(&:name).join(", ") %>
+            </div>
+
+          </div>
+        <% else %>
+          <div class="collapse-section add-service-placeholder">
+            <button type="button"
+                    class="collapse-toggle"
+                    data-action="click->appointment#open"
+                    data-type="service">
+              <span>
+                <%= t("appointments.form.add_services") %>
+              </span>
+              <%= image_tag "plus.png",
+                    class: "add-icon" %>
+            </button>
+          </div>
+
+          <div data-appointment-target="serviceSelected"
+              class="hidden">
+          </div>
+        <% end %>
       </div>
     </div>
 
@@ -151,18 +201,6 @@
         rows: 2,
         placeholder: t("appointments.form.notes_placeholder") %>
     </div>
-
-    <!-- Total -->
-    <div class="total-price">
-      <strong><%= t("appointments.form.total") %>:</strong>
-      <span data-appointment-target="total">0</span> ₴
-    </div>
-
-    <!-- Submit -->
-    <div class="form-actions" style="height: 80px;"></div>
-    <%= f.submit t("appointments.form.save"),
-      class: "floating-save-button",
-      data: { "appointment-target": "saveButton" } %>
 
     <!-- Modals -->
     <%= render "appointments/modals/service_modal" %>

@@ -1,9 +1,36 @@
 <%= form_with model: @client, local: true, html: { multipart: true } do |f| %>
-  <%= render 'shared/error_messages', resource: @client %>
+  <div class="wizard-top">
+
+    <%= link_to(@client.new_record? ? clients_path : client_path(@client)) do %>
+      <%= image_tag "back.png",
+            width: 24,
+            height: 24,
+            class: "wiz-icon" %>
+    <% end %>
+
+    <h2>
+      <%= @client.new_record? ?
+          t("clients.new") :
+          t("clients.edit") %>
+    </h2>
+
+    <%= f.submit t("common.save").upcase %>
+
+  </div>
 
   <div class="login__field">
-    <%= f.label :first_name, t("clients.form.first_name") %>
+    <%= f.label :first_name do %>
+      <%= t("clients.form.first_name") %>
+      <span class="required-asterisk">*</span>
+    <% end %>
+
     <%= f.text_field :first_name, class: "login__input" %>
+
+    <% @client.errors.full_messages_for(:first_name).each do |message| %>
+      <div class="inline-error">
+        <%= message %>
+      </div>
+    <% end %>
   </div>
 
   <div class="login__field">
@@ -12,23 +39,30 @@
   </div>
 
   <div class="login__field">
-    <%= f.label :phone, t("clients.form.phone") %>
+    <%= f.label :phone do %>
+      <%= t("clients.form.phone") %>
+      <span class="required-asterisk">*</span>
+    <% end %>
+
     <%= f.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
+
+    <% @client.errors.full_messages_for(:phone).each do |message| %>
+      <div class="inline-error">
+        <%= message %>
+      </div>
+    <% end %>
   </div>
 
   <div class="login__field" data-controller="phones">
-
     <div data-phones-target="container">
       <%= f.fields_for :client_phones do |phone_form| %>
         <div class="phone-row">
           <%= phone_form.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
-
           <%= phone_form.hidden_field :_destroy %>
-
           <button type="button"
                   class="remove-btn"
                   data-action="phones#remove">
-            <%= image_tag "delete.png", class: "clear-icon" %>
+            <%= image_tag "close.png", class: "clear-icon" %>
           </button>
         </div>
       <% end %>
@@ -41,7 +75,6 @@
               data-controller="phone-mask"
               name="client[client_phones_attributes][NEW_RECORD][phone]"
               class="login__input" />
-
         <input type="hidden"
               name="client[client_phones_attributes][NEW_RECORD][_destroy]"
               value="false" />
@@ -49,7 +82,7 @@
         <button type="button"
                 class="remove-btn"
                 data-action="phones#remove">
-          <%= image_tag "delete.png", class: "clear-icon" %>
+          <%= image_tag "close.png", class: "clear-icon" %>
         </button>
       </div>
     </template>
@@ -61,93 +94,87 @@
     </button>
   </div>
 
-  <div data-controller="collapse" class="collapse-section">
-    <button type="button" class="collapse-toggle" data-action="collapse#toggle">
-      <span><%= t("clients.form.hair_info_title") %></span>
-       <%= image_tag "plus.png", class: "add-icon" %>
-    </button>
+  <div class="login__field"
+     data-controller="birthday-picker">
 
-    <div data-collapse-target="content" class="hidden">
+    <%= f.label :birthday, t("clients.form.birthday") %>
 
-      <div class="login__field">
-        <%= f.label :hair_type, t("clients.form.hair_type") %>
-        <%= f.select :hair_type,
-          [
-            [t("clients.hair.types.straight"), "Straight"],
-            [t("clients.hair.types.wavy"), "Wavy"],
-            [t("clients.hair.types.curly"), "Curly"],
-            [t("clients.hair.types.coily"), "Coily"]
-          ],
-          { include_blank: t("clients.form.select_hair_type") },
-          class: "login__input" %>
+    <input type="text"
+          readonly
+          class="login__input"
+          placeholder="<%= t("clients.form.select_birthday") %>"
+          data-action="click->birthday-picker#open"
+          data-birthday-picker-target="display">
+
+    <%= f.hidden_field :birthday, data: { birthday_picker_target: "hidden" } %>
+
+    <% @client.errors.full_messages_for(:birthday).each do |message| %>
+      <div class="inline-error">
+        <%= message %>
       </div>
+    <% end %>
 
-      <div class="login__field">
-        <%= f.label :hair_length, t("clients.form.hair_length") %>
-        <%= f.select :hair_length,
-          [
-            [t("clients.hair.lengths.short"), "Short"],
-            [t("clients.hair.lengths.medium"), "Medium"],
-            [t("clients.hair.lengths.long"), "Long"]
-          ],
-          { include_blank: t("clients.form.select_hair_length") },
-          class: "login__input" %>
-      </div>
+    <!-- Modal -->
+    <div class="care-products-modal hidden"
+        data-birthday-picker-target="modal"
+        data-action="click->birthday-picker#close">
 
-      <div class="login__field">
-        <%= f.label :hair_structure, t("clients.form.hair_structure") %>
-        <%= f.select :hair_structure,
-          [
-            [t("clients.hair.structures.thin"), "Thin"],
-            [t("clients.hair.structures.medium"), "Medium"],
-            [t("clients.hair.structures.thick"), "Thick"]
-          ],
-          { include_blank: t("clients.form.select_hair_structure") },
-          class: "login__input" %>
-      </div>
+      <div class="care-products-modal-content"
+          data-action="click->birthday-picker#stop">
 
-      <div class="login__field">
-        <%= f.label :hair_density, t("clients.form.hair_density") %>
-        <%= f.select :hair_density,
-          [
-            [t("clients.hair.density.sparse"), "Sparse"],
-            [t("clients.hair.density.medium"), "Medium"],
-            [t("clients.hair.density.dense"), "Dense"]
-          ],
-          { include_blank: t("clients.form.select_hair_density") },
-          class: "login__input" %>
-      </div>
+        <div class="wizard-top birthday-picker-top">
+          <button type="button"
+                  data-action="click->birthday-picker#close">
+            <%= image_tag "close.png",
+                  class: "wiz-icon-close" %>
+          </button>
 
-      <div class="login__field">
-        <%= f.label :scalp_condition, t("clients.form.scalp_condition") %>
-        <%= f.select :scalp_condition,
-          [
-            [t("clients.hair.scalp.normal"), "Normal"],
-            [t("clients.hair.scalp.dry"), "Dry"],
-            [t("clients.hair.scalp.oily"), "Oily"],
-            [t("clients.hair.scalp.sensitive"), "Sensitive"]
-          ],
-          { include_blank: t("clients.form.select_scalp_condition") },
-          class: "login__input" %>
-      </div>
+          <button type="button"
+                  data-action="click->birthday-picker#save">
+            <%= t("common.save").upcase %>
+          </button>
+        </div>
 
-    </div>
-  </div>
+        <div class="birthday-picker">
+          <!-- DAYS -->
+          <div class="birthday-wheel"
+              data-birthday-picker-target="days"
+              data-action="scroll->birthday-picker#scrollDay">
 
-  <div data-controller="collapse" class="collapse-section">
-    <button type="button" class="collapse-toggle" data-action="collapse#toggle">
-      <span><%= t("clients.form.note") %></span>
-       <%= image_tag "plus.png", class: "add-icon" %>
-    </button>
+            <div class="birthday-wheel-spacer"></div>
 
-    <div data-collapse-target="content" class="hidden">
-      <div class="login__field">
-        <%= f.text_area :note, class: "login__input" %>
+            <% (1..31).each do |day| %>
+              <div class="birthday-wheel-item"
+                  data-day="<%= "%02d" % day %>">
+                <%= "%02d" % day %>
+              </div>
+            <% end %>
+
+            <div class="birthday-wheel-spacer"></div>
+          </div>
+
+          <!-- MONTHS -->
+          <div class="birthday-wheel"
+              data-birthday-picker-target="months"
+              data-action="scroll->birthday-picker#scrollMonth">
+
+            <div class="birthday-wheel-spacer"></div>
+
+            <% I18n.t("date.month_names").drop(1).each_with_index do |month, index| %>
+              <div class="birthday-wheel-item"
+                  data-month="<%= "%02d" % (index + 1) %>">
+                <%= month %>
+              </div>
+            <% end %>
+
+            <div class="birthday-wheel-spacer"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="actions">
-    <%= f.submit t("clients.save"), class: "button" %>
-  </div>
+  <%= render "hair_info_form", f: f, expanded: false %>
+
+  <%= render "notes_form", f: f, expanded: false %>
 <% end %>

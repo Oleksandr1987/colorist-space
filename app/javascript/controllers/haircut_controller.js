@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["container", "template", "addStep"]
+  static targets = ["container", "template", "addStep", "pickerModal", "pickerTitle", "pickerList"]
 
 	static values = {
 		title: String,
@@ -37,17 +37,10 @@ export default class extends Controller {
       .replace(/NEW_RECORD/g, id)
       .replace(/__ZONE__/g, zone)
 
-    this.containerTarget.insertAdjacentHTML(
-      "beforeend",
-      html
-    )
+    this.containerTarget.insertAdjacentHTML("beforeend", html)
 
     const newStep = this.containerTarget.lastElementChild
-
-    const content =
-      newStep?.querySelector(
-        "[data-collapse-target='content']"
-      )
+    const content = newStep?.querySelector("[data-collapse-target='content']")
 
     if (content) {
       content.classList.remove("hidden")
@@ -57,9 +50,7 @@ export default class extends Controller {
       newStep.classList.add("open")
     }
 
-    const empty = this.element.querySelector(
-      ".empty-haircut-step"
-    )
+    const empty = this.element.querySelector(".empty-haircut-step")
 
     if (empty) {
       empty.remove()
@@ -75,15 +66,11 @@ export default class extends Controller {
   removeStep(event) {
 		event.preventDefault()
 
-		const wrapper = event.currentTarget.closest(
-			".formula-step-wrapper"
-		)
+		const wrapper = event.currentTarget.closest(".formula-step-wrapper")
 
 		wrapper.style.display = "none"
 
-		const destroyInput = wrapper.querySelector(
-			".destroy-field"
-		)
+		const destroyInput = wrapper.querySelector(".destroy-field")
 
 		if (destroyInput) {
 			destroyInput.value = "1"
@@ -123,7 +110,6 @@ export default class extends Controller {
 
 		const btn = event.currentTarget
 		const zone = btn.dataset.zone
-
 		const wrapper = btn.closest(".formula-card")
 
 		wrapper.querySelectorAll(".zone-chip")
@@ -131,17 +117,13 @@ export default class extends Controller {
 
 		btn.classList.add("active")
 
-		const input = wrapper.querySelector(
-			"input[name*='[zone]']"
-		)
+		const input = wrapper.querySelector("input[name*='[zone]']")
 
 		if (input) {
 			input.value = zone
 		}
 
-		const title = wrapper.querySelector(
-			".haircut-zone-title"
-		)
+		const title = wrapper.querySelector(".haircut-zone-title")
 
 		if (title) {
 			title.textContent = zone.toUpperCase()
@@ -156,10 +138,8 @@ export default class extends Controller {
 		const html = `
 			<div class="formula-step-wrapper empty-haircut-step"
 					data-controller="collapse">
-
 				<div class="formula-step-header"
 						data-action="click->collapse#toggle">
-
 					<span>STEP 1</span>
 
 					<svg class="chevron"
@@ -176,21 +156,13 @@ export default class extends Controller {
 
 				<div class="formula-step-content"
 						data-collapse-target="content">
-
 					<div class="sections-wrapper">
-
 						<h5>${this.selectZoneValue}</h5>
-
 						<div class="haircut-zones-grid">
-
 							${this.zoneButtons()}
-
 						</div>
-
 					</div>
-
 				</div>
-
 			</div>
 		`
 
@@ -221,7 +193,6 @@ export default class extends Controller {
     event.preventDefault()
 
     const block = event.currentTarget.closest(".formula-block")
-
     const valueRow = block.querySelector(".haircut-value-row")
     const select = block.querySelector("select")
 
@@ -231,5 +202,54 @@ export default class extends Controller {
     }
 
     valueRow?.remove()
+  }
+
+  openPicker(event) {
+    this.currentPicker = event.currentTarget
+    this.pickerTitleTarget.textContent = this.currentPicker.dataset.title
+    this.pickerListTarget.innerHTML = ""
+
+    const values = this.currentPicker.dataset.values.split("|")
+    const labels = this.currentPicker.dataset.labels.split("|")
+    const currentValue = this.currentPicker.dataset.currentValue
+
+    values.forEach((value, index) => {
+      const button = document.createElement("button")
+
+      button.type = "button"
+      button.className = "picker-option"
+
+      if (value === currentValue) {
+        button.classList.add("active")
+      }
+
+      button.dataset.value = value
+      button.textContent = labels[index]
+      button.addEventListener("click", this.selectPickerValue.bind(this))
+
+      this.pickerListTarget.appendChild(button)
+    })
+    this.pickerModalTarget.classList.remove("hidden")
+  }
+
+  selectPickerValue(event) {
+    const value = event.currentTarget.dataset.value
+    const label = event.currentTarget.textContent
+    const block = this.currentPicker.closest(".formula-block")
+    const hidden = block.querySelector(".picker-hidden")
+
+    hidden.value = value
+
+    this.currentPicker.dataset.currentValue = value
+    this.currentPicker.querySelector(".picker-value").textContent = label
+    this.closePicker()
+  }
+
+  closePicker() {
+    this.pickerModalTarget.classList.add("hidden")
+  }
+
+  stop(event) {
+    event.stopPropagation()
   }
 }

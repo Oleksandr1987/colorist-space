@@ -5,7 +5,7 @@ import Inputmask from "inputmask"
 export default class extends Controller {
   connect() {
     Inputmask({
-      mask: "+38(999)999-99-99",
+      mask: "+38(099) 999 99 99",
       placeholder: "_",
       showMaskOnHover: false,
       showMaskOnFocus: true

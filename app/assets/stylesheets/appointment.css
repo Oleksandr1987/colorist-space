@@ -64,3 +64,155 @@
 .hidden {
   display: none;
 }
+
+.appointments-dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 18px 0 24px;
+}
+
+.dashboard-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 10px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+}
+
+.dashboard-card.active {
+  border: 2px solid #6200ea;
+  background: #f3edff;
+}
+
+.dashboard-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: #6200ea;
+  line-height: 1;
+}
+
+.dashboard-label {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.appointments-search {
+  margin-bottom: 20px;
+}
+
+.appointments-search-form {
+  width: 100%;
+}
+
+.appointments-filters {
+  margin: 20px 0;
+}
+
+.filter-section {
+  margin-bottom: 18px;
+}
+
+.filter-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.filter-chip {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  background: #ece8ff;
+  color: #6200ea;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-chip.active {
+  background: #6200ea;
+  color: white;
+}
+
+.appointment-record {
+  background: #9162ca;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.appointment-record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.appointment-record-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.appointment-record-content:hover {
+  text-decoration: none;
+}
+
+.appointment-record-date {
+  font-size: .95rem;
+}
+
+.appointment-record-client {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.appointment-record-service {
+  color: #040404;
+  font-size: .95rem;
+}
+
+.appointment-record-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.appointment-action-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #ede4ff;
+  transition: .15s;
+}
+
+.appointment-action-button:hover {
+  background: #e2d4ff;
+}
+
+.appointment-delete-button {
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.appointment-delete-button form {
+  display: contents;
+}

@@ -1,0 +1,25 @@
+<div class="formula-block">
+  <div class="block-title">
+    <span><%= title %></span>
+  </div>
+  <div class="picker-field"
+       data-action="click->haircut#openPicker"
+       data-title="<%= title %>"
+       data-placeholder="<%= placeholder %>"
+       data-values="<%= collection.join('|') %>"
+       data-labels="<%= collection.map { |v| t("#{translation_scope}.#{v}") }.join('|') %>"
+       data-current-value="<%= value %>">
+
+    <span class="picker-value">
+      <% if value.present? %>
+        <%= t("#{translation_scope}.#{value}") %>
+      <% else %>
+        <span class="picker-placeholder">
+          <%= placeholder %>
+        </span>
+      <% end %>
+    </span>
+  </div>
+  <%= form.hidden_field field,
+        class: "picker-hidden" %>
+</div>
