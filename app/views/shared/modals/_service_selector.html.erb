@@ -6,7 +6,7 @@
       <div class="appointment-header-left">
         <button type="button"
                 class="back-link inline"
-                data-action="click->appointment#close">
+                data-action="click->service-selector#close">
           <%= image_tag "close.png",
                 class: "wiz-icon",
                 width: 24,
@@ -18,7 +18,7 @@
       </div>
       <button type="button"
               class="wizard-save-button"
-              data-action="click->appointment#close">
+              data-action="click->service-selector#close">
         <%= t("common.save").upcase %>
       </button>
     </div>
@@ -28,25 +28,56 @@
         type="text"
         class="form-input"
         placeholder="<%= t('appointments.modals.service.search') %>"
-        data-action="input->appointment#search">
+        data-action="input->service-selector#search">
+    </div>
+
+    <div class="filter-section wizard-modal-filters">
+      <div class="filter-title">
+        <%= t("appointments.filters.categories") %>
+      </div>
+
+      <div class="filter-chips">
+        <button
+          type="button"
+          class="filter-chip active"
+          data-category="all"
+          data-action="click->service-selector#filterCategory">
+          <%= t("common.all") %>
+        </button>
+
+        <% Service.categories_for_user(current_user).each do |category| %>
+          <button
+            type="button"
+            class="filter-chip"
+            data-category="<%= category %>"
+            data-action="click->service-selector#filterCategory">
+            <%= category %>
+          </button>
+        <% end %>
+      </div>
     </div>
     <!-- Services -->
     <div class="wizard-modal-list"
-         data-appointment-target="list">
-      <% current_user.services
-                     .where(service_type: "service")
-                     .order(:subtype)
-                     .each do |service| %> <!-- TODO, move query to model method -->
-        <label class="wizard-check-row">
-          <%= check_box_tag(
-                "appointment[modal_dummy][]",
+         data-service-selector-target="list">
+      <% Service.for_user(current_user)
+         .appointment_services
+         .ordered_by_subtype
+         .each do |service| %>
+        <label
+          class="wizard-check-row"
+          data-category="<%= service.category %>">
+              <%= check_box_tag(
+                checkbox_name,
                 service.id,
                 false,
                 data: {
+                  name: service.subtype,
+                  category: service.category,
                   subtype: service.subtype,
                   price: service.price,
+                  service_type: service.service_type,
                   type: "service",
-                  action: "change->appointment#toggleService"
+                  action: "change->service-selector#toggleService"
                 }
               ) %>
           <span class="wizard-check-title">

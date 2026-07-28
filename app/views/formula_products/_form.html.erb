@@ -26,8 +26,7 @@
     </div>
 
     <div class="form-actions-row">
-      <%= f.submit "Save",
-            class: "form-button primary" %>
+      <button type="submit"><%= t("common.save").upcase %></button>
       <%= link_to "Cancel",
             formula_products_path(category: @formula_product.category),
             class: "form-button cancel" %>

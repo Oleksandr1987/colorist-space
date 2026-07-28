@@ -5,45 +5,33 @@ class ServicesController < ApplicationController
   auto_authorize :service, only: %i[new create edit update destroy]
   after_action :verify_authorized, only: %i[new create edit update destroy]
 
-  # СЛОВНИК ДЕФОЛТНИХ КАТЕГОРІЙ
-  DEFAULT_CATEGORIES = {
-    "haircut"   => I18n.t("services.categories.haircut"),
-    "coloring"  => I18n.t("services.categories.coloring"),
-    "styling"   => I18n.t("services.categories.styling"),
-    "treatment" => I18n.t("services.categories.treatment")
-  }.freeze
-
   def index
   end
 
   def main
-    @categories = current_user.services
-      .where(service_type: "service")
-      .distinct
-      .pluck(:category)
-      .compact
+    @categories = Service.categories_for_user(current_user)
   end
 
   def section
-    @category = normalize_category(params[:category])
+    @category = Service.normalize_category(params[:category])
 
-    @translated_category = DEFAULT_CATEGORIES[@category] || @category
+    @translated_category = t("services.categories.#{@category}", default: @category)
 
-    @services = current_user.services.where(service_type: "service", category: @category).order(:subtype)
+    @services = Service.for_user_and_category(current_user, @category)
   end
 
   def new
-    @service = Service.new(service_type: params[:service_type] || "service")
-
-    if params[:category].present?
-      @service.category = normalize_category(params[:category])
-    end
+    @service = Service.new(
+      service_type: params[:service_type] || "service",
+      category: Service.normalize_category(params[:category])
+    )
   end
 
   def create
-    @service = current_user.services.build(service_params)
-    @service.category = normalize_category(@service.category)
-    @service.name = @service.subtype
+    attributes = service_params
+    attributes[:category] = Service.normalize_category(attributes[:category])
+
+    @service = current_user.services.build(attributes)
 
     if @service.save
       redirect_to redirect_path_for(@service), notice: "Service created successfully."
@@ -56,9 +44,10 @@ class ServicesController < ApplicationController
   end
 
   def update
-    @service.category = normalize_category(service_params[:category])
+    attributes = service_params
+    attributes[:category] = Service.normalize_category(attributes[:category])
 
-    if @service.update(service_params)
+    if @service.update(attributes)
       redirect_to redirect_path_for(@service), notice: "Service updated successfully."
     else
       render :edit, status: :unprocessable_content
@@ -81,23 +70,6 @@ class ServicesController < ApplicationController
 
   def service_params
     params.require(:service).permit(:name, :price, :category, :subtype, :service_type, :unit)
-  end
-
-  def normalize_category(category)
-    return "" if category.blank?
-
-    found = DEFAULT_CATEGORIES.find { |k, v| v.casecmp?(category) }
-    return found.first if found
-
-    key = category.downcase
-    return key if DEFAULT_CATEGORIES.key?(key)
-    category
-  end
-
-  def translate_category(category)
-    return category unless DEFAULT_CATEGORIES.key?(category)
-
-    DEFAULT_CATEGORIES[category]
   end
 
   def redirect_path_for(service)

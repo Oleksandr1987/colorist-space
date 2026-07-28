@@ -24,6 +24,28 @@
 .dev-ratio {
   font-size: 18px;
   color: #666;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dev-ratio button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 12px;
+}
+
+.dev-ratio button.active {
+  background: #111;
+  color: white;
+}
+
+.dev-ratio::before {
+  width: 100%;
+  font-size: 12px;
+  color: #888;
 }
 
 .dev-right {
@@ -35,6 +57,7 @@
 .dev-amount {
   font-size: 18px;
   font-weight: 500;
+  margin-top: 10px;
 }
 
 .dev-row-display .remove {
@@ -45,21 +68,60 @@
 }
 
 .dev-amount-input {
-  width: 70px;
+  width: 100px;
+  padding: 8px;
+  border-bottom: 1px solid #000;
   border: none;
-  border-bottom: 1px solid #ddd;
   background: transparent;
   font-size: 18px;
   text-align: center;
 }
 
-.dev-ratio button.active {
-  background: #111;
-  color: white;
+.dev-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .dev-actions {
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dev-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dev-save {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-top: 10px;
+  background: #6200ea;
+  color: white;
+}
+
+.dev-save:disabled {
+  opacity: 0.5;
+}
+
+.dev-actions button:hover {
+  opacity: .7;
+}
+
+.dev-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #888;
+  line-height: 1.35;
 }
 
 .edit-btn {
@@ -82,7 +144,19 @@
 .dev-ratio-custom {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+}
+.dev-ratio-custom input {
+  width: 32px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 12px;
+}
+
+.dev-ratio-custom button {
+  padding: 8px 10px;
+  white-space: nowrap;
 }
 
 .dev-ratio-custom.active {

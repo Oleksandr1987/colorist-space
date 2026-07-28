@@ -89,7 +89,7 @@ RSpec.describe "Services" do
 
       expect(response).to redirect_to(
         section_services_path(
-          category: "Coloring",
+          category: "coloring",
           locale: I18n.locale
         )
       )

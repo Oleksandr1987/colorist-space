@@ -7,26 +7,6 @@
   margin-bottom: 32px;
 }
 
-.price-input {
-  width: 100%;
-  border: none;
-  border-bottom: 1px solid #e5e5e5;
-  font-size: 20px;
-  padding: 6px 0;
-  outline: none;
-  background: transparent;
-  text-align: left;
-}
-
-/* currency по центру */
-.currency {
-  text-align: center;
-  font-size: 18px;
-  color: #666;
-  margin-top: 8px;
-}
-
-/* label під input */
 .price-label {
   margin-top: 6px;
   font-size: 13px;
@@ -42,7 +22,6 @@
   margin-bottom: 8px;
 }
 
-/* textarea як на макеті */
 .notes-textarea {
   width: 100%;
   min-height: 140px;
@@ -53,11 +32,6 @@
   outline: none;
   resize: none;
   background: #fafafa;
-}
-
-/* focus */
-.price-input:focus {
-  border-bottom: 1px solid #000;
 }
 
 .notes-textarea:focus {
@@ -73,19 +47,12 @@
   padding-bottom: 10px;
 }
 
-.notes-care-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
 .notes-care-total {
   margin-top: 8px;
   font-weight: 600;
 }
 
 /* ===== ROWS ===== */
-
 .price-display,
 .notes-dev-row,
 .notes-care-row,
@@ -94,17 +61,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.price-display,
-.notes-care-total,
-.price-final {
-  margin-top: 8px;
-}
-
-.notes-dev-row,
-.notes-care-row {
   margin-bottom: 4px;
+  margin-top: 8px;
 }
 
 .notes-dev-total {

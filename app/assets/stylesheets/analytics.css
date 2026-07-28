@@ -14,23 +14,6 @@
   margin-bottom: 1rem;
 }
 
-.filter-button {
-  padding: 0.4rem 0.8rem;
-  background-color: #e8dcff;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  min-width: 80px;
-  text-align: center;
-}
-
-.filter-button.active {
-  background-color: #9b6ef3;
-  color: #1a1a1a;
-  font-weight: bold;
-}
-
 /* Dropdowns */
 .dropdown {
   position: relative;
@@ -62,36 +45,20 @@
   background-color: #f0f0f0;
 }
 
-/* Custom date range */
-/* .custom-range {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-} */
-
-/* .custom-range .form-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-} */
-
 .custom-range {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem; /* 🔽 Було 1rem */
+  gap: 0.5rem;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.5rem; /* 🔽 Було 1rem */
+  margin-bottom: 0.5rem;
 }
 
 .custom-range .form-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 0.25rem; /* ✅ додано, щоб ущільнити між інпутами і кнопкою */
+  margin-bottom: 0.25rem;
 }
 
 
@@ -100,13 +67,13 @@
 }
 
 .form-input.small {
-  max-width: 120px; /* ✅ narrower input */
+  max-width: 120px;
 }
 
 .form-button.primary {
   padding: 0.4rem 1.2rem;
   font-size: 0.9rem;
-  background-color: #9b6ef3;
+  background-color: #7e3af2;
   color: white;
   border: none;
   border-radius: 6px;
@@ -118,11 +85,12 @@
   width: 100%;
   max-width: 160px;
   display: block;
-  margin: 0 auto; /* ✅ center align */
+  margin: 0 auto;
 }
 
 .form-button.primary:hover {
   opacity: 0.9;
+  background-color: #5f2ac0;
 }
 
 /* Analytics header */

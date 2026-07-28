@@ -53,20 +53,12 @@ class Appointment < ApplicationRecord
 
   scope :for_styles, -> {
     includes(service_note: [ photos_attachments: :blob ])
-      .order(
-        appointment_date: :desc,
-        appointment_time: :desc
-      )
+      .order(appointment_date: :desc, appointment_time: :desc)
   }
 
   scope :with_client, -> { includes(:client) }
 
-  scope :ordered, -> {
-    order(
-      appointment_date: :desc,
-      appointment_time: :desc
-    )
-  }
+  scope :ordered, -> { order(appointment_date: :desc, appointment_time: :desc) }
 
   scope :search, ->(query) {
     next all if query.blank?
@@ -89,27 +81,15 @@ class Appointment < ApplicationRecord
   scope :for_year, ->(year) {
     next all if year.blank?
 
-    where(
-      appointment_date:
-        Date.new(year.to_i, 1, 1)..
-        Date.new(year.to_i, 12, 31)
-    )
+    where(appointment_date: Date.new(year.to_i, 1, 1)..Date.new(year.to_i, 12, 31))
   }
 
   scope :for_month, ->(year, month) {
     next all if month.blank?
 
-    first_day =
-      Date.new(
-        year.to_i,
-        month.to_i,
-        1
-      )
+    first_day = Date.new(year.to_i, month.to_i, 1)
 
-    where(
-      appointment_date:
-        first_day..first_day.end_of_month
-    )
+    where(appointment_date: first_day..first_day.end_of_month)
   }
 
   scope :for_categories, ->(categories) {
@@ -148,16 +128,13 @@ class Appointment < ApplicationRecord
     def statistics(scope, year:, month:)
       first_day_of_year = Date.new(year, 1, 1)
       last_day_of_year = Date.new(year, 12, 31)
-
       first_day_of_month = Date.new(year, month, 1)
 
       {
         total: scope.count,
-
         current_year: scope.where(
           appointment_date: first_day_of_year..last_day_of_year
         ).count,
-
         current_month: scope.where(
           appointment_date: first_day_of_month..first_day_of_month.end_of_month
         ).count
@@ -167,12 +144,7 @@ class Appointment < ApplicationRecord
     def available_slots(user, date)
       slot_rules = user.slot_rules.select { |rule| rule.active_on?(date) }
       slots = slot_rules.flat_map { |rule| rule.slots_for(date, 5) }
-
-      appointments = user.appointments
-        .by_date(date)
-        .order(:appointment_time)
-        .to_a
-
+      appointments = user.appointments.by_date(date).order(:appointment_time).to_a
       available = []
       pointer = 0
 

@@ -8,7 +8,6 @@
         <!-- HEADER -->
   <div class="formula-step-header"
       data-action="click->collapse#toggle">
-
     <span>
       <%= t("haircut.step") %>
       <span class="step-number"></span>
@@ -45,8 +44,7 @@
 
           <button type="button"
                   data-action="click->formula#removeStep">
-            <%= image_tag "close.png",
-                class: "clear-icon" %>
+            <%= image_tag "close.png", class: "clear-icon" %>
           </button>
         </div>
       </div>
@@ -68,9 +66,7 @@
 
         <div class="colors-list" data-color-target="list">
           <div data-formula-target="colorsList">
-
             <%= step_form.fields_for :formula_ingredients do |ingredient_form| %>
-
               <% uid = ingredient_form.object.id || SecureRandom.hex(6) %>
 
               <%= render "service_notes/formula_ingredient_fields",
@@ -78,7 +74,6 @@
                     uid: uid %>
               <div class="color-row-display"
                   data-id="<%= uid %>">
-
                 <div class="color-left">
                   <span class="brand"><%= ingredient_form.object.brand %></span>
                   <span class="shade"><%= ingredient_form.object.shade %></span>
@@ -90,15 +85,11 @@
                   <button type="button"
                           class="remove"
                           data-action="click->formula#removeColor">
-                    <%= image_tag "close.png",
-                          class: "clear-icon" %>
+                    <%= image_tag "close.png", class: "clear-icon" %>
                   </button>
                 </div>
-
               </div>
-
             <% end %>
-
           </div>
 
         </div>
@@ -158,60 +149,31 @@
 
         <template data-developer-target="itemTemplate">
           <div class="dev-row-display">
-
             <div class="dev-left">
-
               <span class="dev-name"></span>
-
               <span class="dev-separator">|</span>
-
               <span class="dev-ratio"></span>
-
             </div>
 
             <div class="dev-right">
-
               <span class="dev-amount"></span>
 
-              <div class="dev-actions"
-                  data-controller="popover">
-
+              <div class="dev-actions">
                 <button
-                  type="button"
-                  class="edit-btn"
-                  data-action="click->popover#toggle">
-
-                  <%= image_tag "pencil.png",
-                        width: 18,
-                        height: 18 %>
-
+                type="button"
+                class="edit-btn"
+                data-action="click->developer#edit">
+                  <%= image_tag "pencil.png"%>
                 </button>
 
-                <div class="popover-menu hidden"
-                    data-popover-target="menu">
-
-                  <button
-                    type="button"
-                    class="edit-item">
-
-                    Edit
-
-                  </button>
-
-                  <button
-                    type="button"
-                    class="delete-item">
-
-                    Delete
-
-                  </button>
-
-                </div>
-
+                <button
+                type="button"
+                class="delete-btn"
+                data-action="click->developer#remove">
+                  <%= image_tag "delete.png" %>
+                </button>
               </div>
-
             </div>
-
           </div>
         </template>
       </div>
@@ -232,12 +194,9 @@
             <span class="time-unit">min</span>
           </div>
         </div>
-
-
       </div>
 
       <%= render "service_notes/developer_modal" %>
-
     </div>
   </div>
 </div>

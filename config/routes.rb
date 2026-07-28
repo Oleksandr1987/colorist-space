@@ -34,7 +34,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :appointments do
+  resources :appointments, except: [:index] do
     collection do
       get :all
       get :calendar

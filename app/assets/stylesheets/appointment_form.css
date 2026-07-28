@@ -2,7 +2,7 @@
 .appointment-container {
   max-width: 400px;
   margin: 0 auto;
-  padding: 1rem 1rem 8rem; /* нижній padding під кнопку */
+  padding: 1rem 1rem 8rem;
 }
 
 .appointment-header {
@@ -16,21 +16,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.header-save-button {
-  background: none;
-  border: none;
-  color: #6200ea;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 4px 0;
-}
-
-.header-save-button:disabled {
-  opacity: .5;
-  cursor: default;
 }
 
 .back-link.inline {
@@ -53,11 +38,6 @@ h2 {
   gap: 0.75rem;
 }
 
-.appointment-info {
-  flex: 1;
-  word-break: break-word;
-}
-
 .form-actions {
   display: flex;
   flex-wrap: wrap;
@@ -72,15 +52,9 @@ h2 {
   text-align: center;
 }
 
-.app-slot-icon-wrapper {
-  flex-shrink: 0;
-  margin-top: 2px;
-  position: relative;
-}
-
 /* --- Form Sections --- */
 .form-section {
-  margin-bottom: 0.6rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
 }
@@ -97,17 +71,6 @@ h2 {
 label {
   font-weight: 600;
   margin-bottom: 0.2rem;
-}
-
-.form-input {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  color: #333;
-  border-radius: 6px;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 textarea.form-input {
@@ -163,47 +126,6 @@ textarea.form-input {
   margin-bottom: 0.2rem;
 }
 
-/* --- Appointment List --- */
-.appointment-list {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1rem;
-  border-radius: 10px;
-}
-
-.appointment-list .filter-form {
-  margin-bottom: 1.2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.appointment-item {
-  padding: 1rem;
-  background: white;
-  border-radius: 8px;
-  margin-bottom: 0.65rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.appointment-item .info {
-  display: flex;
-  flex-direction: column;
-}
-
-.appointment-item .time {
-  font-weight: bold;
-}
-
-.appointment-item .edit {
-  text-decoration: none;
-  color: #888;
-  font-size: 1.2rem;
-}
-
 /* --- Appointment Details --- */
 .appointment-details {
   max-width: 500px;
@@ -251,7 +173,6 @@ textarea.form-input {
 
 @media (max-width: 480px) {
   .form-input,
-  .fake-input,
   textarea.form-input {
     width: 100%;
     max-width: 100%;
@@ -277,49 +198,4 @@ textarea.form-input {
   .form-section label {
     font-size: 0.95rem;
   }
-
-  .total-price {
-    font-size: 1rem;
-    text-align: right;
-    margin-top: 1rem;
-  }
-}
-
-/* --- Multiservice section styles --- */
-.service-checkbox-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin-top: 0.4rem;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.total-price {
-  margin-top: 0.6rem;
-  font-weight: bold;
-}
-
-/* --- Fake Input --- */
-.fake-input {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  color: #333;
-  border-radius: 6px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.fake-input:hover {
-  border-color: #888;
-}
-
-.fake-input span.placeholder {
-  color: #999;
 }

@@ -47,39 +47,28 @@
           </div>
         </div>
 
-        <div class="service-actions"
-             data-controller="popover">
-
-          <button type="button"
-                  class="icon-button"
-                  data-action="click->popover#toggle">
-
+        <div class="service-actions">
+          <%= link_to edit_formula_product_path(product),
+              class: "icon-button" do %>
             <%= image_tag "pencil.png",
                   class: "wiz-icon",
                   width: 24,
                   height: 24 %>
+          <% end %>
 
-          </button>
-
-          <div class="popover-menu hidden"
-               data-popover-target="menu">
-
-            <%= link_to t("formula_products.actions.edit"),
-                  edit_formula_product_path(product),
-                  class: "popover-item" %>
-
-            <%= button_to t("formula_products.actions.delete"),
-                  formula_product_path(product),
-                  method: :delete,
-                  form: {
-                    data: {
-                      turbo_confirm: t("formula_products.actions.confirm_delete")
-                    }
-                  },
-                  class: "popover-item delete" %>
-
-          </div>
-
+          <%= button_to formula_product_path(product),
+              method: :delete,
+              class: "icon-button delete-button",
+              form: {
+                data: {
+                  turbo_confirm: t("formula_products.actions.confirm_delete")
+                }
+              } do %>
+            <%= image_tag "delete.png",
+                  class: "wiz-icon",
+                  width: 24,
+                  height: 24 %>
+          <% end %>
         </div>
       </div>
     <% end %>

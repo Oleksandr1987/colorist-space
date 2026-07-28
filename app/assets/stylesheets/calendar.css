@@ -89,40 +89,8 @@
   font-weight: bold;
 }
 
-.appointment-item {
-  display: flex;
-  align-items: center;
-  background: #f6f6f6;
-  border-radius: 8px;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  gap: 0.5rem;
-  justify-content: space-between;
-}
-
-.service-color {
-  width: 6px;
-  height: 100%;
-  border-radius: 4px;
-}
-
-.appointment-info {
-  flex: 1;
-}
-
 .time {
   font-weight: bold;
-}
-
-.edit-icon {
-  font-size: 1.2rem;
-  color: #333;
-  text-decoration: none;
-}
-
-.no-appointments {
-  text-align: center;
-  color: #999;
 }
 
 /* Timeline styles */

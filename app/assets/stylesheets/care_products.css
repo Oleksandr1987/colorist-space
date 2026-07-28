@@ -9,7 +9,6 @@
 }
 
 /* HEADER */
-
 .care-products-header {
   display: flex;
   justify-content: space-between;
@@ -20,7 +19,6 @@
   border: none;
   border-radius: 10px;
   padding: 8px 12px;
-  background: #e8dcff;
   cursor: pointer;
   font-weight: 600;
 }
@@ -39,11 +37,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 12px;
-
   padding: 12px;
-
   background: #fff;
   border: 1px solid #ececec;
   border-radius: 14px;
@@ -210,16 +205,6 @@
   font-size: 20px;
   font-weight: 700;
   cursor: pointer;
-}
-
-/* NEW PRODUCT */
-
-.care-products-new {
-  margin-top: 16px;
-}
-
-.care-products-new .button {
-  width: 100%;
 }
 
 .service-category {

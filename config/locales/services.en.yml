@@ -74,10 +74,5 @@ en:
       back: "←"
       search: "Search..."
 
-  service_notes:
-    services:
-      add: "Add service"
-      save: "Save"
-
     errors:
       services_required: "Please select at least one service"

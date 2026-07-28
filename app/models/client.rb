@@ -51,9 +51,7 @@ class Client < ApplicationRecord
 
   def self.resolve_for_appointment(user:, full_name:, phone:)
     normalized_phone = PhoneValidator.normalize(phone)
-
-    first_name, last_name =
-      full_name.to_s.strip.split(/\s+/, 2)
+    first_name, last_name = full_name.to_s.strip.split(/\s+/, 2)
 
     return nil if first_name.blank?
 
@@ -89,9 +87,7 @@ class Client < ApplicationRecord
   def make_primary!(new_phone)
     transaction do
       client_phones.create!(phone: phone)
-
       update!(phone: new_phone)
-
       client_phones.where(phone: new_phone).destroy_all
     end
   end

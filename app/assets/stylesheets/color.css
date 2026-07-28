@@ -20,19 +20,6 @@
   display: flex;
   flex-direction: column;
 }
-/* .color-sheet {
-  width: 100%;
-  height: 85vh;
-  background: #fff;
-
-  border-radius: 24px 24px 0 0;
-
-  display: flex;
-  flex-direction: column;
-
-  padding-bottom: env(safe-area-inset-bottom);
-  animation: slideUp 0.25s ease;
-} */
 
 /* HEADER */
 .sheet-header {
@@ -73,40 +60,6 @@
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-}
-
-/* COLOR SELECTOR */
-.color-selector {
-  margin-bottom: 20px;
-}
-
-.color-selector select {
-  width: 100%;
-}
-
-/* INPUTS */
-.input-group {
-  margin-bottom: 20px;
-}
-
-.input-group input {
-  width: 100%;
-  border: none;
-  border-bottom: 1px solid #ddd;
-  padding: 10px 0;
-  font-size: 16px;
-  outline: none;
-}
-
-.input-group.inline {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.input-group.inline span {
-  font-size: 14px;
-  color: #777;
 }
 
 /* ANIMATION */
@@ -194,15 +147,6 @@
 .color-remove:hover {
   color: #000;
 }
-
-/* ADD BUTTON */
-/* .add-color-btn {
-  margin-top: 20px;
-  background: none;
-  border: none;
-  font-size: 14px;
-  letter-spacing: 1px;
-} */
 
 /* DISPLAY ROWS (FORMULA SCREEN) */
 .color-row-display {

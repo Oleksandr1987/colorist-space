@@ -14,10 +14,6 @@
   border-radius: 10px;
 }
 
-.expense-category {
-  font-size: 1rem;
-}
-
 .monthly-expense-group {
   margin-bottom: 2rem;
   width: 100%;
@@ -59,12 +55,6 @@
   border: none;
   padding: 0.2rem;
   cursor: pointer;
-}
-
-.category-total-expense {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #d32f2f;
 }
 
 .expense-info {

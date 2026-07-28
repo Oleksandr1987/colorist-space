@@ -1,26 +1,37 @@
 <div class="appointment-container">
-  <%= form_with model: @appointment, local: true, data: { controller: "calendar appointment", appointment_nothing_selected_value: t("appointments.nothing_selected") } do |f| %>
-  <div class="appointment-header">
-    <div class="appointment-header-left">
-      <%= link_to calendar_appointments_path, class: "back-link inline" do %>
-        <%= image_tag "back.png",
-              class: "wiz-icon",
-              width: 24,
-              height: 24 %>
-      <% end %>
+  <%= form_with model: @appointment,
+      local: true,
+      data: {
+        controller: "calendar appointment service-selector",
 
-      <h2>
-        <%= @appointment.new_record? ?
-            t("appointments.new") :
-            t("appointments.edit") %>
-      </h2>
+        appointment_nothing_selected_value: t("appointments.nothing_selected"),
+
+        service_selector_input_name_value: "appointment[service_ids][]",
+        service_selector_checkbox_name_value: "appointment[modal_dummy][]",
+        service_selector_placeholder_class_value: "add-service-placeholder",
+        service_selector_close_icon_value: asset_path("close.png")
+      } do |f| %>
+    <div class="appointment-header">
+      <div class="appointment-header-left">
+        <%= link_to calendar_appointments_path, class: "back-link inline" do %>
+          <%= image_tag "back.png",
+                class: "wiz-icon",
+                width: 24,
+                height: 24 %>
+        <% end %>
+
+        <h2>
+          <%= @appointment.new_record? ?
+              t("appointments.new") :
+              t("appointments.edit") %>
+        </h2>
+      </div>
+
+      <button type="submit" class="wizard-save-button"
+              data-appointment-target="saveButton">
+          <%= t("common.save").upcase %>
+      </button>
     </div>
-
-    <button type="submit" class="wizard-save-button"
-            data-appointment-target="saveButton">
-        <%= t("common.save").upcase %>
-    </button>
-  </div>
 
     <!-- Client Name -->
     <div class="client-input-wrapper">
@@ -150,47 +161,10 @@
     </div>
 
     <!-- Main Services -->
-    <div class="form-section">
-      <label>
-        <%= t("appointments.form.services") %>
-      </label>
-
-      <div class="service-selector">
-        <% if @appointment.service_ids.any? %>
-          <div class="service-selector-content"
-              data-action="click->appointment#open"
-              data-type="service">
-
-            <div data-appointment-target="serviceSelected">
-              <%= @appointment.services.map(&:name).join(", ") %>
-            </div>
-
-          </div>
-        <% else %>
-          <div class="collapse-section add-service-placeholder">
-            <button type="button"
-                    class="collapse-toggle"
-                    data-action="click->appointment#open"
-                    data-type="service">
-              <span>
-                <%= t("appointments.form.add_services") %>
-              </span>
-              <%= image_tag "plus.png",
-                    class: "add-icon" %>
-            </button>
-          </div>
-
-          <div data-appointment-target="serviceSelected"
-              class="hidden">
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Hidden combined IDs -->
-    <input type="hidden"
-           data-appointment-target="hiddenInput"
-           value="<%= @appointment.service_ids.join(',') %>">
+    <%= render "shared/service_selector",
+      label: t("appointments.form.services"),
+      selected_ids: @appointment.service_ids,
+      selected_names: @appointment.services.map(&:name).join(", ") %>
 
     <!-- Notes -->
     <div class="form-section">
@@ -203,6 +177,9 @@
     </div>
 
     <!-- Modals -->
-    <%= render "appointments/modals/service_modal" %>
+    <%= render(
+      "shared/modals/service_selector",
+      checkbox_name: "appointment[modal_dummy][]"
+    ) %>
   <% end %>
 </div>

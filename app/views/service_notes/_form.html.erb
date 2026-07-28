@@ -1,5 +1,9 @@
 <div class="wizard-screen"
-     data-controller="wizard"
+     data-controller="wizard service-selector"
+     data-service-selector-input-name-value="service_note[service_ids][]"
+     data-service-selector-checkbox-name-value="service_note[modal_dummy][]"
+     data-service-selector-placeholder-class-value="add-service-placeholder"
+     data-service-selector-close-icon-value="<%= asset_path("close.png") %>"
      data-wizard-initial-step-value="<%= params[:step] %>"
      data-wizard-unsaved-title-value="<%= t('common.unsaved_changes_title') %>"
      data-wizard-unsaved-message-value="<%= t('common.unsaved_changes_message') %>"
@@ -114,6 +118,11 @@
       </div>
 
     </div>
+
+    <%= render(
+      "shared/modals/service_selector",
+      checkbox_name: "service_note[modal_dummy][]"
+    ) %>
 
     <!-- BOTTOM -->
     <div class="wizard-bottom">

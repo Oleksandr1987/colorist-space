@@ -70,19 +70,6 @@
   color: #6200ea;
 }
 
-/* === Clients Index: Lower panel === */
-.clients-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0;
-}
-
-.clients-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 /* === Clients Index: Search === */
 .search-input {
   width: 100%;
@@ -183,13 +170,6 @@
 }
 
 /* === Popup client menu === */
-.menu-wrapper {
-  position: relative;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -0.25rem;
-  margin-right: -0.25rem;
-}
 
 .menu {
   position: absolute;
@@ -332,27 +312,6 @@
   display: contents;
 }
 
-/* === Client Photo Section (show view) === */
-.photos-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.client-photos {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.client-photo {
-  width: 100%;
-  max-width: 100px;
-  height: auto;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
 /* === Client Info block (show) === */
 .client-info {
   background: #f5f5f5;
@@ -401,34 +360,6 @@ h1 {
   text-align: center;
 }
 
-/* === Choose photo === */
-.photo-upload {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.custom-upload-button {
-  display: inline-block;
-  background-color: #6200ea;
-  color: white;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: center;
-  transition: background-color 0.3s ease;
-  text-transform: none;
-}
-
-.custom-upload-button:hover {
-  background-color: #4b00b3;
-}
-
-.hidden-upload {
-  display: none;
-}
-
 /* === Collapsible sections === */
 .collapse-section {
   margin-top: 1.5rem;
@@ -452,10 +383,6 @@ h1 {
   color: #333333;
 }
 
-.collapse-toggle svg {
-  stroke: #333333;
-}
-
 .hidden {
   display: none !important;
 }
@@ -470,11 +397,10 @@ h1 {
   box-shadow: 0 4px 14px rgba(0,0,0,0.08);
 }
 
-/* --- PHOTO 16:9 strict horizontal like Charm --- */
 .style-photo-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;       /* =========== ГАРАНТОВАНИЙ ГОРИЗОНТАЛЬНИЙ ПРЯМОКУТНИК ========= */
+  aspect-ratio: 16 / 9;
   border-radius: 14px;
   overflow: hidden;
   background: #ddd;
@@ -558,40 +484,9 @@ h1 {
   z-index: 15;
 }
 
-/* Action buttons */
-.style-card-actions {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  z-index: 20;
-  display: flex;
-  gap: 6px;
-}
-
-.style-edit-btn,
-.style-more-btn {
-  background: rgba(255,255,255,0.85);
-  color: #333;
-  border-radius: 10px;
-  padding: 6px 8px;
-  font-size: 1.05rem;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.14);
-}
-
-.popover-menu-client {
-  right: 0;
-  top: 2.2rem;
-}
-
 /* --- Mobile --- */
 
 @media (max-width: 600px) {
-  .clients-title {
-    font-size: 1.3rem;
-  }
-
   .button.small {
     font-size: 0.8rem;
     padding: 0.3rem 0.6rem;

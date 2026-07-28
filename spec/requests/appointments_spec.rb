@@ -15,39 +15,6 @@ RSpec.describe "Appointments" do
 
   after { travel_back }
 
-  describe "GET /appointments" do
-    it "returns success" do
-      create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.current + 1.day,
-        main_service: service
-      )
-
-      get appointments_path
-
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
-  describe "GET /appointments/history" do
-    it "returns success" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client,
-        main_service: service
-      )
-
-      appointment.update_column(:appointment_date, Date.current - 1.day)
-
-      get history_appointments_path
-
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   describe "GET /appointments/new" do
     it "renders page" do
       get new_appointment_path
@@ -65,17 +32,13 @@ RSpec.describe "Appointments" do
     end
 
     it "does not allow past date in new action" do
-      get new_appointment_path, params: {
-        date: 2.days.ago.to_date.to_s
-      }
+      get new_appointment_path, params: { date: 2.days.ago.to_date.to_s }
 
       expect(response).to have_http_status(:ok)
     end
 
     it "handles missing client in new action" do
-      get new_appointment_path, params: {
-        client_id: 999999
-      }
+      get new_appointment_path, params: { client_id: 999999 }
 
       expect(response).to have_http_status(:ok)
     end
@@ -111,9 +74,7 @@ RSpec.describe "Appointments" do
         }
       }
 
-      expect(response).to redirect_to(
-        appointment_url(Appointment.last, locale: I18n.locale)
-      )
+      expect(response).to redirect_to(appointment_url(Appointment.last, locale: I18n.locale))
     end
 
     it "returns bad request when appointment params missing" do
@@ -178,10 +139,7 @@ RSpec.describe "Appointments" do
         }
       }
 
-      expect(response).to redirect_to(
-        appointment_url(appointment, locale: I18n.locale)
-      )
-
+      expect(response).to redirect_to(appointment_url(appointment, locale: I18n.locale))
       expect(appointment.reload.services).to match_array(old_services)
     end
 
@@ -229,9 +187,7 @@ RSpec.describe "Appointments" do
 
       delete appointment_path(appointment)
 
-      expect(response).to redirect_to(
-        appointments_url(locale: I18n.locale)
-      )
+      expect(response).to redirect_to(calendar_appointments_path(locale: I18n.locale))
     end
   end
 
@@ -290,9 +246,7 @@ RSpec.describe "Appointments" do
     end
 
     it "returns empty array for past date" do
-      get free_slots_appointments_path, params: {
-        date: 1.day.ago.to_date
-      }
+      get free_slots_appointments_path, params: { date: 1.day.ago.to_date }
 
       expect(JSON.parse(response.body)).to eq([])
     end

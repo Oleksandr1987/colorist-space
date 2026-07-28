@@ -63,39 +63,27 @@
     </div>
 
     <div class="note-actions-modern">
-      <div class="note-popover"
-       data-controller="popover">
+      <%= link_to edit_client_service_note_path(@client, @service_note),
+          class: "note-action-button" do %>
+        <%= image_tag "pencil.png",
+              class: "wiz-icon",
+              width: 24,
+              height: 24 %>
+      <% end %>
 
-        <button type="button"
-                class="edit-btn"
-                data-action="click->popover#toggle">
-
-          <%= image_tag "pencil.png" %>
-        </button>
-
-        <div class="popover-menu hidden"
-            data-popover-target="menu">
-
-          <%= link_to "Edit",
-                edit_client_service_note_path(
-                  @client,
-                  @service_note
-                ) %>
-
-          <%= button_to "Delete",
-                client_service_note_path(
-                  @client,
-                  @service_note
-                ),
-                method: :delete,
-                form: {
-                  data: {
-                    turbo_confirm: "Delete?"
-                  }
-                } %>
-
-        </div>
-      </div>
+      <%= button_to client_service_note_path(@client, @service_note),
+          method: :delete,
+          form: {
+            data: {
+              turbo_confirm: "Delete?"
+            }
+          },
+          class: "note-delete-form" do %>
+        <%= image_tag "delete.png",
+              class: "wiz-icon",
+              width: 24,
+              height: 24 %>
+      <% end %>
     </div>
   </div>
 

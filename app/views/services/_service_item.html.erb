@@ -1,5 +1,4 @@
 <div class="service-item"
-    data-controller="popover"
     data-name="<%= [service.subtype, service.unit, service.price].compact.join(' ').downcase %>">
 
   <div class="service-info">
@@ -11,22 +10,26 @@
   </div>
 
   <div class="service-actions">
-    <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">
+    <%= link_to edit_service_path(service),
+        class: "icon-button" do %>
       <%= image_tag "pencil.png",
             class: "wiz-icon",
             width: 24,
             height: 24 %>
-    </button>
+    <% end %>
 
-    <div class="popover-menu hidden" data-popover-target="menu">
-      <%= link_to t("services.list.edit"), edit_service_path(service), class: "popover-item" %>
-
-      <%= button_to service_path(service),
-            method: :delete,
-            data: { turbo_confirm: t("services.list.confirm_delete") },
-            class: "popover-item delete-button" do %>
-        <%= t("services.list.delete") %>
-      <% end %>
-    </div>
+    <%= button_to service_path(service),
+        method: :delete,
+        class: "icon-button delete-button",
+        form: {
+          data: {
+            turbo_confirm: t("services.list.confirm_delete")
+          }
+        } do %>
+      <%= image_tag "delete.png",
+            class: "wiz-icon",
+            width: 24,
+            height: 24 %>
+    <% end %>
   </div>
 </div>
