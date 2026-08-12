@@ -43,6 +43,8 @@ export default class extends Controller {
     window.addEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
 
     window.addEventListener("care-products:changed", this.handleCareProductsChanged)
+
+    this.renderCareProducts()
   }
 
   disconnect() {

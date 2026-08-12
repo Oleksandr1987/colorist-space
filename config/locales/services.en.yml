@@ -1,5 +1,6 @@
 en:
   services:
+    title: "SERVICES"
     menu:
       search_placeholder: "Search services..."
       sort_default: "Sort by…"

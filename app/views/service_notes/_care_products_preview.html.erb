@@ -1,31 +1,42 @@
 <% return if care_products.blank? %>
 
-<div class="note-section">
+<div class="note-section"
+     data-controller="collapse">
 
-  <div class="note-section-title">
-     <%= image_tag "skincare.png",
-          class: "wiz-icon",
-          width: 34,
-          height: 34 %>
-    <span><strong>CARE PRODUCTS</strong></span>
+  <div class="note-section-title note-step-pill"
+       data-action="click->collapse#toggle">
+    <%= image_tag "skincare.png", class: "wiz-icon", width: 34, height: 34 %>
+
+    <span>
+      <strong><%= t("care_products.title") %></strong>
+    </span>
+
+    <svg class="chevron"
+         xmlns="http://www.w3.org/2000/svg"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2">
+      <path d="m6 9 6 6 6-6"/>
+    </svg>
   </div>
 
-  <% care_products.each do |item| %>
+  <div class="note-section-content hidden"
+       data-collapse-target="content">
 
-    <% product = CareProduct.find_by(id: item["care_product_id"]) %>
+    <% care_products.each do |item| %>
+      <% product = CareProduct.find_by(id: item["care_product_id"]) %>
 
-    <div class="note-row">
+      <div class="note-row">
+        <strong>
+          <%= product&.brand || item["brand"] %>
+        </strong>
 
-      <strong>
-        <%= product&.brand || item["brand"] %>
-      </strong>
+        <span>
+          <%= product&.name || item["name"] || item["category"] %>
+        </span>
+      </div>
+    <% end %>
 
-      <span>
-        <%= product&.name || item["name"] || item["category"] %>
-      </span>
-
-    </div>
-
-  <% end %>
-
+  </div>
 </div>

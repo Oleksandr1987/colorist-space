@@ -1,6 +1,6 @@
-.notes-block {
+/* .notes-block {
   padding: 20px 16px;
-}
+} */
 
 /* ===== PRICE ===== */
 .price-wrapper {
@@ -22,12 +22,23 @@
   margin-bottom: 8px;
 }
 
+.notes-subtitle {
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
+  align-items: center;
+}
+
+.notes-subtitle strong {
+  grid-column: 2;
+  text-align: center;
+}
+
 .notes-textarea {
-  width: 100%;
+  width: 96%;
   min-height: 140px;
   border: 1px solid #e5e5e5;
   border-radius: 16px;
-  padding: 14px;
+  padding: 10px;
   font-size: 16px;
   outline: none;
   resize: none;

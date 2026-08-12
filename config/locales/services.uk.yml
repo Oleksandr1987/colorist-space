@@ -1,5 +1,6 @@
 uk:
   services:
+    title: "ПОСЛУГИ"
     menu:
       search_placeholder: "Пошук послуг..."
       sort_default: "Сортувати…"

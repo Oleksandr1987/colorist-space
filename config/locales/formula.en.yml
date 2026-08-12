@@ -1,5 +1,6 @@
 en:
   formula:
+    title: "FORMULA"
     oxidant:
       empty: "No oxidants added yet"
       add: "Add oxidant"

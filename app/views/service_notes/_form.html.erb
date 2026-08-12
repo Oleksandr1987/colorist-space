@@ -41,50 +41,32 @@
     <div class="wizard-nav">
       <!-- SERVICES -->
       <div data-action="click->wizard#go" data-step="0" class="wiz-item">
-        <%= image_tag "services.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+        <%= image_tag "services.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
 
       <!-- HAIRCUT -->
       <div data-action="click->wizard#go" data-step="1" class="wiz-item">
-        <%= image_tag "brush.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+        <%= image_tag "brush.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
 
       <!-- FORMULA -->
       <div data-action="click->wizard#go" data-step="2" class="wiz-item active">
-        <%= image_tag "formula.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+        <%= image_tag "formula.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
 
       <!-- CARE PRODUCTS -->
       <div data-action="click->wizard#go"data-step="3"class="wiz-item">
-        <%= image_tag "skincare.png",
-            class: "wiz-icon",
-            width: 34,
-            height: 34 %>
+        <%= image_tag "skincare.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
 
       <!-- PHOTOS -->
       <div data-action="click->wizard#go" data-step="4" class="wiz-item">
-         <%= image_tag "camera.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+         <%= image_tag "camera.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
 
       <!-- NOTES -->
       <div data-action="click->wizard#go" data-step="5" class="wiz-item">
-        <%= image_tag "notes.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+        <%= image_tag "notes.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
 
     </div>
@@ -129,10 +111,7 @@
         data-action="click->wizard#prev"
         data-wizard-target="prevButton">
 
-        <%= image_tag "back.png",
-            width: 34,
-            height: 34,
-            class: "wizard-nav-icon" %>
+        <%= image_tag "back.png", class: "wizard-nav-icon", width: 34, height: 34 %>
 
         BACK
       </button>
@@ -145,18 +124,9 @@
           NEXT
         </span>
 
-        <%= image_tag "next.png",
-            width: 34,
-            height: 34,
-            class: "wizard-nav-icon",
-            data: { wizard_target: "nextIcon" } %>
+        <%= image_tag "next.png", width: 34, height: 34, class: "wizard-nav-icon", data: { wizard_target: "nextIcon" } %>
 
-        <%= image_tag "save.png",
-            width: 34,
-            height: 34,
-            class: "wizard-nav-icon",
-            style: "display:none",
-            data: { wizard_target: "saveIcon" } %>
+        <%= image_tag "save.png", width: 34, height: 34, class: "wizard-nav-icon", style: "display:none", data: { wizard_target: "saveIcon" } %>
       </button>
     </div>
 
