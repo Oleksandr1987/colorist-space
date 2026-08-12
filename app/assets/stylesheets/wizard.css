@@ -3,7 +3,7 @@
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: #f8f6f5;
+  background: #ccbdd0;
   overflow: hidden;
 }
 
@@ -41,47 +41,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 28px;
   padding: 0 16px;
   margin: 20px 0 28px;
   overflow: visible;
-}
-
-/* PROGRESS BACK LINE */
-.wizard-progress {
-  position: absolute;
-  top: 50%;
-  left: 40px;
-  right: 40px;
-  height: 2px;
-  background: #e5e5e5;
-  transform: translateY(-50%);
-  z-index: 0;
-  opacity: 1;
-}
-
-/* PROGRESS ACTIVE */
-.wizard-progress-bar {
-  height: 100%;
-  width: 0%;
-  background: #1c1c1c;
-  transition: width 0.35s ease;
-  z-index: 0;
 }
 
 /* ICON BUTTON */
 .wiz-item {
   position: relative;
   z-index: 1;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #f1f1f1;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
   flex-shrink: 0;
+  cursor: pointer;
+}
+
+.wiz-item img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(0.35);
+  transition: filter .25s ease;
+}
+
+.wiz-item.active img {
+  filter: brightness(0)
+          saturate(100%)
+          invert(31%)
+          sepia(91%)
+          saturate(3111%)
+          hue-rotate(253deg)
+          brightness(96%)
+          contrast(93%);
 }
 
 /* ICON */
@@ -90,22 +83,6 @@
   height: 26px;
   stroke: #aaa;
   transition: all 0.25s ease;
-}
-
-/* ACTIVE STEP */
-.wiz-item.active {
-  background: #fff;
-  border: 2px solid #1c1c1c;
-  transform: scale(1.15);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-}
-
-.wiz-item.active img {
-  filter: none;
-}
-
-.wiz-item:hover {
-  transform: scale(1.05);
 }
 
 /* TOP BAR */

@@ -100,25 +100,6 @@ class ServiceNotesController < ApplicationController
     head :ok
   end
 
-  # :nocov:
-  def add_ingredient
-    @service_note = @client.service_notes.find(params[:id])
-
-    step_index = params[:step_index]
-
-    ingredient = FormulaIngredient.new
-
-    render turbo_stream: turbo_stream.append(
-      "ingredients_step_#{step_index}",
-      partial: "service_notes/formula_ingredient_fields",
-      locals: {
-        ingredient: ingredient,
-        step_index: step_index
-      }
-    )
-  end
-  # :nocov:
-
   private
 
   def set_client

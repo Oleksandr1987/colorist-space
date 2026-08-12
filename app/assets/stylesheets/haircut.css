@@ -27,11 +27,49 @@
   gap: 10px;
 }
 
+.haircut-zones-grid .section-btn.occupied {
+  background: #eee9f2;
+  color: #777;
+  border: 1px solid #b8a7c2;
+}
+
+.haircut-zones-grid .section-btn.occupied::after {
+  content: " · " attr(data-step-label) " " attr(data-step-number);
+  font-size: 0.75em;
+  font-weight: 600;
+  color: #7c3aed;
+}
+
 .empty-haircut-step {
   margin-top: 12px;
 }
 
-/* .haircut-value-row {
+.haircut-step-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.haircut-step-header .sheet-back {
+  justify-self: start;
+}
+
+.haircut-step-header .haircut-zone-title {
+  justify-self: center;
+  text-align: center;
+}
+
+.haircut-step-header .sheet-save {
+  justify-self: end;
+}
+
+.haircut-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.haircut-value-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -42,7 +80,7 @@
 .haircut-value {
   font-size: 18px;
   color: #111;
-} */
+}
 
 .clear-icon {
   width: 18px;
@@ -75,7 +113,7 @@
   gap: 10px;
 }
 
-/* .picker-option {
+.picker-option {
   width: 100%;
   padding: 14px;
   border: 1px solid #ececec;
@@ -91,7 +129,7 @@
   border-color: #6200ea;
   color: #6200ea;
   font-weight: 600;
-} */
+}
 
 .picker-modal {
   position: fixed;

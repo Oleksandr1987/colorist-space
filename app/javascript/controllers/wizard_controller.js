@@ -1,11 +1,11 @@
 // app/javascript/controllers/wizard_controller.js
 import { Controller } from "@hotwired/stimulus"
+import { Turbo } from "@hotwired/turbo-rails"
 
 export default class extends Controller {
   static targets = [
     "container",
     "title",
-    "progress",
     "step",
     "nextButton",
     "nextLabel",
@@ -41,9 +41,12 @@ export default class extends Controller {
     this.current = steps[this.initialStepValue] ?? 0
     this.steps = this.stepTargets
     this.nav = this.element.querySelectorAll(".wiz-item")
+
     this.isDirty = false
+    this.pendingNavigationUrl = null
 
     this.markDirty = this.markDirty.bind(this)
+    this.handleBottomNavigation = this.handleBottomNavigation.bind(this)
 
     this.element.addEventListener("input", this.markDirty)
     this.element.addEventListener("change", this.markDirty)
@@ -51,6 +54,8 @@ export default class extends Controller {
     window.addEventListener("formula:changed", this.markDirty)
     window.addEventListener("services:changed", this.markDirty)
     window.addEventListener("wizard:changed", this.markDirty)
+
+    document.addEventListener("click", this.handleBottomNavigation)
 
     this.element.querySelector("form")?.addEventListener("submit", () => {
       this.isDirty = false
@@ -69,9 +74,12 @@ export default class extends Controller {
     window.removeEventListener("formula:changed", this.markDirty)
     window.removeEventListener("services:changed", this.markDirty)
     window.removeEventListener("wizard:changed", this.markDirty)
+
+    document.removeEventListener("click", this.handleBottomNavigation)
   }
 
   // ---------------- NAV CLICK ----------------
+
   go(event) {
     this.current = parseInt(event.currentTarget.dataset.step)
 
@@ -81,6 +89,7 @@ export default class extends Controller {
   }
 
   // ---------------- NEXT ----------------
+
   next() {
     if (this.current < this.steps.length - 1) {
       this.current++
@@ -92,6 +101,7 @@ export default class extends Controller {
   }
 
   // ---------------- PREV ----------------
+
   prev() {
     if (this.current > 0) {
       this.current--
@@ -103,47 +113,39 @@ export default class extends Controller {
   }
 
   // ---------------- UPDATE UI ----------------
+
   update() {
-    // steps
     this.steps.forEach((el, i) => {
       el.classList.toggle("active", i === this.current)
     })
 
-    // nav icons
     this.nav.forEach((el, i) => {
       el.classList.toggle("active", i === this.current)
     })
 
-    // title
-    const titles = ["Services", "Haircut", "Formula", "Care Products", "Photos", "Notes"]
+    const titles = [
+      "Services",
+      "Haircut",
+      "Formula",
+      "Care Products",
+      "Photos",
+      "Notes"
+    ]
+
     this.titleTarget.textContent = titles[this.current]
-
-    this.updateProgress()
-  }
-
-  // ---------------- PROGRESS ----------------
-  updateProgress() {
-    const total = this.steps.length - 1
-
-    if (total <= 0) {
-      this.progressTarget.style.width = "0%"
-      return
-    }
-
-    const percent = ((this.current + 1) / (total + 1)) * 100
-    this.progressTarget.style.width = `${percent}%`
   }
 
   // ---------------- SWIPE ----------------
+
   initSwipe() {
     let startX = 0
 
-    this.containerTarget.addEventListener("touchstart", e => {
-      startX = e.changedTouches[0].screenX
+    this.containerTarget.addEventListener("touchstart", event => {
+      startX = event.changedTouches[0].screenX
     })
 
-    this.containerTarget.addEventListener("touchend", e => {
-      const diff = e.changedTouches[0].screenX - startX
+    this.containerTarget.addEventListener("touchend", event => {
+      const diff = event.changedTouches[0].screenX - startX
 
       if (Math.abs(diff) > 50) {
         diff > 0 ? this.prev() : this.next()
@@ -152,6 +154,7 @@ export default class extends Controller {
   }
 
   // ---------------- NEXT BUTTON ----------------
+
   updateNextButton() {
     const isLast = this.current === this.steps.length - 1
 
@@ -171,6 +174,7 @@ export default class extends Controller {
   }
 
   // ---------------- BACK BUTTON ----------------
+
   updateButtons() {
     if (!this.hasPrevButtonTarget) return
 
@@ -181,14 +185,33 @@ export default class extends Controller {
     }
   }
 
+  // ---------------- CLOSE WIZARD ----------------
+
   close() {
     if (!this.isDirty) {
       history.back()
       return
     }
 
+    this.pendingNavigationUrl = null
     this.openUnsavedModal()
   }
+
+  // ---------------- BOTTOM NAVIGATION ----------------
+
+  handleBottomNavigation(event) {
+    const link = event.target.closest(".bottom-nav .nav-item")
+
+    if (!link) return
+    if (!this.isDirty) return
+
+    event.preventDefault()
+
+    this.pendingNavigationUrl = link.href
+    this.openUnsavedModal()
+  }
+
+  // ---------------- UNSAVED MODAL ----------------
 
   openUnsavedModal() {
     if (this.hasUnsavedTitleTarget) {
@@ -203,18 +226,48 @@ export default class extends Controller {
   }
 
   cancelClose() {
+    this.pendingNavigationUrl = null
     this.unsavedModalTarget.classList.add("hidden")
   }
 
   discardChanges() {
     this.isDirty = false
+
+    if (this.pendingNavigationUrl) {
+      window.location.href = this.pendingNavigationUrl
+      return
+    }
+
     history.back()
   }
 
   saveAndClose() {
+    const form = this.element.querySelector("form")
+
+    if (!form) return
+
     this.isDirty = false
-    this.element.querySelector("form")?.requestSubmit()
+    this.unsavedModalTarget.classList.add("hidden")
+
+    form.requestSubmit()
   }
+
+  submitEnd(event) {
+    if (!event.detail.success) {
+      this.isDirty = true
+      return
+    }
+
+    if (!this.pendingNavigationUrl) return
+
+    const url = this.pendingNavigationUrl
+
+    this.pendingNavigationUrl = null
+
+    Turbo.visit(url)
+  }
+
+  // ---------------- DIRTY ----------------
 
   markDirty() {
     this.isDirty = true

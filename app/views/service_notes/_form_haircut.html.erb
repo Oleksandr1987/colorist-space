@@ -2,6 +2,7 @@
      data-controller="haircut"
      data-haircut-title-value="<%= t('haircut.title') %>"
      data-haircut-select-zone-value="<%= t('haircut.select_zone') %>"
+     data-haircut-step-label-value="<%= t('haircut.step') %>"
      data-haircut-zones-value="<%= {
        "lower occipital" => t("haircut.zones.lower_occipital"),
 				"upper occipital" => t("haircut.zones.upper_occipital"),
@@ -20,7 +21,7 @@
         <div class="formula-step-header"
              data-action="click->collapse#toggle">
           <span>
-            STEP <span class="step-number"></span>
+            <%= t("haircut.step") %> <span class="step-number"></span>
           </span>
 
           <svg class="chevron"
@@ -34,27 +35,35 @@
         </div>
 
         <!-- CONTENT -->
-        <div class="formula-step-content"
+        <div class="formula-step-content hidden"
              data-collapse-target="content">
           <div class="formula-card">
             <!-- HEADER -->
-            <div class="formula-header">
+            <div class="formula-header haircut-step-header">
+              <button type="button"
+                      class="sheet-back"
+                      data-action="click->haircut#removeStep">
+                <%= image_tag "close.png",
+                      class: "clear-icon" %>
+              </button>
+
               <span class="haircut-zone-title">
                 <%= step_form.object.zone.present? ?
-										t("haircut.zones.#{step_form.object.zone.parameterize(separator: '_')}") :
-										t("haircut.zone") %>
+                    t("haircut.zones.#{step_form.object.zone.parameterize(separator: '_')}") :
+                    t("haircut.zone") %>
               </span>
-              <div class="step-remove">
-                <%= step_form.hidden_field :_destroy,
-                      value: 0,
-                      class: "destroy-field" %>
-                <%= step_form.hidden_field :zone %>
-                <button type="button"
-                        data-action="click->haircut#removeStep">
-                  <%= image_tag "close.png",
-                      class: "clear-icon" %>
-                </button>
-              </div>
+
+              <button type="button"
+                      class="sheet-save"
+                      data-action="click->haircut#saveStep">
+                <%= t("common.save") %>
+              </button>
+
+              <%= step_form.hidden_field :_destroy,
+                    value: 0,
+                    class: "destroy-field" %>
+
+              <%= step_form.hidden_field :zone %>
             </div>
             <!-- INSTRUMENT -->
             <%= render(
@@ -112,7 +121,10 @@
        data-controller="collapse">
     <div class="add-step-btn"
          data-action="click->collapse#toggle">
-      <span><%= t("haircut.step") %></span>
+      <span>
+        <%= t("haircut.step") %>
+        <span data-haircut-target="nextStepNumber"></span>
+      </span>
 
       <svg class="chevron"
            xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +142,7 @@
         <% HaircutStep::ZONES.each do |zone| %>
           <button type="button"
                   class="section-btn"
-                  data-action="click->haircut#createStep click->collapse#close"
+                  data-action="click->haircut#createStep"
                   data-zone="<%= zone %>">
             <%= t("haircut.zones.#{zone.parameterize(separator: '_')}") %>
           </button>

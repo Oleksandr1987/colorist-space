@@ -7,7 +7,7 @@
          data-action="click->collapse#toggle">
 
       <span>
-        STEP <span class="step-number"></span>
+        <%= t("haircut.step") %> <span class="step-number"></span>
       </span>
 
       <svg class="chevron"
@@ -25,27 +25,32 @@
          data-collapse-target="content">
       <div class="formula-card">
         <!-- HEADER -->
-        <div class="formula-header">
+        <div class="formula-header haircut-step-header">
+          <button type="button"
+                  class="sheet-back"
+                  data-action="click->haircut#removeStep">
+            <%= image_tag "close.png",
+                  class: "clear-icon" %>
+          </button>
+
           <span class="haircut-zone-title">
             __ZONE__
           </span>
 
-          <div class="step-remove">
-            <input type="hidden"
-                   name="service_note[haircut_steps_attributes][NEW_RECORD][_destroy]"
-                   value="0"
-                   class="destroy-field">
+          <button type="button"
+                  class="sheet-save"
+                  data-action="click->haircut#saveStep">
+            <%= t("common.save") %>
+          </button>
 
-            <input type="hidden"
-                   name="service_note[haircut_steps_attributes][NEW_RECORD][zone]"
-                   value="__ZONE__">
+          <input type="hidden"
+                name="service_note[haircut_steps_attributes][NEW_RECORD][_destroy]"
+                value="0"
+                class="destroy-field">
 
-            <button type="button"
-                    data-action="click->haircut#removeStep">
-              <%= image_tag "close.png",
-                      class: "clear-icon" %>
-            </button>
-          </div>
+          <input type="hidden"
+                name="service_note[haircut_steps_attributes][NEW_RECORD][zone]"
+                value="__ZONE__">
         </div>
 
         <!-- INSTRUMENT -->

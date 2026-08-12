@@ -10,7 +10,11 @@
      data-wizard-save-label-value="<%= t('common.save') %>"
      data-wizard-discard-label-value="<%= t('common.discard') %>"
      data-wizard-cancel-label-value="<%= t('common.cancel') %>">
-  <%= form_with(model: [@client, @service_note], html: { multipart: true }) do |f| %>
+  <%= form_with(
+      model: [@client, @service_note],
+      html: { multipart: true },
+      data: { action: "turbo:submit-end->wizard#submitEnd" }
+    ) do |f| %>
 
     <% if @service_note.errors.any? %>
       <div class="form-errors">
@@ -26,8 +30,7 @@
     <!-- TOP BAR -->
     <div class="wizard-top">
       <button type="button" data-action="click->wizard#close">
-        <%= image_tag "close.png",
-              class: "wiz-icon-close" %>
+        <%= image_tag "close.png", class: "wiz-icon-close" %>
       </button>
       <span data-wizard-target="title">Services</span>
       <button type="submit"><%= t("common.save").upcase %></button>
@@ -36,56 +39,52 @@
 
     <!-- NAV -->
     <div class="wizard-nav">
-      <div class="wizard-progress">
-        <div class="wizard-progress-bar" data-wizard-target="progress"></div>
-      </div>
-
       <!-- SERVICES -->
       <div data-action="click->wizard#go" data-step="0" class="wiz-item">
         <%= image_tag "services.png",
               class: "wiz-icon",
-              width: 24,
-              height: 24 %>
+              width: 34,
+              height: 34 %>
       </div>
 
       <!-- HAIRCUT -->
       <div data-action="click->wizard#go" data-step="1" class="wiz-item">
         <%= image_tag "brush.png",
               class: "wiz-icon",
-              width: 24,
-              height: 24 %>
+              width: 34,
+              height: 34 %>
       </div>
 
       <!-- FORMULA -->
       <div data-action="click->wizard#go" data-step="2" class="wiz-item active">
         <%= image_tag "formula.png",
               class: "wiz-icon",
-              width: 24,
-              height: 24 %>
+              width: 34,
+              height: 34 %>
       </div>
 
       <!-- CARE PRODUCTS -->
       <div data-action="click->wizard#go"data-step="3"class="wiz-item">
         <%= image_tag "skincare.png",
             class: "wiz-icon",
-            width: 24,
-            height: 24 %>
+            width: 34,
+            height: 34 %>
       </div>
 
       <!-- PHOTOS -->
       <div data-action="click->wizard#go" data-step="4" class="wiz-item">
          <%= image_tag "camera.png",
               class: "wiz-icon",
-              width: 24,
-              height: 24 %>
+              width: 34,
+              height: 34 %>
       </div>
 
       <!-- NOTES -->
       <div data-action="click->wizard#go" data-step="5" class="wiz-item">
         <%= image_tag "notes.png",
               class: "wiz-icon",
-              width: 24,
-              height: 24 %>
+              width: 34,
+              height: 34 %>
       </div>
 
     </div>
@@ -131,8 +130,8 @@
         data-wizard-target="prevButton">
 
         <%= image_tag "back.png",
-            width: 24,
-            height: 24,
+            width: 34,
+            height: 34,
             class: "wizard-nav-icon" %>
 
         BACK
@@ -147,14 +146,14 @@
         </span>
 
         <%= image_tag "next.png",
-            width: 24,
-            height: 24,
+            width: 34,
+            height: 34,
             class: "wizard-nav-icon",
             data: { wizard_target: "nextIcon" } %>
 
         <%= image_tag "save.png",
-            width: 24,
-            height: 24,
+            width: 34,
+            height: 34,
             class: "wizard-nav-icon",
             style: "display:none",
             data: { wizard_target: "saveIcon" } %>

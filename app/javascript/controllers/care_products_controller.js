@@ -1,4 +1,4 @@
-// controllers/care_products_controller.js
+// app/javascript/controllers/care_products_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -13,39 +13,60 @@ export default class extends Controller {
 
   async connect() {
     this.products = this.load()
-    this.initialProducts = JSON.parse(
-      JSON.stringify(this.products)
-    )
+    this.initialProducts = this.cloneProducts(this.products)
+    this.draftProducts = []
 
     await this.reloadCatalog()
 
     this.render()
+  }
 
-    window.dispatchEvent(
-      new CustomEvent("care-products:changed")
+  cloneProducts(products) {
+    return JSON.parse(
+      JSON.stringify(products)
     )
   }
 
   async reloadCatalog() {
-    const locale =
-      document.documentElement.lang || "uk"
+    const locale = document.documentElement.lang || "uk"
 
-    const response = await fetch(
-      `/care_products/options?locale=${locale}`
-    )
+    const response = await fetch(`/care_products/options?locale=${locale}`)
 
     this.catalog = await response.json()
-
     this.renderCatalog()
   }
 
   async openModal() {
+    this.draftProducts = this.cloneProducts(
+      this.products
+    )
+
     await this.reloadCatalog()
 
+    this.resetFilters()
     this.modalTarget.classList.remove("hidden")
   }
 
-  closeModal() {
+  cancelModal(event) {
+    event?.preventDefault()
+
+    this.draftProducts = []
+    this.modalTarget.classList.add("hidden")
+  }
+
+  saveModal(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    this.products = this.cloneProducts(
+      this.draftProducts
+    )
+
+    this.save()
+    this.render()
+
+    this.draftProducts = []
+
     this.modalTarget.classList.add("hidden")
   }
 
@@ -56,12 +77,16 @@ export default class extends Controller {
   addProduct(event) {
     const button = event.currentTarget
 
-    const existing = this.products.find(
-      p => p.care_product_id == button.dataset.id
+    const existing = this.draftProducts.find(
+      product =>
+        product.care_product_id == button.dataset.id
     )
 
     if (existing) {
-      const availableStock = this.availableStockFor(existing.care_product_id)
+      const availableStock =
+        this.availableStockFor(
+          existing.care_product_id
+        )
 
       if (existing.qty >= availableStock) {
         alert(
@@ -77,11 +102,10 @@ export default class extends Controller {
 
       if (availableStock < 1) {
         alert("Product is out of stock")
-
         return
       }
 
-      this.products.push({
+      this.draftProducts.push({
         care_product_id: button.dataset.id,
         name: button.dataset.name,
         price: parseFloat(button.dataset.price),
@@ -89,13 +113,14 @@ export default class extends Controller {
       })
     }
 
-    this.refresh()
-    this.closeModal()
+    this.renderCatalog()
   }
 
   load() {
     try {
-      let data = JSON.parse(this.inputTarget.value || "[]")
+      let data = JSON.parse(
+        this.inputTarget.value || "[]"
+      )
 
       if (typeof data === "string") {
         data = JSON.parse(data)
@@ -110,18 +135,20 @@ export default class extends Controller {
   save() {
     this.inputTarget.value = JSON.stringify(this.products)
 
-    console.log(this.inputTarget.value)
-
     window.dispatchEvent(
       new CustomEvent("care-products:changed")
     )
+
+    window.dispatchEvent(new CustomEvent("wizard:changed"))
   }
 
   filterCategory(event) {
     const category = event.currentTarget.dataset.category
 
-    document
-      .querySelectorAll(".filter-button")
+    this.element
+      .querySelectorAll(
+        ".care-products-filters .filter-button"
+      )
       .forEach(button => {
         button.classList.remove("active")
       })
@@ -131,21 +158,31 @@ export default class extends Controller {
     this.productsListTarget
       .querySelectorAll(".care-product-option")
       .forEach(item => {
-
-        if (
-          category === "" ||
-          item.dataset.category === category
-        ) {
-          item.classList.remove("hidden")
-        } else {
-          item.classList.add("hidden")
-        }
+        item.classList.toggle(
+          "hidden",
+          category !== "" &&
+            item.dataset.category !== category
+        )
       })
+  }
+
+  resetFilters() {
+    if (this.hasSearchTarget) {
+      this.searchTarget.value = ""
+    }
+
+    const buttons = this.element.querySelectorAll(".care-products-filters .filter-button")
+
+    buttons.forEach(button => {
+      button.classList.remove("active")
+    })
+
+    buttons[0]?.classList.add("active")
   }
 
   stockFor(careProductId) {
     const product = this.catalog.find(
-      p => p.id == careProductId
+      product => product.id == careProductId
     )
 
     return product
@@ -155,7 +192,8 @@ export default class extends Controller {
 
   initialQtyFor(careProductId) {
     const item = this.initialProducts.find(
-      p => p.care_product_id == careProductId
+      product =>
+        product.care_product_id == careProductId
     )
 
     return item
@@ -205,9 +243,7 @@ export default class extends Controller {
                 type="button"
                 data-index="${index}"
                 data-action="click->care-products#decreaseQty">
-
                 −
-
               </button>
 
               <span class="qty-value">
@@ -223,9 +259,7 @@ export default class extends Controller {
                     ? "disabled"
                     : ""
                 }>
-
                 +
-
               </button>
 
             </div>
@@ -235,31 +269,32 @@ export default class extends Controller {
               class="remove-care-product"
               data-index="${index}"
               data-action="click->care-products#remove">
-
               ×
-
             </button>
 
           </div>
         `
       )
-    }) // ---------------- TODO: Add png
+    })
 
     this.totalTarget.textContent = `${total} ₴`
   }
 
   renderCatalog() {
+    if (!this.catalog) return
+
     this.productsListTarget.innerHTML = ""
 
-    this.catalog.forEach(product => {
-      const remaining =
-        this.availableStockFor(product.id) -
-        (
-          this.products.find(
-            p => p.care_product_id == product.id
-          )?.qty || 0
-        )
+    const currentProducts =
+      this.draftProducts.length > 0 ||
+      !this.modalTarget.classList.contains("hidden")
+        ? this.draftProducts
+        : this.products
 
+    this.catalog.forEach(product => {
+      const selected = currentProducts.find(item => item.care_product_id == product.id)
+      const qty = selected?.qty || 0
+      const remaining = this.availableStockFor(product.id) - qty
       const outOfStock = remaining <= 0
 
       this.productsListTarget.insertAdjacentHTML(
@@ -274,7 +309,6 @@ export default class extends Controller {
             data-category="${product.category}">
 
             <div>
-
               <strong>
                 ${product.brand}
               </strong>
@@ -296,22 +330,30 @@ export default class extends Controller {
               <br>
 
               <small>
-                Stock:
-                ${remaining}
+                Stock: ${remaining}
               </small>
+
+              ${
+                qty > 0
+                  ? `
+                    <br>
+                    <small>
+                      Selected: ${qty}
+                    </small>
+                  `
+                  : ""
+              }
 
               ${
                 outOfStock
                   ? `
                     <br>
-
                     <small class="out-of-stock-label">
                       Out of stock
                     </small>
                   `
                   : ""
               }
-
             </div>
 
             <button
@@ -325,13 +367,11 @@ export default class extends Controller {
                   ? "disabled"
                   : ""
               }>
-
               ${
                 outOfStock
                   ? "×"
                   : "+"
               }
-
             </button>
 
           </div>
@@ -362,26 +402,36 @@ export default class extends Controller {
   }
 
   decreaseQty(event) {
-    const index = parseInt(event.currentTarget.dataset.index)
+    const index = parseInt(event.currentTarget.dataset.index, 10)
+    const product = this.products[index]
 
-    if (this.products[index].qty <= 1) {
+    if (!product) return
+
+    if (product.qty <= 1) {
       return
     }
 
-    this.products[index].qty -= 1
+    product.qty -= 1
+
     this.refresh()
   }
 
   changeQty(event) {
-    const index = parseInt(event.currentTarget.dataset.index)
-    const qty = parseInt(event.currentTarget.value)
+    const index = parseInt(event.currentTarget.dataset.index, 10)
+    const qty = parseInt(event.currentTarget.value, 10)
 
-    this.products[index].qty = isNaN(qty) || qty < 1 ? 1 : qty
+    if (!this.products[index]) return
+
+    this.products[index].qty =
+      isNaN(qty) || qty < 1
+        ? 1
+        : qty
+
     this.refresh()
   }
 
   search() {
-    const query = this.searchTarget.value.toLowerCase()
+    const query = this.searchTarget.value.trim().toLowerCase()
 
     this.productsListTarget
       .querySelectorAll(".care-product-option")
@@ -397,12 +447,14 @@ export default class extends Controller {
 
   refresh() {
     this.render()
-    this.renderCatalog()
     this.save()
   }
 
   remove(event) {
-    const index = parseInt(event.currentTarget.dataset.index)
+    const index = parseInt(
+      event.currentTarget.dataset.index,
+      10
+    )
 
     this.products.splice(index, 1)
     this.refresh()
