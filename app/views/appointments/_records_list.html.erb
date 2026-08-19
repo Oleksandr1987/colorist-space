@@ -1,37 +1,29 @@
 <div class="expenses-scroll-wrapper">
-  <% @appointments_by_month.each do |month_name, appointments| %>
-    <div class="monthly-expense-group"
-         data-controller="collapse">
-      <div class="month-header-aligned"
-           data-action="click->collapse#toggle">
+  <% @appointments_by_month.each do |month, appointments| %>
+    <div class="monthly-expense-group" data-controller="collapse">
+      <div class="month-header-aligned" data-action="click->collapse#toggle">
         <span class="month-header-title">
-          <%= month_name %>
+          <%= l(month, format: "%B %Y") %>
         </span>
+
         <div class="month-header-right">
           <span class="month-header-amount">
-            <%= t("appointments.history.records",
-                  count: appointments.count) %>
+            <%= t("appointments.history.records", count: appointments.count) %>
           </span>
         </div>
       </div>
 
-      <ul class="expenses-list collapsible hidden"
-          data-collapse-target="content">
-
+      <ul class="expenses-list collapsible hidden" data-collapse-target="content">
         <% appointments
-             .sort_by { |a| [a.appointment_date, a.appointment_time] }
-             .each do |appointment| %>
+             .sort_by { |appointment| [appointment.appointment_date, appointment.appointment_time] }
+             .reverse_each do |appointment| %>
 
           <li class="appointment-record">
             <div class="appointment-record-header">
-              <%= link_to edit_appointment_path(appointment),
-                          class: "appointment-record-content" do %>
+              <%= link_to edit_appointment_path(appointment), class: "appointment-record-content" do %>
                 <div class="appointment-record-date">
                   <strong>
-                    <%= l(
-                          appointment.appointment_date,
-                          format: :default
-                        ) %>
+                    <%= l(appointment.appointment_date, format: :default) %>
                     /
                     <%= appointment.appointment_time.strftime("%H:%M") %>
 
@@ -56,47 +48,19 @@
               <% end %>
 
               <div class="appointment-record-actions">
-                <%= link_to client_path(appointment.client),
-                            class: "appointment-action-button",
-                            data: { turbo: false } do %>
-                  <%= image_tag "client.png",
-                        class: "wiz-icon",
-                        width: 16,
-                        height: 16 %>
+                <%= link_to client_path(appointment.client), class: "appointment-action-button", data: { turbo: false } do %>
+                  <%= image_tag "client.png", class: "wiz-icon", width: 16, height: 16 %>
                 <% end %>
 
-                <%= link_to(
-                      appointment.service_note.present? ?
-                        client_service_note_path(
-                          appointment.client,
-                          appointment.service_note
-                        ) :
-                        new_client_service_note_path(
-                          appointment.client,
-                          appointment_id: appointment.id
-                        ),
-                      class: "appointment-action-button",
-                      data: { turbo: false }
-                    ) do %>
-                  <%= image_tag "notes.png",
-                        class: "wiz-icon",
-                        width: 16,
-                        height: 16 %>
+                <%= link_to(appointment.service_note.present? ? client_service_note_path(appointment.client, appointment.service_note) : new_client_service_note_path(appointment.client, appointment_id: appointment.id),
+                      class: "appointment-action-button", data: { turbo: false }) do %>
+                  <%= image_tag "notes.png", class: "wiz-icon", width: 16, height: 16 %>
                 <% end %>
 
-                <%= button_to appointment_path(appointment),
-                      method: :delete,
-                      form: {
-                        data: {
-                          turbo_confirm:
-                            t("appointments.confirm.delete")
-                        }
-                      },
+                <%= button_to appointment_path(appointment), method: :delete,
+                      form: {data: {turbo_confirm: t("appointments.confirm.delete")}},
                       class: "appointment-action-button appointment-delete-button" do %>
-                  <%= image_tag "delete.png",
-                        class: "wiz-icon",
-                        width: 16,
-                        height: 16 %>
+                  <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16 %>
                 <% end %>
               </div>
             </div>

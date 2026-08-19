@@ -3,9 +3,7 @@
      data-service-add-label-value="<%= t("appointments.form.add_services") %>"
      data-service-save-label-value="<%= t("common.save") %>">
 
-  <%= hidden_field_tag "service_note[service_type]",
-        "",
-        data: { service_target: "type" } %>
+  <%= hidden_field_tag "service_note[service_type]", "", data: { service_target: "type" } %>
 
   <%= render "shared/service_selector",
       label: t("appointments.form.services"),

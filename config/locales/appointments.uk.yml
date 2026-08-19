@@ -24,6 +24,7 @@ uk:
       total: "Загальна сума"
 
       save: "Зберегти"
+      slots: "Вільний час"
 
     modals:
       service:

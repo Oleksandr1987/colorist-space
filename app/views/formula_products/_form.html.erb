@@ -3,9 +3,7 @@
     <%= f.hidden_field :category %>
     <div class="form-section">
       <%= f.label :brand %>
-      <%= f.text_field :brand,
-            class: "form-input",
-            required: true %>
+      <%= f.text_field :brand, class: "form-input", required: true %>
     </div>
 
     <div class="form-section">
@@ -19,10 +17,7 @@
 
     <div class="form-section">
       <%= f.label :price_per_unit %>
-      <%= f.number_field :price_per_unit,
-            class: "form-input",
-            step: :any,
-            required: true %>
+      <%= f.number_field :price_per_unit, class: "form-input", step: :any, required: true %>
     </div>
 
     <div class="form-actions-row">

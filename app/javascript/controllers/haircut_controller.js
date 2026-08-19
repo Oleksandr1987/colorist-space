@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["container", "template", "addStep", "nextStepNumber", "pickerModal", "pickerTitle", "pickerList"]
+  static targets = ["container", "template", "addStep", "pickerModal", "pickerTitle", "pickerList"]
 
 	static values = {
 		title: String,
@@ -48,10 +48,12 @@ export default class extends Controller {
     }
 
     const id = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    const zoneLabel = this.zonesValue[zone] || zone
 
     const html = this.templateTarget.innerHTML
       .replaceAll("NEW_RECORD", id)
-      .replaceAll("__ZONE__", zone)
+      .replaceAll("__ZONE_VALUE__", zone)
+      .replaceAll("__ZONE_LABEL__", zoneLabel)
 
     this.containerTarget.insertAdjacentHTML("beforeend", html)
 
@@ -177,10 +179,6 @@ export default class extends Controller {
       }
     })
 
-    if (this.hasNextStepNumberTarget) {
-      this.nextStepNumberTarget.textContent = activeSteps.length + 1
-    }
-
     this.element.querySelectorAll(
       ".haircut-zones-grid .section-btn"
     ).forEach(button => {
@@ -231,8 +229,8 @@ export default class extends Controller {
 		const title = wrapper.querySelector(".haircut-zone-title")
 
 		if (title) {
-			title.textContent = zone.toUpperCase()
-		}
+      title.textContent = this.zonesValue[zone] || zone
+    }
 	}
 
 	renderEmptyState() {
@@ -275,24 +273,17 @@ export default class extends Controller {
 	}
 
 	zoneButtons() {
-		return [
-			"lower occipital",
-			"upper occipital",
-			"temporal",
-			"fringe",
-			"crown",
-			"all over"
-		].map(zone => {
-			return `
-				<button type="button"
-								class="section-btn"
-								data-action="click->haircut#createStep"
-								data-zone="${zone}">
-					${this.zonesValue[zone]}
-				</button>
-			`
-		}).join("")
-	}
+    return Object.entries(this.zonesValue).map(([zone, label]) => {
+      return `
+        <button type="button"
+                class="section-btn"
+                data-action="click->haircut#createStep"
+                data-zone="${zone}">
+          ${label}
+        </button>
+      `
+    }).join("")
+  }
 
   clearField(event) {
     event.preventDefault()

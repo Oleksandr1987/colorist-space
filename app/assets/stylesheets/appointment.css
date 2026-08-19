@@ -216,3 +216,47 @@
 .appointment-delete-button form {
   display: contents;
 }
+
+.appointment-slots {
+  margin-top: 1rem;
+}
+
+.appointment-slots-title {
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+}
+
+.appointment-slots-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.appointment-slot {
+  min-height: 38px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #a9dfb1;
+  border-radius: 8px;
+  background: #e7f6e9;
+  color: #17832a;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.appointment-slot:hover {
+  border-color: #17832a;
+}
+
+.appointment-slot.selected {
+  background: #17832a;
+  border-color: #17832a;
+  color: #fff;
+}
+
+.appointment-slots-empty {
+  padding: 0.75rem 0;
+  color: #777;
+  font-size: 0.9rem;
+}

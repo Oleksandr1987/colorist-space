@@ -2,22 +2,15 @@
      data-care-products-target="modal"
      data-action="click->care-products#cancelModal">
 
-  <div class="care-products-modal-content"
-       data-action="click->care-products#stop">
-
+  <div class="care-products-modal-content" data-action="click->care-products#stop">
     <div class="care-products-modal-header sheet-header">
-      <button type="button"
-              class="sheet-back"
-              data-action="click->care-products#cancelModal">
-        <%= image_tag "close.png",
-              class: "clear-icon" %>
+      <button type="button" class="sheet-back" data-action="click->care-products#cancelModal">
+        <%= image_tag "close.png", class: "clear-icon" %>
       </button>
 
       <h3><%= t("care_products.title") %></h3>
 
-      <button type="button"
-              class="sheet-save"
-              data-action="click->care-products#saveModal">
+      <button type="button" class="sheet-save" data-action="click->care-products#saveModal">
         <%= t("common.save").upcase %>
       </button>
     </div>
@@ -33,10 +26,7 @@
 
     <!-- CATEGORY FILTER -->
     <div class="care-products-filters">
-      <button type="button"
-              class="filter-button active"
-              data-category=""
-              data-action="click->care-products#filterCategory">
+      <button type="button" class="filter-button active" data-category="" data-action="click->care-products#filterCategory">
         <%= t("common.all") %>
       </button>
 
@@ -49,11 +39,9 @@
         </button>
       <% end %>
     </div>
-
     <!-- PRODUCTS -->
     <div class="care-products-modal-list"
          data-care-products-target="productsList">
     </div>
-
   </div>
 </div>

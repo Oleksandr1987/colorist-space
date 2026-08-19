@@ -214,3 +214,62 @@
   70% { opacity: 1 }
   100% { opacity: 0 }
 }
+
+.color-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.color-actions.hidden {
+  display: none;
+}
+
+.color-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+
+  min-height: 38px;
+  padding: 0.5rem 0.8rem;
+
+  border-radius: 10px;
+  border: 1px solid transparent;
+
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.color-action-primary {
+  background: #6200ea;
+  color: #fff;
+}
+
+.color-action-primary:hover {
+  background: #5200c7;
+}
+
+.color-action-secondary {
+  background: #f3edff;
+  color: #6200ea;
+  border-color: #d6c3ff;
+}
+
+.color-action-secondary:hover {
+  background: #e8dcff;
+  border-color: #6200ea;
+}
+
+.color-action-btn:active {
+  transform: scale(0.97);
+}

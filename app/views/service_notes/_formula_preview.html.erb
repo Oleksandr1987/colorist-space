@@ -6,17 +6,12 @@
 
   <% if step.formula_ingredients.any? %>
     <div class="formula-preview-group">
-
       <div class="formula-icon">
-        <%= image_tag "paint.png", class: "wiz-icon",
-                            width: 24,
-                            height: 24 %>
+        <%= image_tag "paint.png", class: "wiz-icon", width: 24, height: 24 %>
       </div>
 
       <div class="formula-content">
-
         <% step.formula_ingredients.each do |ingredient| %>
-
           <div class="formula-row">
             <span>
               <%= ingredient.brand %>
@@ -27,35 +22,22 @@
               <%= ingredient.amount %>g
             </span>
           </div>
-
         <% end %>
-
       </div>
-
     </div>
   <% end %>
 
   <% if step.oxidant_data.any? %>
-
     <div class="formula-preview-group">
-
       <div class="formula-icon">
-        <%= image_tag "percent.png",
-              class: "wiz-icon",
-              width: 24,
-              height: 24 %>
+        <%= image_tag "percent.png", class: "wiz-icon", width: 24,height: 24 %>
       </div>
 
       <div class="formula-content">
-
         <% step.oxidant_data.each do |data| %>
-
-          <% product = FormulaProduct.find_by(
-              id: data["formula_product_id"] || data["service_id"]
-            ) %>
+          <% product = FormulaProduct.find_by(id: data["formula_product_id"] || data["service_id"]) %>
 
           <div class="formula-row">
-
             <span>
               <%= [product&.brand, product&.name].compact.join(" ").presence || "Unknown" %>
               <%= data["ratio"] %>
@@ -64,36 +46,23 @@
             <span>
               <%= data["amount"] %><%= product&.unit || "g" %>
             </span>
-
           </div>
-
         <% end %>
       </div>
-
     </div>
-
   <% end %>
 
   <% if step.time.present? %>
-
     <div class="formula-preview-group">
-
       <div class="formula-icon">
-        <%= image_tag "time.png", class: "wiz-icon",
-                            width: 24,
-                            height: 24 %>
+        <%= image_tag "time.png", class: "wiz-icon", width: 24, height: 24 %>
       </div>
 
       <div class="formula-content">
-
         <div class="formula-row">
           <span><%= step.time %> min</span>
         </div>
-
       </div>
-
     </div>
-
   <% end %>
-
 </div>

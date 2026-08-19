@@ -3,16 +3,10 @@
      class="client-profile-container">
 
   <!-- Header -->
-
   <div class="client-header">
     <div class="client-top-bar">
-      <%= link_to clients_path,
-                  class: "client-back-button" do %>
-
-        <%= image_tag "back.png",
-              width: 24,
-              height: 24,
-              class: "wiz-icon" %>
+      <%= link_to clients_path, class: "client-back-button" do %>
+        <%= image_tag "back.png", width: 24, height: 24, class: "wiz-icon" %>
       <% end %>
 
       <%= link_to calendar_appointments_path(client_id: @client.id),
@@ -27,36 +21,22 @@
         <h1><%= @client.full_name %></h1>
         <% if @client.birthday.present? %>
           <div class="client-birthday">
-            <%= image_tag "cake.png",
-                  width: 20,
-                  height: 20,
-                  class: "wiz-icon" %>
+            <%= image_tag "cake.png", width: 20, height: 20, class: "wiz-icon" %>
             <%= @client.decorate.formatted_birthday %>
           </div>
         <% end %>
       </div>
 
       <div class="client-actions-row">
-        <%= link_to edit_client_path(@client),
-                    class: "client-edit-button" do %>
-          <%= image_tag "pencil.png",
-                width: 16,
-                height: 16,
-                class: "wiz-icon" %>
+        <%= link_to edit_client_path(@client), class: "client-edit-button" do %>
+          <%= image_tag "pencil.png", width: 16, height: 16, class: "wiz-icon" %>
         <% end %>
 
         <%= button_to client_path(@client),
                       method: :delete,
-                      form: {
-                        data: {
-                          turbo_confirm: t("clients.show.delete_client_confirm")
-                        }
-                      },
+                      form: {data: {turbo_confirm: t("clients.show.delete_client_confirm")}},
                       class: "client-delete-button" do %>
-          <%= image_tag "menu.png",
-                width: 18,
-                height: 18,
-                class: "wiz-icon" %>
+          <%= image_tag "menu.png", width: 18, height: 18, class: "wiz-icon" %>
         <% end %>
       </div>
     </div>
@@ -80,12 +60,8 @@
   </div>
 
   <!-- RECORDS TAB  -->
-  <div id="styles-tab"
-     data-client-profile-target="tabContent"
-     class="tab-content active">
-
+  <div id="styles-tab" data-client-profile-target="tabContent" class="tab-content active">
     <% @client.style_appointments.each do |appointment| %>
-
       <% service_note = appointment.service_note %>
 
       <% target_path =
@@ -100,11 +76,8 @@
       %>
 
       <div class="style-card">
-
         <%= link_to target_path, class: "style-photo-wrapper-link" do %>
-
           <div class="style-photo-wrapper">
-
             <% if service_note&.photos&.attached? %>
               <%= image_tag thumb(service_note.photos.first), class: "style-photo" %>
               <% if service_note.photos.count > 1 %>
@@ -114,47 +87,27 @@
               <% end %>
             <% else %>
               <div class="style-no-photo">
-
                 <% if service_note.present? %>
-
-                  <%= link_to edit_client_service_note_path(
-                        @client,
-                        service_note,
-                        step: "photos"
-                      ),
-                      class: "add-photo-button" do %>
-
+                  <%= link_to edit_client_service_note_path(@client, service_note, step: "photos"), class: "add-photo-button" do %>
                     <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
-
                   <% end %>
-
                 <% else %>
-
-                  <%= link_to new_client_service_note_path(
-                        @client,
-                        appointment_id: appointment.id
-                      ),
-                      class: "add-photo-button" do %>
-
+                  <%= link_to new_client_service_note_path(@client,appointment_id: appointment.id), class: "add-photo-button" do %>
                     <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
-
                   <% end %>
-
                 <% end %>
-
               </div>
             <% end %>
 
             <div class="style-info-overlay">
               <div class="style-date">
-                <%= l(appointment.appointment_date, format: "%B %d") %>
+                <%= l(appointment.appointment_date, format: :day_month) %>
 
                 <% if appointment.appointment_date > Date.current %>
                   <span class="future-badge">
                     FUTURE
                   </span>
                 <% end %>
-
               </div>
 
               <% if service_note.present? %>
@@ -170,21 +123,8 @@
   </div>
 
   <!-- INFO TAB -->
-  <div id="info-tab"
-      data-client-profile-target="tabContent"
-      class="tab-content">
-
+  <div id="info-tab" data-client-profile-target="tabContent" class="tab-content">
     <div class="client-info">
-      <p>
-        <strong><%= t("clients.show.details.name") %>:</strong>
-      </p>
-
-      <div class="client-header">
-        <div class="client-header-left">
-          <%= @client.full_name %>
-        </div>
-      </div>
-
       <p>
         <strong><%= t("clients.show.details.phone") %>:</strong>
       </p>
@@ -205,9 +145,8 @@
       %>
 
       <% if hair_info_present %>
-
         <div class="info-section-title">
-          Hair Information
+          <%= t("clients.form.hair_info") %>
         </div>
 
         <% if @client.hair_type.present? %>
@@ -278,5 +217,4 @@
     </button>
     <img data-photo-target="modalImage" class="fullscreen-image">
   </div>
-
 </div>

@@ -3,24 +3,18 @@
   <!-- COLLAPSED -->
   <div class="collapse-section"
        data-inline-editor-target="collapsed">
-    <button type="button"
-            class="collapse-toggle"
-            data-action="inline-editor#open">
+    <button type="button" class="collapse-toggle" data-action="inline-editor#open">
       <span>
         <%= t("clients.form.hair_info_title") %>
       </span>
-      <%= image_tag "plus.png",
-            class: "add-icon" %>
+      <%= image_tag "plus.png", class: "add-icon" %>
     </button>
   </div>
   <!-- EXPANDED -->
-  <div class="inline-editor-panel hidden"
-       data-inline-editor-target="expanded">
+  <div class="inline-editor-panel hidden" data-inline-editor-target="expanded">
     <div class="wizard-top">
-      <button type="button"
-              data-action="inline-editor#close">
-        <%= image_tag "close.png",
-              class: "wiz-icon-close" %>
+      <button type="button" data-action="inline-editor#close">
+        <%= image_tag "close.png", class: "wiz-icon-close" %>
       </button>
       <h3>
         <%= t("clients.form.hair_info_title") %>

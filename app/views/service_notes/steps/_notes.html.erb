@@ -1,20 +1,15 @@
-<div class="notes-block" data-controller="service-note">
+<div class="notes-block"
+     data-controller="service-note"
+     data-service-note-formula-price-label-value="<%= t("services.price.formula_ingredients") %>"
+     data-service-note-care-products-price-label-value="<%= t("services.price.care_products") %>">
 
   <div class="notes-date">
     <%= l(@appointment.appointment_date, format: :long) %>
   </div>
-
-
   <!-- SERVICES -->
   <div class="notes-collapse-section" data-controller="collapse">
-
-    <div class="notes-label note-step-pill"
-         data-action="click->collapse#toggle">
-
-      <%= image_tag "services.png",
-          class: "wiz-icon",
-          width: 34,
-          height: 34 %>
+    <div class="notes-label note-step-pill" data-action="click->collapse#toggle">
+      <%= image_tag "services.png", class: "wiz-icon", width: 34, height: 34 %>
 
       <span>
         <strong><%= t("services.title") %></strong>
@@ -30,9 +25,7 @@
       </svg>
     </div>
 
-    <div class="notes-collapse-content hidden"
-         data-collapse-target="content">
-
+    <div class="notes-collapse-content hidden" data-collapse-target="content">
       <div class="notes-services">
         <div data-service-note-target="servicesList"></div>
       </div>
@@ -40,7 +33,7 @@
       <div class="price-wrapper">
         <div class="price-display">
           <span class="price-label">
-            <strong>SERVICES PRICE:</strong>
+            <strong><%= t("services.price.services") %></strong>
           </span>
 
           <span class="price-value"
@@ -49,24 +42,14 @@
           </span>
         </div>
 
-        <%= f.hidden_field :price,
-            data: { service_note_target: "priceInput" } %>
+        <%= f.hidden_field :price, data: { service_note_target: "priceInput" } %>
       </div>
-
     </div>
   </div>
-
-
   <!-- FORMULA INGREDIENTS -->
   <div class="notes-collapse-section" data-controller="collapse">
-
-    <div class="notes-label note-step-pill"
-         data-action="click->collapse#toggle">
-
-      <%= image_tag "formula.png",
-          class: "wiz-icon",
-          width: 34,
-          height: 34 %>
+    <div class="notes-label note-step-pill" data-action="click->collapse#toggle">
+      <%= image_tag "formula.png", class: "wiz-icon", width: 34,height: 34 %>
 
       <span>
         <strong><%= t("formula_products.pages.title") %></strong>
@@ -82,53 +65,30 @@
       </svg>
     </div>
 
-    <div class="notes-collapse-content hidden"
-         data-collapse-target="content">
-
+    <div class="notes-collapse-content hidden" data-collapse-target="content">
       <div class="notes-dev">
-
         <div class="notes-subtitle">
-          <%= image_tag "paint.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
-
+          <%= image_tag "paint.png", class: "wiz-icon", width: 34, height: 34 %>
           <strong><%= t("formula_products.tabs.colors") %></strong>
         </div>
 
         <div data-service-note-target="colorsList"></div>
-
-
         <div class="notes-subtitle">
-          <%= image_tag "percent.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
-
+          <%= image_tag "percent.png", class: "wiz-icon", width: 34,height: 34 %>
           <strong><%= t("formula_products.tabs.oxidants") %></strong>
         </div>
 
         <div data-service-note-target="developerList"></div>
-
         <div class="notes-dev-total"
              data-service-note-target="developerPrice">
         </div>
-
       </div>
     </div>
   </div>
-
-
   <!-- CARE PRODUCTS -->
   <div class="notes-collapse-section" data-controller="collapse">
-
-    <div class="notes-label note-step-pill"
-         data-action="click->collapse#toggle">
-
-      <%= image_tag "skincare.png",
-          class: "wiz-icon",
-          width: 34,
-          height: 34 %>
+    <div class="notes-label note-step-pill" data-action="click->collapse#toggle">
+      <%= image_tag "skincare.png", class: "wiz-icon", width: 34, height: 34 %>
 
       <span>
         <strong><%= t("care_products.title") %></strong>
@@ -144,28 +104,16 @@
       </svg>
     </div>
 
-    <div class="notes-collapse-content hidden"
-         data-collapse-target="content">
-
+    <div class="notes-collapse-content hidden" data-collapse-target="content">
       <div class="notes-care-products">
         <div data-service-note-target="careProductsList"></div>
       </div>
-
     </div>
   </div>
-
-
   <!-- NOTES -->
-  <div class="notes-wrapper notes-collapse-section"
-       data-controller="collapse">
-
-    <div class="notes-label note-step-pill"
-         data-action="click->collapse#toggle">
-
-      <%= image_tag "notes.png",
-          class: "wiz-icon",
-          width: 34,
-          height: 34 %>
+  <div class="notes-wrapper notes-collapse-section" data-controller="collapse">
+    <div class="notes-label note-step-pill" data-action="click->collapse#toggle">
+      <%= image_tag "notes.png", class: "wiz-icon", width: 34, height: 34 %>
 
       <span>
         <strong><%= t("appointments.form.notes") %></strong>
@@ -181,26 +129,18 @@
       </svg>
     </div>
 
-    <div class="notes-collapse-content hidden"
-         data-collapse-target="content">
-
-      <%= f.text_area :notes,
-          value: @service_note.notes.presence || @appointment&.notes,
-          class: "notes-textarea" %>
-
+    <div class="notes-collapse-content hidden" data-collapse-target="content">
+      <%= f.text_area :notes, value: @service_note.notes.presence || @appointment&.notes, class: "notes-textarea" %>
     </div>
   </div>
-
-
   <!-- FINAL PRICE -->
   <div class="price-final">
     <span>
-      <strong>TOTAL:</strong>
+      <strong><%= t("services.price.total") %></strong>
     </span>
 
     <span data-service-note-target="finalPrice">
       <strong><%= @service_note.final_price %> ₴</strong>
     </span>
   </div>
-
 </div>

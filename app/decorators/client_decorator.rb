@@ -4,11 +4,10 @@ class ClientDecorator < Draper::Decorator
   def formatted_birthday
     return if object.birthday.blank?
 
-    month, day = object.birthday.split("-")
+    month, day = object.birthday.split("-").map(&:to_i)
 
-    month_name =
-      Date::MONTHNAMES[month.to_i]
+    date = Date.new(Date.current.year, month, day)
 
-    "#{day} #{month_name}"
+    I18n.l(date, format: :birthday)
   end
 end

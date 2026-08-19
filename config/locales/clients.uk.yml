@@ -23,6 +23,7 @@ uk:
       note: "Нотатки"
 
       hair_info_title: "Додаткова інформація про волосся"
+      hair_info: "Інформація про волосся"
       hair_type: "Тип волосся"
       hair_length: "Довжина волосся"
       hair_structure: "Структура волосся"
@@ -89,3 +90,10 @@ uk:
         dry: "Суха"
         oily: "Жирна"
         sensitive: "Чутлива"
+  photos:
+    gallery: "ГAЛЕРЕЯ"
+    camera: "КAМЕРA"
+
+  date:
+    formats:
+      birthday: "%-d %B"

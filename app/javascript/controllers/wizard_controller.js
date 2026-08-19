@@ -19,9 +19,16 @@ export default class extends Controller {
 
   static values = {
     initialStep: String,
+    servicesTitle: String,
+    haircutTitle: String,
+    formulaTitle: String,
+    careProductsTitle: String,
+    photosTitle: String,
+    notesTitle: String,
+    nextLabel: String,
+    saveLabel: String,
     unsavedTitle: String,
     unsavedMessage: String,
-    saveLabel: String,
     discardLabel: String,
     cancelLabel: String
   }
@@ -124,12 +131,12 @@ export default class extends Controller {
     })
 
     const titles = [
-      "Services",
-      "Haircut",
-      "Formula",
-      "Care Products",
-      "Photos",
-      "Notes"
+      this.servicesTitleValue,
+      this.haircutTitleValue,
+      this.formulaTitleValue,
+      this.careProductsTitleValue,
+      this.photosTitleValue,
+      this.notesTitleValue
     ]
 
     this.titleTarget.textContent = titles[this.current]
@@ -159,13 +166,13 @@ export default class extends Controller {
     const isLast = this.current === this.steps.length - 1
 
     if (isLast) {
-      this.nextLabelTarget.textContent = "SAVE"
+      this.nextLabelTarget.textContent = this.saveLabelValue.toUpperCase()
       this.nextButtonTarget.type = "submit"
 
       this.nextIconTarget.style.display = "none"
       this.saveIconTarget.style.display = "inline-block"
     } else {
-      this.nextLabelTarget.textContent = "NEXT"
+      this.nextLabelTarget.textContent = this.nextLabelValue
       this.nextButtonTarget.type = "button"
 
       this.nextIconTarget.style.display = "inline-block"

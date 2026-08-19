@@ -5,6 +5,10 @@ import Sortable from "sortablejs"
 export default class extends Controller {
   static targets = ["container", "template", "steps", "colorsList", "addStep"]
 
+  static values = {
+    sections: Object
+  }
+
   connect() {
     this.initSortable()
     this.initSwipe()
@@ -87,13 +91,14 @@ export default class extends Controller {
     event.preventDefault()
 
     const section = event.currentTarget.dataset.section
+    const sectionLabel = this.sectionsValue[section] || section
     const template = this.templateTarget.innerHTML
-
     const stepId = Date.now()
 
     let html = template
-      .replace(/__SECTION__/g, section)
-      .replace(/NEW_RECORD/g, stepId)
+      .replaceAll("__SECTION_VALUE__", section)
+      .replaceAll("__SECTION_LABEL__", sectionLabel)
+      .replaceAll("NEW_RECORD", stepId)
 
     this.containerTarget.insertAdjacentHTML("beforeend", html)
 

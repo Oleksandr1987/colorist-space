@@ -23,6 +23,7 @@ en:
       note: "Notes"
 
       hair_info_title: "Optional Hair Information"
+      hair_info: "Hair Information"
       hair_type: "Hair Type"
       hair_length: "Hair Length"
       hair_structure: "Hair Structure"
@@ -90,3 +91,11 @@ en:
         dry: "Dry"
         oily: "Oily"
         sensitive: "Sensitive"
+
+  photos:
+    gallery: "FROM GALLERY"
+    camera: "TAKE PHOTO"
+
+  date:
+    formats:
+      birthday: "%-d %B"

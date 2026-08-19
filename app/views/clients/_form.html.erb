@@ -1,21 +1,14 @@
 <%= form_with model: @client, local: true, html: { multipart: true } do |f| %>
   <div class="wizard-top">
-
     <%= link_to(@client.new_record? ? clients_path : client_path(@client)) do %>
-      <%= image_tag "back.png",
-            width: 24,
-            height: 24,
-            class: "wiz-icon" %>
+      <%= image_tag "back.png", width: 24, height: 24, class: "wiz-icon" %>
     <% end %>
 
     <h2>
-      <%= @client.new_record? ?
-          t("clients.new") :
-          t("clients.edit") %>
+      <%= @client.new_record? ? t("clients.new") : t("clients.edit") %>
     </h2>
 
     <button type="submit"><%= t("common.save").upcase %></button>
-
   </div>
 
   <div class="login__field">
@@ -59,9 +52,7 @@
         <div class="phone-row">
           <%= phone_form.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
           <%= phone_form.hidden_field :_destroy %>
-          <button type="button"
-                  class="remove-btn"
-                  data-action="phones#remove">
+          <button type="button" class="remove-btn" data-action="phones#remove">
             <%= image_tag "close.png", class: "clear-icon" %>
           </button>
         </div>
@@ -87,9 +78,7 @@
       </div>
     </template>
 
-    <button type="button"
-        class="add-phone-text"
-        data-action="phones#add">
+    <button type="button" class="add-phone-text" data-action="phones#add">
       + Add phone
     </button>
   </div>
@@ -119,18 +108,14 @@
         data-birthday-picker-target="modal"
         data-action="click->birthday-picker#close">
 
-      <div class="care-products-modal-content"
-          data-action="click->birthday-picker#stop">
+      <div class="care-products-modal-content" data-action="click->birthday-picker#stop">
 
         <div class="wizard-top birthday-picker-top">
-          <button type="button"
-                  data-action="click->birthday-picker#close">
-            <%= image_tag "close.png",
-                  class: "wiz-icon-close" %>
+          <button type="button" data-action="click->birthday-picker#close">
+            <%= image_tag "close.png", class: "wiz-icon-close" %>
           </button>
 
-          <button type="button"
-                  data-action="click->birthday-picker#save">
+          <button type="button" data-action="click->birthday-picker#save">
             <%= t("common.save").upcase %>
           </button>
         </div>
@@ -142,14 +127,12 @@
               data-action="scroll->birthday-picker#scrollDay">
 
             <div class="birthday-wheel-spacer"></div>
-
             <% (1..31).each do |day| %>
               <div class="birthday-wheel-item"
                   data-day="<%= "%02d" % day %>">
                 <%= "%02d" % day %>
               </div>
             <% end %>
-
             <div class="birthday-wheel-spacer"></div>
           </div>
 
@@ -159,14 +142,12 @@
               data-action="scroll->birthday-picker#scrollMonth">
 
             <div class="birthday-wheel-spacer"></div>
-
             <% I18n.t("date.month_names").drop(1).each_with_index do |month, index| %>
               <div class="birthday-wheel-item"
                   data-month="<%= "%02d" % (index + 1) %>">
                 <%= month %>
               </div>
             <% end %>
-
             <div class="birthday-wheel-spacer"></div>
           </div>
         </div>
@@ -175,6 +156,5 @@
   </div>
 
   <%= render "hair_info_form", f: f, expanded: false %>
-
   <%= render "notes_form", f: f, expanded: false %>
 <% end %>

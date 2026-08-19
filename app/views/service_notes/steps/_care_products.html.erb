@@ -3,10 +3,7 @@
   <!-- HEADER -->
   <div class="care-products-header">
     <h3><%= t("care_products.title") %></h3>
-    <button type="button"
-            class="add-care-btn"
-            data-action="click->care-products#openModal">
-
+    <button type="button" class="add-care-btn" data-action="click->care-products#openModal">
       <%= image_tag "plus.png", class: "add-icon" %>
     </button>
   </div>
@@ -29,9 +26,7 @@
   <%= hidden_field_tag(
       "service_note[care_products]",
       @service_note.care_products.to_json,
-      data: {
-        care_products_target: "input"
-      }
+      data: { care_products_target: "input"}
     ) %>
 
   <%= render "service_notes/care_products_modal" %>

@@ -14,3 +14,11 @@ uk:
 
     pages:
       title: "ІНГРЕДІЄНТИ ФОРМУЛИ"
+
+    colors:
+      add: "Додати колір"
+      select_palette: "Оберіть палітру..."
+      shade: "Відтінок"
+      amount: "Кількість"
+      add_color: "ДОДАТИ КОЛІР"
+      add_palette: "ДОДАТИ ПАЛІТРУ"

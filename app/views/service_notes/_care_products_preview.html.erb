@@ -1,10 +1,7 @@
 <% return if care_products.blank? %>
 
-<div class="note-section"
-     data-controller="collapse">
-
-  <div class="note-section-title note-step-pill"
-       data-action="click->collapse#toggle">
+<div class="note-section" data-controller="collapse">
+  <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
     <%= image_tag "skincare.png", class: "wiz-icon", width: 34, height: 34 %>
 
     <span>
@@ -21,9 +18,7 @@
     </svg>
   </div>
 
-  <div class="note-section-content hidden"
-       data-collapse-target="content">
-
+  <div class="note-section-content hidden" data-collapse-target="content">
     <% care_products.each do |item| %>
       <% product = CareProduct.find_by(id: item["care_product_id"]) %>
 
@@ -37,6 +32,5 @@
         </span>
       </div>
     <% end %>
-
   </div>
 </div>

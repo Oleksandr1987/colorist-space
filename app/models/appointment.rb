@@ -110,9 +110,11 @@ class Appointment < ApplicationRecord
 
   class << self
     def grouped_by_month(relation)
-    relation.group_by { |a| a.appointment_date.strftime("%B %Y") }
-            .sort_by { |month, appointments| appointments.first.appointment_date.beginning_of_month }
-            .to_h
+      relation
+        .group_by { |appointment| appointment.appointment_date.beginning_of_month }
+        .sort_by { |month, _appointments| month }
+        .reverse
+        .to_h
     end
 
     def available_years(scope)
@@ -190,6 +192,78 @@ class Appointment < ApplicationRecord
       end
 
       available
+    end
+
+    def available_time_ranges(user, date)
+      rules = user.slot_rules.select { |rule| rule.active_on?(date) }
+      appointments = user.appointments.by_date(date).order(:appointment_time).to_a
+
+      ranges = rules.flat_map do |rule|
+        slots = rule.slots_for(date, 5)
+
+        next [] if slots.empty?
+
+        work_start = slots.first[:start]
+        work_end = slots.last[:end]
+
+        if date == Date.current
+          work_start = [ work_start, ceil_to_five_minutes(Time.current) ].max
+        end
+
+        next [] if work_start >= work_end
+
+        day_appointments = appointments.filter_map do |appointment|
+          next if appointment.end_time.blank?
+
+          appointment_start = appointment.appointment_time.change(
+            year: date.year,
+            month: date.month,
+            day: date.day
+          )
+
+          appointment_end = appointment.end_time.change(
+            year: date.year,
+            month: date.month,
+            day: date.day
+          )
+
+          next if appointment_end <= work_start
+          next if appointment_start >= work_end
+
+          {
+            start: [ appointment_start, work_start ].max,
+            end: [ appointment_end, work_end ].min
+          }
+        end
+
+        free_ranges = []
+        pointer = work_start
+
+        day_appointments.each do |appointment|
+          if appointment[:start] > pointer
+            free_ranges << { start: pointer, end: appointment[:start] }
+          end
+
+          pointer = [ pointer, appointment[:end] ].max
+        end
+
+        if pointer < work_end
+          free_ranges << { start: pointer, end: work_end }
+        end
+
+        free_ranges
+      end
+
+      ranges.sort_by { |range| range[:start] }
+    end
+
+    private
+
+    def ceil_to_five_minutes(time)
+      seconds = time.to_i
+      step = 5.minutes.to_i
+
+      Time.zone.at(((seconds + step - 1) / step) * step)
     end
   end
 

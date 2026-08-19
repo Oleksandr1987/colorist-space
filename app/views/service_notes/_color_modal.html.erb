@@ -3,23 +3,16 @@
      data-color-target="modal"
      data-color-delete-icon-value="<%= asset_path('close.png') %>">
 
-  <div class="color-sheet"
-       data-action="click->color#stop">
-
+  <div class="color-sheet" data-action="click->color#stop">
     <div class="sheet-header">
-      <button type="button"
-              class="sheet-back"
-              data-action="click->color#closeModal">
-        <%= image_tag "close.png",
-              class: "clear-icon" %>
+      <button type="button" class="sheet-back" data-action="click->color#closeModal">
+        <%= image_tag "close.png", class: "clear-icon" %>
       </button>
 
-      <h2>Add Color</h2>
+      <h2><%= t("formula_products.colors.add") %></h2>
 
-      <button type="button"
-              class="sheet-save"
-              data-action="click->color#save">
-        SAVE
+      <button type="button" class="sheet-save" data-action="click->color#save">
+        <%= t("common.save") %>
       </button>
     </div>
 
@@ -39,7 +32,7 @@
                     disabled
                     selected
                     hidden>
-              Select palette...
+              <%= t("formula_products.colors.select_palette") %>
             </option>
 
             <% current_user.formula_products.palette_list.each do |palette| %>
@@ -56,48 +49,34 @@
 
       <!-- Shade -->
       <template data-color-target="shadeTemplate">
-        <div class="color-row"
-             data-product-id=""
-             data-price=""
-             data-brand="">
-
+        <div class="color-row" data-product-id="" data-price="" data-brand="">
           <div class="color-brand"
                data-color-target="brand">
           </div>
 
           <input type="text"
                  class="form-input color-shade"
-                 placeholder="Shade">
+                 placeholder="<%= t('formula_products.colors.shade') %>">
 
           <input type="text"
                  class="form-input color-amount"
-                 placeholder="Amount">
+                 placeholder="<%= t('formula_products.colors.amount') %>">
 
-          <button type="button"
-                  class="color-remove"
-                  data-action="click->color#removeRow">
-            <%= image_tag "close.png",
-                  class: "clear-icon" %>
+          <button type="button" class="color-remove" data-action="click->color#removeRow">
+            <%= image_tag "close.png", class: "clear-icon" %>
           </button>
         </div>
       </template>
 
-      <div class="color-actions hidden"
-           data-color-target="actions">
-        <button type="button"
-                class="add-color-btn"
-                data-action="click->color#addShade">
-          + ADD COLOR
+      <div class="color-actions hidden" data-color-target="actions">
+        <button type="button" class="color-action-btn color-action-primary" data-action="click->color#addShade">
+          <%= t("formula_products.colors.add_color") %>
         </button>
 
-        <button type="button"
-                class="secondary-button"
-                data-action="click->color#changePalette">
-          + ADD PALETTE
+        <button type="button" class="color-action-btn color-action-secondary" data-action="click->color#changePalette">
+          <%= t("formula_products.colors.add_palette") %>
         </button>
       </div>
     </div>
-
   </div>
-
 </div>

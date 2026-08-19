@@ -1,7 +1,5 @@
 <div class="service-wrapper" data-controller="service">
-
   <div class="formula-header">
-
     <div class="formula-tabs">
       <%= link_to t("formula_products.tabs.colors"),
           formula_products_path(category: "color"),
@@ -13,29 +11,21 @@
     </div>
 
     <div class="formula-actions">
-
       <input type="text"
              placeholder="<%= t('formula_products.menu.search_placeholder') %>"
              class="formula-search-input"
              data-service-target="search"
              data-action="input->service#filter">
 
-      <%= link_to new_formula_product_path(category: @category),
-            class: "formula-add-button" do %>
-        <%= image_tag "plus.png",
-              width: 38,
-              height: 38 %>
+      <%= link_to new_formula_product_path(category: @category), class: "formula-add-button" do %>
+        <%= image_tag "plus.png", width: 38, height: 38 %>
       <% end %>
-
     </div>
   </div>
 
-  <div class="service-list"
-       data-service-target="list">
-
+  <div class="service-list" data-service-target="list">
     <% @formula_products.each do |product| %>
-      <div class="service-item"
-           data-name="<%= "#{product.brand} #{product.name}".downcase %>">
+      <div class="service-item" data-name="<%= "#{product.brand} #{product.name}".downcase %>">
         <div class="service-info">
           <div class="service-name">
             <strong><%= product.brand %></strong>
@@ -48,12 +38,8 @@
         </div>
 
         <div class="service-actions">
-          <%= link_to edit_formula_product_path(product),
-              class: "icon-button" do %>
-            <%= image_tag "pencil.png",
-                  class: "wiz-icon",
-                  width: 24,
-                  height: 24 %>
+          <%= link_to edit_formula_product_path(product), class: "icon-button" do %>
+            <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24 %>
           <% end %>
 
           <%= button_to formula_product_path(product),
@@ -64,10 +50,7 @@
                   turbo_confirm: t("formula_products.actions.confirm_delete")
                 }
               } do %>
-            <%= image_tag "delete.png",
-                  class: "wiz-icon",
-                  width: 24,
-                  height: 24 %>
+            <%= image_tag "delete.png", class: "wiz-icon", width: 24, height: 24 %>
           <% end %>
         </div>
       </div>

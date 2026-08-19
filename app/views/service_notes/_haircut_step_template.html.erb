@@ -1,11 +1,7 @@
 <template data-haircut-target="template">
-  <div class="formula-step-wrapper"
-       data-controller="collapse">
-
+  <div class="formula-step-wrapper" data-controller="collapse">
     <!-- HEADER -->
-    <div class="formula-step-header"
-         data-action="click->collapse#toggle">
-
+    <div class="formula-step-header" data-action="click->collapse#toggle">
       <span>
         <%= t("haircut.step") %> <span class="step-number"></span>
       </span>
@@ -19,27 +15,20 @@
         <path d="m6 9 6 6 6-6"/>
       </svg>
     </div>
-
     <!-- CONTENT -->
-    <div class="formula-step-content"
-         data-collapse-target="content">
+    <div class="formula-step-content" data-collapse-target="content">
       <div class="formula-card">
         <!-- HEADER -->
         <div class="formula-header haircut-step-header">
-          <button type="button"
-                  class="sheet-back"
-                  data-action="click->haircut#removeStep">
-            <%= image_tag "close.png",
-                  class: "clear-icon" %>
+          <button type="button" class="sheet-back" data-action="click->haircut#removeStep">
+            <%= image_tag "close.png", class: "clear-icon" %>
           </button>
 
           <span class="haircut-zone-title">
-            __ZONE__
+            __ZONE_LABEL__
           </span>
 
-          <button type="button"
-                  class="sheet-save"
-                  data-action="click->haircut#saveStep">
+          <button type="button" class="sheet-save" data-action="click->haircut#saveStep">
             <%= t("common.save") %>
           </button>
 
@@ -50,17 +39,15 @@
 
           <input type="hidden"
                 name="service_note[haircut_steps_attributes][NEW_RECORD][zone]"
-                value="__ZONE__">
+                value="__ZONE_VALUE__">
         </div>
-
         <!-- INSTRUMENT -->
         <div class="formula-block">
           <div class="block-title">
             <span><%= t("haircut.instrument") %></span>
           </div>
 
-          <select name="service_note[haircut_steps_attributes][NEW_RECORD][instrument]"
-                  class="input-line">
+          <select name="service_note[haircut_steps_attributes][NEW_RECORD][instrument]" class="input-line">
             <option value="">
 							<%= t("haircut.select_instrument") %>
 						</option>
@@ -72,15 +59,13 @@
 						<% end %>
           </select>
         </div>
-
         <!-- PARTING -->
         <div class="formula-block">
           <div class="block-title">
             <span><%= t("haircut.parting") %></span>
           </div>
 
-          <select name="service_note[haircut_steps_attributes][NEW_RECORD][parting]"
-                  class="input-line">
+          <select name="service_note[haircut_steps_attributes][NEW_RECORD][parting]" class="input-line">
             <option value="">
 							<%= t("haircut.select_parting") %>
 						</option>
@@ -92,15 +77,13 @@
 						<% end %>
           </select>
         </div>
-
         <!-- ELEVATION -->
         <div class="formula-block">
           <div class="block-title">
             <span><%= t("haircut.elevation") %></span>
           </div>
 
-          <select name="service_note[haircut_steps_attributes][NEW_RECORD][elevation]"
-                  class="input-line">
+          <select name="service_note[haircut_steps_attributes][NEW_RECORD][elevation]" class="input-line">
             <option value="">
 							<%= t("haircut.select_elevation") %>
 						</option>
@@ -112,15 +95,13 @@
 						<% end %>
           </select>
         </div>
-
         <!-- CUT TYPE -->
         <div class="formula-block">
           <div class="block-title">
             <span><%= t("haircut.cut_type") %></span>
           </div>
 
-          <select name="service_note[haircut_steps_attributes][NEW_RECORD][cut_type]"
-                  class="input-line">
+          <select name="service_note[haircut_steps_attributes][NEW_RECORD][cut_type]" class="input-line">
             <option value="">
 							<%= t("haircut.select_cut_type") %>
 						</option>
@@ -134,6 +115,5 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>

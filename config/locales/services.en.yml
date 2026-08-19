@@ -1,4 +1,8 @@
 en:
+  date:
+    formats:
+      day_month: "%B %-d"
+
   services:
     title: "SERVICES"
     menu:
@@ -74,6 +78,13 @@ en:
       new_item: "+ New %{item}"
       back: "←"
       search: "Search..."
+
+    price:
+      final: "FINAL PRICE"
+      total: "TOTAL"
+      services: "SERVICES PRICE:"
+      formula_ingredients: "FORMULA INGREDIENTS PRICE:"
+      care_products: "CARE PRODUCTS PRICE:"
 
     errors:
       services_required: "Please select at least one service"

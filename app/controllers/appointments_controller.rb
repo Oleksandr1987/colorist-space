@@ -181,16 +181,16 @@ class AppointmentsController < ApplicationController
   end
 
   def free_slots
-    date = params[:date].presence&.to_date || Date.today
+    date = params[:date].presence&.to_date || Date.current
 
-    return render json: [] if date < Date.today
+    return render json: [] if date < Date.current
 
-    slots = Appointment.available_slots(current_user, date)
+    ranges = Appointment.available_time_ranges(current_user, date)
 
-    render json: slots.map { |slot|
+    render json: ranges.map { |range|
       {
-        start: slot[:start].strftime("%H:%M"),
-        end: slot[:end].strftime("%H:%M")
+        start: range[:start].strftime("%H:%M"),
+        end: range[:end].strftime("%H:%M")
       }
     }
   end

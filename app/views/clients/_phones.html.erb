@@ -26,12 +26,8 @@
     </div>
 
     <div class="phone-right">
-        <button type="button"
-                class="copy-btn"
-                data-action="click->client-profile#copyPhone"
-                data-phone="<%= main_phone %>">
-          <%= image_tag "copy.png",
-          class: "copy-icon" %>
+        <button type="button" class="copy-btn" data-action="click->client-profile#copyPhone" data-phone="<%= main_phone %>">
+          <%= image_tag "copy.png", class: "copy-icon" %>
         </button>
     </div>
   </li>
@@ -48,10 +44,7 @@
         </a>
 
         <%= button_to make_primary_client_path(client, phone: phone.phone),
-              method: :patch,
-              form: {
-                data: { turbo_stream: true }
-              },
+              method: :patch, form: {data: { turbo_stream: true }},
               class: "phone-star-btn" do %>
             <svg xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -69,12 +62,8 @@
       </div>
 
       <div class="phone-right">
-        <button type="button"
-                class="copy-btn"
-                data-action="click->client-profile#copyPhone"
-                data-phone="<%= phone.phone %>">
-          <%= image_tag "copy.png",
-                class: "copy-icon" %>
+        <button type="button" class="copy-btn" data-action="click->client-profile#copyPhone" data-phone="<%= phone.phone %>">
+          <%= image_tag "copy.png", class: "copy-icon" %>
         </button>
       </div>
     </li>

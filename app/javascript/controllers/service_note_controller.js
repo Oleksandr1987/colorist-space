@@ -16,6 +16,11 @@ export default class extends Controller {
     "careProductsList"
   ]
 
+  static values = {
+    formulaPriceLabel: String,
+    careProductsPriceLabel: String
+  }
+
   connect() {
     this.services = []
 
@@ -238,7 +243,6 @@ export default class extends Controller {
     })
 
     Object.values(grouped).forEach(dev => {
-
       total += dev.total
 
       this.developerListTarget.insertAdjacentHTML(
@@ -253,9 +257,12 @@ export default class extends Controller {
     })
 
     if (this.hasDeveloperPriceTarget) {
+      const colorsTotal = this.calculateColorsPrice()
+      const formulaTotal = colorsTotal + total
+
       this.developerPriceTarget.innerHTML = `
-        <span><strong>FORMULA INGREDIENTS PRICE:</strong></span>
-        <span>${total} ₴</span>
+        <span><strong>${this.formulaPriceLabelValue}</strong></span>
+        <span>${formulaTotal} ₴</span>
       `
     }
   }
@@ -310,7 +317,7 @@ export default class extends Controller {
       "beforeend",
       `
         <div class="notes-care-total">
-          <span><strong>CARE PRODUCTS PRICE:</strong></span>
+          <span><strong>${this.careProductsPriceLabelValue}</strong></span>
           <span>${total} ₴</span>
         </div>
       `
