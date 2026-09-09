@@ -21,4 +21,26 @@ RSpec.describe FormulaProduct do
     expect(formula_product).to validate_numericality_of(:price_per_unit)
       .is_greater_than_or_equal_to(0)
   end
+
+  describe ".colors" do
+    it "returns only color category products" do
+      color = create(:formula_product, category: "color")
+      oxidant = create(:formula_product, :oxidant)
+
+      expect(described_class.colors).to include(color)
+      expect(described_class.colors).not_to include(oxidant)
+    end
+  end
+
+  describe ".palette_list" do
+    it "returns distinct color products ordered by brand" do
+      wella = create(:formula_product, category: "color", brand: "Wella", name: "Koleston 7/1")
+      loreal = create(:formula_product, category: "color", brand: "L'Oreal", name: "Majirel 6")
+      create(:formula_product, :oxidant)
+
+      result = described_class.palette_list
+
+      expect(result).to eq([ loreal, wella ])
+    end
+  end
 end

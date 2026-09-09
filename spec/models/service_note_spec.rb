@@ -292,6 +292,40 @@ RSpec.describe ServiceNote do
     end
   end
 
+  describe "#formula_ingredients_total_price" do
+    it "sums colors and oxidant totals across all formula steps" do
+      step = create(
+        :formula_step,
+        service_note: note,
+        oxidant: [ { "formula_product_id" => 1, "amount" => 10, "price" => 2 } ]
+      )
+
+      create(:formula_ingredient, formula_step: step, amount: 5, price: 3)
+
+      expect(note.reload.formula_ingredients_total_price).to eq(35)
+    end
+
+    it "returns 0 when there are no formula steps" do
+      expect(note.formula_ingredients_total_price).to eq(0)
+    end
+  end
+
+  describe "#reject_empty_haircut_step?" do
+    it "rejects nested haircut step attributes that are entirely blank" do
+      note.haircut_steps_attributes = [
+        { zone: "", instrument: "", parting: "", elevation: "", cut_type: "", notes: "" }
+      ]
+
+      expect(note.haircut_steps).to be_empty
+    end
+
+    it "keeps nested haircut step attributes when any value is present" do
+      note.haircut_steps_attributes = [ { zone: "crown" } ]
+
+      expect(note.haircut_steps.size).to eq(1)
+    end
+  end
+
   describe "#appointment_date" do
     it "returns appointment appointment_date" do
       appointment = create(:appointment, appointment_date: Date.current + 3.days)
@@ -458,6 +492,82 @@ RSpec.describe ServiceNote do
 
         expect { note.send(:restore_care_products_stock) }.not_to raise_error
       end
+
+      it "does nothing when care_products is not an array" do
+        note = build(:service_note, care_products: nil)
+
+        expect { note.send(:restore_care_products_stock) }.not_to raise_error
+      end
+
+      it "ignores zero or negative quantities" do
+        note = build(
+          :service_note,
+          care_products: [
+            {
+              "care_product_id" => care_product.id,
+              "qty" => 0
+            }
+          ]
+        )
+
+        expect {
+          note.send(:restore_care_products_stock)
+        }.not_to change {
+          care_product.reload.stock_quantity
+        }
+      end
+    end
+
+    it "skips a product_id that no longer exists" do
+      note = build(:service_note)
+
+      allow(note).to receive_messages(
+        care_products_before_last_save: [ { "care_product_id" => 999_999, "qty" => 2 } ],
+        care_products: [ { "care_product_id" => 999_999, "qty" => 5 } ]
+      )
+
+      expect { note.send(:sync_care_products_stock) }.not_to raise_error
+    end
+
+    it "treats a newly added care product as increasing usage from zero" do
+      note = build(:service_note)
+
+      allow(note).to receive_messages(
+        care_products_before_last_save: [],
+        care_products: [ { "care_product_id" => care_product.id, "qty" => 3 } ]
+      )
+
+      note.send(:sync_care_products_stock)
+
+      expect(care_product.reload.stock_quantity).to eq(7)
+    end
+
+    it "treats a removed care product as decreasing usage to zero" do
+      note = build(:service_note)
+
+      allow(note).to receive_messages(
+        care_products_before_last_save: [ { "care_product_id" => care_product.id, "qty" => 4 } ],
+        care_products: []
+      )
+
+      note.send(:sync_care_products_stock)
+
+      expect(care_product.reload.stock_quantity).to eq(14)
+    end
+
+    it "does nothing when quantity is unchanged" do
+      note = build(:service_note)
+
+      allow(note).to receive_messages(
+        care_products_before_last_save: [ { "care_product_id" => care_product.id, "qty" => 3 } ],
+        care_products: [ { "care_product_id" => care_product.id, "qty" => 3 } ]
+      )
+
+      expect {
+        note.send(:sync_care_products_stock)
+      }.not_to change {
+        care_product.reload.stock_quantity
+      }
     end
 
     it "decreases stock when qty increased" do
@@ -479,6 +589,26 @@ RSpec.describe ServiceNote do
       note.send(:sync_care_products_stock)
 
       expect(care_product.reload.stock_quantity).to eq(7)
+    end
+
+    it "increases stock when qty decreased" do
+      note = build(:service_note)
+
+      allow(note).to receive_messages(care_products_before_last_save: [
+          {
+            "care_product_id" => care_product.id,
+            "qty" => 5
+          }
+        ], care_products: [
+          {
+            "care_product_id" => care_product.id,
+            "qty" => 2
+          }
+        ])
+
+      note.send(:sync_care_products_stock)
+
+      expect(care_product.reload.stock_quantity).to eq(13)
     end
 
     describe "#care_products_stock_available" do

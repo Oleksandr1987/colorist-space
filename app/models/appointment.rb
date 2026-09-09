@@ -143,57 +143,6 @@ class Appointment < ApplicationRecord
       }
     end
 
-    def available_slots(user, date)
-      slot_rules = user.slot_rules.select { |rule| rule.active_on?(date) }
-      slots = slot_rules.flat_map { |rule| rule.slots_for(date, 5) }
-      appointments = user.appointments.by_date(date).order(:appointment_time).to_a
-      available = []
-      pointer = 0
-
-      slots.each do |slot|
-        slot_start = slot[:start]
-        slot_end = slot[:end]
-
-        while pointer < appointments.length
-          current_appointment = appointments[pointer]
-
-          current_end_time = current_appointment.end_time.change(
-            year: date.year,
-            month: date.month,
-            day: date.day
-          )
-
-          break unless current_end_time <= slot_start
-
-          pointer += 1
-        end
-
-        conflict = false
-
-        if pointer < appointments.length
-          app = appointments[pointer]
-
-          appointment_start = app.appointment_time.change(
-            year: date.year,
-            month: date.month,
-            day: date.day
-          )
-
-          appointment_end = app.end_time.change(
-            year: date.year,
-            month: date.month,
-            day: date.day
-          )
-
-          conflict = slot_start < appointment_end && slot_end > appointment_start
-        end
-
-        available << slot unless conflict
-      end
-
-      available
-    end
-
     def available_time_ranges(user, date)
       rules = user.slot_rules.select { |rule| rule.active_on?(date) }
       appointments = user.appointments.by_date(date).order(:appointment_time).to_a

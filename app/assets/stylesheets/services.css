@@ -68,6 +68,38 @@
   gap: 12px;
 }
 
+.scrollable-service-list {
+  max-height: 50dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding-right: 4px;
+
+  scrollbar-width: thin;
+  scrollbar-color: #d6d6d6 transparent;
+}
+
+.scrollable-service-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scrollable-service-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-service-list::-webkit-scrollbar-thumb {
+  background: #d6d6d6;
+  border-radius: 999px;
+}
+
+.service-section-search {
+  margin-bottom: 16px;
+}
+
+.service-section-search .form-input {
+  width: 100%;
+}
+
 .service-item {
   display: flex;
   justify-content: space-between;
@@ -506,6 +538,29 @@
   justify-content: center;
 
   padding: 0;
+}
+
+.service-header-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.service-header-icon .wiz-icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 /* === Мобільна адаптація === */

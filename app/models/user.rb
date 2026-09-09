@@ -54,7 +54,9 @@ class User < ApplicationRecord
       else
         return_user = where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
           user.email = auth.info.email
-          user.password = Devise.friendly_token[0, 20]
+          # append guaranteed uppercase/digit/special characters so the random
+          # token reliably satisfies PASSWORD_FORMAT (it otherwise does so by chance)
+          user.password = "#{Devise.friendly_token[0, 20]}A1!"
           user.name = auth.info.name
           user.phone = auth.info.phone || ""
           user.tos_agreement = true

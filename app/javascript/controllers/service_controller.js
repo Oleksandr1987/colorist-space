@@ -20,6 +20,10 @@ export default class extends Controller {
     )
 
     this.selectedServices = []
+
+    if (this.hasCategorySelectTarget) {
+      this.updateSubtypeOptions()
+    }
   }
 
   disconnect() {
@@ -27,6 +31,18 @@ export default class extends Controller {
       "service-selector:changed",
       this.boundServicesChanged
     )
+  }
+
+  filter() {
+    if (!this.hasSearchTarget || !this.hasListTarget) return
+
+    const query = this.searchTarget.value.trim().toLowerCase()
+
+    this.listTarget.querySelectorAll(".service-item").forEach(item => {
+      const name = item.dataset.name || ""
+
+      item.classList.toggle("hidden", !name.includes(query))
+    })
   }
 
   servicesChanged(event) {
@@ -51,10 +67,14 @@ export default class extends Controller {
     return null
   }
 
-  updateSubtypeOptions(event) {
-    const input = event.target.value.trim()
+  updateSubtypeOptions() {
+    if (!this.hasCategorySelectTarget) return
+
+    const input = this.categorySelectTarget.value.trim()
     const key = this.normalizeCategory(input)
-    const datalist = document.querySelector("#subtypes")
+    const datalist = this.element.querySelector("#subtypes")
+
+    if (!datalist) return
 
     datalist.innerHTML = ""
 
@@ -87,9 +107,7 @@ export default class extends Controller {
       return
     }
 
-    const types = [...new Set(
-      this.selectedServices.map(service => service.serviceType).filter(Boolean)
-    )]
+    const types = [...new Set(this.selectedServices.map(service => service.serviceType).filter(Boolean))]
 
     this.typeTarget.value = types.length === 1 ? types[0] : "combined"
   }

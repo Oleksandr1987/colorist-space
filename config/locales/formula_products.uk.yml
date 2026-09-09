@@ -22,3 +22,14 @@ uk:
       amount: "Кількість"
       add_color: "ДОДАТИ КОЛІР"
       add_palette: "ДОДАТИ ПАЛІТРУ"
+
+    form:
+      new_title: "Новий продукт"
+      edit_title: "Редагувати"
+      brand: "Бренд"
+      unit: "Одиниця вимірювання"
+      price_per_unit: "Ціна за одиницю"
+
+    units:
+      gram: "Грам"
+      milliliter: "Мілілітр"

@@ -74,8 +74,8 @@ en:
       care_products: "Care Products"
       service_management: "Service Management"
       categories: "Service Categories"
-      new_service: "+ New Service"
-      new_item: "+ New %{item}"
+      new_service: "New Service"
+      new_item: "New %{item}"
       back: "←"
       search: "Search..."
 

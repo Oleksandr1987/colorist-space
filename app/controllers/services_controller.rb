@@ -15,16 +15,30 @@ class ServicesController < ApplicationController
   def section
     @category = Service.normalize_category(params[:category])
 
-    @translated_category = t("services.categories.#{@category}", default: @category)
+    if @category.blank?
+      redirect_to main_services_path
+      return
+    end
 
+    @translated_category = t("services.categories.#{@category}", default: @category.humanize)
     @services = Service.for_user_and_category(current_user, @category)
   end
 
   def new
+    category = Service.normalize_category(params[:category])
+
     @service = Service.new(
       service_type: params[:service_type] || "service",
-      category: Service.normalize_category(params[:category])
+      category: category
     )
+
+    @translated_category =
+      if category.present?
+        t(
+          "services.categories.#{category}",
+          default: category.humanize
+        )
+      end
   end
 
   def create

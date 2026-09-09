@@ -233,7 +233,7 @@ RSpec.describe "Appointments" do
 
   describe "GET /appointments/free_slots" do
     it "returns json slots" do
-      allow(Appointment).to receive(:available_slots).and_return([
+      allow(Appointment).to receive(:available_time_ranges).and_return([
         { start: Time.zone.parse("10:00"), end: Time.zone.parse("10:30") }
       ])
 

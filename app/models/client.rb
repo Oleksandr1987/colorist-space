@@ -65,13 +65,7 @@ class Client < ApplicationRecord
       last_name: last_name.to_s
     )
 
-    if client
-      if client.phone.blank? &&
-        normalized_phone.present?
-        client.update(phone: normalized_phone)
-      end
-      return client
-    end
+    return client if client
 
     user.clients.create!(
       first_name: first_name,
@@ -104,7 +98,7 @@ class Client < ApplicationRecord
     month, day = birthday.split("-").map(&:to_i)
 
     Date.new(2000, month, day)
-  rescue Date::Error
+  rescue Date::Error, TypeError, ArgumentError
     errors.add(:birthday, :invalid)
   end
 

@@ -12,3 +12,26 @@ uk:
     stock: "Залишок"
     out_of_stock: "Немає в наявності"
     unknown_brand: "Невідомий бренд"
+    sale: "Продаж"
+    purchase: "Закупівля"
+    need_details: "Потрібно додати дані"
+    confirm_delete: "Видалити засіб?"
+
+    form:
+      new_title: "Новий засіб"
+      edit_title: "Редагувати"
+      brand: "Бренд"
+      name: "Назва"
+      category: "Категорія"
+      purchase_price: "Ціна закупівлі"
+      sale_price: "Ціна продажу"
+      stock_quantity: "Кількість на складі"
+
+    categories:
+      shampoo: "Шампунь"
+      mask: "Маска"
+      conditioner: "Кондиціонер"
+      oil: "Олія"
+      spray: "Спрей"
+      cream: "Крем"
+      treatment: "Лікувальний засіб"

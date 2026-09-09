@@ -1,13 +1,1 @@
-<div class="service-wrapper">
-
-  <div class="category-header">
-    <%= link_to care_products_path do %>
-      <%= image_tag "back.png",
-            class: "wiz-icon",
-            width: 24,
-            height: 24 %>
-    <% end %>
-  </div>
-
-  <%= render "form", care_product: @care_product %>
-</div>
+<%= render "form_page", care_product: @care_product, title: t("care_products.form.new_title") %>

@@ -1,15 +1,15 @@
 class CareProduct < ApplicationRecord
-  belongs_to :user
-
-  CATEGORIES = [
-    "Shampoo",
-    "Mask",
-    "Conditioner",
-    "Oil",
-    "Spray",
-    "Cream",
-    "Treatment"
+  CATEGORIES = %w[
+    shampoo
+    mask
+    conditioner
+    oil
+    spray
+    cream
+    treatment
   ].freeze
+
+  belongs_to :user
 
   validates :name, presence: true
 

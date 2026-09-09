@@ -5,8 +5,10 @@ FactoryBot.define do
 
     appointment_date { Date.current + 1.day }
 
+    # wrap within a single day so the stored (date-less) time column never
+    # crosses midnight, which would otherwise make end_time < appointment_time
     sequence(:appointment_time) do |n|
-      Time.zone.parse("10:00") + (n * 5).minutes
+      Time.zone.parse("08:00") + ((n * 5) % (14 * 60)).minutes
     end
 
     transient do

@@ -74,8 +74,8 @@ uk:
       care_products: "Засоби догляду"
       service_management: "Керування послугами"
       categories: "Категорії послуг"
-      new_service: "+ Нова послуга"
-      new_item: "+ Новий %{item}"
+      new_service: "Нова послуга"
+      new_item: "Новий %{item}"
       back: "←"
       search: "Пошук..."
 

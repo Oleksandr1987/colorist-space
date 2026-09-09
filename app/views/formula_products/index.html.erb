@@ -23,37 +23,39 @@
     </div>
   </div>
 
-  <div class="service-list" data-service-target="list">
-    <% @formula_products.each do |product| %>
-      <div class="service-item" data-name="<%= "#{product.brand} #{product.name}".downcase %>">
-        <div class="service-info">
-          <div class="service-name">
-            <strong><%= product.brand %></strong>
-            <%= product.name %>
+  <div class="scrollable-service-list" data-service-target="list">
+    <div class="service-list">
+      <% @formula_products.each do |product| %>
+        <div class="service-item" data-name="<%= "#{product.brand} #{product.name}".downcase %>">
+          <div class="service-info">
+            <div class="service-name">
+              <strong><%= product.brand %></strong>
+              <%= product.name %>
+            </div>
+
+            <div class="service-price">
+              <%= product.price_per_unit %> ₴ / <%= product.unit %>
+            </div>
           </div>
 
-          <div class="service-price">
-            <%= product.price_per_unit %> ₴ / <%= product.unit %>
+          <div class="service-actions">
+            <%= link_to edit_formula_product_path(product), class: "icon-button" do %>
+              <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24 %>
+            <% end %>
+
+            <%= button_to formula_product_path(product),
+                  method: :delete,
+                  class: "icon-button delete-button",
+                  form: {
+                    data: {
+                      turbo_confirm: t("formula_products.actions.confirm_delete")
+                    }
+                  } do %>
+              <%= image_tag "delete.png", class: "wiz-icon", width: 24, height: 24 %>
+            <% end %>
           </div>
         </div>
-
-        <div class="service-actions">
-          <%= link_to edit_formula_product_path(product), class: "icon-button" do %>
-            <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24 %>
-          <% end %>
-
-          <%= button_to formula_product_path(product),
-              method: :delete,
-              class: "icon-button delete-button",
-              form: {
-                data: {
-                  turbo_confirm: t("formula_products.actions.confirm_delete")
-                }
-              } do %>
-            <%= image_tag "delete.png", class: "wiz-icon", width: 24, height: 24 %>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
 </div>

@@ -80,6 +80,14 @@ RSpec.describe Expense do
     end
   end
 
+  describe "#category_name" do
+    it "returns the translated category label" do
+      expense = build(:expense, category: "rent")
+
+      expect(expense.category_name).to eq(I18n.t("analytics.expenses.categories.rent"))
+    end
+  end
+
   describe "analytics helpers" do
     it ".grouped_expenses groups by category and sums amount" do
       create(:expense, category: "rent", amount: 100)
