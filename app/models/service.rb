@@ -64,6 +64,22 @@ class Service < ApplicationRecord
       .ordered_by_subtype
   }
 
+  scope :apply_income_selection_filters, ->(categories:, service_ids:) {
+    scope = self
+
+    scope =
+      scope.where(category: categories) if categories.present?
+
+    scope =
+      scope.where(id: service_ids) if service_ids.present?
+
+    scope
+  }
+
+  scope :ordered_income, -> {
+    order("appointments.appointment_date DESC")
+  }
+
   class << self
     def categories_for_user(user)
     for_user(user)
@@ -74,25 +90,19 @@ class Service < ApplicationRecord
       .pluck(:category)
     end
 
-    def grouped_income(scope, service_type)
-      if service_type.present?
-        if service_type == "service"
-          scope.group(:subtype).sum(:price)
-        else
-          scope.group(:name).sum(:price)
-        end
-      else
-        scope.group(:service_type).sum(:price)
-      end
+    def grouped_income_by_category(scope)
+      scope.group(:category).sum(:price)
     end
 
     def monthly_income(scope)
       scope
-        .select("appointments.appointment_date AS date, services.*")
+        .select("services.*, appointments.appointment_date AS income_date")
         .order("appointments.appointment_date DESC")
-        .group_by(&:service_type)
-        .transform_values do |group|
-          group.group_by { |s| Date.parse(s.date.to_s).strftime("%B %Y") }
+        .group_by do |service|
+          I18n.l(
+            Date.parse(service.income_date.to_s),
+            format: "%B %Y"
+          )
         end
     end
 

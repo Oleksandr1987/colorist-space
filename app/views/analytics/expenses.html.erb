@@ -1,123 +1,137 @@
+<%
+  filters_applied = params[:all_time] == "1" || params[:from].present? || params[:to].present? || params[:categories].present?
+
+  back_path = filters_applied ? expenses_analytics_path : analytics_path
+%>
+
 <div class="analytics-header-bar">
-  <%= link_to expenses_analytics_path(from: params[:from], to: params[:to], category: params[:category]),
-      class: "back-button-inline",
-      title: t("analytics.back") do %>
-      <%= image_tag "back.png",
-            class: "wiz-icon",
-            width: 24,
-            height: 24 %>
+  <%= link_to back_path, class: "back-button-inline", title: t("analytics.back") do %>
+    <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
   <% end %>
 
   <h1><%= t("analytics.expenses.title") %></h1>
 
   <%= link_to new_expense_path, class: "add-expense-button", title: t("analytics.expenses.add") do %>
-
-    <%= image_tag "plus.png",
-            class: "wiz-icon",
-            width: 24,
-            height: 24 %>
+    <%= image_tag "plus.png", class: "wiz-icon", width: 24, height: 24 %>
   <% end %>
 </div>
 
-<%= render 'shared/period_filter' %>
+<%= render "shared/analytics_expense_filters" %>
 
-<% if params[:from].present? && params[:to].present? %>
-  <% if @category_filter.present? %>
-    <div class="expenses-category-header-aligned">
-      <span class="category-header-title">
-        <%= t("analytics.expenses.categories.#{@category_filter}") %>
-      </span>
+<% if @expenses.present? || @category_filters.present? || @all_time || params[:from].present? || params[:to].present? %>
+  <div class="grouped-expense-list">
+    <% @grouped_expenses.each do |category, sum| %>
 
-      <span class="category-header-amount">
-        <%= @total_expenses %> ₴
-      </span>
+      <% category_params = {
+        categories: @category_filters
+      } %>
 
-    </div>
+      <% if @all_time %>
+        <% category_params[:all_time] = "1" %>
+      <% else %>
+        <% category_params[:from] = @from.strftime("%d.%m.%Y") %>
+        <% category_params[:to] = @to.strftime("%d.%m.%Y") %>
+      <% end %>
 
-    <div class="expenses-scroll-wrapper">
-      <% @monthly_expenses.each do |month_name, expenses| %>
-        <div class="monthly-expense-group" data-controller="collapse">
+      <% if @expanded_category != category %>
+        <% category_params[:expanded] = category %>
+      <% end %>
 
-          <div class="month-header-aligned"
-               data-action="click->collapse#toggle">
+      <div class="grouped-expense-block">
+        <%= link_to expenses_analytics_path(category_params),
+              class: "category-summary-link aligned" do %>
 
-            <span class="month-header-title">
-              <%= month_name %>
-            </span>
+          <span class="category-name-text">
+            <%= t("analytics.expenses.categories.#{category}") %>
+          </span>
 
-            <div class="month-header-right">
-              <span class="month-header-amount">
-                <%= expenses.sum(&:amount) %> ₴
-              </span>
-            </div>
-          </div>
+          <span class="category-amount">
+            <%= sum %> ₴
+          </span>
+        <% end %>
 
-          <ul class="expenses-list collapsible hidden"
-              data-collapse-target="content">
+        <% if @expanded_category == category %>
+          <div class="expenses-scroll-wrapper">
+            <% @monthly_expenses.each do |month_name, expenses| %>
 
-            <% expenses.sort_by(&:spent_on).reverse.each do |expense| %>
-              <li class="expense-item" data-controller="popover">
-                <div class="expense-info">
-                  <%= expense.amount %> ₴
-                  [<%= l(expense.spent_on, format: :default) %>]
-                  <% if expense.note.present? %>
-                    — <%= expense.note %>
-                  <% end %>
-                </div>
+              <div class="monthly-expense-group"
+                  data-controller="collapse">
 
-                <div class="expense-actions">
-                  <button class="popover-toggle"
-                          data-popover-target="button"
-                          data-action="click->popover#toggle">
+                <div class="month-header-aligned"
+                    data-action="click->collapse#toggle">
 
-                    <%= image_tag "pencil.png" %>
-                  </button>
+                  <span class="month-header-title">
+                    <%= month_name %>
+                  </span>
 
-                  <div class="popover-menu hidden"
-                       data-popover-target="menu">
-
-                    <%= link_to t("analytics.expenses.edit"),
-                        edit_expense_path(expense),
-                        class: "popover-item" %>
-
-                    <%= button_to expense_path(expense),
-                        method: :delete,
-                        data: { turbo_confirm: t("analytics.expenses.confirm_delete") },
-                        class: "popover-item delete-button" do %>
-
-                      <%= t("analytics.expenses.delete") %>
-                    <% end %>
+                  <div class="month-header-right">
+                    <span class="month-header-amount">
+                      <%= expenses.sum(&:amount) %> ₴
+                    </span>
                   </div>
                 </div>
-              </li>
+
+                <ul class="expenses-list collapsible hidden"
+                    data-collapse-target="content">
+
+                  <% expenses.each do |expense| %>
+                    <li class="expense-item"
+                        data-controller="popover">
+
+                      <div class="expense-info">
+                        <%= expense.amount %> ₴
+                        [<%= l(expense.spent_on, format: :default) %>]
+
+                        <% if expense.note.present? %>
+                          — <%= expense.note %>
+                        <% end %>
+                      </div>
+
+                      <div class="expense-actions">
+                        <button class="popover-toggle"
+                                data-popover-target="button"
+                                data-action="click->popover#toggle">
+
+                          <%= image_tag "pencil.png" %>
+                        </button>
+
+                        <div class="popover-menu hidden"
+                            data-popover-target="menu">
+
+                          <%= link_to t("analytics.expenses.edit"),
+                                edit_expense_path(expense),
+                                class: "popover-item" %>
+
+                          <%= button_to expense_path(expense),
+                                method: :delete,
+                                data: {
+                                  turbo_confirm: t("analytics.expenses.confirm_delete")
+                                },
+                                class: "popover-item delete-button" do %>
+
+                            <%= t("analytics.expenses.delete") %>
+                          <% end %>
+                        </div>
+                      </div>
+                    </li>
+                  <% end %>
+
+                </ul>
+              </div>
             <% end %>
-          </ul>
-        </div>
-      <% end %>
-    </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 
-  <% else %>
-    <% total_all = @grouped_expenses.values.sum %>
+  <div class="grouped-expense-total">
+    <span>
+      <%= t("analytics.period.total_for_period") %>:
+    </span>
 
-    <div class="grouped-expense-list">
-      <% @grouped_expenses.each do |category, sum| %>
-        <div class="grouped-expense-block">
-          <%= link_to expenses_analytics_path(category: category, from: params[:from], to: params[:to]),
-            class: "category-summary-link aligned" do %>
-
-              <span class="category-name-text">
-                <%= t("analytics.expenses.categories.#{category}") %>
-              </span>
-
-              <span class="category-amount"><%= sum %> ₴</span>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-
-    <div class="grouped-expense-total">
-      <span><%= t("analytics.period.total_for_period") %>:</span>
-      <strong><%= total_all.to_i %> ₴</strong>
-    </div>
-  <% end %>
+    <strong>
+      <%= @total_expenses.to_i %> ₴
+    </strong>
+  </div>
 <% end %>

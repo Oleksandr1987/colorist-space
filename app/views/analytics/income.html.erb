@@ -1,69 +1,116 @@
+<%
+  filters_applied =
+    params[:all_time] == "1" ||
+    params[:from].present? ||
+    params[:to].present? ||
+    params[:income_categories].present? ||
+    params[:service_ids].present?
+
+  back_path =
+    filters_applied ? income_analytics_path : analytics_path
+%>
+
 <div class="analytics-header-bar">
-  <%= link_to income_analytics_path(from: params[:from], to: params[:to]), class: "back-button-inline", title: t("analytics.back") do %>
-    <%= image_tag "back.png",
-          class: "wiz-icon",
-          width: 24,
-          height: 24 %>
+  <%= link_to back_path, class: "back-button-inline", title: t("analytics.back") do %>
+    <%= image_tag "back.png",  class: "wiz-icon", width: 24, height: 24 %>
   <% end %>
+
   <h1><%= t("analytics.income.title") %></h1>
 </div>
 
-<%= render 'shared/period_filter_income' %>
+<%= render "shared/analytics_income_filters" %>
 
-<% if params[:from].present? && params[:to].present? %>
-  <% if params[:service_type].present? %>
-    <div class="expenses-category-header-aligned">
-      <span class="category-header-title">
-        <%= t("analytics.income.types.#{params[:service_type]}", default: params[:service_type].humanize) %>
-      </span>
-      <span class="category-header-amount green"><%= @total_income.to_i %> ₴</span>
-    </div>
+<% if @services.present? ||
+      @income_category_filters.present? ||
+      @income_service_filters.present? ||
+      @all_time ||
+      params[:from].present? ||
+      params[:to].present? %>
 
-    <div class="expenses-scroll-wrapper">
-      <% @monthly_income_grouped[params[:service_type]]&.each do |month_name, services| %>
-        <div class="monthly-expense-group" data-controller="collapse">
-          <div class="month-header-aligned" data-action="click->collapse#toggle">
-            <span class="month-header-title"><%= month_name %></span>
-            <div class="month-header-right">
-              <span class="month-header-amount green"><%= services.sum(&:price) %> ₴</span>
-            </div>
-          </div>
+  <div class="grouped-expense-list">
+    <% @grouped_income.each do |category, sum| %>
+      <%
+        category_params = {
+          income_categories: @income_category_filters,
+          service_ids: @income_service_filters
+        }
 
-          <ul class="expenses-list collapsible hidden" data-collapse-target="content">
-            <% services.each do |service| %>
-              <li class="expense-item">
-                <div class="expense-info">
-                  <% if service.service_type == 'service' %>
-                    <strong><%= service.category %>: <%= service.subtype %></strong> — <%= service.price %> ₴ (<%= service.name %>)
-                  <% else %>
-                    <strong><%= service.name %></strong> — <%= service.price %> ₴
-                  <% end %>
+        if @all_time
+          category_params[:all_time] = "1"
+        else
+          category_params[:from] = @from.strftime("%d.%m.%Y")
+          category_params[:to] = @to.strftime("%d.%m.%Y")
+        end
+
+        if @expanded_income_category != category
+          category_params[:expanded] = category
+        end
+      %>
+
+      <div class="grouped-expense-block">
+        <%= link_to income_analytics_path(category_params), class: "category-summary-link aligned" do %>
+
+          <span class="category-name-text">
+            <%= t("services.categories.#{category}", default: category.to_s.humanize) %>
+          </span>
+
+          <span class="category-amount green">
+            <%= sum.to_i %> ₴
+          </span>
+        <% end %>
+
+        <% if @expanded_income_category == category %>
+          <div class="expenses-scroll-wrapper">
+            <% @monthly_income.each do |month_name, services| %>
+              <div class="monthly-expense-group" data-controller="collapse">
+                <div class="month-header-aligned" data-action="click->collapse#toggle">
+                  <span class="month-header-title">
+                    <%= month_name %>
+                  </span>
+
+                  <div class="month-header-right">
+                    <span class="month-header-amount green">
+                      <%= services.sum(&:price).to_i %> ₴
+                    </span>
+                  </div>
                 </div>
-              </li>
+
+                <ul class="expenses-list collapsible hidden" data-collapse-target="content">
+                  <% services.each do |service| %>
+                    <li class="expense-item">
+
+                      <div class="expense-info">
+                        <strong>
+                          <%= service.subtype %>
+                        </strong>
+                        —
+                        <%= service.price.to_i %> ₴
+
+                        <% if service.income_date.present? %>
+                          [<%= l(
+                                Date.parse(service.income_date.to_s),
+                                format: :default
+                              ) %>]
+                        <% end %>
+                      </div>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
             <% end %>
-          </ul>
-        </div>
-      <% end %>
-    </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 
-  <% else %>
-    <div class="grouped-expense-list">
-      <% @grouped_income.each do |type, sum| %>
-        <div class="grouped-expense-block">
-          <%= link_to income_analytics_path(service_type: type, from: params[:from], to: params[:to]),
-                      class: "category-summary-link aligned" do %>
-            <span class="category-name-text">
-              <%= t("analytics.income.types.#{type}", default: type.to_s.titleize) %>
-            </span>
-            <span class="category-amount green"><%= sum %> ₴</span>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
+  <div class="grouped-expense-total">
+    <span>
+      <%= t("analytics.period.total_for_period") %>:
+    </span>
 
-    <div class="grouped-expense-total">
-      <span><%= t("analytics.period.total_for_period") %>:</span>
-      <strong class="green"><%= @total_income.to_i %> ₴</strong>
-    </div>
-  <% end %>
+    <strong class="green">
+      <%= @total_income.to_i %> ₴
+    </strong>
+  </div>
 <% end %>

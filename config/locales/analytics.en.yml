@@ -65,6 +65,7 @@ en:
         m6: "6 months"
         m9: "9 months"
         y1: "1 year"
+        all_time: "All time"
 
       categories:
         all: "All categories"

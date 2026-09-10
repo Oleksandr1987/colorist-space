@@ -23,8 +23,8 @@ class Expense < ApplicationRecord
     where(user: user, spent_on: from..to)
   }
 
-  scope :apply_category_filter, ->(category) {
-    category.present? ? where(category: category) : all
+  scope :apply_category_filter, ->(categories) {
+    categories.present? ? where(category: categories) : all
   }
 
   def self.monthly_expenses(scope)
