@@ -4,10 +4,11 @@
     params[:from].present? ||
     params[:to].present? ||
     params[:income_categories].present? ||
-    params[:service_ids].present?
+    params[:service_ids].present? ||
+    params[:formula_product_ids].present? ||
+    params[:care_product_ids].present?
 
-  back_path =
-    filters_applied ? income_analytics_path : analytics_path
+  back_path = filters_applied ? income_analytics_path : analytics_path
 %>
 
 <div class="analytics-header-bar">
@@ -20,9 +21,13 @@
 
 <%= render "shared/analytics_income_filters" %>
 
-<% if @services.present? ||
+<% if @grouped_income.present? ||
+      @formula_income.positive? ||
+      @care_products_income.positive? ||
       @income_category_filters.present? ||
       @income_service_filters.present? ||
+      @income_formula_product_filters.present? ||
+      @income_care_product_filters.present? ||
       @all_time ||
       params[:from].present? ||
       params[:to].present? %>
@@ -32,7 +37,9 @@
       <%
         category_params = {
           income_categories: @income_category_filters,
-          service_ids: @income_service_filters
+          service_ids: @income_service_filters,
+          formula_product_ids: @income_formula_product_filters,
+          care_product_ids: @income_care_product_filters
         }
 
         if @all_time
@@ -49,7 +56,6 @@
 
       <div class="grouped-expense-block">
         <%= link_to income_analytics_path(category_params), class: "category-summary-link aligned" do %>
-
           <span class="category-name-text">
             <%= t("services.categories.#{category}", default: category.to_s.humanize) %>
           </span>
@@ -61,7 +67,7 @@
 
         <% if @expanded_income_category == category %>
           <div class="expenses-scroll-wrapper">
-            <% @monthly_income.each do |month_name, services| %>
+            <% @monthly_income.each do |month_name, relations| %>
               <div class="monthly-expense-group" data-controller="collapse">
                 <div class="month-header-aligned" data-action="click->collapse#toggle">
                   <span class="month-header-title">
@@ -70,28 +76,32 @@
 
                   <div class="month-header-right">
                     <span class="month-header-amount green">
-                      <%= services.sum(&:price).to_i %> ₴
+                      <%= relations.sum(&:price).to_i %> ₴
                     </span>
                   </div>
                 </div>
 
                 <ul class="expenses-list collapsible hidden" data-collapse-target="content">
-                  <% services.each do |service| %>
+                  <% relations.each do |relation| %>
                     <li class="expense-item">
+                      <div class="expense-record-content">
+                        <div class="expense-record-name">
+                          <strong>
+                            <%= relation.service.subtype %>
+                          </strong>
+                        </div>
 
-                      <div class="expense-info">
-                        <strong>
-                          <%= service.subtype %>
-                        </strong>
-                        —
-                        <%= service.price.to_i %> ₴
+                        <div class="expense-record-details">
+                          <% if relation.appointment.appointment_date.present? %>
+                            <span class="expense-record-date">
+                              <%= l(relation.appointment.appointment_date, format: :default) %>
+                            </span>
+                          <% end %>
 
-                        <% if service.income_date.present? %>
-                          [<%= l(
-                                Date.parse(service.income_date.to_s),
-                                format: :default
-                              ) %>]
-                        <% end %>
+                          <span class="expense-record-amount green">
+                            <%= relation.price.to_i %> ₴
+                          </span>
+                        </div>
                       </div>
                     </li>
                   <% end %>
@@ -100,6 +110,120 @@
             <% end %>
           </div>
         <% end %>
+      </div>
+    <% end %>
+
+    <% if @formula_income.positive? %>
+      <div class="grouped-expense-block" data-controller="collapse">
+        <div class="category-summary-link aligned" data-action="click->collapse#toggle">
+          <span class="category-name-text">
+            <%= t("analytics.income.formula", default: "Формула") %>
+          </span>
+
+          <span class="category-amount green">
+            <%= @formula_income.to_i %> ₴
+          </span>
+        </div>
+
+        <div class="expenses-scroll-wrapper collapsible hidden" data-collapse-target="content">
+          <% if @formula_color_income.any? %>
+            <div class="monthly-expense-group">
+              <div class="month-header-aligned">
+                <span class="month-header-title">
+                  <%= t("analytics.income.colors", default: "Кольори") %>
+                </span>
+
+                <span class="month-header-amount green">
+                  <%= @formula_color_income.sum { |item| item[:amount] }.to_i %> ₴
+                </span>
+              </div>
+
+              <ul class="expenses-list">
+                <% @formula_color_income.each do |item| %>
+                  <li class="expense-item">
+                    <div class="expense-record-content">
+                      <div class="expense-record-details">
+                        <strong>
+                          <%= item[:label] %>
+                        </strong>
+
+                        <span class="expense-record-amount green">
+                          <%= item[:amount].to_i %> ₴
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <% if @oxidant_income.any? %>
+            <div class="monthly-expense-group">
+              <div class="month-header-aligned">
+                <span class="month-header-title">
+                  <%= t("analytics.income.oxidants", default: "Окисники") %>
+                </span>
+
+                <span class="month-header-amount green">
+                  <%= @oxidant_income.sum { |item| item[:amount] }.to_i %> ₴
+                </span>
+              </div>
+
+              <ul class="expenses-list">
+                <% @oxidant_income.each do |item| %>
+                  <li class="expense-item">
+                    <div class="expense-record-content">
+                      <div class="expense-record-details">
+                        <strong>
+                          <%= item[:label] %>
+                        </strong>
+
+                        <span class="expense-record-amount green">
+                          <%= item[:amount].to_i %> ₴
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @care_products_income.positive? %>
+      <div class="grouped-expense-block" data-controller="collapse">
+        <div class="category-summary-link aligned" data-action="click->collapse#toggle">
+          <span class="category-name-text">
+            <%= t("analytics.income.care_products", default: "Доглядова продукція") %>
+          </span>
+
+          <span class="category-amount green">
+            <%= @care_products_income.to_i %> ₴
+          </span>
+        </div>
+
+        <div class="expenses-scroll-wrapper collapsible hidden" data-collapse-target="content">
+          <ul class="expenses-list">
+            <% @care_product_income.each do |item| %>
+              <li class="expense-item">
+                <div class="expense-record-content">
+                  <div class="expense-record-details">
+                    <strong>
+                      <%= item[:label] %>
+                    </strong>
+
+                    <span class="expense-record-amount green">
+                      <%= item[:amount].to_i %> ₴
+                    </span>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
       </div>
     <% end %>
   </div>

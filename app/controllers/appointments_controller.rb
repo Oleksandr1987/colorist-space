@@ -30,9 +30,7 @@ class AppointmentsController < ApplicationController
   def create
     appointment_data = params.require(:appointment)
 
-    @appointment = current_user.appointments.build(
-      appointment_params.except(:service_ids)
-    )
+    @appointment = current_user.appointments.build(appointment_params.except(:service_ids))
 
     @appointment.client_name = appointment_data[:client_name]
     @appointment.phone = appointment_data[:phone]
@@ -50,25 +48,23 @@ class AppointmentsController < ApplicationController
       return
     end
 
-    service_ids =
-      Array(appointment_data[:service_ids])
-        .compact_blank
-        .map!(&:to_i)
+    service_ids = Array(appointment_data[:service_ids]).compact_blank.map(&:to_i)
 
-    client = Client.resolve_for_appointment(
+    @appointment.client = Client.resolve_for_appointment(
       user: current_user,
       full_name: appointment_data[:client_name],
       phone: appointment_data[:phone]
     )
 
-    @appointment.client = client
-    @appointment.service_ids = service_ids if appointment_data.key?(:service_ids)
-
-    if @appointment.save
-      redirect_to @appointment
-    else
-      render :new, status: :unprocessable_content
+    Appointment.transaction do
+      @appointment.save!
+      @appointment.sync_services_with_prices!(service_ids)
     end
+
+    redirect_to @appointment
+
+  rescue ActiveRecord::RecordInvalid
+    render :new, status: :unprocessable_content
   end
 
   def edit; end
@@ -101,20 +97,25 @@ class AppointmentsController < ApplicationController
       )
     end
 
-    if appointment_data.key?(:service_ids)
-      service_ids = Array(appointment_data[:service_ids])
-        .compact_blank
-        .map!(&:to_i)
+    service_ids =
+      if appointment_data.key?(:service_ids)
+        Array(appointment_data[:service_ids])
+          .compact_blank
+          .map(&:to_i)
+      end
 
-      @appointment.service_ids = service_ids
+    Appointment.transaction do
+      @appointment.update!(appointment_params.except(:service_ids))
+
+      if service_ids
+        @appointment.sync_services_with_prices!(service_ids)
+      end
     end
 
-    if @appointment.update(appointment_params.except(:service_ids))
-      redirect_to @appointment,
-        notice: "Appointment was successfully updated."
-    else
-      render :edit, status: :unprocessable_content
-    end
+    redirect_to @appointment, notice: "Appointment was successfully updated."
+
+  rescue ActiveRecord::RecordInvalid
+    render :edit, status: :unprocessable_content
   end
 
   def destroy
@@ -151,12 +152,7 @@ class AppointmentsController < ApplicationController
 
     dashboard_month = params[:month].present? ? params[:month].to_i : Date.current.month
 
-    @stats =
-      Appointment.statistics(
-        dashboard_scope,
-        year: dashboard_year,
-        month: dashboard_month
-      )
+    @stats = Appointment.statistics(dashboard_scope, year: dashboard_year, month: dashboard_month)
     @available_years = Appointment.available_years(base_scope)
     @available_categories = current_user.services.categories
     @available_services = current_user.services.for_filter(params[:categories])

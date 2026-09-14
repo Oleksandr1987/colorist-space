@@ -16,7 +16,6 @@ class Appointment < ApplicationRecord
   validate :time_step_interval
 
   before_validation :set_default_end_time, if: -> { appointment_time.present? && end_time.blank? }
-  before_save :set_service_name
   after_update :sync_service_note_client, if: :saved_change_to_client_id?
   after_save :sync_service_note_notes
 
@@ -28,11 +27,7 @@ class Appointment < ApplicationRecord
 
     where(
       arel_table[:appointment_date].lt(today)
-      .or(
-        arel_table[:appointment_date].eq(today).and(
-          arel_table[:end_time].lt(now)
-        )
-      )
+      .or(arel_table[:appointment_date].eq(today).and(arel_table[:end_time].lt(now)))
     )
   }
 
@@ -43,10 +38,8 @@ class Appointment < ApplicationRecord
     where(
       arel_table[:appointment_date].gt(today)
       .or(
-        arel_table[:appointment_date].eq(today).and(
-          arel_table[:end_time].gteq(now)
-          .or(arel_table[:end_time].eq(nil))
-        )
+        arel_table[:appointment_date].eq(today)
+        .and(arel_table[:end_time].gteq(now).or(arel_table[:end_time].eq(nil)))
       )
     )
   }
@@ -134,12 +127,8 @@ class Appointment < ApplicationRecord
 
       {
         total: scope.count,
-        current_year: scope.where(
-          appointment_date: first_day_of_year..last_day_of_year
-        ).count,
-        current_month: scope.where(
-          appointment_date: first_day_of_month..first_day_of_month.end_of_month
-        ).count
+        current_year: scope.where(appointment_date: first_day_of_year..last_day_of_year).count,
+        current_month: scope.where(appointment_date: first_day_of_month..first_day_of_month.end_of_month).count
       }
     end
 
@@ -164,17 +153,8 @@ class Appointment < ApplicationRecord
         day_appointments = appointments.filter_map do |appointment|
           next if appointment.end_time.blank?
 
-          appointment_start = appointment.appointment_time.change(
-            year: date.year,
-            month: date.month,
-            day: date.day
-          )
-
-          appointment_end = appointment.end_time.change(
-            year: date.year,
-            month: date.month,
-            day: date.day
-          )
+          appointment_start = appointment.appointment_time.change(year: date.year, month: date.month, day: date.day)
+          appointment_end = appointment.end_time.change(year: date.year, month: date.month, day: date.day)
 
           next if appointment_end <= work_start
           next if appointment_start >= work_end
@@ -217,7 +197,7 @@ class Appointment < ApplicationRecord
   end
 
   def total_price
-    services.sum(:price)
+    appointment_services_relations.sum(:price)
   end
 
   def combined_service_name
@@ -254,20 +234,37 @@ class Appointment < ApplicationRecord
     client&.full_name
   end
 
+  def sync_services_with_prices!(service_ids)
+    ids = Array(service_ids).compact_blank.map(&:to_i).uniq
+
+    selected_services = user.services.where(id: ids).index_by(&:id)
+
+    transaction do
+      appointment_services_relations
+        .where.not(service_id: ids)
+        .destroy_all
+
+      ids.each do |service_id|
+        service = selected_services[service_id]
+
+        next unless service
+
+        relation = appointment_services_relations.find_or_initialize_by(service_id: service.id)
+
+        if relation.new_record?
+          relation.price = service.price
+          relation.save!
+        end
+      end
+
+      update_column(:service_name, ids.filter_map { |id| selected_services[id]&.subtype }.join(" + ").presence)
+    end
+  end
+
   private
 
   def set_default_end_time
     self.end_time = appointment_time + 30.minutes
-  end
-
-  def set_service_name
-    selected_services = services
-
-    if selected_services.empty? && service_ids.present?
-      selected_services = Service.where(id: service_ids)
-    end
-
-    self.service_name = selected_services.map(&:subtype).join(" + ")
   end
 
   def valid_date

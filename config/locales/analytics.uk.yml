@@ -19,13 +19,19 @@ uk:
       income: "Дохід"
       expenses: "Витрати"
       total: "Сальдо"
+      service_income: "Послуги"
+      formula_income: "Формула"
+      care_products_income: "Продаж засобів догляду"
+      manual_expenses: "Інші витрати"
+      care_products_cost: "Собівартість засобів догляду"
 
     expenses:
       title: "Аналітика: Витрати"
       add: "Додати витрату"
+      new: "Нова витрата"
       edit: "Редагувати"
       delete: "Видалити"
-      confirm_delete: "Ви впевнені, що хочете видалити цю витрату?"
+      confirm_delete: "Видалити цю витрату?"
 
       category: "Категорія витрати"
       note: "Опис"

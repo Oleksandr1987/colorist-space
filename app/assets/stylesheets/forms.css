@@ -381,6 +381,41 @@ button:hover {
   line-height: 1.5;
 }
 
+.form-modal-header {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-modal-header h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.form-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.form-modal-save {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #7c3aed;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 /* MOBILE LOGIN */
 @media (max-width: 480px) {
   .screen {

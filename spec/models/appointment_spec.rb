@@ -82,7 +82,7 @@ RSpec.describe Appointment do
   end
 
   describe "#total_price" do
-    it "returns sum of service prices" do
+    it "returns sum of historical service prices" do
       appointment = create(
         :appointment,
         user: user,
@@ -92,6 +92,23 @@ RSpec.describe Appointment do
       )
 
       expect(appointment.total_price).to eq(300)
+    end
+
+    it "does not change when current service prices change" do
+      appointment = create(
+        :appointment,
+        user: user,
+        client: client,
+        main_service: main_service,
+        extra_services: [ extra_service ]
+      )
+
+      expect(appointment.total_price).to eq(300)
+
+      main_service.update!(price: 500)
+      extra_service.update!(price: 700)
+
+      expect(appointment.reload.total_price).to eq(300)
     end
   end
 
@@ -791,27 +808,6 @@ main_service: main_service)
   end
 
   describe "private validations and callbacks" do
-    describe "#set_service_name" do
-      it "sets service_name from service_ids when services are empty" do
-        appointment = build(:appointment, user: user, client: client, main_service: nil)
-        appointment.service_ids = [ main_service.id ]
-        appointment.save!
-
-        expect(appointment.service_name).to eq("Coloring")
-      end
-
-      it "falls back to Service.where(id: service_ids) when the services association is empty" do
-        appointment = build(:appointment, user: user, client: client, main_service: nil)
-        appointment.service_ids = [ main_service.id ]
-
-        allow(appointment).to receive(:services).and_return(Service.none)
-
-        appointment.send(:set_service_name)
-
-        expect(appointment.service_name).to eq("Coloring")
-      end
-    end
-
     describe "#valid_date" do
       it "is invalid when appointment_date is in the past" do
         appointment = build(

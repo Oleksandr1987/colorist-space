@@ -5,8 +5,8 @@ FactoryBot.define do
 
     appointment_date { Date.current + 1.day }
 
-    # wrap within a single day so the stored (date-less) time column never
-    # crosses midnight, which would otherwise make end_time < appointment_time
+    # Wrap within a single day so the stored (date-less) time column never
+    # crosses midnight, which would otherwise make end_time < appointment_time.
     sequence(:appointment_time) do |n|
       Time.zone.parse("08:00") + ((n * 5) % (14 * 60)).minutes
     end
@@ -20,23 +20,23 @@ FactoryBot.define do
       appointment.appointment_time =
         Time.zone.parse(appointment.appointment_time.to_s)
 
-      appointment.end_time ||= appointment.appointment_time + 30.minutes
+      appointment.end_time ||=
+        appointment.appointment_time + 30.minutes
     end
 
     after(:create) do |appointment, evaluator|
-      next if evaluator.main_service.blank? && evaluator.extra_services.blank?
+      services = [
+        evaluator.main_service,
+        *evaluator.extra_services
+      ].compact
 
-      if evaluator.main_service.present?
+      next if services.empty?
+
+      services.each do |service|
         AppointmentServicesRelation.create!(
           appointment: appointment,
-          service: evaluator.main_service
-        )
-      end
-
-      evaluator.extra_services.each do |svc|
-        AppointmentServicesRelation.create!(
-          appointment: appointment,
-          service: svc
+          service: service,
+          price: service.price
         )
       end
 

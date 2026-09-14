@@ -19,22 +19,6 @@ class Service < ApplicationRecord
 
   before_validation :sync_name
 
-  scope :income_for_user_between, ->(user, from, to) {
-    joins(:appointments).where(appointments: { user_id: user.id, appointment_date: from..to })
-  }
-
-  scope :apply_income_filters, ->(filters) {
-    scope = self
-    scope = scope.where(service_type: filters[:service_type]) if filters[:service_type].present?
-
-    if filters[:service_type] == "service"
-      scope = scope.where(category: filters[:category]) if filters[:category].present?
-      scope = scope.where(subtype: filters[:subtype]) if filters[:subtype].present?
-    end
-
-    scope
-  }
-
   scope :appointment_services, -> { where(service_type: "service") }
 
   scope :with_category, -> { where.not(category: [ nil, "" ]) }
@@ -64,22 +48,6 @@ class Service < ApplicationRecord
       .ordered_by_subtype
   }
 
-  scope :apply_income_selection_filters, ->(categories:, service_ids:) {
-    scope = self
-
-    scope =
-      scope.where(category: categories) if categories.present?
-
-    scope =
-      scope.where(id: service_ids) if service_ids.present?
-
-    scope
-  }
-
-  scope :ordered_income, -> {
-    order("appointments.appointment_date DESC")
-  }
-
   class << self
     def categories_for_user(user)
     for_user(user)
@@ -88,22 +56,6 @@ class Service < ApplicationRecord
       .distinct
       .order(:category)
       .pluck(:category)
-    end
-
-    def grouped_income_by_category(scope)
-      scope.group(:category).sum(:price)
-    end
-
-    def monthly_income(scope)
-      scope
-        .select("services.*, appointments.appointment_date AS income_date")
-        .order("appointments.appointment_date DESC")
-        .group_by do |service|
-          I18n.l(
-            Date.parse(service.income_date.to_s),
-            format: "%B %Y"
-          )
-        end
     end
 
     def normalize_category(category)

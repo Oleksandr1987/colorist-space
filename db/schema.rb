@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_09_220259) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_10_074736) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -42,6 +42,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_09_220259) do
   create_table "appointment_services_relations", force: :cascade do |t|
     t.integer "appointment_id", null: false
     t.datetime "created_at", null: false
+    t.integer "price", null: false
     t.integer "service_id", null: false
     t.datetime "updated_at", null: false
     t.index ["appointment_id", "service_id"], name: "appt_serv_in", unique: true

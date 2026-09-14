@@ -6,7 +6,8 @@ SimpleCov.start "rails" do
 
   refuse_coverage_drop
 
-  track_files "{app,lib}/**/*.rb"
+  track_files "app/**/*.rb"
+  track_files "lib/**/*.rb"
 
   add_filter "/spec/"
   add_filter "/config/"
