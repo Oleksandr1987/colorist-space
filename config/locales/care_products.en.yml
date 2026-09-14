@@ -12,3 +12,26 @@ en:
     stock: "Stock"
     out_of_stock: "Out of Stock"
     unknown_brand: "Unknown Brand"
+    sale: "Sale"
+    purchase: "Purchase"
+    need_details: "Need details"
+    confirm_delete: "Delete product?"
+
+    form:
+      new_title: "New product"
+      edit_title: "Edit"
+      brand: "Brand"
+      name: "Name"
+      category: "Category"
+      purchase_price: "Purchase price"
+      sale_price: "Sale price"
+      stock_quantity: "Stock quantity"
+
+    categories:
+      shampoo: "Shampoo"
+      mask: "Mask"
+      conditioner: "Conditioner"
+      oil: "Oil"
+      spray: "Spray"
+      cream: "Cream"
+      treatment: "Treatment"

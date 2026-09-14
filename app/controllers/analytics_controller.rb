@@ -7,61 +7,196 @@ class AnalyticsController < ApplicationController
   def show; end
 
   def expenses
-    category_param = permitted_params[:category]
+    @category_filters =
+      Array(permitted_params[:categories])
+        .select { |category| Expense::CATEGORIES.include?(category) }
 
-    @category_filter =
-      if Expense::CATEGORIES.include?(category_param)
-        category_param
-      else
-        nil
+    @expanded_category =
+      if Expense::CATEGORIES.include?(permitted_params[:expanded])
+        permitted_params[:expanded]
       end
 
-    @expenses = Expense
-                  .for_user_between(current_user, @from, @to)
-                  .apply_category_filter(@category_filter)
+    @expenses =
+      Expense
+        .for_user_between(current_user, @from, @to)
+        .apply_category_filter(@category_filters)
+        .ordered_by_date
 
     @grouped_expenses = Expense.grouped_expenses(@expenses)
     @total_expenses = Expense.total_expenses(@expenses)
 
-    if @category_filter.present?
-      @monthly_expenses = Expense.monthly_expenses(@expenses)
+    if @expanded_category.present?
+      expanded_expenses = @expenses.where(category: @expanded_category)
+
+      @monthly_expenses = Expense.monthly_expenses(expanded_expenses)
+    else
+      @monthly_expenses = {}
     end
   end
 
   def income
-    filters = permitted_params.slice(:service_type, :category, :subtype)
+    @income_category_filters =
+      Array(permitted_params[:income_categories])
+        .select { |category| Service::CATEGORIES.include?(category) }
 
-    @services = Service
-      .income_for_user_between(current_user, @from, @to)
-      .apply_income_filters(filters)
+    @income_service_filters =
+      Array(permitted_params[:service_ids])
+        .filter_map { |id| Integer(id, exception: false) }
 
-    @total_income = @services.sum(:price)
+    @income_formula_product_filters =
+      Array(permitted_params[:formula_product_ids])
+        .filter_map { |id| Integer(id, exception: false) }
 
-    @grouped_income = Service.grouped_income(@services, filters[:service_type])
+    @income_care_product_filters =
+      Array(permitted_params[:care_product_ids])
+        .filter_map { |id| Integer(id, exception: false) }
 
-    @monthly_income_grouped = Service.monthly_income(@services)
+    summary =
+      ::Analytics::IncomeSummary.new(
+        user: current_user,
+        from: @from,
+        to: @to,
+        service_categories: @income_category_filters,
+        service_ids: @income_service_filters,
+        formula_product_ids: @income_formula_product_filters,
+        care_product_ids: @income_care_product_filters
+      )
+
+    @grouped_income = summary.grouped_service_income
+    @income_service_notes = summary.service_notes
+
+    @formula_income = summary.formula_income
+    @care_products_income = summary.care_products_income
+
+    @formula_color_income = summary.formula_color_income
+    @oxidant_income = summary.oxidant_income
+    @care_product_income = summary.care_product_income
+
+    @total_income = summary.total_income
+
+    @income_filter_colors = summary.formula_color_options
+    @income_filter_color_brands = summary.formula_color_brands
+
+    @income_filter_oxidants = summary.oxidant_options
+    @income_filter_oxidant_brands = summary.oxidant_brands
+
+    @income_filter_care_products = summary.care_product_options
+    @income_filter_care_brands = summary.care_product_brands
+    @income_filter_care_categories = summary.care_product_categories
+
+    @expanded_income_category =
+      if @grouped_income.key?(permitted_params[:expanded])
+        permitted_params[:expanded]
+      end
+
+    @monthly_income = @expanded_income_category.present? ? summary.monthly_income(@expanded_income_category) : {}
+
+    @income_filter_services = current_user.services.appointment_services.ordered_for_filter
   end
 
   def balance
-    @total_income = Service.income_for_user_between(current_user, @from, @to).sum(:price)
-    @total_expenses = current_user.expenses.where(spent_on: @from..@to).sum(:amount)
-    @balance = @total_income - @total_expenses
+    summary =
+      ::Analytics::FinancialSummary.new(
+        user: current_user,
+        from: @from,
+        to: @to
+      )
+
+    @service_income = summary.service_income
+    @formula_income = summary.formula_income
+    @care_products_income = summary.care_products_income
+
+    @manual_expenses = summary.manual_expenses
+    @care_products_cost = summary.care_products_cost
+
+    @total_income = summary.total_income
+    @total_expenses = summary.total_expenses
+    @balance = summary.balance
   end
 
   private
 
   def set_period
-    from = (permitted_params[:from].presence || Date.today.beginning_of_month).to_date
-    to = (permitted_params[:to].presence || Date.today).to_date
+    @all_time = permitted_params[:all_time] == "1"
+
+    if @all_time
+      @from, @to = all_time_period
+      return
+    end
+
+    from = parse_date(permitted_params[:from]) || Date.current.beginning_of_month
+    to = parse_date(permitted_params[:to]) || Date.current
 
     @from = [ from, to ].min
     @to = [ from, to ].max
-  rescue ArgumentError
-    @from = Date.today.beginning_of_month
-    @to = Date.today
+  end
+
+  def all_time_period
+    case action_name
+    when "expenses"
+      [
+        current_user.expenses.minimum(:spent_on) || Date.current,
+        current_user.expenses.maximum(:spent_on) || Date.current
+      ]
+
+    when "income"
+      dates = current_user.appointments.where.not(appointment_date: nil)
+
+      [
+        dates.minimum(:appointment_date) || Date.current,
+        dates.maximum(:appointment_date) || Date.current
+      ]
+
+    when "balance"
+      balance_all_time_period
+
+    else
+      [ Date.current, Date.current ]
+    end
+  end
+
+  def balance_all_time_period
+    appointment_dates = current_user.appointments.where.not(appointment_date: nil)
+
+    dates = [
+      appointment_dates.minimum(:appointment_date),
+      appointment_dates.maximum(:appointment_date),
+      current_user.expenses.minimum(:spent_on),
+      current_user.expenses.maximum(:spent_on)
+    ].compact
+
+    return [ Date.current, Date.current ] if dates.empty?
+
+    [ dates.min, dates.max ]
+  end
+
+  def parse_date(value)
+    return if value.blank?
+
+    Date.iso8601(value)
+  rescue Date::Error
+    begin
+      Date.strptime(value, "%d.%m.%Y")
+    rescue Date::Error
+      nil
+    end
   end
 
   def permitted_params
-    params.permit(:from, :to, :category, :service_type, :subtype, :commit, :locale)
+    params.permit(
+      :from,
+      :to,
+      :all_time,
+      :expanded,
+      :category,
+      :service_type,
+      :subtype,
+      :locale,
+      categories: [],
+      income_categories: [],
+      service_ids: [],
+      formula_product_ids: [],
+      care_product_ids: []
+    )
   end
 end

@@ -1,9 +1,14 @@
-<div class="formula-container" data-controller="formula" data-service-note-id="<%= @service_note.id %>" data-client-id="<%= @client.id %>">
+<% formula_sections = [:roots, :midshaft, :length, :strands, :all_over] %>
 
+<div class="formula-container"
+     data-controller="formula"
+     data-service-note-id="<%= @service_note.id %>"
+     data-client-id="<%= @client.id %>"
+     data-formula-sections-value="<%= formula_sections.index_with { |section|
+       t("formula.sections.#{section}")
+     }.to_json %>">
   <!-- STEP 1 -->
-  <div class="formula-steps"
-     data-formula-target="container">
-
+  <div class="formula-steps" data-formula-target="container">
     <%= f.fields_for :formula_steps do |step_form| %>
       <!-- STEP WRAPPER -->
       <%= render("service_notes/formula_step", step_form: step_form) %>
@@ -11,15 +16,10 @@
      <!-- ADD STEP -->
     <% add_step_hidden = @service_note.new_record? && @service_note.formula_steps.empty? %>
 
-    <div class="formula-add-step <%= 'hidden' if add_step_hidden %>"
-        data-formula-target="addStep"
-        data-controller="collapse">
-
+    <div class="formula-add-step <%= 'hidden' if add_step_hidden %>" data-formula-target="addStep" data-controller="collapse">
       <!-- BUTTON -->
-      <div class="add-step-btn"
-          data-action="click->collapse#toggle">
-
-        <span>+ ADD STEP</span>
+      <div class="add-step-btn" data-action="click->collapse#toggle">
+        <span>+ <%= t("formula.add_step") %></span>
 
         <svg class="chevron"
             xmlns="http://www.w3.org/2000/svg"
@@ -30,16 +30,13 @@
           <path d="m6 9 6 6 6-6"/>
         </svg>
       </div>
-
       <!-- DROPDOWN -->
-      <div class="add-step-content hidden"
-          data-collapse-target="content">
+      <div class="add-step-content hidden" data-collapse-target="content">
           <!-- ADD SECTION -->
-
-          <h5>Add section</h5>
+          <h5><%= t("formula.add_section") %></h5>
 
         <div class="sections-grid">
-          <% [:roots, :midshaft, :length, :strands, :all_over].each do |section| %>
+          <% formula_sections.each do |section| %>
             <button type="button"
                     class="section-btn"
                     data-action="click->formula#createStep click->collapse#close click->collapse#stop"
@@ -53,9 +50,7 @@
 
   </div>
   <%= render "service_notes/empty_formula_step" if @service_note.formula_steps.empty? %>
-
   <!-- TEMPLATE -->
   <%= render "service_notes/formula_step_template" %>
-
   <%= render "service_notes/color_modal" %>
 </div>

@@ -4,22 +4,41 @@
 
   <!-- Header -->
   <div class="client-header">
-
-    <div class="client-header-left">
-      <h1><%= @client.full_name %></h1>
-      <%= turbo_frame_tag "client_primary_phone" do %>
-        <p class="client-phone">
-          <%= @client.phone %>
-        </p>
+    <div class="client-top-bar">
+      <%= link_to clients_path, class: "client-back-button" do %>
+        <%= image_tag "back.png", width: 24, height: 24, class: "wiz-icon" %>
       <% end %>
-    </div>
 
-    <div class="client-header-right">
       <%= link_to calendar_appointments_path(client_id: @client.id),
                   class: "button small new-appointment-button",
                   data: { turbo: false } do %>
         <%= t("clients.show.new_appointment") %>
       <% end %>
+    </div>
+
+    <div class="client-title-row">
+      <div class="client-title-info">
+        <h1><%= @client.full_name %></h1>
+        <% if @client.birthday.present? %>
+          <div class="client-birthday">
+            <%= image_tag "cake.png", width: 20, height: 20, class: "wiz-icon" %>
+            <%= @client.decorate.formatted_birthday %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="client-actions-row">
+        <%= link_to edit_client_path(@client), class: "client-edit-button" do %>
+          <%= image_tag "pencil.png", width: 16, height: 16, class: "wiz-icon" %>
+        <% end %>
+
+        <%= button_to client_path(@client),
+                      method: :delete,
+                      form: {data: {turbo_confirm: t("clients.show.delete_client_confirm")}},
+                      class: "client-delete-button" do %>
+          <%= image_tag "menu.png", width: 18, height: 18, class: "wiz-icon" %>
+        <% end %>
+      </div>
     </div>
   </div>
 
@@ -29,7 +48,7 @@
             data-client-profile-target="tab"
             data-tab-name="styles"
             data-action="click->client-profile#showTab">
-      <%= t("clients.show.styles_tab") %>
+      <%= t("clients.show.records_tab") %>
     </button>
 
     <button class="tab-button"
@@ -40,13 +59,9 @@
     </button>
   </div>
 
-  <!-- STYLES TAB  -->
-  <div id="styles-tab"
-     data-client-profile-target="tabContent"
-     class="tab-content active">
-
+  <!-- RECORDS TAB  -->
+  <div id="styles-tab" data-client-profile-target="tabContent" class="tab-content active">
     <% @client.style_appointments.each do |appointment| %>
-
       <% service_note = appointment.service_note %>
 
       <% target_path =
@@ -61,11 +76,8 @@
       %>
 
       <div class="style-card">
-
         <%= link_to target_path, class: "style-photo-wrapper-link" do %>
-
           <div class="style-photo-wrapper">
-
             <% if service_note&.photos&.attached? %>
               <%= image_tag thumb(service_note.photos.first), class: "style-photo" %>
               <% if service_note.photos.count > 1 %>
@@ -75,47 +87,27 @@
               <% end %>
             <% else %>
               <div class="style-no-photo">
-
                 <% if service_note.present? %>
-
-                  <%= link_to edit_client_service_note_path(
-                        @client,
-                        service_note,
-                        step: "photos"
-                      ),
-                      class: "add-photo-button" do %>
-
+                  <%= link_to edit_client_service_note_path(@client, service_note, step: "photos"), class: "add-photo-button" do %>
                     <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
-
                   <% end %>
-
                 <% else %>
-
-                  <%= link_to new_client_service_note_path(
-                        @client,
-                        appointment_id: appointment.id
-                      ),
-                      class: "add-photo-button" do %>
-
+                  <%= link_to new_client_service_note_path(@client,appointment_id: appointment.id), class: "add-photo-button" do %>
                     <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
-
                   <% end %>
-
                 <% end %>
-
               </div>
             <% end %>
 
             <div class="style-info-overlay">
               <div class="style-date">
-                <%= l(appointment.appointment_date, format: "%B %d") %>
+                <%= l(appointment.appointment_date, format: :day_month) %>
 
                 <% if appointment.appointment_date > Date.current %>
                   <span class="future-badge">
                     FUTURE
                   </span>
                 <% end %>
-
               </div>
 
               <% if service_note.present? %>
@@ -130,48 +122,90 @@
     <% end %>
   </div>
 
-  <!-- INFO TAB  -->
-  <div id="info-tab"
-       data-client-profile-target="tabContent"
-       class="tab-content">
-
+  <!-- INFO TAB -->
+  <div id="info-tab" data-client-profile-target="tabContent" class="tab-content">
     <div class="client-info">
+      <p>
+        <strong><%= t("clients.show.details.phone") %>:</strong>
+      </p>
 
-      <p><strong><%= t("clients.show.details.phone") %>:</strong></p>
-        <%= turbo_frame_tag "client_phones" do %>
-            <%= render "phones", client: @client %>
+      <%= turbo_frame_tag "client_phones" do %>
+        <%= render "phones", client: @client %>
+      <% end %>
+
+      <%
+      hair_info_present =
+        @client.hair_type.present? ||
+        @client.hair_length.present? ||
+        @client.hair_structure.present? ||
+        @client.hair_density.present? ||
+        @client.scalp_condition.present?
+
+      notes_present = @client.note.present?
+      %>
+
+      <% if hair_info_present %>
+        <div class="info-section-title">
+          <%= t("clients.form.hair_info") %>
+        </div>
+
+        <% if @client.hair_type.present? %>
+          <p>
+            <strong><%= t("clients.show.details.hair_type") %>:</strong>
+            <%= t("clients.hair.types.#{@client.hair_type.downcase}") %>
+          </p>
         <% end %>
 
-      <p><strong><%= t("clients.show.details.hair_type") %>:</strong>
-        <%= t("clients.hair.types.#{@client.hair_type.downcase}") if @client.hair_type %></p>
+        <% if @client.hair_length.present? %>
+          <p>
+            <strong><%= t("clients.show.details.hair_length") %>:</strong>
+            <%= t("clients.hair.lengths.#{@client.hair_length.downcase}") %>
+          </p>
+        <% end %>
 
-      <p><strong><%= t("clients.show.details.hair_length") %>:</strong>
-        <%= t("clients.hair.lengths.#{@client.hair_length.downcase}") if @client.hair_length %></p>
+        <% if @client.hair_structure.present? %>
+          <p>
+            <strong><%= t("clients.show.details.hair_structure") %>:</strong>
+            <%= t("clients.hair.structures.#{@client.hair_structure.downcase}") %>
+          </p>
+        <% end %>
 
-      <p><strong><%= t("clients.show.details.hair_structure") %>:</strong>
-        <%= t("clients.hair.structures.#{@client.hair_structure.downcase}") if @client.hair_structure %></p>
+        <% if @client.hair_density.present? %>
+          <p>
+            <strong><%= t("clients.show.details.hair_density") %>:</strong>
+            <%= t("clients.hair.density.#{@client.hair_density.downcase}") %>
+          </p>
+        <% end %>
 
-      <p><strong><%= t("clients.show.details.hair_density") %>:</strong>
-        <%= t("clients.hair.density.#{@client.hair_density.downcase}") if @client.hair_density %></p>
+        <% if @client.scalp_condition.present? %>
+          <p>
+            <strong><%= t("clients.show.details.scalp_condition") %>:</strong>
+            <%= t("clients.hair.scalp.#{@client.scalp_condition.downcase}") %>
+          </p>
+        <% end %>
+      <% end %>
 
-      <p><strong><%= t("clients.show.details.scalp_condition") %>:</strong>
-        <%= t("clients.hair.scalp.#{@client.scalp_condition.downcase}") if @client.scalp_condition %></p>
+      <% if notes_present %>
+        <div class="info-section-title">
+          <%= t("clients.show.details.note") %>
+        </div>
 
-      <p><strong><%= t("clients.show.details.note") %>:</strong>
-        <%= @client.note %></p>
+        <div class="client-note">
+          <%= @client.note %>
+        </div>
+      <% end %>
 
-      <div class="actions">
-        <%= link_to t("clients.show.edit_client"),
-                    edit_client_path(@client),
-                    class: "button secondary" %>
+      <% unless hair_info_present %>
+        <%= form_with model: @client, local: true do |f| %>
+          <%= render "hair_info_form", f: f %>
+        <% end %>
+      <% end %>
 
-        <%= button_to t("clients.show.delete_client"),
-                      client_path(@client),
-                      method: :delete,
-                      data: { turbo_confirm: t("clients.show.delete_client_confirm") },
-                      class: "button delete" %>
-      </div>
-
+      <% unless notes_present %>
+        <%= form_with model: @client, local: true do |f| %>
+          <%= render "notes_form", f: f %>
+        <% end %>
+      <% end %>
     </div>
   </div>
 
@@ -179,9 +213,8 @@
   <div data-photo-target="modal" class="fullscreen hidden">
     <div class="fullscreen-backdrop" data-action="click->photo#close"></div>
     <button class="fullscreen-close" data-action="click->photo#close">
-      <%= image_tag "delete.png", class: "close-icon" %>
+      <%= image_tag "close.png", class: "close-icon" %>
     </button>
     <img data-photo-target="modalImage" class="fullscreen-image">
   </div>
-
 </div>

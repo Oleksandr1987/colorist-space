@@ -1,0 +1,272 @@
+<%
+  filters_applied =
+    params[:all_time] == "1" ||
+    params[:from].present? ||
+    params[:to].present? ||
+    @income_category_filters.present? ||
+    @income_service_filters.present? ||
+    @income_formula_product_filters.present? ||
+    @income_care_product_filters.present?
+
+  from_date = @from
+  to_date = @to
+%>
+
+<div class="analytics-filter" data-controller="analytics-filter">
+
+  <% if filters_applied %>
+    <%= link_to income_analytics_path, class: "analytics-floating-reset-button" do %>
+      <span>
+        <%= t("analytics.period_filter.reset", default: "Скинути") %>
+      </span>
+    <% end %>
+  <% end %>
+
+  <button type="button" class="analytics-floating-filter-button" data-action="click->analytics-filter#open">
+    <%= image_tag "filter.png", class: "analytics-filter-icon", width: 28, height: 28 %>
+    <span>
+      <%= t("analytics.period_filter.filters", default: "Фільтри") %>
+    </span>
+  </button>
+
+  <% if filters_applied %>
+    <div class="analytics-active-filters">
+      <span class="analytics-active-filter">
+        <% if @all_time %>
+          <%= t("analytics.period_filter.presets.all_time", default: "За увесь час") %>
+        <% else %>
+          <%= @from.strftime("%d.%m.%Y") %>
+          –
+          <%= @to.strftime("%d.%m.%Y") %>
+        <% end %>
+      </span>
+
+      <% @income_category_filters.each do |category| %>
+        <span class="analytics-active-filter">
+          <%= t("services.categories.#{category}", default: category.humanize) %>
+        </span>
+      <% end %>
+
+      <% @income_filter_services.select { |service| @income_service_filters.include?(service.id) }.each do |service| %>
+        <span class="analytics-active-filter">
+          <%= service.subtype %>
+        </span>
+      <% end %>
+
+      <% @income_filter_colors.select { |option| @income_formula_product_filters.include?(option[:id]) }.each do |option| %>
+        <span class="analytics-active-filter">
+          <%= option[:label] %>
+        </span>
+      <% end %>
+
+      <% @income_filter_oxidants.select { |option| @income_formula_product_filters.include?(option[:id]) }.each do |option| %>
+        <span class="analytics-active-filter">
+          <%= option[:label] %>
+        </span>
+      <% end %>
+
+      <% @income_filter_care_products.select { |option| @income_care_product_filters.include?(option[:id]) }.each do |option| %>
+        <span class="analytics-active-filter">
+          <%= option[:label] %>
+        </span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="analytics-filter-modal hidden" data-analytics-filter-target="modal" data-action="click->analytics-filter#closeOnOverlay">
+    <div class="analytics-filter-modal-content" data-action="click->analytics-filter#stopPropagation">
+      <div class="analytics-filter-modal-header">
+        <h2>
+          <%= t("analytics.period_filter.filters", default: "Фільтри") %>
+        </h2>
+
+        <button type="button" class="analytics-filter-close" data-action="click->analytics-filter#close">
+          <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
+        </button>
+      </div>
+
+      <%= form_with url: income_analytics_path, method: :get, local: true, class: "analytics-filter-form" do %>
+        <%= render "shared/analytics_period_fields", from_date: from_date, to_date: to_date %>
+
+        <div class="filter-section">
+          <div class="filter-title">
+            <%= t("analytics.income.category", default: "Категорія") %>
+          </div>
+
+          <div class="filter-chips">
+            <button type="button" class="filter-chip <%= 'active' if @income_category_filters.empty? %>" data-action="click->analytics-filter#selectAllIncomeCategories">
+              <%= t("analytics.income.all_categories", default: "Усі категорії") %>
+            </button>
+
+            <% Service::CATEGORIES.each do |category| %>
+              <% selected = @income_category_filters.include?(category) %>
+
+              <label class="filter-chip <%= 'active' if selected %>">
+                <%= check_box_tag "income_categories[]", category, selected,
+                      data: { action: "change->analytics-filter#toggleIncomeCategory", category: category } %>
+
+                <span>
+                  <%= t("services.categories.#{category}", default: category.humanize) %>
+                </span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="filter-section <%= 'hidden' if @income_category_filters.empty? %>" data-analytics-filter-target="incomeServicesSection">
+          <div class="filter-title">
+            <%= t("analytics.income.services", default: "Послуги") %>
+          </div>
+
+          <div class="filter-chips" data-analytics-filter-target="incomeServices">
+            <button type="button" class="filter-chip <%= 'active' if @income_service_filters.empty? %>" data-analytics-filter-target="allIncomeServices" data-action="click->analytics-filter#selectAllIncomeServices">
+              <%= t("analytics.income.all_services", default: "Усі послуги") %>
+            </button>
+
+            <% @income_filter_services.each do |service| %>
+              <% selected = @income_service_filters.include?(service.id) %>
+
+              <label class="filter-chip <%= 'active' if selected %>" data-income-service-category="<%= service.category %>">
+                <%= check_box_tag "service_ids[]", service.id, selected, data: { action: "change->analytics-filter#toggleIncomeService" } %>
+                <span><%= service.subtype %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+
+        <% if @income_filter_colors.any? %>
+          <div class="filter-section">
+            <div class="filter-title">
+              <%= t("analytics.income.colors", default: "Кольори") %>
+            </div>
+
+            <div class="filter-chips">
+              <button type="button" class="filter-chip active" data-analytics-filter-target="allColorBrands" data-action="click->analytics-filter#selectAllColorBrands">
+                <%= t("analytics.income.all_brands", default: "Усі бренди") %>
+              </button>
+
+              <% @income_filter_color_brands.each do |brand| %>
+                <button type="button" class="filter-chip" data-color-brand="<%= brand %>" data-action="click->analytics-filter#selectColorBrand">
+                  <%= brand %>
+                </button>
+              <% end %>
+            </div>
+
+            <div class="filter-chips hidden" data-analytics-filter-target="incomeColors">
+              <button type="button" class="filter-chip" data-analytics-filter-target="allColors" data-action="click->analytics-filter#selectAllColors">
+                <%= t("analytics.income.all_colors", default: "Усі кольори") %>
+              </button>
+
+              <% @income_filter_colors.each do |option| %>
+                <% selected = @income_formula_product_filters.include?(option[:id]) %>
+
+                <label class="filter-chip <%= 'active' if selected %>" data-color-product-brand="<%= option[:brand] %>">
+                  <%= check_box_tag "formula_product_ids[]", option[:id], selected, data: { formula_kind: "color", action: "change->analytics-filter#toggleFormulaProduct" } %>
+                  <span><%= option[:label] %></span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @income_filter_oxidants.any? %>
+          <div class="filter-section">
+            <div class="filter-title">
+              <%= t("analytics.income.oxidants", default: "Окисники") %>
+            </div>
+
+            <div class="filter-chips">
+              <button type="button" class="filter-chip active" data-analytics-filter-target="allOxidantBrands" data-action="click->analytics-filter#selectAllOxidantBrands">
+                <%= t("analytics.income.all_brands", default: "Усі бренди") %>
+              </button>
+
+              <% @income_filter_oxidant_brands.each do |brand| %>
+                <button type="button" class="filter-chip" data-oxidant-brand="<%= brand %>" data-action="click->analytics-filter#selectOxidantBrand">
+                  <%= brand %>
+                </button>
+              <% end %>
+            </div>
+
+            <div class="filter-chips hidden" data-analytics-filter-target="incomeOxidants">
+              <button type="button" class="filter-chip" data-analytics-filter-target="allOxidants" data-action="click->analytics-filter#selectAllOxidants">
+                <%= t("analytics.income.all_oxidants", default: "Усі окисники") %>
+              </button>
+
+              <% @income_filter_oxidants.each do |option| %>
+                <% selected = @income_formula_product_filters.include?(option[:id]) %>
+
+                <label class="filter-chip <%= 'active' if selected %>" data-oxidant-product-brand="<%= option[:brand] %>">
+                  <%= check_box_tag "formula_product_ids[]", option[:id], selected, data: { formula_kind: "oxidant", action: "change->analytics-filter#toggleFormulaProduct" } %>
+                  <span><%= option[:label] %></span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @income_filter_care_products.any? %>
+          <div class="filter-section">
+            <div class="filter-title">
+              <%= t("analytics.income.care_products", default: "Засоби догляду") %>
+            </div>
+
+            <div class="filter-subtitle">
+              <%= t("analytics.income.brand", default: "Бренд") %>
+            </div>
+
+            <div class="filter-chips">
+              <button type="button" class="filter-chip active" data-analytics-filter-target="allCareBrands" data-action="click->analytics-filter#selectAllCareBrands">
+                <%= t("analytics.income.all_brands", default: "Усі бренди") %>
+              </button>
+
+              <% @income_filter_care_brands.each do |brand| %>
+                <button type="button" class="filter-chip" data-care-brand="<%= brand %>" data-action="click->analytics-filter#selectCareBrand">
+                  <%= brand %>
+                </button>
+              <% end %>
+            </div>
+
+            <div class="filter-subtitle">
+              <%= t("analytics.income.category", default: "Категорія") %>
+            </div>
+
+            <div class="filter-chips" data-analytics-filter-target="careCategories">
+              <button type="button" class="filter-chip active" data-analytics-filter-target="allCareCategories" data-action="click->analytics-filter#selectAllCareCategories">
+                <%= t("analytics.income.all_categories", default: "Усі категорії") %>
+              </button>
+
+              <% @income_filter_care_categories.each do |category| %>
+                <button type="button" class="filter-chip" data-care-category="<%= category %>" data-action="click->analytics-filter#selectCareCategory">
+                  <%= t("care_products.categories.#{category}", default: category.humanize) %>
+                </button>
+              <% end %>
+            </div>
+
+            <div class="filter-chips hidden" data-analytics-filter-target="incomeCareProducts">
+              <button type="button" class="filter-chip active" data-analytics-filter-target="allCareProducts" data-action="click->analytics-filter#selectAllCareProducts">
+                <%= t("analytics.income.all_care_products", default: "Усі засоби") %>
+              </button>
+
+              <% @income_filter_care_products.each do |option| %>
+                <% selected = @income_care_product_filters.include?(option[:id]) %>
+
+                <label class="filter-chip <%= 'active' if selected %>" data-care-product-brand="<%= option[:brand] %>" data-care-product-category="<%= option[:category] %>">
+                  <%= check_box_tag "care_product_ids[]", option[:id], selected, data: { action: "change->analytics-filter#toggleCareProduct" } %>
+                  <span>
+                    <%= option[:label] %>
+                  </span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="analytics-filter-actions">
+          <button type="submit" class="form-button primary">
+            <%= t("analytics.period_filter.apply") %>
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

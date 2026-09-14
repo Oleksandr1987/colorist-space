@@ -11,7 +11,6 @@ Rails.application.routes.draw do
     resources :service_notes do
       member do
         delete "photos/:photo_id", to: "service_notes#delete_photo", as: :delete_photo
-        post :add_ingredient
       end
 
       resources :formula_steps, only: [:create, :update, :destroy] do
@@ -34,11 +33,11 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :appointments do
+  resources :appointments, except: [:index] do
     collection do
+      get :all
       get :calendar
       get :by_date
-      get :history
       get :free_slots
     end
   end

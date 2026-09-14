@@ -7,6 +7,9 @@ RSpec.describe "ServiceNotes" do
   let(:client) { create(:client, user: user) }
   let(:service_note) { create(:service_note, client: client, user: user) }
   let(:appointment) { create(:appointment, user: user, client: client) }
+  let(:care_product) do
+    create(:care_product, user: user, brand: "Londa", name: "Mask", sale_price: 100, purchase_price: 60, stock_quantity: 20)
+  end
 
   before do
     sign_in user, scope: :user
@@ -14,10 +17,7 @@ RSpec.describe "ServiceNotes" do
 
   describe "GET /new" do
     it "renders new service note page" do
-      get new_client_service_note_path(
-        client,
-        appointment_id: appointment.id
-      )
+      get new_client_service_note_path(client, appointment_id: appointment.id)
 
       expect(response).to have_http_status(:ok)
     end
@@ -60,11 +60,7 @@ RSpec.describe "ServiceNotes" do
       expect do
         post client_service_notes_path(client), params: {
           appointment_id: appointment.id,
-          service_note: {
-            service_type: "coloring",
-            notes: "Test",
-            service_ids: [ service.id ]
-          }
+          service_note: { service_type: "coloring", notes: "Test", service_ids: [ service.id ] }
         }
       end.to change(ServiceNote, :count).by(1)
 
@@ -82,11 +78,7 @@ RSpec.describe "ServiceNotes" do
 
       post client_service_notes_path(client), params: {
         appointment_id: appointment.id,
-        service_note: {
-          service_type: "coloring",
-          notes: "With services",
-          service_ids: [ service.id, service.id ]
-        }
+        service_note: { service_type: "coloring", notes: "With services", service_ids: [ service.id, service.id ] }
       }
 
       expect(ServiceNote.last.service_ids).to eq([ service.id ])
@@ -95,14 +87,11 @@ RSpec.describe "ServiceNotes" do
     it "copies services from appointment when service_ids missing" do
       service = create(:service, user: user)
 
-      appointment.services << service
+      appointment.sync_services_with_prices!([ service.id ])
 
       post client_service_notes_path(client), params: {
         appointment_id: appointment.id,
-        service_note: {
-          service_type: "coloring",
-          notes: "Copied"
-        }
+        service_note: { service_type: "coloring", notes: "Copied" }
       }
 
       expect(ServiceNote.last.service_ids).to eq([ service.id ])
@@ -111,10 +100,7 @@ RSpec.describe "ServiceNotes" do
     it "renders new when services missing" do
       post client_service_notes_path(client), params: {
         appointment_id: appointment.id,
-        service_note: {
-          service_type: "coloring",
-          notes: "Test"
-        }
+        service_note: { service_type: "coloring", notes: "Test" }
       }
 
       expect(response).to have_http_status(:unprocessable_content)
@@ -126,17 +112,13 @@ RSpec.describe "ServiceNotes" do
 
       post client_service_notes_path(client), params: {
         appointment_id: appointment.id,
-        service_note: {
-          service_type: "coloring",
-          service_ids: [ service.id ],
-          care_products: ""
-        }
+        service_note: { service_type: "coloring", service_ids: [ service.id ], care_products: "" }
       }
 
       expect(ServiceNote.last.care_products).to eq([])
     end
 
-    it "parses care_products json on create" do
+    it "parses care_products json and snapshots purchase price on create" do
       service = create(:service, user: user)
 
       post client_service_notes_path(client), params: {
@@ -144,19 +126,12 @@ RSpec.describe "ServiceNotes" do
         service_note: {
           service_type: "coloring",
           service_ids: [ service.id ],
-          care_products: [
-            {
-              service_id: 1,
-              name: "Mask",
-              price: 100,
-              qty: 2
-            }
-          ].to_json
+          care_products: [ { care_product_id: care_product.id, name: "Mask", price: 100, qty: 2 } ].to_json
         }
       }
 
       expect(ServiceNote.last.care_products).to eq(
-        [ { "service_id" => 1, "name" => "Mask", "price" => 100, "qty" => 2 } ]
+        [ { "care_product_id" => care_product.id, "name" => "Mask", "price" => 100.0, "purchase_price" => 60.0, "qty" => 2 } ]
       )
     end
 
@@ -165,11 +140,7 @@ RSpec.describe "ServiceNotes" do
 
       post client_service_notes_path(client), params: {
         appointment_id: appointment.id,
-        service_note: {
-          service_type: "coloring",
-          service_ids: [ service.id ],
-          care_products: "{invalid-json"
-        }
+        service_note: { service_type: "coloring", service_ids: [ service.id ], care_products: "{invalid-json" }
       }
 
       expect(ServiceNote.last.care_products).to eq([])
@@ -178,9 +149,7 @@ RSpec.describe "ServiceNotes" do
 
   describe "PATCH /service_notes/:id" do
     it "updates service note" do
-      patch client_service_note_path(client, service_note), params: {
-        service_note: { notes: "Updated" }
-      }
+      patch client_service_note_path(client, service_note), params: { service_note: { notes: "Updated" } }
 
       expect(service_note.reload.notes).to eq("Updated")
     end
@@ -189,11 +158,7 @@ RSpec.describe "ServiceNotes" do
       service_note.appointment.services.clear
       service_note.services.clear
 
-      patch client_service_note_path(client, service_note), params: {
-        service_note: {
-          service_ids: []
-        }
-      }
+      patch client_service_note_path(client, service_note), params: { service_note: { service_ids: [] } }
 
       expect(response).to have_http_status(:unprocessable_content)
 
@@ -203,39 +168,40 @@ RSpec.describe "ServiceNotes" do
     it "updates with unique service_ids" do
       service = create(:service, user: user)
 
-      patch client_service_note_path(client, service_note), params: {
-        service_note: {
-          service_ids: [ service.id, service.id ]
-        }
-      }
+      patch client_service_note_path(client, service_note), params: { service_note: { service_ids: [ service.id, service.id ] } }
 
       expect(service_note.reload.service_ids).to eq([ service.id ])
     end
 
     it "updates care_products from json" do
-      patch client_service_note_path(client, service_note), params: {
-        service_note: {
-          care_products: [
-            {
-              service_id: 1,
-              name: "Shampoo",
-              price: 50,
-              qty: 3
-            }
-          ].to_json
-        }
+      patch client_service_note_path(client, service_note),
+      params: {
+        service_note: { care_products: [ { care_product_id: care_product.id, name: "Shampoo", price: 50, qty: 3 } ].to_json }
       }
 
       expect(service_note.reload.care_products).to eq(
-        [
-          {
-            "service_id" => 1,
-            "name" => "Shampoo",
-            "price" => 50,
-            "qty" => 3
-          }
+        [ { "care_product_id" => care_product.id, "name" => "Shampoo", "price" => 50.0, "purchase_price" => 60.0, "qty" => 3 } ]
+      )
+    end
+
+    it "preserves historical purchase price when care product catalog price changes" do
+      service_note.update!(
+        care_products: [
+          { "care_product_id" => care_product.id, "name" => "Mask", "price" => 100.0, "purchase_price" => 60.0, "qty" => 2 }
         ]
       )
+
+      care_product.update!(purchase_price: 80)
+
+      patch client_service_note_path(client, service_note),
+      params: {
+        service_note: { care_products: [ { care_product_id: care_product.id, name: "Mask", price: 100, qty: 3 } ].to_json }
+      }
+
+      item = service_note.reload.care_products.first
+
+      expect(item["purchase_price"]).to eq(60.0)
+      expect(item["qty"]).to eq(3)
     end
   end
 
@@ -251,19 +217,11 @@ RSpec.describe "ServiceNotes" do
 
   describe "delete_photo" do
      it "returns ok after deleting photo" do
-      service_note.photos.attach(
-        io: StringIO.new("fake"),
-        filename: "test.jpg",
-        content_type: "image/jpeg"
-      )
+      service_note.photos.attach(io: StringIO.new("fake"), filename: "test.jpg", content_type: "image/jpeg")
 
       photo = service_note.photos.first
 
-      delete delete_photo_client_service_note_path(
-        client,
-        service_note,
-        photo_id: photo.id
-      )
+      delete delete_photo_client_service_note_path(client, service_note, photo_id: photo.id)
 
       expect(response).to have_http_status(:ok)
     end
@@ -274,20 +232,12 @@ RSpec.describe "ServiceNotes" do
       service = create(:service, user: user)
 
       post client_service_notes_path(client), params: {
-        service_note: {
-          service_type: "coloring",
-          notes: "No photos",
-          service_ids: [ service.id ]
-        },
+        service_note: { service_type: "coloring", notes: "No photos", service_ids: [ service.id ] },
         appointment_id: appointment.id
       }
 
       expect(response).to redirect_to(
-        edit_client_service_note_path(
-          client,
-          ServiceNote.last,
-          locale: I18n.locale
-        )
+        edit_client_service_note_path(client, ServiceNote.last, locale: I18n.locale)
       )
     end
   end

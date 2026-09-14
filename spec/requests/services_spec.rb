@@ -17,9 +17,7 @@ RSpec.describe "Services" do
     end
 
     it "sets category from params" do
-      get new_service_path, params: {
-        category: "Haircut"
-      }
+      get new_service_path, params: { category: "haircut" }
 
       expect(response).to have_http_status(:ok)
     end
@@ -49,27 +47,15 @@ RSpec.describe "Services" do
     it "creates service" do
       expect {
         post services_path, params: {
-          service: {
-            category: "Haircut",
-            subtype: "Fade",
-            price: 500,
-            service_type: "service"
-          }
+          service: { category: "haircut", subtype: "Fade", price: 500, service_type: "service" }
         }
       }.to change(Service, :count).by(1)
 
-      expect(response).to redirect_to(
-        section_services_path(category: "haircut")
-      )
+      expect(response).to redirect_to(section_services_path(category: "haircut"))
     end
 
     it "renders new when invalid" do
-      post services_path, params: {
-        service: {
-          subtype: "",
-          price: nil
-        }
-      }
+      post services_path, params: { service: { subtype: "", price: nil } }
 
       expect(response).to have_http_status(:unprocessable_content)
     end
@@ -79,33 +65,16 @@ RSpec.describe "Services" do
     it "updates service" do
       service = create(:service, user: user)
 
-      patch service_path(service), params: {
-        service: {
-          subtype: "Updated",
-          price: 999,
-          category: "Coloring"
-        }
-      }
+      patch service_path(service), params: { service: { subtype: "Updated", price: 999, category: "coloring" } }
 
-      expect(response).to redirect_to(
-        section_services_path(
-          category: "Coloring",
-          locale: I18n.locale
-        )
-      )
-
+      expect(response).to redirect_to(section_services_path(category: "coloring", locale: I18n.locale))
       expect(service.reload.subtype).to eq("Updated")
     end
 
     it "renders edit when invalid" do
       service = create(:service, user: user)
 
-      patch service_path(service), params: {
-        service: {
-          subtype: "",
-          price: nil
-        }
-      }
+      patch service_path(service), params: { service: { subtype: "", price: nil } }
 
       expect(response).to have_http_status(:unprocessable_content)
     end
@@ -115,13 +84,8 @@ RSpec.describe "Services" do
     it "destroys regular service" do
       service = create(:service, user: user)
 
-      expect {
-        delete service_path(service)
-      }.to change(Service, :count).by(-1)
-
-      expect(response).to redirect_to(
-        section_services_path(category: service.category)
-      )
+      expect { delete service_path(service) }.to change(Service, :count).by(-1)
+      expect(response).to redirect_to(section_services_path(category: service.category))
     end
   end
 
@@ -133,19 +97,12 @@ RSpec.describe "Services" do
 
       delete service_path(service)
 
-      expect(response).to redirect_to(
-        services_path(locale: I18n.locale)
-      )
+      expect(response).to redirect_to(services_path(locale: I18n.locale))
     end
 
     it "normalizes lowercase category" do
       post services_path, params: {
-        service: {
-          category: "haircut",
-          subtype: "Buzz",
-          price: 100,
-          service_type: "service"
-        }
+        service: { category: "haircut", subtype: "Buzz", price: 100, service_type: "service" }
       }
 
       expect(Service.last.category).to eq("haircut")
@@ -155,12 +112,7 @@ RSpec.describe "Services" do
       translated = I18n.t("services.categories.haircut")
 
       post services_path, params: {
-        service: {
-          category: translated,
-          subtype: "Classic",
-          price: 250,
-          service_type: "service"
-        }
+        service: { category: translated, subtype: "Classic", price: 250, service_type: "service" }
       }
 
       expect(Service.last.category).to eq("haircut")
@@ -168,12 +120,7 @@ RSpec.describe "Services" do
 
     it "keeps custom category unchanged" do
       post services_path, params: {
-        service: {
-          category: "CustomCategory",
-          subtype: "Custom",
-          price: 100,
-          service_type: "service"
-        }
+        service: { category: "CustomCategory", subtype: "Custom", price: 100, service_type: "service" }
       }
 
       expect(Service.last.category).to eq("CustomCategory")

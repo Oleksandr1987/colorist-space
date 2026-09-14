@@ -16,9 +16,14 @@ uk:
       first_name: "Ім’я"
       last_name: "Прізвище"
       phone: "Телефон"
+      birthday: "День народження"
+      day: "День"
+      month: "Місяць"
+      select_birthday: "Оберіть день народження"
       note: "Нотатки"
 
       hair_info_title: "Додаткова інформація про волосся"
+      hair_info: "Інформація про волосся"
       hair_type: "Тип волосся"
       hair_length: "Довжина волосся"
       hair_structure: "Структура волосся"
@@ -35,7 +40,7 @@ uk:
 
     # Show page
     show:
-      styles_tab: "Стилі"
+      records_tab: "Записи"
       photos_tab: "Фото"
       info_tab: "Інформація"
 
@@ -85,3 +90,10 @@ uk:
         dry: "Суха"
         oily: "Жирна"
         sensitive: "Чутлива"
+  photos:
+    gallery: "ГAЛЕРЕЯ"
+    camera: "КAМЕРA"
+
+  date:
+    formats:
+      birthday: "%-d %B"

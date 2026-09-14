@@ -1,12 +1,31 @@
 <div class="wizard-screen"
-     data-controller="wizard"
+     data-controller="wizard service-selector"
+     data-service-selector-input-name-value="service_note[service_ids][]"
+     data-service-selector-checkbox-name-value="service_note[modal_dummy][]"
+     data-service-selector-placeholder-class-value="add-service-placeholder"
+     data-service-selector-close-icon-value="<%= asset_path("close.png") %>"
+
      data-wizard-initial-step-value="<%= params[:step] %>"
+
+     data-wizard-services-title-value="<%= t('wizard.services') %>"
+     data-wizard-haircut-title-value="<%= t('wizard.haircut') %>"
+     data-wizard-formula-title-value="<%= t('wizard.formula') %>"
+     data-wizard-care-products-title-value="<%= t('wizard.care_products') %>"
+     data-wizard-photos-title-value="<%= t('wizard.photos') %>"
+     data-wizard-notes-title-value="<%= t('wizard.notes') %>"
+
+     data-wizard-next-label-value="<%= t('wizard.next') %>"
+     data-wizard-save-label-value="<%= t('common.save') %>"
+
      data-wizard-unsaved-title-value="<%= t('common.unsaved_changes_title') %>"
      data-wizard-unsaved-message-value="<%= t('common.unsaved_changes_message') %>"
-     data-wizard-save-label-value="<%= t('common.save') %>"
      data-wizard-discard-label-value="<%= t('common.discard') %>"
      data-wizard-cancel-label-value="<%= t('common.cancel') %>">
-  <%= form_with(model: [@client, @service_note], html: { multipart: true }) do |f| %>
+  <%= form_with(
+      model: [@client, @service_note],
+      html: { multipart: true },
+      data: { action: "turbo:submit-end->wizard#submitEnd" }
+    ) do |f| %>
 
     <% if @service_note.errors.any? %>
       <div class="form-errors">
@@ -22,73 +41,41 @@
     <!-- TOP BAR -->
     <div class="wizard-top">
       <button type="button" data-action="click->wizard#close">
-        <%= image_tag "delete.png",
-              class: "wiz-icon-close" %>
+        <%= image_tag "close.png", class: "wiz-icon-close" %>
       </button>
-      <span data-wizard-target="title">Services</span>
-      <button type="submit">SAVE</button>
+      <span data-wizard-target="title"><%= t("wizard.services") %></span>
+      <button type="submit"><%= t("common.save").upcase %></button>
       <div id="save_status"></div>
     </div>
-
     <!-- NAV -->
     <div class="wizard-nav">
-      <div class="wizard-progress">
-        <div class="wizard-progress-bar" data-wizard-target="progress"></div>
-      </div>
-
       <!-- SERVICES -->
       <div data-action="click->wizard#go" data-step="0" class="wiz-item">
-        <%= image_tag "services.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+        <%= image_tag "services.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
-
       <!-- HAIRCUT -->
       <div data-action="click->wizard#go" data-step="1" class="wiz-item">
-        <%= image_tag "brush.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+        <%= image_tag "brush.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
-
       <!-- FORMULA -->
       <div data-action="click->wizard#go" data-step="2" class="wiz-item active">
-        <%= image_tag "formula.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+        <%= image_tag "formula.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
-
       <!-- CARE PRODUCTS -->
       <div data-action="click->wizard#go"data-step="3"class="wiz-item">
-        <%= image_tag "skincare.png",
-            class: "wiz-icon",
-            width: 34,
-            height: 34 %>
+        <%= image_tag "skincare.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
-
       <!-- PHOTOS -->
       <div data-action="click->wizard#go" data-step="4" class="wiz-item">
-         <%= image_tag "camera.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+         <%= image_tag "camera.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
-
       <!-- NOTES -->
       <div data-action="click->wizard#go" data-step="5" class="wiz-item">
-        <%= image_tag "notes.png",
-              class: "wiz-icon",
-              width: 34,
-              height: 34 %>
+        <%= image_tag "notes.png", class: "wiz-icon", width: 34, height: 34 %>
       </div>
-
     </div>
-
     <!-- CONTENT -->
     <div class="wizard-content" data-wizard-target="container">
-
       <div class="wizard-step" data-wizard-target="step">
         <%= render "service_notes/steps/services", f: f %>
       </div>
@@ -112,43 +99,22 @@
       <div class="wizard-step" data-wizard-target="step">
         <%= render "service_notes/steps/notes", f: f %>
       </div>
-
     </div>
 
+    <%= render("shared/modals/service_selector", checkbox_name: "service_note[modal_dummy][]") %>
     <!-- BOTTOM -->
     <div class="wizard-bottom">
-      <button type="button"
-        data-action="click->wizard#prev"
-        data-wizard-target="prevButton">
-
-        <%= image_tag "back.png",
-            width: 24,
-            height: 24,
-            class: "wizard-nav-icon" %>
-
-        BACK
+      <button type="button" data-action="click->wizard#prev" data-wizard-target="prevButton">
+        <%= image_tag "back.png", class: "wizard-nav-icon", width: 34, height: 34 %>
+        <%= t("wizard.back") %>
       </button>
 
-      <button type="button"
-        data-action="click->wizard#next"
-        data-wizard-target="nextButton">
-
+      <button type="button" data-action="click->wizard#next" data-wizard-target="nextButton">
         <span data-wizard-target="nextLabel">
-          NEXT
+          <%= t("wizard.next") %>
         </span>
-
-        <%= image_tag "next.png",
-            width: 24,
-            height: 24,
-            class: "wizard-nav-icon",
-            data: { wizard_target: "nextIcon" } %>
-
-        <%= image_tag "save.png",
-            width: 24,
-            height: 24,
-            class: "wizard-nav-icon",
-            style: "display:none",
-            data: { wizard_target: "saveIcon" } %>
+        <%= image_tag "next.png", width: 34, height: 34, class: "wizard-nav-icon", data: { wizard_target: "nextIcon" } %>
+        <%= image_tag "save.png", width: 34, height: 34, class: "wizard-nav-icon", style: "display:none", data: { wizard_target: "saveIcon" } %>
       </button>
     </div>
 
@@ -161,21 +127,15 @@
       <p data-wizard-target="unsavedMessage"></p>
 
       <div class="unsaved-modal-actions">
-        <button type="button"
-                class="button secondary"
-                data-action="click->wizard#cancelClose">
+        <button type="button" class="button secondary" data-action="click->wizard#cancelClose">
           <%= t("common.cancel") %>
         </button>
 
-        <button type="button"
-                class="button danger"
-                data-action="click->wizard#discardChanges">
+        <button type="button" class="button danger" data-action="click->wizard#discardChanges">
           <%= t("common.discard") %>
         </button>
 
-        <button type="button"
-                class="button primary"
-                data-action="click->wizard#saveAndClose">
+        <button type="button" class="button primary" data-action="click->wizard#saveAndClose">
           <%= t("common.save") %>
         </button>
       </div>

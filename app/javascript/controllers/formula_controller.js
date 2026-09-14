@@ -1,9 +1,13 @@
 // app/javascript/controllers/formula_controller.js
 import { Controller } from "@hotwired/stimulus"
 import Sortable from "sortablejs"
-import { Turbo } from "@hotwired/turbo-rails"
+
 export default class extends Controller {
   static targets = ["container", "template", "steps", "colorsList", "addStep"]
+
+  static values = {
+    sections: Object
+  }
 
   connect() {
     this.initSortable()
@@ -87,13 +91,14 @@ export default class extends Controller {
     event.preventDefault()
 
     const section = event.currentTarget.dataset.section
+    const sectionLabel = this.sectionsValue[section] || section
     const template = this.templateTarget.innerHTML
-
     const stepId = Date.now()
 
     let html = template
-      .replace(/__SECTION__/g, section)
-      .replace(/NEW_RECORD/g, stepId)
+      .replaceAll("__SECTION_VALUE__", section)
+      .replaceAll("__SECTION_LABEL__", sectionLabel)
+      .replaceAll("NEW_RECORD", stepId)
 
     this.containerTarget.insertAdjacentHTML("beforeend", html)
 
@@ -291,30 +296,6 @@ export default class extends Controller {
     return Array.from(steps).findIndex(el =>
       el.classList.contains("active")
     )
-  }
-
-  addIngredient(event) {
-    event.preventDefault()
-    const stepIndex = event.currentTarget.dataset.stepIndex
-
-    const serviceNoteId = this.element.dataset.serviceNoteId
-    const clientId = this.element.dataset.clientId
-
-    const url = `/clients/${clientId}/service_notes/${serviceNoteId}/add_ingredient`
-
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
-        "Accept": "text/vnd.turbo-stream.html",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ step_index: stepIndex })
-    })
-    .then(r => r.text())
-    .then(html => {
-      Turbo.renderStreamMessage(html)
-    })
   }
 
   showAddStep() {

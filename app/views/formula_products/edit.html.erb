@@ -1,12 +1,1 @@
-<div class="service-wrapper">
-  <div class="category-header">
-    <%= link_to formula_products_path(category: @formula_product.category) do %>
-      <%= image_tag "back.png",
-            class: "wiz-icon",
-            width: 24,
-            height: 24 %>
-    <% end %>
-  </div>
-
-  <%= render "form" %>
-</div>
+<%= render "form_page", formula_product: @formula_product, title: t("formula_products.form.edit_title") %>

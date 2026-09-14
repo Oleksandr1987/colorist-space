@@ -14,7 +14,6 @@
 
             <div class="letter-names">
               <% list.each do |client| %>
-
                 <div class="client-item"
                      data-client-search-target="item"
                      data-phone="<%= [
@@ -22,10 +21,7 @@
                        client.client_phones.map(&:phone)
                      ].flatten.compact.join(' ') %>">
 
-                  <%= link_to "#{client.first_name} #{client.last_name}",
-                              client_path(client),
-                              class: "client-link" %>
-
+                  <%= link_to "#{client.first_name} #{client.last_name}", client_path(client), class: "client-link" %>
                 </div>
               <% end %>
             </div>
@@ -37,10 +33,7 @@
     </div>
 
     <%= link_to new_client_path, class: "floating-add-button" do %>
-        <%= image_tag "plus.png",
-        width: 46,
-        height: 46 %>
+        <%= image_tag "plus.png", width: 46, height: 46 %>
     <% end %>
-
   </div>
 </div>

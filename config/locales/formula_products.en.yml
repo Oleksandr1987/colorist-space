@@ -14,3 +14,22 @@ en:
 
     pages:
       title: "Formula Ingredients"
+
+    colors:
+      add: "Add color"
+      select_palette: "Select palette..."
+      shade: "Shade"
+      amount: "Amount"
+      add_color: "ADD COLOR"
+      add_palette: "ADD PALETTE"
+
+    form:
+      new_title: "New product"
+      edit_title: "Edit"
+      brand: "Brand"
+      unit: "Unit"
+      price_per_unit: "Price per unit"
+
+    units:
+      gram: "Gram"
+      milliliter: "Milliliter"

@@ -4,7 +4,11 @@ class FormulaIngredient < ApplicationRecord
 
   validates :shade, :amount, presence: true
 
-  def total_price
+  def total_cost
     amount.to_f * price.to_f
+  end
+
+  def total_price
+    total_cost
   end
 end

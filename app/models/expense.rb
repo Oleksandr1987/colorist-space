@@ -23,22 +23,24 @@ class Expense < ApplicationRecord
     where(user: user, spent_on: from..to)
   }
 
-  scope :apply_category_filter, ->(category) {
-    category.present? ? where(category: category) : all
+  scope :apply_category_filter, ->(categories) {
+    categories.present? ? where(category: categories) : all
   }
 
-  def self.monthly_expenses(scope)
-    scope
-      .ordered_by_date
-      .group_by { |expense| I18n.l(expense.spent_on, format: "%B %Y") }
-  end
+  class << self
+    def monthly_expenses(scope)
+      scope
+        .ordered_by_date
+        .group_by { |expense| I18n.l(expense.spent_on, format: "%B %Y") }
+    end
 
-  def self.grouped_expenses(scope)
-    scope.group(:category).sum(:amount)
-  end
+    def grouped_expenses(scope)
+      scope.group(:category).sum(:amount)
+    end
 
-  def self.total_expenses(scope)
-    scope.sum(:amount)
+    def total_expenses(scope)
+      scope.sum(:amount)
+    end
   end
 
   def category_name

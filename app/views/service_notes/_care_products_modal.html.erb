@@ -1,22 +1,21 @@
 <div class="care-products-modal hidden"
      data-care-products-target="modal"
-     data-action="click->care-products#closeModal">
+     data-action="click->care-products#cancelModal">
 
-  <div class="care-products-modal-content"
-       data-action="click->care-products#stop">
+  <div class="care-products-modal-content" data-action="click->care-products#stop">
+    <div class="care-products-modal-header sheet-header">
+      <button type="button" class="sheet-back" data-action="click->care-products#cancelModal">
+        <%= image_tag "close.png", class: "clear-icon" %>
+      </button>
 
-    <div class="care-products-modal-header">
       <h3><%= t("care_products.title") %></h3>
 
-      <button type="button"
-              data-action="click->care-products#closeModal">
-        <%= image_tag "delete.png",
-              class: "clear-icon" %>
+      <button type="button" class="sheet-save" data-action="click->care-products#saveModal">
+        <%= t("common.save").upcase %>
       </button>
     </div>
 
     <!-- SEARCH -->
-
     <div class="care-products-modal-search">
       <input type="text"
              class="form-input"
@@ -26,37 +25,23 @@
     </div>
 
     <!-- CATEGORY FILTER -->
-
     <div class="care-products-filters">
-
-      <button type="button"
-              class="filter-button active"
-              data-category=""
-              data-action="click->care-products#filterCategory">
+      <button type="button" class="filter-button active" data-category="" data-action="click->care-products#filterCategory">
         <%= t("common.all") %>
       </button>
 
       <% CareProduct::CATEGORIES.each do |category| %>
-
         <button type="button"
                 class="filter-button"
                 data-category="<%= category %>"
                 data-action="click->care-products#filterCategory">
-
           <%= category %>
-
         </button>
-
       <% end %>
-
     </div>
-
     <!-- PRODUCTS -->
-
     <div class="care-products-modal-list"
          data-care-products-target="productsList">
     </div>
-
   </div>
-
 </div>

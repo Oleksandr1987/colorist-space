@@ -1,0 +1,10 @@
+en:
+  wizard:
+    services: "Services"
+    haircut: "Haircut"
+    formula: "Formula"
+    care_products: "Care Products"
+    photos: "Photos"
+    notes: "Notes"
+    back: "BACK"
+    next: "NEXT"

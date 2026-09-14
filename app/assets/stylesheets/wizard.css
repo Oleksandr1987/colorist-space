@@ -1,18 +1,29 @@
 /* FULLSCREEN */
 .wizard-screen {
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  /* overflow: hidden; */
-  background: #f8f6f5;
+  background: #ccbdd0;
+  overflow: hidden;
+}
+
+/* FORM CONTROLS THE WIZARD LAYOUT */
+.wizard-screen > form {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* CONTENT */
 .wizard-content {
-  flex: 1;
-  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   padding: 16px;
-  padding-bottom: 100px;
 }
 
 /* STEPS ANIMATION */
@@ -20,9 +31,9 @@
   opacity: 0;
   transform: translateX(20px);
   transition: all 0.25s ease;
-
   position: absolute;
-  width: 100%;
+  inset: 0;
+  width: auto;
   pointer-events: none;
 }
 
@@ -36,55 +47,45 @@
 /* NAV */
 .wizard-nav {
   position: relative;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 28px;
-
   padding: 0 16px;
   margin: 20px 0 28px;
   overflow: visible;
-}
-
-/* PROGRESS BACK LINE */
-.wizard-progress {
-  position: absolute;
-  top: 50%;
-  left: 40px;
-  right: 40px;
-  height: 2px;
-  background: #e5e5e5;
-  transform: translateY(-50%);
-  z-index: 0;
-  opacity: 1;
-}
-
-/* PROGRESS ACTIVE */
-.wizard-progress-bar {
-  height: 100%;
-  width: 0%;
-  background: #1c1c1c;
-  transition: width 0.35s ease;
-  z-index: 0;
 }
 
 /* ICON BUTTON */
 .wiz-item {
   position: relative;
   z-index: 1;
-
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-
-  background: #f1f1f1;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  transition: all 0.25s ease;
   flex-shrink: 0;
+  cursor: pointer;
+}
+
+.wiz-item img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(0.35);
+  transition: filter .25s ease;
+}
+
+.wiz-item.active img {
+  filter:
+    brightness(0)
+    saturate(100%)
+    invert(31%)
+    sepia(91%)
+    saturate(3111%)
+    hue-rotate(253deg)
+    brightness(96%)
+    contrast(93%);
 }
 
 /* ICON */
@@ -95,36 +96,12 @@
   transition: all 0.25s ease;
 }
 
-/* ACTIVE STEP */
-.wiz-item.active {
-  background: #fff;
-  border: 2px solid #1c1c1c;
-  transform: scale(1.15);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-}
-
-.wiz-item.active svg {
-  stroke: #1c1c1c;
-}
-
-.wiz-item.active img {
-  filter: none;
-}
-
-/* HOVER (optional) */
-.wiz-item:hover {
-  transform: scale(1.05);
-}
-
 /* TOP BAR */
 .wizard-top {
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   background: #f8f6f5;
   z-index: 20;
-
   padding: 18px 16px;
-
   display: grid;
   grid-template-columns: 40px 1fr 60px;
   align-items: center;
@@ -150,14 +127,12 @@
 .wizard-top button[type="submit"] {
   text-align: right;
   font-weight: 600;
-  letter-spacing: 1px;
 }
 
 /* BOTTOM */
 .wizard-bottom {
-  position: sticky;
-  bottom: 0;
-  /* background: #fff; */
+  flex-shrink: 0;
+  background: hsl(279, 28%, 64%);
   padding: 12px 16px;
   border-top: 1px solid #eee;
   display: flex;
@@ -180,4 +155,109 @@
 .wiz-icon-close {
   width: 20px;
   height: 20px;
+}
+
+.inline-editor .wizard-top {
+  margin-bottom: 20px;
+}
+
+.inline-editor.hidden {
+  display: none;
+}
+
+/* --------------------------
+   Wizard Modal
+--------------------------- */
+.wizard-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  z-index: 10000;
+}
+
+.wizard-modal.hidden {
+  display: none;
+}
+
+.wizard-modal-content {
+  width: 100%;
+  max-width: 480px;
+  height: min(720px, calc(100dvh - 40px));
+  max-height: calc(100dvh - 40px);
+  background: #fff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  flex-shrink: 0;
+  padding: 18px 20px;
+  border-bottom: 1px solid #ececec;
+  margin-bottom: 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.wizard-modal-search {
+  flex-shrink: 0;
+  padding: 16px 20px 10px;
+}
+
+.wizard-modal-filters {
+  flex-shrink: 0;
+}
+
+.wizard-modal-list {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  padding: 0 20px 20px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.wizard-check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f2f2f2;
+  cursor: pointer;
+}
+
+.wizard-check-row input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.wizard-check-title {
+  flex: 1;
+  font-size: 16px;
+}
+
+.wizard-check-price {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wizard-modal-footer {
+  flex-shrink: 0;
+  padding: 16px 20px 24px;
+  border-top: 1px solid #ececec;
+  background: white;
 }

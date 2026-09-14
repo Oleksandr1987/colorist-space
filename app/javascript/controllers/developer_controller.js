@@ -421,15 +421,8 @@ export default class extends Controller {
 
       row.querySelector(".dev-amount").textContent = `${oxidant.amount}g`
 
-      const edit = row.querySelector(".edit-item")
-
-      edit.dataset.index = index
-      edit.dataset.action = "click->developer#edit"
-
-      const remove = row.querySelector(".delete-item")
-
-      remove.dataset.index = index
-      remove.dataset.action = "click->developer#remove"
+      row.querySelector(".edit-btn").dataset.index = index
+      row.querySelector(".delete-btn").dataset.index = index
 
       this.listTarget.appendChild(row)
     })

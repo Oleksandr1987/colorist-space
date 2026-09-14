@@ -16,9 +16,14 @@ en:
       first_name: "First Name"
       last_name: "Last Name"
       phone: "Phone Number"
+      birthday: "Birthday"
+      day: "Day"
+      month: "Month"
+      select_birthday: "Select Birthday"
       note: "Notes"
 
       hair_info_title: "Optional Hair Information"
+      hair_info: "Hair Information"
       hair_type: "Hair Type"
       hair_length: "Hair Length"
       hair_structure: "Hair Structure"
@@ -35,7 +40,7 @@ en:
 
     # Show page
     show:
-      styles_tab: "Styles"
+      records_tab: "Records"
       photos_tab: "Photos"
       info_tab: "Info"
 
@@ -53,6 +58,7 @@ en:
       delete_all_photos_confirm: "Delete ALL photos?"
 
       details:
+        name: "Name"
         phone: "Phone"
         hair_type: "Hair Type"
         hair_length: "Hair Length"
@@ -85,3 +91,11 @@ en:
         dry: "Dry"
         oily: "Oily"
         sensitive: "Sensitive"
+
+  photos:
+    gallery: "FROM GALLERY"
+    camera: "TAKE PHOTO"
+
+  date:
+    formats:
+      birthday: "%-d %B"

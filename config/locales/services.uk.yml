@@ -1,5 +1,10 @@
 uk:
+  date:
+    formats:
+      day_month: "%-d %B"
+
   services:
+    title: "ПОСЛУГИ"
     menu:
       search_placeholder: "Пошук послуг..."
       sort_default: "Сортувати…"
@@ -64,20 +69,22 @@ uk:
 
     pages:
       services: "Послуги"
-      formula_ingredients: "Інгредієнти фомули"
+      formula_ingredients: "Інгредієнти формули"
       preparations: "Препарати"
       care_products: "Засоби догляду"
       service_management: "Керування послугами"
       categories: "Категорії послуг"
-      new_service: "+ Нова послуга"
-      new_item: "+ Новий %{item}"
+      new_service: "Нова послуга"
+      new_item: "Новий %{item}"
       back: "←"
       search: "Пошук..."
 
-  service_notes:
-    services:
-      add: "Додати послугу"
-      save: "Зберегти"
+    price:
+      final: "ЗАГАЛЬНА СУМА"
+      total: "РАЗОМ"
+      services: "ЦІНА ПОСЛУГ:"
+      formula_ingredients: "ЦІНА ІНГРЕДІЄНТІВ ФОРМУЛИ:"
+      care_products: "ЦІНА ЗАСОБІВ ДОГЛЯДУ:"
 
     errors:
       services_required: "Будь ласка, оберіть хоча б одну послугу"

@@ -3,6 +3,7 @@ en:
     title: "Haircut"
     step: "Step"
 
+    add_step: "ADD STEP"
     add_zone: "+ Add zone"
     select_zone: "Select zone"
 

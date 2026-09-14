@@ -1,15 +1,11 @@
 <div class="appointment-details-header">
-  <%= link_to  appointments_path, class: "back-button", title: t("common.back") do %>
-    <%= image_tag "back.png",
-          class: "wiz-icon",
-          width: 24,
-          height: 24 %>
+  <%= link_to  calendar_appointments_path, class: "back-button", title: t("common.back") do %>
+    <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
   <% end %>
   <h1><%= t("appointments.show.title") %></h1>
 </div>
 
 <div class="appointment-details">
-
   <p>
     <%= t("appointments.show.client") %>:
     <strong><%= @appointment.client.full_name %></strong>
@@ -43,9 +39,7 @@
   <% end %>
 
   <div class="action-buttons-inline">
-    <%= link_to t("common.edit"),
-                edit_appointment_path(@appointment),
-                class: "button small-button edit" %>
+    <%= link_to t("common.edit"), edit_appointment_path(@appointment), class: "button small-button edit" %>
 
     <%= button_to t("common.delete"),
                   appointment_path(@appointment),
@@ -53,5 +47,4 @@
                   form: { data: { turbo_confirm: t("appointments.confirm.delete") } },
                   class: "button small-button delete" %>
   </div>
-
 </div>

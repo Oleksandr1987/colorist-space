@@ -19,6 +19,8 @@ module ColoristSpace
     config.i18n.available_locales = [ :uk, :en ]
     config.i18n.fallbacks = [ :en ]
 
+    config.time_zone = "Kyiv"
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
