@@ -1,4 +1,4 @@
-/* Filters & Header */
+/* FILTERS & HEADER */
 .period-filter {
   margin-bottom: 1.5rem;
   display: flex;
@@ -14,7 +14,7 @@
   margin-bottom: 1rem;
 }
 
-/* Dropdowns */
+/* DROPDOWNS */
 .dropdown {
   position: relative;
 }
@@ -23,13 +23,13 @@
   position: absolute;
   top: 100%;
   left: 0;
+  min-width: 140px;
+  padding: 0.3rem 0;
   background: white;
   border: 1px solid #ccc;
   border-radius: 6px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   z-index: 100;
-  padding: 0.3rem 0;
-  min-width: 140px;
 }
 
 .dropdown-item {
@@ -45,6 +45,7 @@
   background-color: #f0f0f0;
 }
 
+/* CUSTOM RANGE */
 .custom-range {
   display: flex;
   flex-wrap: wrap;
@@ -61,7 +62,7 @@
   margin-bottom: 0.25rem;
 }
 
-
+/* FORM */
 .form-input {
   width: 140px;
 }
@@ -93,7 +94,7 @@
   background-color: #5f2ac0;
 }
 
-/* Analytics header */
+/* ANALYTICS HEADER */
 .analytics-header-bar {
   display: flex;
   justify-content: space-between;
@@ -104,9 +105,9 @@
 }
 
 .analytics-header-bar h1 {
-  font-size: 1.4rem;
-  margin: 0;
   flex: 1;
+  margin: 0;
+  font-size: 1.4rem;
   text-align: center;
 }
 
@@ -124,28 +125,30 @@
   margin-left: -0.5rem;
 }
 
-/* Category summary */
+/* CATEGORY SUMMARY */
 .category-summary {
+  margin-bottom: 1.5rem;
   text-align: center;
   font-size: 1.2rem;
   font-weight: bold;
   color: #d32f2f;
-  margin-bottom: 1.5rem;
 }
 
-/* Center main content */
+/* MAIN CONTENT */
 body main {
   display: block;
-  padding: 1rem;
   max-width: 600px;
   margin: 0 auto;
+  padding: 1rem;
 }
 
+/* ANALYTICS FILTER */
 .analytics-filter {
   width: 100%;
   margin: 1rem 0;
 }
 
+/* ACTIVE FILTERS */
 .analytics-active-filters {
   display: flex;
   flex-wrap: wrap;
@@ -175,64 +178,204 @@ body main {
   text-decoration: underline;
 }
 
+/* ANALYTICS FILTER MODAL */
 .analytics-filter-modal {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 10000;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 1rem;
-  background: rgb(0 0 0 / 35%);
+  padding: 0;
+  background: #f8f6f5;
+  overflow: hidden;
 }
 
 .analytics-filter-modal.hidden {
   display: none;
 }
 
+/* MODAL CONTENT */
 .analytics-filter-modal-content {
   width: 100%;
   max-width: 600px;
-  max-height: calc(100dvh - 2rem);
-  padding: 1.25rem;
-  overflow-y: auto;
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: #f8f6f5;
+  border-radius: 0;
   box-sizing: border-box;
-  background: white;
-  border-radius: 1.5rem;
+  overflow: hidden;
 }
+
+/* MODAL HEADER */
 
 .analytics-filter-modal-header {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 16px;
+  margin: 0;
+  background: #f8f6f5;
+  border-bottom: 1px solid #eee;
+  box-sizing: border-box;
+  z-index: 2;
+}
+
+/* MODAL TITLE */
+.analytics-filter-modal-header h2 {
+  grid-column: 2;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* CLOSE BUTTON */
+.analytics-filter-close {
+  grid-column: 1;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-}
-
-.analytics-filter-modal-header h2 {
-  margin: 0;
-}
-
-.analytics-filter-close {
-  display: flex;
+  justify-content: flex-start;
   padding: 0;
-
-  border: 0;
+  margin: 0;
+  border: none;
   background: transparent;
   cursor: pointer;
 }
 
+.analytics-filter-close .wiz-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* FILTER FORM */
+.analytics-filter-form {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* APPLY BUTTON */
+.analytics-filter-save {
+  grid-column: 3;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 18px;
+  margin: 0;
+  border: none;
+  border-radius: 10px;
+  background: #5424b5;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+
+.analytics-filter-save:hover {
+  background: #481e9f;
+}
+
+.analytics-filter-save:active {
+  transform: scale(0.97);
+}
+
+/* SCROLLABLE FILTER CONTENT */
+.analytics-filter-form-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 20px 16px 32px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+/* FILTER SECTIONS */
 .analytics-filter-form .filter-section {
   margin-bottom: 1.25rem;
 }
 
+.analytics-filter-form .filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.analytics-filter-form .filter-title {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+/* FILTER CHIPS */
 .analytics-filter-form .filter-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+
+  gap: 8px;
 }
 
 .analytics-filter-form .filter-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.analytics-filter-form .filter-chip:hover {
+  border-color: #5424b5;
+}
+
+.analytics-filter-form .filter-chip.active {
+  background: #5424b5;
+  border-color: #5424b5;
+  color: #fff;
 }
 
 .analytics-filter-form .filter-chip input {
@@ -241,148 +384,115 @@ body main {
   pointer-events: none;
 }
 
+/* DATE FIELDS */
 .analytics-date-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 12px;
   margin-bottom: 1.25rem;
+}
+
+.analytics-date-fields .form-section {
+  min-width: 0;
+}
+
+.analytics-date-fields label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f1f1f;
 }
 
 .analytics-date-fields .form-input {
   width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  outline: none;
   box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.analytics-filter-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
+.analytics-date-fields .form-input:focus {
+  border-color: #5424b5;
+  box-shadow:
+    0 0 0 2px rgba(84, 36, 181, 0.08);
 }
 
-.analytics-filter-actions .form-button {
-  width: 100%;
-}
-
+/* FLOATING FILTER BUTTON */
 .analytics-floating-filter-button {
   position: fixed;
-  bottom: 5rem;
   right: 1.6rem;
-
+  bottom: 5rem;
   height: 48px;
-  padding: 0 16px;
-
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-
+  padding: 0 16px;
   border: none;
   border-radius: 14px;
-
   background: #fff;
   color: #481f9a;
-
   font-family: inherit;
   font-size: 0.95rem;
   font-weight: 600;
-
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
-
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
-
   z-index: 100;
 }
 
-.analytics-floating-filter-icon {
-  width: 24px;
-  height: 24px;
+.analytics-filter-icon {
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   flex-shrink: 0;
 }
 
+/* FLOATING RESET BUTTON */
 .analytics-floating-reset-button {
   position: fixed;
-  bottom: 5rem;
   left: 1.6rem;
-
+  bottom: 5rem;
   height: 48px;
-  padding: 0 16px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
+  padding: 0 16px;
   border-radius: 14px;
-
   background: #fff;
   color: #481f9a;
-
   font-size: 0.95rem;
   font-weight: 600;
-
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
-
   text-decoration: none;
   white-space: nowrap;
-
   z-index: 100;
 }
 
+/* MODAL OPEN */
 body.modal-open {
   overflow: hidden;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  html, body {
-    height: auto;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
-  body main {
-    padding-bottom: 6rem;
-  }
-
-  .custom-range {
-    flex-direction: row;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .form-input {
-    width: 100%;
-  }
-
-  .form-button.primary {
-    width: 100%;
-    max-width: 240px;
-  }
-
-  .analytics-header-bar {
-    padding: 0 1rem;
-  }
-
-  .expense-info {
-    width: 100%;
-  }
-
-  .expense-actions {
-    align-self: flex-end;
-  }
-}
-
-/* Balance colors */
+/* BALANCE COLORS */
 .category-amount.green,
 .month-header-amount.green {
   color: #2a6d2d;
   font-weight: bold;
 }
 
-/* ---------------- BALANCE ---------------- */
+/* BALANCE */
 .balance-breakdown {
   display: flex;
   flex-direction: column;
@@ -391,9 +501,9 @@ body.modal-open {
 }
 
 .balance-section {
+  padding: 1rem;
   background: #fff;
   border-radius: 16px;
-  padding: 1rem;
 }
 
 .balance-section-header {
@@ -472,4 +582,80 @@ body.modal-open {
 
 .red {
   color: #dc3545;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  html,
+  body {
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  body main {
+    padding-bottom: 6rem;
+  }
+
+  .custom-range {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .form-input {
+    width: 100%;
+  }
+
+  .form-button.primary {
+    width: 100%;
+    max-width: 240px;
+  }
+
+  .analytics-header-bar {
+    padding: 0 1rem;
+  }
+
+  .expense-info {
+    width: 100%;
+  }
+
+  .expense-actions {
+    align-self: flex-end;
+  }
+
+  /* FILTER MODAL MOBILE */
+  .analytics-filter-modal-content {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+  }
+
+  .analytics-filter-modal-header {
+    padding: 16px 14px;
+  }
+
+  .analytics-filter-modal-header h2 {
+    font-size: 20px;
+  }
+
+  .analytics-filter-save {
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+
+  .analytics-filter-form-content {
+    padding: 16px 14px 28px;
+  }
+
+  .analytics-date-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .analytics-date-fields .form-input {
+    font-size: 15px;
+  }
 }

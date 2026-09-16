@@ -12,10 +12,7 @@ module Analytics
 
     def period_appointment_ids
       @period_appointment_ids ||=
-        user
-          .appointments
-          .where(appointment_date: from..to)
-          .pluck(:id)
+        user.appointments.where(appointment_date: from..to).pluck(:id)
     end
 
     def period_service_relations

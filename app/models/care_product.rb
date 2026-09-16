@@ -36,8 +36,7 @@ class CareProduct < ApplicationRecord
   after_destroy_commit :broadcast_remove
 
   def incomplete?
-    purchase_price.blank? ||
-      stock_quantity.blank?
+    purchase_price.blank? || stock_quantity.blank?
   end
 
   def display_name
@@ -51,9 +50,7 @@ class CareProduct < ApplicationRecord
       "care_products",
       target: "care_products",
       partial: "care_products/care_product",
-      locals: {
-        care_product: self
-      }
+      locals: { care_product: self }
     )
   end
 
@@ -62,16 +59,11 @@ class CareProduct < ApplicationRecord
       "care_products",
       target: "care_product_#{id}",
       partial: "care_products/care_product",
-      locals: {
-        care_product: self
-      }
+      locals: { care_product: self }
     )
   end
 
   def broadcast_remove
-    broadcast_remove_to(
-      "care_products",
-      target: "care_product_#{id}"
-    )
+    broadcast_remove_to("care_products", target: "care_product_#{id}")
   end
 end

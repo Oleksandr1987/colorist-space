@@ -203,7 +203,7 @@ puts "✅ Formula products seeded"
 
 puts "🌱 Seeding care products..."
 
-user = User.find_by(email: "solovij1987@gmail.com")
+user = User.find_by(email: "demo@colorist.space")
 
 if user.present?
   care_products = [

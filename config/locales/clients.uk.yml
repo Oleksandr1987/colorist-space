@@ -91,6 +91,7 @@ uk:
         oily: "Жирна"
         sensitive: "Чутлива"
   photos:
+    main_photo: "Основне фото"
     gallery: "ГAЛЕРЕЯ"
     camera: "КAМЕРA"
 

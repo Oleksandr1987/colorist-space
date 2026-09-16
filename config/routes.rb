@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   resources :clients do
     resources :service_notes do
       member do
+        patch :main_photo
         delete "photos/:photo_id", to: "service_notes#delete_photo", as: :delete_photo
       end
 

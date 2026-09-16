@@ -74,15 +74,15 @@ class AnalyticsController < ApplicationController
 
     @total_income = summary.total_income
 
-    @income_filter_colors = summary.formula_color_options
-    @income_filter_color_brands = summary.formula_color_brands
+    @income_filter_colors = summary.available_formula_colors
+    @income_filter_color_brands = summary.available_formula_color_brands
 
-    @income_filter_oxidants = summary.oxidant_options
-    @income_filter_oxidant_brands = summary.oxidant_brands
+    @income_filter_oxidants = summary.available_oxidants
+    @income_filter_oxidant_brands = summary.available_oxidant_brands
 
-    @income_filter_care_products = summary.care_product_options
-    @income_filter_care_brands = summary.care_product_brands
-    @income_filter_care_categories = summary.care_product_categories
+    @income_filter_care_products = summary.available_care_products
+    @income_filter_care_brands = summary.available_care_product_brands
+    @income_filter_care_categories = summary.available_care_product_categories
 
     @expanded_income_category =
       if @grouped_income.key?(permitted_params[:expanded])
@@ -95,12 +95,7 @@ class AnalyticsController < ApplicationController
   end
 
   def balance
-    summary =
-      ::Analytics::FinancialSummary.new(
-        user: current_user,
-        from: @from,
-        to: @to
-      )
+    summary = ::Analytics::FinancialSummary.new(user: current_user, from: @from, to: @to)
 
     @service_income = summary.service_income
     @formula_income = summary.formula_income

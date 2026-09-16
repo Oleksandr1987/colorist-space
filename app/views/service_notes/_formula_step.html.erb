@@ -1,9 +1,6 @@
 <% step_id = step_form.index || step_form.object.id %>
 
-<div id="formula_step_<%= step_form.object.id %>"
-    class="formula-step-wrapper"
-    data-controller="collapse"
-    data-step-id="<%= step_id %>">
+<div id="formula_step_<%= step_form.object.id %>" class="formula-step-wrapper" data-controller="collapse" data-step-id="<%= step_id %>">
   <!-- HEADER -->
   <div class="formula-step-header" data-action="click->collapse#toggle">
     <span>
@@ -36,7 +33,6 @@
 
         <div class="step-remove">
           <%= step_form.hidden_field :_destroy, value: 0, class: "destroy-field" %>
-
           <button type="button" data-action="click->formula#removeStep">
             <%= image_tag "close.png", class: "clear-icon" %>
           </button>
@@ -65,7 +61,6 @@
 
                 <div class="color-right">
                   <span class="amount"><%= ingredient_form.object.amount %>g</span>
-
                   <button type="button" class="remove" data-action="click->formula#removeColor">
                     <%= image_tag "close.png", class: "clear-icon" %>
                   </button>
@@ -77,7 +72,6 @@
         </div>
         <template data-formula-target="ingredientTemplate">
           <div class="ingredient-fields" data-id="NEW_ID">
-
             <input type="hidden"
               name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][shade]"
               data-field="shade">
@@ -109,15 +103,12 @@
       <div class="formula-block">
         <div class="block-title">
           <span><%= image_tag "percent.png", class: "wiz-icon", width: 24, height: 24 %> <%= t("formula.developer") %></span>
-
           <button type="button" class="add-btn-small add-dev-btn" data-action="click->developer#openModal">
               <%= image_tag "plus.png", class: "add-icon" %>
           </button>
         </div>
 
-        <%= step_form.hidden_field :oxidant,
-              value: step_form.object.oxidant_data.to_json,
-              data: { developer_target: "input" } %>
+        <%= step_form.hidden_field :oxidant, value: step_form.object.oxidant_data.to_json, data: { developer_target: "input" } %>
 
         <div class="dev-list"
             data-developer-target="list">
@@ -133,12 +124,10 @@
 
             <div class="dev-right">
               <span class="dev-amount"></span>
-
               <div class="dev-actions">
                 <button type="button" class="edit-btn" data-action="click->developer#edit">
                   <%= image_tag "pencil.png" %>
                 </button>
-
                 <button type="button" class="delete-btn" data-action="click->developer#remove">
                   <%= image_tag "delete.png" %>
                 </button>
@@ -152,17 +141,11 @@
         <div class="block-title">
           <span><%= image_tag "time.png", class: "wiz-icon", width: 24, height: 24 %> <%= t("formula.time") %></span>
           <div class="time-input">
-            <%= step_form.text_field :time,
-                inputmode: "numeric",
-                pattern: "[0-9]*",
-                class: "input-line",
-                placeholder: "" %>
+            <%= step_form.text_field :time, inputmode: "numeric", pattern: "[0-9]*", class: "input-line", placeholder: "" %>
             <span class="time-unit"><%= t("formula.minutes") %></span>
           </div>
         </div>
       </div>
-
-      <%= render "service_notes/developer_modal" %>
     </div>
   </div>
 </div>

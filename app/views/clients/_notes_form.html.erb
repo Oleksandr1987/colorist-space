@@ -17,15 +17,11 @@
       <h3>
         <%= t("clients.form.note") %>
       </h3>
-      <button type="submit"><%= t("common.save").upcase %></button>
+      <button type="submit" class="appointment-save-button"><%= t("common.save").upcase %></button>
     </div>
 
     <div class="login__field">
-      <%= f.text_area :note,
-            class: "login__input",
-            rows: 5,
-            maxlength: 500,
-            placeholder: t("clients.form.note") %>
+      <%= f.text_area :note, class: "login__input", rows: 5, maxlength: 500, placeholder: t("clients.form.note") %>
     </div>
   </div>
 </div>

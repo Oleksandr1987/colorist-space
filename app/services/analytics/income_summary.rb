@@ -13,18 +13,12 @@ module Analytics
 
     def service_relations
       @service_relations ||=
-        period_service_relations
-          .for_categories(service_categories)
-          .for_services(service_ids)
-          .where(appointment_id: appointment_ids)
+        period_service_relations.for_categories(service_categories).for_services(service_ids).where(appointment_id: appointment_ids)
     end
 
     def grouped_service_income
       @grouped_service_income ||=
-        service_relations
-          .joins(:service)
-          .group("services.category")
-          .sum("appointment_services_relations.price")
+        service_relations.joins(:service).group("services.category").sum("appointment_services_relations.price")
     end
 
     def service_income
@@ -184,11 +178,7 @@ module Analytics
     end
 
     def formula_color_brands
-      @formula_color_brands ||=
-        formula_color_options
-          .filter_map { |option| option[:brand].presence }
-          .uniq
-          .sort
+      @formula_color_brands ||= formula_color_options.filter_map { |option| option[:brand].presence }.uniq.sort
     end
 
     def oxidant_brands
@@ -201,6 +191,64 @@ module Analytics
 
     def care_product_categories
       @care_product_categories ||= care_product_options.filter_map { |option| option[:category].presence }.uniq.sort
+    end
+
+    def available_formula_colors
+      @available_formula_colors ||=
+        user.formula_products
+          .colors
+          .order(:brand, :name)
+          .map do |product|
+            {
+              id: product.id,
+              brand: product.brand,
+              label: formula_product_label(product)
+            }
+          end
+    end
+
+    def available_formula_color_brands
+      @available_formula_color_brands ||= available_formula_colors.filter_map { |option| option[:brand].presence }.uniq.sort
+    end
+
+    def available_oxidants
+      @available_oxidants ||=
+        user.formula_products
+          .oxidants
+          .order(:brand, :name)
+          .map do |product|
+            {
+              id: product.id,
+              brand: product.brand,
+              label: formula_product_label(product)
+            }
+          end
+    end
+
+    def available_oxidant_brands
+      @available_oxidant_brands ||= available_oxidants.filter_map { |option| option[:brand].presence }.uniq.sort
+    end
+
+    def available_care_products
+      @available_care_products ||=
+        user.care_products
+          .order(:brand, :name)
+          .map do |product|
+            {
+              id: product.id,
+              brand: product.brand,
+              category: product.category,
+              label: product.display_name
+            }
+          end
+    end
+
+    def available_care_product_brands
+      @available_care_product_brands ||= available_care_products.filter_map { |option| option[:brand].presence }.uniq.sort
+    end
+
+    def available_care_product_categories
+      @available_care_product_categories ||= available_care_products.filter_map { |option| option[:category].presence }.uniq.sort
     end
 
     private
@@ -272,11 +320,12 @@ module Analytics
       Array(values).compact_blank.uniq
     end
 
+    def formula_product_label(product)
+      [ product.brand, product.name ].compact_blank.join(" ")
+    end
+
     def formula_color_label(ingredient)
-      [
-        ingredient.brand,
-        ingredient.shade
-      ].compact_blank.join(" ")
+      [ ingredient.brand, ingredient.shade ].compact_blank.join(" ")
     end
 
     def oxidant_label(product, id)

@@ -3,15 +3,18 @@
     <div class="screen__content">
       <div class="language-switcher top-right">
         <select class="language-select" onchange="window.location = '?locale=' + this.value;">
-          <option value="uk" <%= 'selected' if I18n.locale == :uk %>>Українська</option>
-          <option value="en" <%= 'selected' if I18n.locale == :en %>>English</option>
+          <option value="uk" <%= 'selected' if I18n.locale == :uk %>>
+            Українська
+          </option>
+          <option value="en" <%= 'selected' if I18n.locale == :en %>>
+            English
+          </option>
         </select>
       </div>
 
       <h2 class="login-title"><%= t("auth.login_title") %></h2>
 
       <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "login" }) do |f| %>
-
         <%= render "devise/shared/error_messages", resource: resource %>
 
         <!-- Email or Phone -->

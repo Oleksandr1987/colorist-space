@@ -171,6 +171,45 @@ textarea.form-input {
   color: white;
 }
 
+.appointment-save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 38px;
+  padding: 0 18px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #5424b5;
+  color: #fff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.appointment-save-button:hover {
+  background: #481e9f;
+}
+
+.appointment-save-button:active {
+  transform: scale(0.97);
+}
+
+.appointment-save-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 @media (max-width: 480px) {
   .form-input,
   textarea.form-input {

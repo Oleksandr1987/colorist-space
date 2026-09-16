@@ -1,6 +1,4 @@
-<div class="service-item"
-    data-name="<%= [service.subtype, service.unit, service.price].compact.join(' ').downcase %>">
-
+<div class="service-item" data-name="<%= [service.subtype, service.unit, service.price].compact.join(' ').downcase %>">
   <div class="service-info">
     <strong><%= service.subtype %></strong>
     — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
@@ -14,13 +12,9 @@
       <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24 %>
     <% end %>
 
-    <%= button_to service_path(service),
-        method: :delete,
-        class: "icon-button delete-button",
+    <%= button_to service_path(service), method: :delete, class: "icon-button delete-button",
         form: {
-          data: {
-            turbo_confirm: t("services.list.confirm_delete")
-          }
+          data: { turbo_confirm: t("services.list.confirm_delete") }
         } do %>
       <%= image_tag "delete.png", class: "wiz-icon", width: 24, height: 24 %>
     <% end %>

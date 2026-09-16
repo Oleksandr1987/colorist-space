@@ -10,10 +10,7 @@ class Client < ApplicationRecord
   accepts_nested_attributes_for :client_phones, allow_destroy: true
 
   validates :first_name, presence: true
-  validates :phone, uniqueness: {
-    scope: :user_id,
-    message: "Client with this phone number already exists"
-  }
+  validates :phone, uniqueness: { scope: :user_id, message: "Client with this phone number already exists" }
 
   validate :birthday_must_be_valid
   validate :phone_not_used_in_client_phones
@@ -60,18 +57,11 @@ class Client < ApplicationRecord
       return client if client
     end
 
-    client = user.clients.find_by(
-      first_name: first_name,
-      last_name: last_name.to_s
-    )
+    client = user.clients.find_by(first_name: first_name, last_name: last_name.to_s)
 
     return client if client
 
-    user.clients.create!(
-      first_name: first_name,
-      last_name: last_name.to_s,
-      phone: normalized_phone
-    )
+    user.clients.create!(first_name: first_name, last_name: last_name.to_s, phone: normalized_phone)
   end
 
   def decorated_photos
@@ -112,9 +102,7 @@ class Client < ApplicationRecord
   def phone_not_used_in_client_phones
     return if phone.blank?
 
-    if ClientPhone.where(user_id: user_id)
-                  .where.not(client_id: id)
-                  .exists?(phone: phone)
+    if ClientPhone.where(user_id: user_id) .where.not(client_id: id).exists?(phone: phone)
       errors.add(:phone, "already exists as additional phone")
     end
   end

@@ -16,7 +16,6 @@ export default class extends Controller {
     this.t = this.translationsValue
     this.currentDate = new Date()
     this.selectedDate = new Date()
-
     this.renderCalendar()
     this.loadAppointments(this.selectedDate)
     this.scrollToToday()
@@ -37,17 +36,16 @@ export default class extends Controller {
   renderCalendar() {
     const year = this.currentDate.getFullYear()
     const month = this.currentDate.getMonth()
-    const firstDay = new Date(year, month, 1).getDay()
+    const firstDay = (new Date(year, month, 1).getDay() + 6) % 7
     const daysInMonth = new Date(year, month + 1, 0).getDate()
-
     const dayNames = [
-      this.t.days.sun,
       this.t.days.mon,
       this.t.days.tue,
       this.t.days.wed,
       this.t.days.thu,
       this.t.days.fri,
-      this.t.days.sat
+      this.t.days.sat,
+      this.t.days.sun
     ]
 
     let html = dayNames.map(day => `<div class="day-name">${day}</div>`).join("")
@@ -101,8 +99,8 @@ export default class extends Controller {
 
   updateAddButtonLink() {
     const dateStr = this.formatDate(this.selectedDate)
-
     const btn = document.querySelector(".calendar-actions a")
+
     if (btn) {
       btn.href = `/appointments/new?date=${dateStr}`
     }
@@ -152,9 +150,7 @@ export default class extends Controller {
     const isPast = selected < today
     const isToday = selected.getTime() === today.getTime()
 
-    const requests = [
-      fetch(`/appointments/by_date?date=${formatted}`).then(r => r.json())
-    ]
+    const requests = [fetch(`/appointments/by_date?date=${formatted}`).then(r => r.json())]
 
     if (!isPast) {
       requests.push(
@@ -268,9 +264,7 @@ export default class extends Controller {
     return `
       <div class="calendar-record">
         <div class="calendar-record-header">
-          <div class="calendar-record-content clickable"
-              data-action="click->calendar-view#editAppointment"
-              data-id="${slot.id}">
+          <div class="calendar-record-content clickable" data-action="click->calendar-view#editAppointment" data-id="${slot.id}">
             <div class="calendar-record-date">
               <strong>
                 ${start}–${end}
@@ -283,27 +277,14 @@ export default class extends Controller {
           </div>
 
           <div class="calendar-record-actions">
-            <a href="/clients/${slot.client_id}"
-              class="appointment-action-button"
-              data-turbo="false">
-              <img src="${this.clientIconValue}"
-                   class="wiz-icon"
-                   width="16"
-                   height="16">
+            <a href="/clients/${slot.client_id}" class="appointment-action-button" data-turbo="false">
+              <img src="${this.clientIconValue}" class="wiz-icon" width="16" height="16">
             </a>
-            <a href="${noteUrl}"
-              class="appointment-action-button"
-              data-turbo="false">
-              <img src="${this.notesIconValue}"
-                   class="wiz-icon"
-                   width="16"
-                   height="16">
+            <a href="${noteUrl}" class="appointment-action-button" data-turbo="false">
+              <img src="${this.notesIconValue}" class="wiz-icon" width="16" height="16">
             </a>
 
-            <form
-              action="/appointments/${slot.id}"
-              method="post"
-              data-turbo-confirm="${this.t.delete_confirm}">
+            <form action="/appointments/${slot.id}" method="post" data-turbo-confirm="${this.t.delete_confirm}">
               <input
                 type="hidden"
                 name="_method"
@@ -312,16 +293,10 @@ export default class extends Controller {
                 type="hidden"
                 name="authenticity_token"
                 value="${this.csrfToken()}">
-              <button
-                type="submit"
-                class="appointment-action-button appointment-delete-button">
-                <img src="${this.deleteIconValue}"
-                     class="wiz-icon"
-                     width="16"
-                     height="16">
+              <button type="submit" class="appointment-action-button appointment-delete-button">
+                <img src="${this.deleteIconValue}" class="wiz-icon" width="16" height="16">
               </button>
             </form>
-
           </div>
         </div>
       </div>
@@ -384,10 +359,7 @@ export default class extends Controller {
       }
 
       if (currentStart < currentEnd) {
-        merged.push({
-          start: this.formatTime(currentStart),
-          end: this.formatTime(currentEnd)
-        })
+        merged.push({start: this.formatTime(currentStart), end: this.formatTime(currentEnd)})
       }
     })
 
@@ -452,12 +424,10 @@ export default class extends Controller {
 
   startAutoRefresh() {
     const now = new Date()
-
     const delay = (60 - now.getSeconds()) * 1000 - now.getMilliseconds()
 
     setTimeout(() => {
       this.loadAppointments(this.selectedDate)
-
       this.refreshInterval = setInterval(() => {
         this.loadAppointments(this.selectedDate)
       }, 60000)
@@ -467,12 +437,10 @@ export default class extends Controller {
 
   startLiveSlotUpdates() {
     const now = new Date()
-
     const delay = (10 - (now.getSeconds() % 10)) * 1000 - now.getMilliseconds()
 
     setTimeout(() => {
       this.updateLiveSlots()
-
       this.liveInterval = setInterval(() => {
         this.updateLiveSlots()
       }, 10000)
@@ -487,7 +455,6 @@ export default class extends Controller {
     if (!this.isSameDate(today, selected)) return
 
     const now = new Date()
-
     const slots = this.timelineTarget.querySelectorAll(".slot-free")
 
     slots.forEach(slot => {
@@ -512,9 +479,7 @@ export default class extends Controller {
 
         const newStart = this.formatTime(start)
 
-        content.innerHTML = `
-          ${newStart}–${this.formatTime(end)} (${this.t.available})
-        `
+        content.innerHTML = `${newStart}–${this.formatTime(end)} (${this.t.available})`
       }
     })
   }
@@ -532,11 +497,9 @@ export default class extends Controller {
     }
 
     if (serviceNoteId) {
-      window.location.href =
-        `/clients/${clientId}/service_notes/${serviceNoteId}/edit?appointment_id=${appointmentId}`
+      window.location.href = `/clients/${clientId}/service_notes/${serviceNoteId}/edit?appointment_id=${appointmentId}`
     } else {
-      window.location.href =
-        `/clients/${clientId}/service_notes/new?appointment_id=${appointmentId}`
+      window.location.href = `/clients/${clientId}/service_notes/new?appointment_id=${appointmentId}`
     }
   }
 }

@@ -44,7 +44,7 @@
         <%= image_tag "close.png", class: "wiz-icon-close" %>
       </button>
       <span data-wizard-target="title"><%= t("wizard.services") %></span>
-      <button type="submit"><%= t("common.save").upcase %></button>
+      <button type="submit" class="appointment-save-button"><%= t("common.save").upcase %></button>
       <div id="save_status"></div>
     </div>
     <!-- NAV -->
@@ -118,7 +118,12 @@
       </button>
     </div>
 
+    <!-- FULLSCREEN MODALS -->
+    <%= render "service_notes/color_modal" %>
+    <%= render "service_notes/developer_modal" %>
+    <%= render "service_notes/care_products_modal" %>
   <% end %>
+
   <div class="unsaved-modal hidden" data-wizard-target="unsavedModal">
     <div class="unsaved-modal-backdrop"></div>
 

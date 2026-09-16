@@ -2,15 +2,13 @@ class ServiceNotesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_client
   before_action :set_service_note,
-                only: %i[show edit update destroy delete_photo]
+                only: %i[show edit update destroy delete_photo main_photo]
 
   def show; end
 
   def new
     @appointment = current_user.appointments.find(params[:appointment_id])
-
     @service_note = @client.service_notes.build(user: current_user, appointment: @appointment)
-
     @selected_service_ids = @appointment.service_ids
   end
 
@@ -19,9 +17,7 @@ class ServiceNotesController < ApplicationController
 
     @service_note =
       @client.service_notes.build(
-        service_note_params
-          .except(:photos)
-          .merge(user: current_user, care_products: parse_care_products)
+        service_note_params.except(:photos).merge(user: current_user, care_products: parse_care_products)
       )
 
     # :nocov:
@@ -58,16 +54,13 @@ class ServiceNotesController < ApplicationController
 
   def edit
     @appointment = @service_note.appointment
-
     @selected_service_ids = @service_note.service_ids
   end
 
   def update
     service_ids =
       if params[:service_note].key?("service_ids")
-        Array(params[:service_note][:service_ids])
-          .compact_blank
-          .uniq
+        Array(params[:service_note][:service_ids]).compact_blank.uniq
       else
         @service_note.service_ids
       end
@@ -75,9 +68,7 @@ class ServiceNotesController < ApplicationController
     care_products = params[:service_note].key?("care_products") ? parse_care_products : @service_note.care_products
 
     if @service_note.update(
-      service_note_params
-        .except(:photos, :service_ids, :care_products)
-        .merge(service_ids: service_ids, care_products: care_products)
+      service_note_params.except(:photos, :service_ids, :care_products).merge(service_ids: service_ids, care_products: care_products)
     )
       attach_photos
 
@@ -101,8 +92,25 @@ class ServiceNotesController < ApplicationController
     redirect_to client_path(@client), notice: "Service note deleted"
   end
 
+  def main_photo
+    photo = @service_note.photos.attachments.find_by(id: params[:photo_id])
+
+    unless photo
+      return render json: { error: "Photo not found" }, status: :not_found
+    end
+
+    @service_note.update!(main_photo_id: photo.id)
+
+    render json: { main_photo_id: photo.id }
+  end
+
   def delete_photo
-    photo = @service_note.photos.find(params[:photo_id])
+    photo = @service_note.photos.attachments.find(params[:photo_id])
+
+    if @service_note.main_photo_id == photo.id
+      @service_note.update_column(:main_photo_id, nil)
+    end
+
     photo.purge
 
     head :ok
@@ -126,24 +134,8 @@ class ServiceNotesController < ApplicationController
       :care_products,
       photos: [],
       service_ids: [],
-      haircut_steps_attributes: [
-        :id,
-        :zone,
-        :instrument,
-        :parting,
-        :elevation,
-        :cut_type,
-        :notes,
-        :_destroy
-      ],
-      formula_steps_attributes: [
-        :id,
-        :section,
-        :oxidant,
-        :time,
-        :_destroy,
-        formula_ingredients_attributes: {}
-      ]
+      haircut_steps_attributes: [ :id, :zone, :instrument, :parting, :elevation, :cut_type, :notes, :_destroy ],
+      formula_steps_attributes: [ :id, :section, :oxidant, :time, :_destroy, formula_ingredients_attributes: {} ]
     )
   end
 
@@ -170,10 +162,7 @@ class ServiceNotesController < ApplicationController
 
       {
         "care_product_id" => product.id,
-        "name" => (
-          item["name"].presence ||
-          product.display_name
-        ),
+        "name" => (item["name"].presence || product.display_name),
         "price" => item["price"].to_f,
         "purchase_price" => purchase_price.to_f,
         "qty" => item["qty"].to_i

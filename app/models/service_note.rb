@@ -18,8 +18,7 @@ class ServiceNote < ApplicationRecord
   validate :care_products_stock_available
 
   scope :for_client, ->(client_id) {
-    where(client_id: client_id)
-      .order(created_at: :desc)
+    where(client_id: client_id).order(created_at: :desc)
   }
 
   before_validation :set_price_from_services
@@ -59,8 +58,7 @@ class ServiceNote < ApplicationRecord
 
   def formula_ingredients_total_price
     formula_steps.sum do |step|
-      step.colors_total_price +
-        step.oxidant_total_price
+      step.colors_total_price + step.oxidant_total_price
     end
   end
 
@@ -98,6 +96,30 @@ class ServiceNote < ApplicationRecord
 
   def appointment_date
     appointment.appointment_date
+  end
+
+  def main_photo
+    return if main_photo_id.blank?
+
+    photos.attachments.find_by(id: main_photo_id)
+  end
+
+  def main_photo?(photo)
+    main_photo_id == photo.id
+  end
+
+  def display_photo
+    main_photo || photos.first
+  end
+
+  def ordered_photos
+    attachments = photos.attachments.to_a
+
+    return attachments if main_photo_id.blank?
+
+    attachments.sort_by do |photo|
+      photo.id == main_photo_id ? 0 : 1
+    end
   end
 
   private

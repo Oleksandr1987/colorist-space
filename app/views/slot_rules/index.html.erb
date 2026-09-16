@@ -5,31 +5,31 @@
     <h3><%= t("slot_rules.your_rules") %></h3>
 
     <% if @slot_rules.any? %>
-      <div data-controller="popover">
+      <div>
         <% @slot_rules.each do |rule| %>
           <div class="slot-rule-item">
+
             <div class="slot-rule-content">
-              <strong><%= rule.start_time.strftime("%H:%M") %>–<%= rule.end_time.strftime("%H:%M") %></strong>,
+              <strong>
+                <%= rule.start_time.strftime("%H:%M") %>–<%= rule.end_time.strftime("%H:%M") %>
+              </strong>,
               <%= rule.weekdays.map { |d| t("slot_rules.weekdays.#{d}") }.join(", ") %>
             </div>
 
             <div class="slot-rule-actions">
-              <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">
-                 <%= image_tag "pencil.png",
-                      class: "wiz-icon",
-                      width: 24,
-                      height: 24 %>
-              </button>
-              <div class="popover-menu hidden" data-popover-target="menu">
-                <%= link_to t("slot_rules.actions.edit"), edit_slot_rule_path(rule), class: "menu-item" %>
+              <%= link_to edit_slot_rule_path(rule), class: "slot-rule-action-button", aria: { label: t("slot_rules.actions.edit") } do %>
+                <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24 %>
+              <% end %>
 
-                <%= button_to slot_rule_path(rule),
-                      method: :delete,
-                      form: { data: { turbo_confirm: t("slot_rules.actions.confirm_delete") } },
-                      class: "menu-item delete-button" do %>
-                  <%= t("slot_rules.actions.delete") %>
-                <% end %>
-              </div>
+              <%= button_to slot_rule_path(rule),
+                  method: :delete,
+                  form: {
+                    data: { turbo_confirm: t("slot_rules.actions.confirm_delete") }
+                  },
+                  class: "slot-rule-action-button slot-rule-delete-button",
+                  aria: { label: t("slot_rules.actions.delete") } do %>
+                <%= image_tag "delete.png", class: "wiz-icon", width: 24, height: 24 %>
+              <% end %>
             </div>
           </div>
         <% end %>

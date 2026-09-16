@@ -16,12 +16,18 @@ export default class extends Controller {
     "allColors",
     "incomeOxidants",
     "allOxidantBrands",
-    "allOxidants"
+    "allOxidants",
+    "incomeCareProducts",
+    "allCareBrands",
+    "careCategories",
+    "allCareCategories",
+    "allCareProducts"
   ]
 
   connect() {
     this.filterIncomeServices()
     this.restoreFormulaBrandSelections()
+    this.restoreCareProductSelections()
   }
 
   open() {
@@ -53,7 +59,6 @@ export default class extends Controller {
   }
 
   // SERVICES
-
   toggleIncomeCategory(event) {
     const chip = event.currentTarget.closest(".filter-chip")
 
@@ -78,18 +83,13 @@ export default class extends Controller {
     if (!this.hasIncomeServicesTarget) return
 
     const selectedCategories = Array.from(
-      this.element.querySelectorAll(
-        'input[name="income_categories[]"]:checked'
-      )
+      this.element.querySelectorAll('input[name="income_categories[]"]:checked')
     ).map((input) => input.value)
 
     const hasCategories = selectedCategories.length > 0
 
     if (this.hasIncomeServicesSectionTarget) {
-      this.incomeServicesSectionTarget.classList.toggle(
-        "hidden",
-        !hasCategories
-      )
+      this.incomeServicesSectionTarget.classList.toggle("hidden", !hasCategories)
     }
 
     this.element
@@ -99,17 +99,12 @@ export default class extends Controller {
     this.incomeServicesTarget
       .querySelectorAll("[data-income-service-category]")
       .forEach((chip) => {
-        const visible =
-          hasCategories &&
-          selectedCategories.includes(
-            chip.dataset.incomeServiceCategory
-          )
+        const visible = hasCategories && selectedCategories.includes(chip.dataset.incomeServiceCategory)
 
         chip.classList.toggle("hidden", !visible)
 
         if (!visible) {
-          const checkbox =
-            chip.querySelector('input[name="service_ids[]"]')
+          const checkbox = chip.querySelector('input[name="service_ids[]"]')
 
           if (checkbox) checkbox.checked = false
 
@@ -129,9 +124,7 @@ export default class extends Controller {
     if (!this.hasIncomeServicesTarget) return
 
     this.incomeServicesTarget
-      .querySelectorAll(
-        '[data-income-service-category]:not(.hidden) input[name="service_ids[]"]'
-      )
+      .querySelectorAll('[data-income-service-category]:not(.hidden) input[name="service_ids[]"]')
       .forEach((checkbox) => {
         checkbox.checked = false
         checkbox.closest(".filter-chip")?.classList.remove("active")
@@ -155,229 +148,328 @@ export default class extends Controller {
     if (!this.hasAllIncomeServicesTarget) return
 
     const selected =
-      this.incomeServicesTarget.querySelector(
-        '[data-income-service-category]:not(.hidden) input[name="service_ids[]"]:checked'
-      )
+      this.incomeServicesTarget.querySelector('[data-income-service-category]:not(.hidden) input[name="service_ids[]"]:checked')
 
-    this.allIncomeServicesTarget.classList.toggle(
-      "active",
-      !selected
-    )
+    this.allIncomeServicesTarget.classList.toggle("active", !selected)
   }
 
   // COLORS
+  toggleColorBrand(event) {
+    this.toggleChip(event)
 
-  selectAllColorBrands() {
-    this.clearBrandButtons("color")
-    this.clearFormulaProducts("color")
-
-    if (this.hasAllColorBrandsTarget) {
-      this.allColorBrandsTarget.classList.add("active")
+    if (!event.currentTarget.checked) {
+      this.clearFormulaProductsForBrand("color", event.currentTarget.value)
     }
 
-    if (this.hasIncomeColorsTarget) {
-      this.incomeColorsTarget.classList.add("hidden")
-    }
+    this.updateFormulaBrandFilter("color")
   }
 
-  selectColorBrand(event) {
-    const brand = event.currentTarget.dataset.colorBrand
+  selectAllColorBrands() {
+    this.element
+      .querySelectorAll("[data-color-brand]")
+      .forEach((checkbox) => {
+        checkbox.checked = false
+        checkbox.closest(".filter-chip")?.classList.remove("active")
+      })
 
-    this.clearBrandButtons("color")
-    event.currentTarget.classList.add("active")
-
-    if (this.hasAllColorBrandsTarget) {
-      this.allColorBrandsTarget.classList.remove("active")
-    }
-
-    this.filterFormulaProducts("color", brand)
+    this.clearFormulaProducts("color")
+    this.updateFormulaBrandFilter("color")
   }
 
   selectAllColors() {
     this.clearFormulaProducts("color")
-
-    if (this.hasAllColorsTarget) {
-      this.allColorsTarget.classList.add("active")
-    }
+    this.updateAllFormulaProducts("color")
   }
 
   // OXIDANTS
+  toggleOxidantBrand(event) {
+    this.toggleChip(event)
 
-  selectAllOxidantBrands() {
-    this.clearBrandButtons("oxidant")
-    this.clearFormulaProducts("oxidant")
-
-    if (this.hasAllOxidantBrandsTarget) {
-      this.allOxidantBrandsTarget.classList.add("active")
+    if (!event.currentTarget.checked) {
+      this.clearFormulaProductsForBrand("oxidant", event.currentTarget.value)
     }
 
-    if (this.hasIncomeOxidantsTarget) {
-      this.incomeOxidantsTarget.classList.add("hidden")
-    }
+    this.updateFormulaBrandFilter("oxidant")
   }
 
-  selectOxidantBrand(event) {
-    const brand = event.currentTarget.dataset.oxidantBrand
+  selectAllOxidantBrands() {
+    this.element
+      .querySelectorAll("[data-oxidant-brand]")
+      .forEach((checkbox) => {
+        checkbox.checked = false
+        checkbox.closest(".filter-chip")?.classList.remove("active")
+      })
 
-    this.clearBrandButtons("oxidant")
-    event.currentTarget.classList.add("active")
-
-    if (this.hasAllOxidantBrandsTarget) {
-      this.allOxidantBrandsTarget.classList.remove("active")
-    }
-
-    this.filterFormulaProducts("oxidant", brand)
+    this.clearFormulaProducts("oxidant")
+    this.updateFormulaBrandFilter("oxidant")
   }
 
   selectAllOxidants() {
     this.clearFormulaProducts("oxidant")
-
-    if (this.hasAllOxidantsTarget) {
-      this.allOxidantsTarget.classList.add("active")
-    }
+    this.updateAllFormulaProducts("oxidant")
   }
 
+  // FORMULA PRODUCTS
   toggleFormulaProduct(event) {
     this.toggleChip(event)
 
     const kind = event.currentTarget.dataset.formulaKind
 
-    if (kind === "color" && this.hasAllColorsTarget) {
-      this.allColorsTarget.classList.toggle(
-        "active",
-        !this.hasSelectedFormulaProducts("color")
-      )
-    }
-
-    if (kind === "oxidant" && this.hasAllOxidantsTarget) {
-      this.allOxidantsTarget.classList.toggle(
-        "active",
-        !this.hasSelectedFormulaProducts("oxidant")
-      )
-    }
+    this.updateAllFormulaProducts(kind)
   }
 
-  filterFormulaProducts(kind, brand) {
-    const container =
-      kind === "color"
-        ? this.incomeColorsTarget
-        : this.incomeOxidantsTarget
+  updateFormulaBrandFilter(kind) {
+    const brandSelector = kind === "color" ? "[data-color-brand]:checked" : "[data-oxidant-brand]:checked"
+    const selectedBrands = Array.from(this.element.querySelectorAll(brandSelector)).map((input) => input.value)
+    const container = kind === "color" ? this.incomeColorsTarget : this.incomeOxidantsTarget
+    const allBrandsTarget = kind === "color" ? this.allColorBrandsTarget : this.allOxidantBrandsTarget
+    const productAttribute = kind === "color" ? "data-color-product-brand" : "data-oxidant-product-brand"
+    const hasBrands = selectedBrands.length > 0
 
-    container.classList.remove("hidden")
+    allBrandsTarget.classList.toggle("active", !hasBrands)
 
-    const attribute =
-      kind === "color"
-        ? "data-color-product-brand"
-        : "data-oxidant-product-brand"
+    container.classList.toggle("hidden", !hasBrands)
 
     container
-      .querySelectorAll(`[${attribute}]`)
+      .querySelectorAll(`[${productAttribute}]`)
       .forEach((chip) => {
-        const visible =
-          chip.getAttribute(attribute) === brand
+        const brand = chip.getAttribute(productAttribute)
+        const visible = selectedBrands.includes(brand)
 
         chip.classList.toggle("hidden", !visible)
-
-        if (!visible) {
-          const checkbox =
-            chip.querySelector(
-              'input[name="formula_product_ids[]"]'
-            )
-
-          if (checkbox) checkbox.checked = false
-
-          chip.classList.remove("active")
-        }
       })
 
-    const allTarget =
-      kind === "color"
-        ? this.allColorsTarget
-        : this.allOxidantsTarget
+    this.updateAllFormulaProducts(kind)
+  }
 
-    allTarget.classList.toggle(
-      "active",
-      !this.hasSelectedFormulaProducts(kind)
-    )
+  updateAllFormulaProducts(kind) {
+    const allTarget = kind === "color" ? this.allColorsTarget : this.allOxidantsTarget
+
+    allTarget.classList.toggle("active", !this.hasSelectedFormulaProducts(kind))
   }
 
   clearFormulaProducts(kind) {
     this.element
-      .querySelectorAll(
-        `input[name="formula_product_ids[]"][data-formula-kind="${kind}"]`
-      )
+      .querySelectorAll(`input[name="formula_product_ids[]"][data-formula-kind="${kind}"]`)
       .forEach((checkbox) => {
         checkbox.checked = false
         checkbox.closest(".filter-chip")?.classList.remove("active")
       })
   }
 
-  hasSelectedFormulaProducts(kind) {
-    return Boolean(
-      this.element.querySelector(
-        `input[name="formula_product_ids[]"][data-formula-kind="${kind}"]:checked`
-      )
-    )
-  }
-
-  clearBrandButtons(kind) {
-    const attribute =
-      kind === "color"
-        ? "[data-color-brand]"
-        : "[data-oxidant-brand]"
+  clearFormulaProductsForBrand(kind, brand) {
+    const attribute = kind === "color" ? "data-color-product-brand" : "data-oxidant-product-brand"
 
     this.element
-      .querySelectorAll(attribute)
-      .forEach((button) => {
-        button.classList.remove("active")
+      .querySelectorAll(`[${attribute}="${CSS.escape(brand)}"]`)
+      .forEach((chip) => {
+        const checkbox = chip.querySelector(`input[name="formula_product_ids[]"][data-formula-kind="${kind}"]`)
+
+        if (checkbox) checkbox.checked = false
+
+        chip.classList.remove("active")
       })
   }
 
-  restoreFormulaBrandSelections() {
-    this.restoreFormulaBrandSelection("color")
-    this.restoreFormulaBrandSelection("oxidant")
+  hasSelectedFormulaProducts(kind) {
+    return Boolean(
+      this.element.querySelector(`input[name="formula_product_ids[]"][data-formula-kind="${kind}"]:checked`)
+    )
   }
 
-  restoreFormulaBrandSelection(kind) {
-    const selected =
-      this.element.querySelector(
-        `input[name="formula_product_ids[]"][data-formula-kind="${kind}"]:checked`
-      )
+  restoreFormulaBrandSelections() {
+    this.restoreFormulaBrands("color")
+    this.restoreFormulaBrands("oxidant")
+  }
 
-    if (!selected) return
+  restoreFormulaBrands(kind) {
+    const selectedProducts =
+      this.element.querySelectorAll(`input[name="formula_product_ids[]"][data-formula-kind="${kind}"]:checked`)
 
-    const chip = selected.closest(
-      kind === "color"
-        ? "[data-color-product-brand]"
-        : "[data-oxidant-product-brand]"
-    )
+    selectedProducts.forEach((input) => {
+      const chip = input.closest(kind === "color" ? "[data-color-product-brand]" : "[data-oxidant-product-brand]")
 
-    if (!chip) return
+      if (!chip) return
 
-    const brand =
-      kind === "color"
-        ? chip.dataset.colorProductBrand
-        : chip.dataset.oxidantProductBrand
+      const brand = kind === "color" ? chip.dataset.colorProductBrand : chip.dataset.oxidantProductBrand
 
-    const brandButton =
-      this.element.querySelector(
-        kind === "color"
-          ? `[data-color-brand="${CSS.escape(brand)}"]`
-          : `[data-oxidant-brand="${CSS.escape(brand)}"]`
-      )
+      const brandCheckbox =
+        this.element.querySelector(kind === "color" ? `[data-color-brand="${CSS.escape(brand)}"]` : `[data-oxidant-brand="${CSS.escape(brand)}"]`)
 
-    if (brandButton) {
-      if (kind === "color" && this.hasAllColorBrandsTarget) {
-        this.allColorBrandsTarget.classList.remove("active")
-      }
+      if (!brandCheckbox) return
 
-      if (kind === "oxidant" && this.hasAllOxidantBrandsTarget) {
-        this.allOxidantBrandsTarget.classList.remove("active")
-      }
+      brandCheckbox.checked = true
 
-      brandButton.classList.add("active")
-      this.filterFormulaProducts(kind, brand)
+      brandCheckbox.closest(".filter-chip")?.classList.add("active")
+    })
+
+    this.updateFormulaBrandFilter(kind)
+  }
+
+  // CARE PRODUCTS
+
+  toggleCareBrand(event) {
+    this.toggleChip(event)
+
+    if (!event.currentTarget.checked) {
+      this.clearCareProductsForBrand(event.currentTarget.value)
     }
+
+    this.updateCareProductFilter()
+  }
+
+  selectAllCareBrands() {
+    this.element
+      .querySelectorAll("[data-care-brand]")
+      .forEach((checkbox) => {
+        checkbox.checked = false
+        checkbox.closest(".filter-chip")?.classList.remove("active")
+      })
+
+    this.clearCareProducts()
+    this.updateCareProductFilter()
+  }
+
+  toggleCareCategory(event) {
+    this.toggleChip(event)
+
+    if (!event.currentTarget.checked) {
+      this.clearCareProductsForCategory(event.currentTarget.value)
+    }
+
+    this.updateCareProductFilter()
+  }
+
+  selectAllCareCategories() {
+    this.element
+      .querySelectorAll("[data-care-category]")
+      .forEach((checkbox) => {
+        checkbox.checked = false
+        checkbox.closest(".filter-chip")?.classList.remove("active")
+      })
+
+    this.clearCareProducts()
+    this.updateCareProductFilter()
+  }
+
+  selectAllCareProducts() {
+    this.clearCareProducts()
+    this.updateAllCareProducts()
+  }
+
+  toggleCareProduct(event) {
+    this.toggleChip(event)
+    this.updateAllCareProducts()
+  }
+
+  updateCareProductFilter() {
+    if (!this.hasIncomeCareProductsTarget) return
+
+    const selectedBrands = Array.from(
+      this.element.querySelectorAll("[data-care-brand]:checked")
+    ).map((input) => input.value)
+
+    const selectedCategories = Array.from(
+      this.element.querySelectorAll("[data-care-category]:checked")
+    ).map((input) => input.value)
+
+    const hasBrands = selectedBrands.length > 0
+    const hasCategories = selectedCategories.length > 0
+    const hasFilter = hasBrands || hasCategories
+
+    if (this.hasAllCareBrandsTarget) {
+      this.allCareBrandsTarget.classList.toggle("active", !hasBrands)
+    }
+
+    if (this.hasAllCareCategoriesTarget) {
+      this.allCareCategoriesTarget.classList.toggle("active", !hasCategories)
+    }
+
+    this.incomeCareProductsTarget.classList.toggle("hidden",!hasFilter)
+
+    this.incomeCareProductsTarget
+      .querySelectorAll("[data-care-product-brand]")
+      .forEach((chip) => {
+        const brand = chip.dataset.careProductBrand
+        const category = chip.dataset.careProductCategory
+        const matchesBrand = !hasBrands || selectedBrands.includes(brand)
+        const matchesCategory = !hasCategories ||selectedCategories.includes(category)
+
+        chip.classList.toggle("hidden", !(matchesBrand && matchesCategory))
+      })
+
+    this.updateAllCareProducts()
+  }
+
+  clearCareProducts() {
+    this.element
+      .querySelectorAll('input[name="care_product_ids[]"]')
+      .forEach((checkbox) => {
+        checkbox.checked = false
+        checkbox.closest(".filter-chip")?.classList.remove("active")
+      })
+  }
+
+  clearCareProductsForBrand(brand) {
+    this.element
+      .querySelectorAll(`[data-care-product-brand="${CSS.escape(brand)}"]`)
+      .forEach((chip) => {
+        const checkbox = chip.querySelector('input[name="care_product_ids[]"]')
+
+        if (checkbox) checkbox.checked = false
+
+        chip.classList.remove("active")
+      })
+  }
+
+  clearCareProductsForCategory(category) {
+    this.element
+      .querySelectorAll(`[data-care-product-category="${CSS.escape(category)}"]`)
+      .forEach((chip) => {
+        const checkbox = chip.querySelector('input[name="care_product_ids[]"]')
+
+        if (checkbox) checkbox.checked = false
+
+        chip.classList.remove("active")
+      })
+  }
+
+  updateAllCareProducts() {
+    if (!this.hasAllCareProductsTarget) return
+
+    const selected = this.incomeCareProductsTarget.querySelector('input[name="care_product_ids[]"]:checked')
+
+    this.allCareProductsTarget.classList.toggle("active", !selected)
+  }
+
+  restoreCareProductSelections() {
+    const selectedProducts =
+      this.element.querySelectorAll('input[name="care_product_ids[]"]:checked')
+
+    selectedProducts.forEach((input) => {
+      const chip = input.closest("[data-care-product-brand]")
+
+      if (!chip) return
+
+      const brand = chip.dataset.careProductBrand
+      const category = chip.dataset.careProductCategory
+      const brandCheckbox = this.element.querySelector(`[data-care-brand="${CSS.escape(brand)}"]`)
+      const categoryCheckbox =this.element.querySelector(`[data-care-category="${CSS.escape(category)}"]`)
+
+      if (brandCheckbox) {
+        brandCheckbox.checked = true
+
+        brandCheckbox.closest(".filter-chip")?.classList.add("active")
+      }
+
+      if (categoryCheckbox) {
+        categoryCheckbox.checked = true
+
+        categoryCheckbox.closest(".filter-chip")?.classList.add("active")
+      }
+    })
+
+    this.updateCareProductFilter()
   }
 
   // PERIOD
@@ -427,8 +519,7 @@ export default class extends Controller {
 
         radio.checked = selected
 
-        radio.closest(".filter-chip")
-          ?.classList.toggle("active", selected)
+        radio.closest(".filter-chip")?.classList.toggle("active", selected)
       })
   }
 
@@ -438,8 +529,7 @@ export default class extends Controller {
       .forEach((radio) => {
         radio.checked = false
 
-        radio.closest(".filter-chip")
-          ?.classList.remove("active")
+        radio.closest(".filter-chip")?.classList.remove("active")
       })
   }
 

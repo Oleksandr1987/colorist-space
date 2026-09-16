@@ -1,47 +1,44 @@
 <div class="care-products-modal hidden"
-     data-care-products-target="modal"
-     data-action="click->care-products#cancelModal">
+     data-controller="care-products-modal"
+     data-care-products-modal-target="modal"
+     data-action="click->care-products-modal#cancelModal">
 
-  <div class="care-products-modal-content" data-action="click->care-products#stop">
+  <div class="care-products-modal-content" data-action="click->care-products-modal#stop">
+
     <div class="care-products-modal-header sheet-header">
-      <button type="button" class="sheet-back" data-action="click->care-products#cancelModal">
+      <button type="button" class="sheet-back" data-action="click->care-products-modal#cancelModal">
         <%= image_tag "close.png", class: "clear-icon" %>
       </button>
 
       <h3><%= t("care_products.title") %></h3>
 
-      <button type="button" class="sheet-save" data-action="click->care-products#saveModal">
+      <button type="button" class="sheet-save" data-action="click->care-products-modal#saveModal">
         <%= t("common.save").upcase %>
       </button>
     </div>
-
     <!-- SEARCH -->
     <div class="care-products-modal-search">
       <input type="text"
              class="form-input"
              placeholder="<%= t('care_products.search') %>"
-             data-care-products-target="search"
-             data-action="input->care-products#search">
+             data-care-products-modal-target="search"
+             data-action="input->care-products-modal#search">
     </div>
-
     <!-- CATEGORY FILTER -->
     <div class="care-products-filters">
-      <button type="button" class="filter-button active" data-category="" data-action="click->care-products#filterCategory">
+      <button type="button" class="filter-button active" data-category="" data-action="click->care-products-modal#filterCategory">
         <%= t("common.all") %>
       </button>
 
       <% CareProduct::CATEGORIES.each do |category| %>
-        <button type="button"
-                class="filter-button"
-                data-category="<%= category %>"
-                data-action="click->care-products#filterCategory">
+        <button type="button" class="filter-button" data-category="<%= category %>" data-action="click->care-products-modal#filterCategory">
           <%= category %>
         </button>
       <% end %>
     </div>
     <!-- PRODUCTS -->
     <div class="care-products-modal-list"
-         data-care-products-target="productsList">
+         data-care-products-modal-target="productsList">
     </div>
   </div>
 </div>

@@ -21,7 +21,6 @@
   <button type="button" class="analytics-floating-filter-button" data-action="click->analytics-filter#open"
           title="<%= t('analytics.period_filter.filters', default: 'Фільтри') %>"
           aria-label="<%= t('analytics.period_filter.filters', default: 'Фільтри') %>">
-
     <%= image_tag "filter.png", class: "analytics-filter-icon", width: 28, height: 28 %>
 
     <span>
@@ -45,23 +44,24 @@
 
   <div class="analytics-filter-modal hidden" data-analytics-filter-target="modal" data-action="click->analytics-filter#closeOnOverlay">
     <div class="analytics-filter-modal-content" data-action="click->analytics-filter#stopPropagation">
-      <div class="analytics-filter-modal-header">
-        <h2>
-          <%= t("analytics.period_filter.filters", default: "Фільтри") %>
-        </h2>
-
-        <button type="button" class="analytics-filter-close" data-action="click->analytics-filter#close">
-          <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
-        </button>
-      </div>
-
       <%= form_with url: balance_analytics_path, method: :get, local: true, class: "analytics-filter-form" do %>
-        <%= render "shared/analytics_period_fields", from_date: from_date, to_date: to_date %>
-
-        <div class="analytics-filter-actions">
-          <button type="submit" class="form-button primary">
-            <%= t("analytics.period_filter.apply") %>
+        <!-- HEADER -->
+        <div class="analytics-filter-modal-header">
+          <button type="button" class="analytics-filter-close" data-action="click->analytics-filter#close" aria-label="<%= t('common.close', default: 'Закрити') %>">
+            <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
           </button>
+
+          <h2>
+            <%= t("analytics.period_filter.filters", default: "Фільтри") %>
+          </h2>
+
+          <button type="submit" class="analytics-filter-save">
+            <%= t("analytics.period_filter.apply", default: "Застосувати").upcase %>
+          </button>
+        </div>
+        <!-- FILTER CONTENT -->
+        <div class="analytics-filter-form-content">
+          <%= render "shared/analytics_period_fields", from_date: from_date, to_date: to_date %>
         </div>
       <% end %>
     </div>

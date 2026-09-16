@@ -240,9 +240,7 @@ class Appointment < ApplicationRecord
     selected_services = user.services.where(id: ids).index_by(&:id)
 
     transaction do
-      appointment_services_relations
-        .where.not(service_id: ids)
-        .destroy_all
+      appointment_services_relations.where.not(service_id: ids).destroy_all
 
       ids.each do |service_id|
         service = selected_services[service_id]

@@ -1,5 +1,4 @@
-<div class="care-products-step"
-     data-controller="care-products">
+<div class="care-products-step" data-controller="care-products">
   <!-- HEADER -->
   <div class="care-products-header">
     <h3><%= t("care_products.title") %></h3>
@@ -7,12 +6,10 @@
       <%= image_tag "plus.png", class: "add-icon" %>
     </button>
   </div>
-
   <!-- LIST -->
   <div class="care-products-list"
        data-care-products-target="list">
   </div>
-
   <!-- TOTAL -->
   <div class="care-products-total">
     <span>
@@ -23,11 +20,5 @@
     </strong>
   </div>
 
-  <%= hidden_field_tag(
-      "service_note[care_products]",
-      @service_note.care_products.to_json,
-      data: { care_products_target: "input"}
-    ) %>
-
-  <%= render "service_notes/care_products_modal" %>
+  <%= hidden_field_tag("service_note[care_products]", @service_note.care_products.to_json, data: { care_products_target: "input"}) %>
 </div>

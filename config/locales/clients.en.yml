@@ -93,6 +93,7 @@ en:
         sensitive: "Sensitive"
 
   photos:
+    main_photo: "Main Photo"
     gallery: "FROM GALLERY"
     camera: "TAKE PHOTO"
 

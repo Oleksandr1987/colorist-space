@@ -139,7 +139,6 @@
 
 .slot-booked {
   background-color: #e12c38;
-  /* color: #c62828; */
   cursor: default;
 }
 
@@ -167,20 +166,6 @@
   color: #555;
 }
 
-/* Popover menu */
-.popover-menu {
-  position: absolute;
-  top: 24px;
-  right: 0;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 6px 0;
-  z-index: 1000;
-  min-width: 100px;
-}
-
 .day.has-appointment {
   position: relative;
 }
@@ -195,27 +180,6 @@
   height: 6px;
   background: #6200ea;
   border-radius: 50%;
-}
-
-
-/* Responsive adjustment */
-@media (max-width: 420px) {
-  .popover-menu {
-    right: auto;
-    left: -80px;
-  }
-}
-
-.popover-menu a {
-  display: block;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  color: #333;
-  text-decoration: none;
-}
-
-.popover-menu a:hover {
-  background-color: #f0f0f0;
 }
 
 .hidden {

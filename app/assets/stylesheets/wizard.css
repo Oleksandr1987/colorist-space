@@ -9,7 +9,9 @@
 
 /* FORM CONTROLS THE WIZARD LAYOUT */
 .wizard-screen > form {
-  flex: 1;
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -18,10 +20,16 @@
 
 /* CONTENT */
 .wizard-content {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
   min-height: 0;
+  box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
   padding: 16px;
 }
@@ -29,17 +37,17 @@
 /* STEPS ANIMATION */
 .wizard-step {
   opacity: 0;
-  transform: translateX(20px);
-  transition: all 0.25s ease;
+  transition: opacity 0.25s ease;
   position: absolute;
   inset: 0;
-  width: auto;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   pointer-events: none;
 }
 
 .wizard-step.active {
   opacity: 1;
-  transform: translateX(0);
   position: relative;
   pointer-events: auto;
 }
@@ -73,7 +81,7 @@
   height: 34px;
   object-fit: contain;
   filter: grayscale(1) brightness(0.35);
-  transition: filter .25s ease;
+  transition: filter 0.25s ease;
 }
 
 .wiz-item.active img {
@@ -103,12 +111,13 @@
   z-index: 20;
   padding: 18px 16px;
   display: grid;
-  grid-template-columns: 40px 1fr 60px;
+  grid-template-columns: 40px 1fr auto;
   align-items: center;
+  gap: 8px;
 }
 
 /* TOP BUTTONS */
-.wizard-top button {
+.wizard-top button:not(.appointment-save-button) {
   background: none;
   border: none;
   font-size: 18px;
@@ -121,12 +130,6 @@
   font-weight: 700;
   font-family: serif;
   letter-spacing: 1px;
-}
-
-/* SAVE */
-.wizard-top button[type="submit"] {
-  text-align: right;
-  font-weight: 600;
 }
 
 /* BOTTOM */
@@ -165,99 +168,337 @@
   display: none;
 }
 
-/* --------------------------
-   Wizard Modal
---------------------------- */
+/*  WIZARD / SERVICE SELECTOR MODAL */
 .wizard-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .45);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 20px;
   z-index: 10000;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  background: #f8f6f5;
+  overflow: hidden;
 }
 
 .wizard-modal.hidden {
   display: none;
 }
 
+/* MODAL CONTENT */
 .wizard-modal-content {
   width: 100%;
-  max-width: 480px;
-  height: min(720px, calc(100dvh - 40px));
-  max-height: calc(100dvh - 40px);
-  background: #fff;
-  border-radius: 8px;
+  max-width: 600px;
+  height: 100dvh;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  background: #f8f6f5;
+  border-radius: 0;
   overflow: hidden;
 }
 
-.modal-header {
+/* HEADER */
+
+.wizard-modal .modal-header {
   flex-shrink: 0;
-  padding: 18px 20px;
-  border-bottom: 1px solid #ececec;
-  margin-bottom: 0;
-}
-
-.modal-header h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 16px;
+  background: #f8f6f5;
+  border-bottom: 1px solid #eee;
   margin: 0;
-  font-size: 1.35rem;
+  z-index: 2;
 }
 
+.wizard-modal .appointment-header-left {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wizard-modal .modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* CLOSE BUTTON */
+.wizard-modal .back-link {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.wizard-modal .back-link .wiz-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* SAVE BUTTON */
+.wizard-modal .appointment-save-button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  background: #5424b5;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.wizard-modal .appointment-save-button:hover {
+  background: #481e9f;
+}
+
+.wizard-modal .appointment-save-button:active {
+  transform: scale(0.97);
+}
+
+/* SEARCH */
 .wizard-modal-search {
   flex-shrink: 0;
-  padding: 16px 20px 10px;
+  padding: 16px 16px 10px;
+  background: #f8f6f5;
 }
 
+.wizard-modal-search .form-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.wizard-modal-search .form-input:focus {
+  border-color: #5424b5;
+  box-shadow:
+    0 0 0 2px rgba(84, 36, 181, 0.08);
+}
+
+/* FILTERS */
 .wizard-modal-filters {
   flex-shrink: 0;
+  padding: 6px 16px 14px;
+  background: #f8f6f5;
 }
 
-.wizard-modal-list {
-  flex: 1 1 auto;
-  min-height: 0;
+.wizard-modal-filters .filter-title {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
 
-  padding: 0 20px 20px;
-
-  overflow-y: auto;
-  overflow-x: hidden;
-
+/* FILTER CHIPS */
+.wizard-modal-filters .filter-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
 
+.wizard-modal-filters .filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.wizard-modal-filters .filter-chip {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.wizard-modal-filters .filter-chip.active {
+  background: #5424b5;
+  border-color: #5424b5;
+  color: #fff;
+}
+
+/* SERVICES LIST */
+.wizard-modal-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0 16px 28px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* SERVICE ROW */
 .wizard-check-row {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 0;
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid #e8e8e8;
+  box-sizing: border-box;
   cursor: pointer;
 }
 
-.wizard-check-row input {
-  width: 18px;
-  height: 18px;
+/* CHECKBOX */
+.wizard-check-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
+  margin: 0;
+  accent-color: #5424b5;
+  cursor: pointer;
 }
 
+/* SERVICE NAME */
 .wizard-check-title {
   flex: 1;
+  min-width: 0;
   font-size: 16px;
+  font-weight: 500;
+  color: #1f1f1f;
 }
 
+/* PRICE */
 .wizard-check-price {
+  flex-shrink: 0;
+  font-size: 15px;
   font-weight: 600;
+  color: #1f1f1f;
   white-space: nowrap;
 }
 
+/* MODAL FOOTER */
 .wizard-modal-footer {
   flex-shrink: 0;
   padding: 16px 20px 24px;
   border-top: 1px solid #ececec;
-  background: white;
+  background: #f8f6f5;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  html:has(.wizard-screen),
+  body:has(.wizard-screen) {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body:has(.wizard-screen) main {
+    width: 100%;
+    max-width: none;
+    height: calc(100dvh - 60px);
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  body:has(.wizard-screen) .wizard-screen {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* SERVICE SELECTOR MODAL */
+  .wizard-modal-content {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+  }
+
+  .wizard-modal .modal-header {
+    padding: 16px 14px;
+  }
+
+  .wizard-modal .modal-header h2 {
+    font-size: 20px;
+  }
+
+  .wizard-modal-search {
+    padding:
+      14px
+      14px
+      8px;
+  }
+
+  .wizard-modal-filters {
+    padding:
+      6px
+      14px
+      12px;
+  }
+
+  .wizard-modal-list {
+    padding:
+      0
+      14px
+      28px;
+  }
+
+  .wizard-check-row {
+    padding: 13px 0;
+  }
+
+  .wizard-check-title {
+    font-size: 15px;
+  }
+
+  .wizard-check-price {
+    font-size: 14px;
+  }
 }

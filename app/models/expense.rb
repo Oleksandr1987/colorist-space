@@ -19,13 +19,9 @@ class Expense < ApplicationRecord
 
   scope :ordered_by_date, -> { order(spent_on: :desc) }
 
-  scope :for_user_between, ->(user, from, to) {
-    where(user: user, spent_on: from..to)
-  }
+  scope :for_user_between, ->(user, from, to) { where(user: user, spent_on: from..to) }
 
-  scope :apply_category_filter, ->(categories) {
-    categories.present? ? where(category: categories) : all
-  }
+  scope :apply_category_filter, ->(categories) { categories.present? ? where(category: categories) : all }
 
   class << self
     def monthly_expenses(scope)

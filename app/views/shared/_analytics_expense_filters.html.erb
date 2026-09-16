@@ -1,6 +1,11 @@
-<% filters_applied = params[:all_time] == "1" || params[:from].present? || params[:to].present? || @category_filters.present? %>
-<% from_date = @from %>
-<% to_date = @to %>
+<%
+  category_filters = Array(@category_filters)
+
+  filters_applied = params[:all_time] == "1" || params[:from].present? || params[:to].present? || @category_filters.present?
+
+  from_date = @from
+  to_date = @to
+%>
 
 <div class="analytics-filter" data-controller="analytics-filter">
   <% if filters_applied %>
@@ -11,6 +16,7 @@
     <% end %>
   <% end %>
 
+  <!-- FILTER BUTTON -->
   <button type="button" class="analytics-floating-filter-button" data-action="click->analytics-filter#open"
           title="<%= t('analytics.period_filter.filters', default: 'Фільтри') %>"
           aria-label="<%= t('analytics.period_filter.filters', default: 'Фільтри') %>">
@@ -21,18 +27,19 @@
     </span>
   </button>
 
+  <!-- ACTIVE FILTERS -->
   <% if filters_applied %>
     <div class="analytics-active-filters">
       <span class="analytics-active-filter">
         <% if @all_time %>
-          <%= t( "analytics.period_filter.presets.all_time", default: "За увесь час") %>
+          <%= t("analytics.period_filter.presets.all_time", default: "За увесь час") %>
         <% else %>
           <%= @from.strftime("%d.%m.%Y") %>
           –
           <%= @to.strftime("%d.%m.%Y") %>
         <% end %>
       </span>
-      <% @category_filters.each do |category| %>
+      <% category_filters.each do |category| %>
         <span class="analytics-active-filter">
           <%= t("analytics.expenses.categories.#{category}") %>
         </span>
@@ -40,44 +47,48 @@
     </div>
   <% end %>
 
+  <!-- FILTER MODAL -->
   <div class="analytics-filter-modal hidden" data-analytics-filter-target="modal" data-action="click->analytics-filter#closeOnOverlay">
     <div class="analytics-filter-modal-content" data-action="click->analytics-filter#stopPropagation">
-      <div class="analytics-filter-modal-header">
-        <h2>
-          <%= t("analytics.period_filter.filters", default: "Фільтри") %>
-        </h2>
-
-        <button type="button" class="analytics-filter-close" data-action="click->analytics-filter#close">
-          <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
-        </button>
-      </div>
-
       <%= form_with url: expenses_analytics_path, method: :get, local: true, class: "analytics-filter-form" do %>
-          <%= render "shared/analytics_period_fields", from_date: from_date, to_date: to_date %>
-        <!-- CATEGORIES -->
-        <div class="filter-section">
-          <div class="filter-title">
-            <%= t("analytics.period_filter.categories.category") %>
-          </div>
-
-          <div class="filter-chips">
-            <% Expense::CATEGORIES.each do |category| %>
-              <% selected = @category_filters.include?(category) %>
-
-              <label class="filter-chip <%= 'active' if selected %>">
-                <%= check_box_tag "categories[]", category, selected, data: { action: "change->analytics-filter#toggleChip" } %>
-                <span>
-                  <%= t("analytics.expenses.categories.#{category}") %>
-                </span>
-              </label>
-            <% end %>
-          </div>
-        </div>
-
-        <div class="analytics-filter-actions">
-          <button type="submit" class="form-button primary">
-            <%= t("analytics.period_filter.apply") %>
+        <!-- HEADER -->
+        <div class="analytics-filter-modal-header">
+          <!-- CLOSE -->
+          <button type="button" class="analytics-filter-close" data-action="click->analytics-filter#close"
+                  aria-label="<%= t('common.close', default: 'Закрити') %>">
+            <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
           </button>
+          <!-- TITLE -->
+          <h2>
+            <%= t("analytics.period_filter.filters", default: "Фільтри") %>
+          </h2>
+          <!-- APPLY -->
+          <button type="submit" class="analytics-filter-save">
+            <%= t("analytics.period_filter.apply", default: "Застосувати").upcase %>
+          </button>
+        </div>
+        <!-- SCROLLABLE CONTENT -->
+        <div class="analytics-filter-form-content">
+          <!-- PERIOD -->
+          <%= render "shared/analytics_period_fields", from_date: from_date, to_date: to_date %>
+          <!-- CATEGORIES -->
+          <div class="filter-section">
+            <div class="filter-title">
+              <%= t("analytics.period_filter.categories.category") %>
+            </div>
+
+            <div class="filter-chips">
+              <% Expense::CATEGORIES.each do |category| %>
+                <% selected = category_filters.include?(category) %>
+                <label class="filter-chip <%= 'active' if selected %>">
+                  <%= check_box_tag("categories[]", category, selected, data: { action: "change->analytics-filter#toggleChip" }) %>
+                  <span>
+                    <%= t("analytics.expenses.categories.#{category}") %>
+                  </span>
+                </label>
+              <% end %>
+            </div>
+          </div>
         </div>
       <% end %>
     </div>

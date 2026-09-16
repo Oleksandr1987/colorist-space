@@ -27,8 +27,7 @@
   </div>
 
   <!-- Services -->
-  <div class="services-list scrollable-service-list"
-       data-service-target="list">
+  <div class="services-list scrollable-service-list" data-service-target="list">
     <% @services.each do |service| %>
       <div class="service-item" data-name="<%= service.subtype.downcase %>">
         <div class="service-info">
@@ -44,13 +43,9 @@
             <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24, alt: t("services.list.edit") %>
           <% end %>
 
-          <%= button_to service_path(service),
-                method: :delete,
-                class: "icon-button delete-button",
+          <%= button_to service_path(service), method: :delete, class: "icon-button delete-button",
                 form: {
-                  data: {
-                    turbo_confirm: t("services.list.confirm_delete")
-                  }
+                  data: { turbo_confirm: t("services.list.confirm_delete") }
                 },
                 aria: { label: t("services.list.delete") } do %>
             <%= image_tag "delete.png", class: "wiz-icon",  width: 24, height: 24, alt: t("services.list.delete") %>

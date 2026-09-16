@@ -1,6 +1,7 @@
 <div data-controller="photo"
      data-photo-mode-value="inline"
-     data-photo-photos-value="<%= @service_note.photos.map { |p| url_for(p) }.to_json %>"
+     data-photo-photos-value="<%= @service_note.ordered_photos.map { |photo| { id: photo.id, url: url_for(photo), main: @service_note.main_photo_id == photo.id } }.to_json %>"
+     data-photo-main-photo-url-value="<%= main_photo_client_service_note_path(@client, @service_note) %>"
      data-photo-index-value="0"
      class="note-viewer">
 
@@ -14,7 +15,25 @@
     </button>
 
     <% if @service_note.photos.attached? %>
-      <%= image_tag optimized(@service_note.photos.first), class: "note-photo", data: { photo_target: "photo" } %>
+      <button type="button"
+        class="photo-main-btn"
+        data-photo-target="mainButton"
+        data-action="click->photo#setMainPhoto"
+        aria-label="<%= t("photos.main_photo") %>">
+
+        <svg
+          class="photo-heart-icon"
+          data-photo-target="heart"
+          viewBox="0 0 24 24"
+          aria-hidden="true">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/>
+        </svg>
+
+      </button>
+    <% end %>
+
+    <% if @service_note.photos.attached? %>
+      <%= image_tag optimized(@service_note.display_photo), class: "note-photo", data: { photo_target: "photo" } %>
     <% else %>
       <div class="note-no-photo">
         <%= link_to edit_client_service_note_path(@client, @service_note, step: "photos"), class: "add-photo-button" do %>
@@ -36,8 +55,11 @@
   <div class="note-header-modern">
     <div>
       <div class="note-client">
-        <strong><%= @client.full_name %></strong>
+        <%= link_to client_path(@client), class: "note-client-link" do %>
+          <strong><%= @client.full_name %></strong>
+        <% end %>
       </div>
+
       <div class="note-date">
         <%= l(@service_note.appointment.appointment_date, format: :day_month) %>
       </div>
@@ -85,12 +107,8 @@
 
     <!-- HAIRCUT -->
     <% if haircut_steps.any? %>
-      <div class="note-section"
-          data-controller="collapse">
-
-        <div class="note-section-title note-step-pill"
-            data-action="click->collapse#toggle">
-
+      <div class="note-section" data-controller="collapse">
+        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
           <%= image_tag "brush.png", class: "wiz-icon", width: 34, height: 34 %>
 
           <span>
@@ -107,16 +125,10 @@
           </svg>
         </div>
 
-        <div class="note-section-content hidden"
-            data-collapse-target="content">
-
+        <div class="note-section-content hidden" data-collapse-target="content">
           <% haircut_steps.each_with_index do |step, index| %>
-            <div data-controller="collapse"
-                class="note-step">
-
-              <div class="note-step-pill"
-                  data-action="click->collapse#toggle">
-
+            <div data-controller="collapse" class="note-step">
+              <div class="note-step-pill" data-action="click->collapse#toggle">
                 <span>
                   STEP <%= index + 1 %>
                 </span>
@@ -131,15 +143,12 @@
                 </svg>
               </div>
 
-              <div class="note-step-content hidden"
-                  data-collapse-target="content">
+              <div class="note-step-content hidden" data-collapse-target="content">
                 <%= render "service_notes/haircut_preview",
                     step: step %>
               </div>
-
             </div>
           <% end %>
-
         </div>
       </div>
     <% end %>
@@ -147,12 +156,8 @@
 
     <!-- FORMULA -->
     <% if formula_steps.any? %>
-      <div class="note-section"
-          data-controller="collapse">
-
-        <div class="note-section-title note-step-pill"
-            data-action="click->collapse#toggle">
-
+      <div class="note-section" data-controller="collapse">
+        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
           <%= image_tag "formula.png", class: "wiz-icon", width: 34, height: 34 %>
 
           <span>
@@ -169,16 +174,10 @@
           </svg>
         </div>
 
-        <div class="note-section-content hidden"
-            data-collapse-target="content">
-
+        <div class="note-section-content hidden" data-collapse-target="content">
           <% formula_steps.each_with_index do |step, index| %>
-            <div data-controller="collapse"
-                class="note-step">
-
-              <div class="note-step-pill"
-                  data-action="click->collapse#toggle">
-
+            <div data-controller="collapse" class="note-step">
+              <div class="note-step-pill" data-action="click->collapse#toggle">
                 <span>
                   STEP <%= index + 1 %>
                 </span>
@@ -193,27 +192,20 @@
                 </svg>
               </div>
 
-              <div class="note-step-content hidden"
-                  data-collapse-target="content">
+              <div class="note-step-content hidden" data-collapse-target="content">
                 <%= render "service_notes/formula_preview",
                     step: step %>
               </div>
-
             </div>
           <% end %>
-
         </div>
       </div>
     <% end %>
 
     <!-- SERVICES -->
     <% if @service_note.services.any? %>
-      <div class="note-section"
-           data-controller="collapse">
-
-        <div class="note-section-title note-step-pill"
-             data-action="click->collapse#toggle">
-
+      <div class="note-section" data-controller="collapse">
+        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
           <%= image_tag "services.png", class: "wiz-icon", width: 34, height: 34 %>
 
           <span>
@@ -230,71 +222,52 @@
           </svg>
         </div>
 
-        <div class="note-section-content hidden"
-             data-collapse-target="content">
-
+        <div class="note-section-content hidden" data-collapse-target="content">
           <% @service_note.services.each do |service| %>
             <div class="note-row">
               <%= service.name %>
             </div>
           <% end %>
-
         </div>
       </div>
     <% end %>
 
 
     <!-- CARE PRODUCTS -->
-    <%= render(
-      "service_notes/care_products_preview",
-      care_products: @service_note.care_products
-    ) %>
-
+    <%= render("service_notes/care_products_preview", care_products: @service_note.care_products) %>
 
     <!-- NOTES -->
     <% if @service_note.notes.present? %>
-      <div class="note-section"
-           data-controller="collapse">
-
-        <div class="note-section-title note-step-pill"
-             data-action="click->collapse#toggle">
-
-          <%= image_tag "notes.png", class: "wiz-icon", width: 34,height: 34 %>
+      <div class="note-section note-section-notes" data-controller="collapse">
+        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
+          <%= image_tag "notes.png", class: "wiz-icon", width: 34, height: 34 %>
 
           <span>
             <strong><%= t("appointments.form.notes") %></strong>
           </span>
 
           <svg class="chevron"
-               xmlns="http://www.w3.org/2000/svg"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2">
             <path d="m6 9 6 6 6-6"/>
           </svg>
         </div>
 
-        <div class="note-section-content hidden"
-             data-collapse-target="content">
-
+        <div class="note-section-content note-notes-content hidden" data-collapse-target="content">
           <div class="note-value">
-            <%= @service_note.notes %>
+            <%= simple_format(@service_note.notes) %>
           </div>
-
         </div>
       </div>
     <% end %>
 
-
     <!-- FINAL PRICE -->
     <% if @service_note.final_price.to_f.positive? %>
-      <div class="note-section"
-          data-controller="collapse">
-
-        <div class="note-section-title note-step-pill"
-            data-action="click->collapse#toggle">
-
+      <div class="note-section" data-controller="collapse">
+        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
           <%= image_tag "price.png", class: "wiz-icon", width: 34, height: 34 %>
 
           <span>
@@ -311,29 +284,19 @@
           </svg>
         </div>
 
-        <div class="note-section-content hidden"
-            data-collapse-target="content">
-
+        <div class="note-section-content hidden" data-collapse-target="content">
           <div class="note-price-row">
             <span><%= t("services.title") %></span>
 
             <strong>
-              <%= number_with_precision(
-                    services_price,
-                    precision: 2,
-                    strip_insignificant_zeros: true
-                  ) %> ₴
+              <%= number_with_precision(services_price, precision: 2, strip_insignificant_zeros: true) %> ₴
             </strong>
           </div>
 
           <div class="note-price-row">
             <span><%= t("formula.title") %></span>
             <strong>
-              <%= number_with_precision(
-                    formula_price,
-                    precision: 2,
-                    strip_insignificant_zeros: true
-                  ) %> ₴
+              <%= number_with_precision(formula_price, precision: 2, strip_insignificant_zeros: true) %> ₴
             </strong>
           </div>
 
@@ -341,11 +304,7 @@
             <span><%= t("care_products.title") %></span>
 
             <strong>
-              <%= number_with_precision(
-                    care_products_price,
-                    precision: 2,
-                    strip_insignificant_zeros: true
-                  ) %> ₴
+              <%= number_with_precision(care_products_price, precision: 2, strip_insignificant_zeros: true) %> ₴
             </strong>
           </div>
 
@@ -353,17 +312,11 @@
             <span><%= t("services.price.total") %></span>
 
             <strong>
-              <%= number_with_precision(
-                    @service_note.final_price,
-                    precision: 2,
-                    strip_insignificant_zeros: true
-                  ) %> ₴
+              <%= number_with_precision(@service_note.final_price, precision: 2, strip_insignificant_zeros: true) %> ₴
             </strong>
           </div>
-
         </div>
       </div>
     <% end %>
-
   </div>
 </div>
