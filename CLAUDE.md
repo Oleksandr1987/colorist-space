@@ -79,3 +79,4 @@ Prioritize by severity (data leaks/corruption > incorrect behavior > performance
 - Minor naming preferences
 - Unrelated pre-existing issues outside the diff
 - Speculative problems without a concrete failure scenario
+<!-- Claude Code review permissions test 2 -->
