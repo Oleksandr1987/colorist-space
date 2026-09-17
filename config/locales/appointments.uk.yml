@@ -90,6 +90,9 @@ uk:
       services: "Сервіси"
       categories: "Категорії"
 
+    slots:
+      no_free_slots: "Немає вільного часу"
+
   common:
     save: "Зберегти"
     edit: "Редагувати"

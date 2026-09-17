@@ -44,22 +44,24 @@ export default class extends Controller {
   toggleFilter(event) {
     const button = event.currentTarget
     const param = button.dataset.param
+    const queryParam = `${param}[]`
     const value = button.dataset.value
     const url = new URL(window.location)
-    const values = url.searchParams.getAll(param)
+
+    const values = [...url.searchParams.getAll(queryParam), ...url.searchParams.getAll(param)]
+
+    url.searchParams.delete(param)
+    url.searchParams.delete(queryParam)
 
     if (values.includes(value)) {
-      url.searchParams.delete(param)
-
-      values
-        .filter(v => v !== value)
-        .forEach(v => url.searchParams.append(param, v))
+      values.filter(v => v !== value).forEach(v => url.searchParams.append(queryParam, v))
     } else {
-      url.searchParams.append(param, value)
+      values.concat(value).forEach(v => url.searchParams.append(queryParam, v))
     }
 
     if (param === "categories") {
       url.searchParams.delete("service_ids")
+      url.searchParams.delete("service_ids[]")
     }
 
     window.location = url
@@ -68,12 +70,15 @@ export default class extends Controller {
   clearFilter(event) {
     const button = event.currentTarget
     const param = button.dataset.param
+    const queryParam = `${param}[]`
     const url = new URL(window.location)
 
     url.searchParams.delete(param)
+    url.searchParams.delete(queryParam)
 
     if (param === "categories") {
       url.searchParams.delete("service_ids")
+      url.searchParams.delete("service_ids[]")
     }
 
     window.location = url

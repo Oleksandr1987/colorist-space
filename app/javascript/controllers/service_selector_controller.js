@@ -14,7 +14,8 @@ export default class extends Controller {
     inputName: String,
     checkboxName: String,
     placeholderClass: String,
-    closeIcon: String
+    closeIcon: String,
+    prices: Object
   }
 
   connect() {
@@ -36,11 +37,13 @@ export default class extends Controller {
           if (existingIds.includes(id)) {
             checkbox.checked = true
 
+            const snapshotPrice = this.hasPricesValue ? this.pricesValue[String(id)] : undefined
+
             this.selected.push({
               id: checkbox.value,
               name: checkbox.dataset.name,
               subtype: checkbox.dataset.subtype,
-              price: checkbox.dataset.price,
+              price: snapshotPrice ?? checkbox.dataset.price,
               serviceType: checkbox.dataset.serviceType
             })
           }

@@ -13,7 +13,8 @@ export default class extends Controller {
   ]
 
   static values = {
-    freeSlotsUrl: String
+    freeSlotsUrl: String,
+    noFreeSlots: String
   }
 
   connect() {
@@ -92,7 +93,7 @@ export default class extends Controller {
       const empty = document.createElement("div")
 
       empty.className = "appointment-slots-empty"
-      empty.textContent = "Немає вільного часу"
+      empty.textContent = this.noFreeSlotsValue
 
       this.slotsListTarget.appendChild(empty)
       return

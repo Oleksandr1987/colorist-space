@@ -161,6 +161,37 @@ RSpec.describe "Appointments" do
 
       expect(response).to have_http_status(:unprocessable_content)
     end
+
+    it "assigns a new client when the name matches but the phone is different" do
+      appointment = create(
+        :appointment,
+        user: user,
+        client: client,
+        main_service: service
+      )
+
+      existing_client_id = client.id
+      existing_phone = client.phone
+
+      patch appointment_path(appointment), params: {
+        appointment: {
+          client_name: client.full_name,
+          phone: "+380930000099"
+        }
+      }
+
+      expect(response).to redirect_to(
+        appointment_url(appointment, locale: I18n.locale)
+      )
+
+      appointment.reload
+
+      expect(appointment.client_id).not_to eq(existing_client_id)
+      expect(appointment.client.full_name).to eq(client.full_name)
+      expect(appointment.client.phone).to eq("+380930000099")
+
+      expect(client.reload.phone).to eq(existing_phone)
+    end
   end
 
   describe "DELETE /appointments/:id" do
