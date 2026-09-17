@@ -42,11 +42,24 @@ jobs:
             /code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
 
             IMPORTANT: Complete the entire code review before ending this turn.
-            Do not finish while any review subagents are still running.
-            Wait for all spawned review subagents to complete and process their results.
-            Run review subagents synchronously/foreground when possible.
-            If subagent delegation cannot complete, perform the remaining review directly.
-          claude_args: '--allowedTools "Skill,mcp__github_inline_comment__create_inline_comment"'
+
+            Do not launch any Agent with run_in_background=true.
+            All agents and subagents, including the 4 parallel review agents in step 4,
+            must use run_in_background=false.
+
+            "In parallel" in the code-review skill does not mean background execution.
+            Run those review agents in the foreground, one at a time if necessary.
+
+            Wait for every spawned agent to return its result before continuing.
+            Do not end the turn with agents still running.
+            Do not rely on wakeups, background completion notifications, or scheduled
+            continuation to finish the review.
+
+            Complete validation, filtering, summary, and GitHub comments in this same
+            invocation.
+
+            If agent delegation cannot complete synchronously, perform the remaining
+            review directly before ending the turn.'
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
           show_full_output: true
