@@ -39,27 +39,71 @@ jobs:
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: |
-            /code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+            Review pull request ${{ github.repository }}/pull/${{ github.event.pull_request.number }}.
 
-            IMPORTANT: Complete the entire code review before ending this turn.
+            This is an automated review triggered for the current PR HEAD commit:
+            ${{ github.event.pull_request.head.sha }}.
 
-            Do not launch any Agent with run_in_background=true.
-            All agents and subagents, including the 4 parallel review agents in step 4,
-            must use run_in_background=false.
+            IMPORTANT:
+            Always perform a fresh review of the current PR state, even if Claude has
+            already reviewed or commented on this pull request.
 
-            "In parallel" in the code-review skill does not mean background execution.
-            Run those review agents in the foreground, one at a time if necessary.
+            Previous Claude comments must NOT cause the review to stop or be skipped.
+            They are historical context only. Review the code as it exists at the
+            current HEAD commit.
 
-            Wait for every spawned agent to return its result before continuing.
-            Do not end the turn with agents still running.
-            Do not rely on wakeups, background completion notifications, or scheduled
-            continuation to finish the review.
+            Review the diff between the PR base branch and the current PR HEAD.
 
-            Complete validation, filtering, summary, and GitHub comments in this same
-            invocation.
+            Read and follow the repository's CLAUDE.md instructions.
 
-            If agent delegation cannot complete synchronously, perform the remaining
-            review directly before ending the turn.'
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
+            Focus on high-confidence, actionable issues introduced by this PR:
+            - real bugs and regressions
+            - CLAUDE.md violations
+            - multi-user isolation and missing current_user scoping
+            - Rails / ActiveRecord correctness
+            - database constraints, callbacks, nested attributes, and indexes
+            - N+1 queries and meaningful performance regressions
+            - Turbo / Stimulus lifecycle issues and race conditions
+            - Active Storage ownership, security, and orphaned attachments
+            - authentication and authorization issues
+            - Rails security issues
+            - I18n regressions in both Ukrainian and English
+            - background job idempotency where applicable
+            - missing regression tests for bug fixes
+
+            Do not report:
+            - pre-existing issues unrelated to this PR
+            - cosmetic or stylistic preferences
+            - minor refactoring suggestions
+            - issues a normal linter would catch
+            - speculative problems without a concrete failure scenario
+            - duplicate findings for the same root cause
+
+            For every potential issue, verify it against the actual code and surrounding
+            context before reporting it. Prefer a small number of high-confidence
+            findings over speculative feedback.
+
+            Do not launch background agents.
+            Do not use run_in_background=true.
+            Complete the entire review in this invocation.
+
+            If you find issues, post one inline GitHub comment per unique issue using
+            mcp__github_inline_comment__create_inline_comment with confirmed=true.
+
+            Each inline comment should explain:
+            - what is wrong
+            - the concrete failure or regression it can cause
+            - how it should be fixed
+
+            If no issues are found, post a PR comment with:
+
+            ## Code review — ${{ github.event.pull_request.head.sha }}
+
+            No issues found. Checked for bugs, regressions, test coverage, and
+            CLAUDE.md compliance.
+
+            Do not finish without completing the review of the current HEAD commit.
+
+          claude_args: '--allowedTools "Read,Glob,Grep,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git log:*),Bash(git blame:*),mcp__github_inline_comment__create_inline_comment"'
+
           show_full_output: true
