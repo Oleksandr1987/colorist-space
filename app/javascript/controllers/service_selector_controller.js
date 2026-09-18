@@ -132,11 +132,15 @@ export default class extends Controller {
 
     const container = this.hiddenInputTarget.parentElement
 
-    container
-      .querySelectorAll(
-        `input[name="${this.inputNameValue}"]`
-      )
-      .forEach(input => input.remove())
+    container.querySelectorAll(`input[name="${this.inputNameValue}"]`).forEach(input => input.remove())
+
+    const emptyInput = document.createElement("input")
+
+    emptyInput.type = "hidden"
+    emptyInput.name = this.inputNameValue
+    emptyInput.value = ""
+
+    container.appendChild(emptyInput)
 
     this.selected.forEach(service => {
       const input = document.createElement("input")

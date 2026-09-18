@@ -97,6 +97,7 @@ RSpec.describe "Users::Sessions" do
       }
 
       expect(user.reload.remember_created_at).to be_present
+      expect(response.cookies["remember_user_token"]).to be_present
     end
 
     it "does not remember the user when remember_me is not checked" do
@@ -105,6 +106,7 @@ RSpec.describe "Users::Sessions" do
       }
 
       expect(user.reload.remember_created_at).to be_nil
+      expect(response.cookies["remember_user_token"]).to be_blank
     end
   end
 

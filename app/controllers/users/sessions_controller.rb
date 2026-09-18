@@ -22,7 +22,7 @@ class Users::SessionsController < Devise::SessionsController
     )
 
     if user&.valid_password?(sign_in_params[:password])
-      user.remember_me! if sign_in_params[:remember_me] == "1"
+      user.remember_me = sign_in_params[:remember_me] == "1"
       sign_in(resource_name, user)
       redirect_to after_sign_in_path_for(user)
     else
