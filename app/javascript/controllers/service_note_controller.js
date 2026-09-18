@@ -25,14 +25,12 @@ export default class extends Controller {
     this.services = []
 
     this.handleServicesChanged = (event) => {
-      this.services = event.detail?.services || []
-
-      this.recalculatePrice()
-      this.renderServices()
-      this.calculateFinal()
+      this.updateServices(event.detail?.services || [])
     }
 
     window.addEventListener("services:changed", this.handleServicesChanged)
+
+    this.loadInitialServices()
 
     this.handleFormulaChanged = () => {
       this.calculateFinal()
@@ -57,6 +55,26 @@ export default class extends Controller {
     window.removeEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
     window.removeEventListener("formula:changed", this.handleFormulaChanged)
     window.removeEventListener("care-products:changed", this.handleCareProductsChanged)
+  }
+
+  updateServices(services) {
+    this.services = services
+
+    this.recalculatePrice()
+    this.renderServices()
+    this.calculateFinal()
+  }
+
+  loadInitialServices() {
+    const selectorElement = this.element.closest('[data-controller~="service-selector"]')
+
+    if (!selectorElement) return
+
+    const selectorController = this.application.getControllerForElementAndIdentifier(selectorElement, "service-selector")
+
+    if (!selectorController) return
+
+    this.updateServices(selectorController.selected || [])
   }
 
   showTab(event) {

@@ -202,33 +202,17 @@ RSpec.describe Client do
       expect(result).to be_nil
     end
 
-    it "matches an existing client by name when no phone is given" do
-      existing_client = create(
-        :client,
-        user: user,
-        first_name: "Alex",
-        last_name: "Smith"
-      )
+    it "creates a new client when the name matches but the phone is different" do
+      existing_client = create(:client, user: user, first_name: "Alex", last_name: "Smith", phone: "+380930000011")
 
-      result = described_class.resolve_for_appointment(
-        user: user,
-        full_name: "Alex Smith",
-        phone: nil
-      )
+      result = described_class.resolve_for_appointment(user: user, full_name: "Alex Smith", phone: "+380930000099")
 
-      expect(result).to eq(existing_client)
-    end
-
-    it "does not overwrite phone on a name-matched client" do
-      matched_client = create(:client, user: user, first_name: "Alex", last_name: "Smith", phone: "+380930000011")
-
-      described_class.resolve_for_appointment(
-        user: user,
-        full_name: "Alex Smith",
-        phone: "+380930000099"
-      )
-
-      expect(matched_client.reload.phone).to eq("+380930000011")
+      expect(result).to be_persisted
+      expect(result).not_to eq(existing_client)
+      expect(result.first_name).to eq("Alex")
+      expect(result.last_name).to eq("Smith")
+      expect(result.phone).to eq("+380930000099")
+      expect(existing_client.reload.phone).to eq("+380930000011")
     end
   end
 

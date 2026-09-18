@@ -1,7 +1,11 @@
 <div class="care-products-modal hidden"
      data-controller="care-products-modal"
      data-care-products-modal-target="modal"
-     data-action="click->care-products-modal#cancelModal">
+     data-action="click->care-products-modal#cancelModal"
+     data-care-products-modal-stock-label-value="<%= t('care_products.modal.stock') %>"
+    data-care-products-modal-selected-label-value="<%= t('care_products.modal.selected') %>"
+    data-care-products-modal-out-of-stock-label-value="<%= t('care_products.modal.out_of_stock') %>"
+    data-care-products-modal-only-available-message-value="<%= t('care_products.modal.only_available') %>">
 
   <div class="care-products-modal-content" data-action="click->care-products-modal#stop">
 

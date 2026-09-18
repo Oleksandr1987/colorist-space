@@ -90,6 +90,24 @@ RSpec.describe "Users::Sessions" do
 
       expect(response).to have_http_status(:unprocessable_content)
     end
+
+    it "remembers the user when remember_me is checked" do
+      post user_session_path, params: {
+        user: { login: user.email, password: password, remember_me: "1" }
+      }
+
+      expect(user.reload.remember_created_at).to be_present
+      expect(response.cookies["remember_user_token"]).to be_present
+    end
+
+    it "does not remember the user when remember_me is not checked" do
+      post user_session_path, params: {
+        user: { login: user.email, password: password, remember_me: "0" }
+      }
+
+      expect(user.reload.remember_created_at).to be_nil
+      expect(response.cookies["remember_user_token"]).to be_blank
+    end
   end
 
   describe "DELETE /users/sign_out" do

@@ -90,6 +90,9 @@ en:
       services: "Services"
       categories: "Categories"
 
+    slots:
+      no_free_slots: "No available times"
+
   common:
     save: "Save"
     edit: "Edit"

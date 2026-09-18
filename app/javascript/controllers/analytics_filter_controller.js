@@ -1,3 +1,4 @@
+// app/javascript/controllers/analytics_filter_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -25,9 +26,21 @@ export default class extends Controller {
   ]
 
   connect() {
-    this.filterIncomeServices()
-    this.restoreFormulaBrandSelections()
-    this.restoreCareProductSelections()
+    if (this.hasIncomeServicesTarget) {
+      this.filterIncomeServices()
+    }
+
+    if (this.hasIncomeColorsTarget) {
+      this.restoreFormulaBrands("color")
+    }
+
+    if (this.hasIncomeOxidantsTarget) {
+      this.restoreFormulaBrands("oxidant")
+    }
+
+    if (this.hasIncomeCareProductsTarget) {
+      this.restoreCareProductSelections()
+    }
   }
 
   open() {
@@ -275,11 +288,6 @@ export default class extends Controller {
     return Boolean(
       this.element.querySelector(`input[name="formula_product_ids[]"][data-formula-kind="${kind}"]:checked`)
     )
-  }
-
-  restoreFormulaBrandSelections() {
-    this.restoreFormulaBrands("color")
-    this.restoreFormulaBrands("oxidant")
   }
 
   restoreFormulaBrands(kind) {
