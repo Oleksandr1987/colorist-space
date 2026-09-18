@@ -9,6 +9,17 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :omniauthable, omniauth_providers: %i[facebook google_oauth2 instagram]
 
+  PASSWORD_FORMAT = /\A
+    (?=.*[A-Z])
+    (?=.*\d)
+    (?=.*[[:^alnum:]])
+    .+
+  \z/x.freeze
+
+  validates :name, presence: true
+
+  validates :password, format: { with: PASSWORD_FORMAT, message: :weak_password }, if: :password_required?
+
   validates_acceptance_of :tos_agreement, allow_nil: false, on: :create
 
   has_many :clients, dependent: :destroy
@@ -43,7 +54,9 @@ class User < ApplicationRecord
       else
         return_user = where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
           user.email = auth.info.email
-          user.password = Devise.friendly_token[0, 20]
+          # append guaranteed uppercase/digit/special characters so the random
+          # token reliably satisfies PASSWORD_FORMAT (it otherwise does so by chance)
+          user.password = "#{Devise.friendly_token[0, 20]}A1!"
           user.name = auth.info.name
           user.phone = auth.info.phone || ""
           user.tos_agreement = true

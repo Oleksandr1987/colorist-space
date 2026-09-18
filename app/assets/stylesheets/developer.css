@@ -24,6 +24,28 @@
 .dev-ratio {
   font-size: 18px;
   color: #666;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dev-ratio button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 12px;
+}
+
+.dev-ratio button.active {
+  background: #111;
+  color: white;
+}
+
+.dev-ratio::before {
+  width: 100%;
+  font-size: 12px;
+  color: #888;
 }
 
 .dev-right {
@@ -35,6 +57,7 @@
 .dev-amount {
   font-size: 18px;
   font-weight: 500;
+  margin-top: 10px;
 }
 
 .dev-row-display .remove {
@@ -45,21 +68,220 @@
 }
 
 .dev-amount-input {
-  width: 70px;
+  width: 100px;
+  padding: 8px;
+  border-bottom: 1px solid #000;
   border: none;
-  border-bottom: 1px solid #ddd;
   background: transparent;
   font-size: 18px;
   text-align: center;
 }
 
-.dev-ratio button.active {
-  background: #111;
-  color: white;
+.dev-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .dev-actions {
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dev-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dev-header {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 16px;
+  background: #f8f6f5;
+  border-bottom: 1px solid #eee;
+  z-index: 2;
+}
+
+.dev-header h2 {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dev-close {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dev-save {
+  min-height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  background: #5424b5;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dev-save:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dev-preparations {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dev-preparations label,
+.dev-amount label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dev-preparations .input-line {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.dev-ratio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dev-ratio > button {
+  min-height: 38px;
+  padding: 0 14px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dev-ratio > button.active {
+  background: #5424b5;
+  border-color: #5424b5;
+  color: #fff;
+}
+
+.dev-ratio-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dev-ratio-custom input {
+  width: 70px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.dev-ratio-custom button {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.dev-hint {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #777;
+}
+
+.dev-amount {
+  width: 100%;
+}
+
+.dev-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.dev-amount-row label {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dev-amount-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.dev-amount-unit {
+  flex: 0 0 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.dev-actions button:hover {
+  opacity: .7;
+}
+
+.dev-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #888;
+  line-height: 1.35;
 }
 
 .edit-btn {
@@ -68,21 +290,22 @@
   font-size: 18px;
 }
 
-.dev-actions .popover-menu {
-  position: absolute;
-  right: 0;
-  top: 30px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.12);
-  padding: 8px;
-  z-index: 100;
-}
-
 .dev-ratio-custom {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+}
+.dev-ratio-custom input {
+  width: 32px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 12px;
+}
+
+.dev-ratio-custom button {
+  padding: 8px 10px;
+  white-space: nowrap;
 }
 
 .dev-ratio-custom.active {
@@ -115,7 +338,6 @@
 .empty-products {
   padding: 24px;
   text-align: center;
-
   display: flex;
   flex-direction: column;
   align-items: center;

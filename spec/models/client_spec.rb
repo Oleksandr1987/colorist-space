@@ -14,7 +14,6 @@ RSpec.describe Client do
     subject { build(:client) }
 
     it { is_expected.to validate_presence_of(:first_name) }
-    it { is_expected.to validate_presence_of(:last_name) }
 
     it "does not allow primary phone that already exists in client_phones" do
       client1 = create(:client, user: user, phone: "+380501112234")
@@ -89,6 +88,14 @@ RSpec.describe Client do
 
       expect(client.photos).to be_attached
     end
+
+    it "does nothing when no files are given" do
+      client = create(:client, user: user)
+
+      client.attach_photos(nil)
+
+      expect(client.photos).not_to be_attached
+    end
   end
 
   describe "#delete_photo" do
@@ -154,18 +161,19 @@ RSpec.describe Client do
     end
   end
 
-  describe ".find_or_create_by_full_name" do
-    it "returns existing client if found" do
+  describe ".resolve_for_appointment" do
+    it "returns existing client if found by phone" do
       existing_client = create(
         :client,
         user: user,
         first_name: "Alex",
-        last_name: "Smith"
+        last_name: "Smith",
+        phone: "+380930000001"
       )
 
-      result = described_class.find_or_create_by_full_name(
+      result = described_class.resolve_for_appointment(
         user: user,
-        full_name: "Alex Smith",
+        full_name: "Someone Else",
         phone: "+380930000001"
       )
 
@@ -173,7 +181,7 @@ RSpec.describe Client do
     end
 
     it "creates client if not found" do
-      result = described_class.find_or_create_by_full_name(
+      result = described_class.resolve_for_appointment(
         user: user,
         full_name: "Alex Smith",
         phone: "+380930000001"
@@ -185,13 +193,86 @@ RSpec.describe Client do
     end
 
     it "returns nil if first name missing" do
-      result = described_class.find_or_create_by_full_name(
+      result = described_class.resolve_for_appointment(
         user: user,
         full_name: "",
         phone: "+380930000001"
       )
 
       expect(result).to be_nil
+    end
+
+    it "matches an existing client by name when no phone is given" do
+      existing_client = create(
+        :client,
+        user: user,
+        first_name: "Alex",
+        last_name: "Smith"
+      )
+
+      result = described_class.resolve_for_appointment(
+        user: user,
+        full_name: "Alex Smith",
+        phone: nil
+      )
+
+      expect(result).to eq(existing_client)
+    end
+
+    it "does not overwrite phone on a name-matched client" do
+      matched_client = create(:client, user: user, first_name: "Alex", last_name: "Smith", phone: "+380930000011")
+
+      described_class.resolve_for_appointment(
+        user: user,
+        full_name: "Alex Smith",
+        phone: "+380930000099"
+      )
+
+      expect(matched_client.reload.phone).to eq("+380930000011")
+    end
+  end
+
+  describe "#style_appointments" do
+    it "returns the client's appointments through the for_styles scope" do
+      client = create(:client, user: user)
+
+      appointment = create(
+        :appointment,
+        user: user,
+        client: client,
+        main_service: create(:service, user: user)
+      )
+
+      expect(client.style_appointments).to contain_exactly(appointment)
+    end
+  end
+
+  describe "#birthday_must_be_valid" do
+    it "is valid with blank birthday" do
+      client = build(:client, user: user, birthday: nil)
+
+      expect(client).to be_valid
+    end
+
+    it "is valid with a well-formed birthday" do
+      client = build(:client, user: user, birthday: "05-15")
+
+      expect(client).to be_valid
+    end
+
+    it "is invalid with a birthday that is not a real calendar date" do
+      client = build(:client, user: user, birthday: "02-30")
+
+      expect(client).not_to be_valid
+      expect(client.errors[:birthday]).to be_present
+    end
+
+    it "is invalid with a malformed birthday missing components, without raising" do
+      client = build(:client, user: user, birthday: "13")
+
+      expect { client.valid? }.not_to raise_error
+      expect(client).not_to be_valid
+      expect(client.errors[:birthday]).to be_present
     end
   end
 

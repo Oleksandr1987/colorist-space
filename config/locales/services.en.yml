@@ -1,5 +1,10 @@
 en:
+  date:
+    formats:
+      day_month: "%B %-d"
+
   services:
+    title: "SERVICES"
     menu:
       search_placeholder: "Search services..."
       sort_default: "Sort by…"
@@ -69,15 +74,17 @@ en:
       care_products: "Care Products"
       service_management: "Service Management"
       categories: "Service Categories"
-      new_service: "+ New Service"
-      new_item: "+ New %{item}"
+      new_service: "New Service"
+      new_item: "New %{item}"
       back: "←"
       search: "Search..."
 
-  service_notes:
-    services:
-      add: "Add service"
-      save: "Save"
+    price:
+      final: "FINAL PRICE"
+      total: "TOTAL"
+      services: "SERVICES PRICE:"
+      formula_ingredients: "FORMULA INGREDIENTS PRICE:"
+      care_products: "CARE PRODUCTS PRICE:"
 
     errors:
       services_required: "Please select at least one service"

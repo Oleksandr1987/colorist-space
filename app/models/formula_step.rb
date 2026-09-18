@@ -25,9 +25,7 @@ class FormulaStep < ApplicationRecord
 
     return unless item
 
-    FormulaProduct.find_by(
-      id: item["formula_product_id"] || item["service_id"]
-    )
+    FormulaProduct.find_by(id: item["formula_product_id"] || item["service_id"])
   end
 
   def oxidant_data
@@ -51,8 +49,7 @@ class FormulaStep < ApplicationRecord
       end
 
     data.select do |item|
-      item["formula_product_id"].present? ||
-        item["service_id"].present?
+      item["formula_product_id"].present? || item["service_id"].present?
     end
   end
 

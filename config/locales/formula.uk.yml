@@ -1,5 +1,21 @@
 uk:
   formula:
+    title: "ФОРМУЛА"
+    add_step: "ДОДАТИ КРОК"
+    add_section: "Оберіть зону"
+
+    colors: "КОЛЬОРИ"
+    developer: "ОКИСНИКИ"
+    time: "ЧАС"
+    minutes: "хв"
+
+    sections:
+      roots: "Корені"
+      midshaft: "Середина"
+      length: "Довжина"
+      strands: "Пасма"
+      all_over: "По всій довжині"
+
     oxidant:
       empty: "Ще не додано жодного оксиданта"
       add: "Додати оксидант"

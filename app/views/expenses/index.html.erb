@@ -1,19 +1,12 @@
 <div class="analytics-header-bar">
   <%= link_to expenses_path, class: "back-button-inline", title: t("analytics.back") do %>
-    <%= image_tag "back.png",
-          class: "wiz-icon",
-          width: 24,
-          height: 24 %>
+    <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
   <% end %>
 
   <h1><%= t("analytics.expenses.title") %></h1>
 
   <%= link_to new_expense_path, class: "add-expense-button",title: t("analytics.expenses.add") do %>
-
-    <%= image_tag "plus.png",
-            class: "wiz-icon",
-            width: 24,
-            height: 24 %>
+    <%= image_tag "plus.png", class: "wiz-icon", width: 24, height: 24 %>
   <% end %>
 </div>
 
@@ -33,30 +26,17 @@
           </div>
 
           <div class="expense-actions">
-
-            <button class="popover-toggle"
-                    data-popover-target="button"
-                    data-action="click->popover#toggle">
-
-              <%= image_tag "pencil.png",
-                    class: "wiz-icon",
-                    width: 24,
-                    height: 24 %>
+            <button class="popover-toggle" data-popover-target="button" data-action="click->popover#toggle">
+              <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24 %>
             </button>
 
             <div class="popover-menu hidden" data-popover-target="menu">
+              <%= link_to t("analytics.expenses.edit"), edit_expense_path(expense), class: "popover-item" %>
 
-              <%= link_to t("analytics.expenses.edit"),
-                  edit_expense_path(expense),
-                  class: "popover-item" %>
-
-              <%= button_to expense_path(expense),
-                  method: :delete,
+              <%= button_to expense_path(expense), method: :delete,
                   data: { turbo_confirm: t("analytics.expenses.confirm_delete") },
                   class: "popover-item delete-button" do %>
-
                 <%= t("analytics.expenses.delete") %>
-
               <% end %>
             </div>
           </div>

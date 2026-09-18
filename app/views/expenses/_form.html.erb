@@ -1,69 +1,53 @@
 <div class="service-form-wrapper">
-  <div class="form-errors">
-    <% if expense.errors.any? %>
-      <div class="error-box">
-        <h4><%= t("analytics.errors.title") %></h4>
-        <ul>
-          <% expense.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-  </div>
-
   <%= form_with(model: expense, local: true) do |f| %>
+
+    <div class="form-modal-header">
+      <%= link_to expenses_path, class: "form-modal-close", data: { turbo: false }, aria: { label: t("analytics.cancel") } do %>
+        <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
+      <% end %>
+
+      <h2>
+        <%= expense.persisted? ? t("analytics.expenses.edit") : t("analytics.expenses.new") %>
+      </h2>
+
+      <%= f.submit t("analytics.save"), class: "form-modal-save" %>
+    </div>
+
     <div class="form-section">
       <%= f.label :category, t("analytics.expenses.category") %>
 
       <%= f.select :category,
-          Expense::CATEGORIES.map { |c|
-            [t("analytics.expenses.categories.#{c}"), c]
-          },
-          {},
-          class: "form-input",
-          required: true %>
-    </div>
-
-    <div class="form-section">
-      <%= f.label :note, t("analytics.expenses.note") %>
-
-      <%= f.text_area :note,
-            class: "form-input textarea-auto",
-            maxlength: 256,
-            rows: 2,
-            placeholder: t("analytics.expenses.note_placeholder") %>
+            Expense::CATEGORIES.map { |c| [t("analytics.expenses.categories.#{c}"), c] },
+            {},
+            class: "form-input",
+            required: true %>
     </div>
 
     <div class="form-section">
       <%= f.label :spent_on, t("analytics.expenses.date") %>
 
       <%= text_field_tag "expense[spent_on]",
-        expense.spent_on&.to_date || Date.today,
-        class: "form-input",
-        required: true,
-        max: Date.today,
-        data: { controller: "datepicker", datepicker_target: "input" } %>
+            expense.spent_on&.to_date || Date.current,
+            class: "form-input",
+            required: true,
+            max: Date.current,
+            data: {
+              controller: "datepicker",
+              datepicker_target: "input"
+            } %>
     </div>
 
     <div class="form-section">
       <%= f.label :amount, t("analytics.expenses.amount") %>
 
-      <%= f.number_field :amount,
-            class: "form-input",
-            required: true %>
+      <%= f.number_field :amount, class: "form-input", required: true %>
     </div>
 
-    <div class="form-actions-row">
+    <div class="form-section">
+      <%= f.label :note, t("analytics.expenses.note") %>
 
-      <%= f.submit t("analytics.save"),
-            class: "form-button primary" %>
-
-      <%= link_to t("analytics.cancel"),
-            expenses_path,
-            class: "form-button cancel",
-            data: { turbo: false } %>
-
+      <%= f.text_area :note, class: "form-input textarea-auto", maxlength: 256, rows: 2,
+            placeholder: t("analytics.expenses.note_placeholder") %>
     </div>
   <% end %>
 </div>

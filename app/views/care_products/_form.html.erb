@@ -1,69 +1,37 @@
-<div class="service-form-wrapper">
+<%= form_with(model: care_product, id: "care-product-form") do |f| %>
+  <div class="form-section">
+    <%= f.label :brand, t("care_products.form.brand") %>
+    <%= f.text_field :brand, class: "form-input" %>
+  </div>
 
-  <%= form_with model: care_product do |f| %>
+  <div class="form-section">
+    <%= f.label :name, t("care_products.form.name") %>
+    <%= f.text_field :name, class: "form-input", required: true %>
+  </div>
 
-    <div class="form-section">
-      <%= f.label :brand %>
-      <%= f.text_field :brand,
-            class: "form-input" %>
-    </div>
+  <div class="form-section">
+    <%= f.label :category, t("care_products.form.category") %>
+    <%= f.text_field :category, class: "form-input", list: "care-product-categories" %>
 
-    <div class="form-section">
-      <%= f.label :name %>
-      <%= f.text_field :name,
-            class: "form-input",
-            required: true %>
-    </div>
+    <datalist id="care-product-categories">
+      <% CareProduct::CATEGORIES.each do |category| %>
+        <option value="<%= category %>"></option>
+      <% end %>
+    </datalist>
+  </div>
 
-    <div class="form-section">
-      <%= f.label :category %>
+  <div class="form-section">
+    <%= f.label :purchase_price, t("care_products.form.purchase_price") %>
+    <%= f.number_field :purchase_price, class: "form-input", min: 0, step: 0.01, inputmode: "decimal" %>
+  </div>
 
-      <%= f.text_field :category,
-            class: "form-input",
-            list: "care-product-categories" %>
+  <div class="form-section">
+    <%= f.label :sale_price, t("care_products.form.sale_price") %>
+    <%= f.number_field :sale_price, class: "form-input", min: 0, step: 0.01, inputmode: "decimal" %>
+  </div>
 
-      <datalist id="care-product-categories">
-        <% CareProduct::CATEGORIES.each do |category| %>
-          <option value="<%= category %>">
-        <% end %>
-      </datalist>
-    </div>
-
-    <div class="form-section">
-      <%= f.label :purchase_price %>
-      <%= f.number_field :purchase_price,
-            class: "form-input",
-            min: 0,
-            step: 0.01 %>
-    </div>
-
-    <div class="form-section">
-      <%= f.label :sale_price %>
-      <%= f.number_field :sale_price,
-          class: "form-input",
-          min: 0,
-          step: 0.01 %>
-    </div>
-
-    <div class="form-section">
-      <%= f.label :stock_quantity %>
-      <%= f.number_field :stock_quantity,
-            class: "form-input",
-            min: 0,
-            step: 1 %>
-    </div>
-
-    <div class="form-actions-row">
-
-      <%= f.submit "Save",
-            class: "form-button primary" %>
-
-      <%= link_to "Cancel",
-            care_products_path,
-            class: "form-button cancel" %>
-
-    </div>
-
-  <% end %>
-
-</div>
+  <div class="form-section">
+    <%= f.label :stock_quantity, t("care_products.form.stock_quantity") %>
+    <%= f.number_field :stock_quantity, class: "form-input", min: 0, step: 1, inputmode: "numeric" %>
+  </div>
+<% end %>

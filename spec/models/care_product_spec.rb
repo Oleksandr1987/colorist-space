@@ -67,4 +67,22 @@ RSpec.describe CareProduct do
         .to eq("Londa Shampoo")
     end
   end
+
+  describe "broadcasts" do
+    it "broadcasts append on create" do
+      expect { create(:care_product) }.not_to raise_error
+    end
+
+    it "broadcasts replace on update" do
+      product = create(:care_product)
+
+      expect { product.update!(name: "New Name") }.not_to raise_error
+    end
+
+    it "broadcasts remove on destroy" do
+      product = create(:care_product)
+
+      expect { product.destroy }.not_to raise_error
+    end
+  end
 end

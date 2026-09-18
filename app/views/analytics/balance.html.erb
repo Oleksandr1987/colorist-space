@@ -1,22 +1,96 @@
-<h1><%= t("analytics.balance.title") %></h1>
+<div class="analytics-header-bar">
+  <%= link_to analytics_path, class: "back-button-inline", title: t("analytics.back") do %>
+    <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
+  <% end %>
+  <h1><%= t("analytics.balance.title") %></h1>
+</div>
+<%= render "shared/analytics_balance_filters" %>
 
-<%= render 'shared/period_filter', show_category: false %>
+<div class="balance-breakdown">
+  <!-- INCOME -->
+  <section class="balance-section">
+    <div class="balance-section-header">
+      <h2><%= t("analytics.balance.income") %></h2>
 
-<% if params[:from].present? || params[:to].present? %>
-  <ul class="balance-summary wide">
-    <li>
-      <strong><%= t("analytics.balance.income") %>:</strong>
-      <span class="green"><%= @total_income %> ₴</span>
-    </li>
-    <li>
-      <strong><%= t("analytics.balance.expenses") %>:</strong>
-      <span class="red"><%= @total_expenses %> ₴</span>
-    </li>
-    <li>
-      <strong><%= t("analytics.balance.total") %>:</strong>
-      <span class="<%= @balance > 0 ? 'green' : 'red' %>">
-        <%= @balance.zero? ? "0" : (@balance > 0 ? @balance : "-#{@balance.abs}") %> ₴
+      <span class="balance-section-total green">
+        <%= @total_income %> ₴
       </span>
-    </li>
-  </ul>
-<% end %>
+    </div>
+
+    <div class="balance-rows">
+      <div class="balance-row">
+        <span>
+          <%= t("analytics.balance.service_income") %>
+        </span>
+
+        <strong>
+          <%= @service_income %> ₴
+        </strong>
+      </div>
+
+      <div class="balance-row">
+        <span>
+          <%= t("analytics.balance.formula_income") %>
+        </span>
+
+        <strong>
+          <%= @formula_income %> ₴
+        </strong>
+      </div>
+
+      <div class="balance-row">
+        <span>
+          <%= t("analytics.balance.care_products_income") %>
+        </span>
+
+        <strong>
+          <%= @care_products_income %> ₴
+        </strong>
+      </div>
+    </div>
+  </section>
+  <!-- EXPENSES -->
+  <section class="balance-section">
+    <div class="balance-section-header">
+      <h2><%= t("analytics.balance.expenses") %></h2>
+
+      <span class="balance-section-total red">
+        <%= @total_expenses %> ₴
+      </span>
+    </div>
+
+    <div class="balance-rows">
+      <div class="balance-row">
+        <span>
+          <%= t("analytics.balance.manual_expenses") %>
+        </span>
+
+        <strong>
+          <%= @manual_expenses %> ₴
+        </strong>
+      </div>
+
+      <div class="balance-row">
+        <span>
+          <%= t("analytics.balance.care_products_cost") %>
+        </span>
+
+        <strong>
+          <%= @care_products_cost %> ₴
+        </strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- BALANCE -->
+  <section class="balance-total-card">
+    <span class="balance-total-label">
+      <%= t("analytics.balance.total") %>
+    </span>
+
+    <strong class="balance-total-value <%= @balance.negative? ? "red" : "green" %>">
+      <%= @balance %> ₴
+    </strong>
+  </section>
+
+</div>

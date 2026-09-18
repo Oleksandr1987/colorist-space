@@ -1,23 +1,57 @@
-<div class="category-wrapper" data-controller="service">
-  <div class="category-header">
-    <div class="category-title">
-      <%= link_to t("services.pages.back"), services_path, class: "back" %>
-      <%= @translated_category %>
+<div class="service-form-wrapper" data-controller="service">
+  <!-- Header -->
+  <div class="appointment-header modal-header">
+    <div class="appointment-header-left">
+      <%= link_to main_services_path, class: "back-link inline", aria: { label: t("services.pages.back") } do %>
+        <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
+      <% end %>
+
+      <h2><%= @translated_category %></h2>
     </div>
 
-    <%= render "services/menu" %>
-  </div>
-
-  <div id="service-list" class="service-list" data-service-target="list">
-    <% @services.each do |service| %>
-      <%= render "services/service_item", service: service %>
+    <%= link_to new_service_path(service_type: "service", category: @category),
+        class: "service-header-icon",
+        aria: { label: t("services.pages.new_item", item: @translated_category) } do %>
+      <%= image_tag "plus.png", class: "wiz-icon", width: 24, height: 24 %>
     <% end %>
   </div>
 
-  <div class="create-button">
-    <%= link_to t("services.pages.new_item",
-              item: @translated_category),
-            new_service_path(service_type: "service", category: @category),
-            class: "button primary full" %>
+  <!-- Search -->
+  <div class="service-section-search">
+    <input type="search"
+           class="form-input"
+           placeholder="<%= t('services.menu.search_placeholder') %>"
+           autocomplete="off"
+           data-service-target="search"
+           data-action="input->service#filter">
+  </div>
+
+  <!-- Services -->
+  <div class="services-list scrollable-service-list" data-service-target="list">
+    <% @services.each do |service| %>
+      <div class="service-item" data-name="<%= service.subtype.downcase %>">
+        <div class="service-info">
+          <strong><%= service.subtype %></strong>
+
+          <span>
+            — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
+          </span>
+        </div>
+
+        <div class="service-actions">
+          <%= link_to edit_service_path(service), class: "icon-button", aria: { label: t("services.list.edit") } do %>
+            <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24, alt: t("services.list.edit") %>
+          <% end %>
+
+          <%= button_to service_path(service), method: :delete, class: "icon-button delete-button",
+                form: {
+                  data: { turbo_confirm: t("services.list.confirm_delete") }
+                },
+                aria: { label: t("services.list.delete") } do %>
+            <%= image_tag "delete.png", class: "wiz-icon",  width: 24, height: 24, alt: t("services.list.delete") %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>

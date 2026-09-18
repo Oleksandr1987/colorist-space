@@ -2,14 +2,28 @@
   <div class="screen">
     <div class="screen__content">
       <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "login" }) do |f| %>
-        <%= render "devise/shared/error_messages", resource: resource %>
+
         <div class="login__field">
-          <%= f.label :login, t("auth.email_or_phone") %>
+          <%= f.label :login do %>
+            <%= t("auth.email_or_phone") %>
+            <span class="required-asterisk">*</span>
+          <% end %>
+
           <%= f.text_field :login, class: "login__input", autofocus: true, autocomplete: "login" %>
+
+          <% resource.errors.full_messages_for(:base).each do |message| %>
+            <div class="inline-error">
+              <%= message %>
+            </div>
+          <% end %>
         </div>
 
         <div class="login__field">
-          <%= f.label :password, t("auth.password") %>
+          <%= f.label :password do %>
+            <%= t("auth.password") %>
+            <span class="required-asterisk">*</span>
+          <% end %>
+
           <%= f.password_field :password, class: "login__input", autocomplete: "current-password", placeholder: t("auth.password") %>
         </div>
 
@@ -25,22 +39,25 @@
         </div>
       <% end %>
 
-      <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+      <% if devise_mapping.recoverable? && controller_name != "passwords" && controller_name != "registrations" %>
+
         <div class="forgot__password">
           <%= link_to t("auth.forgot_password"), new_password_path(resource_name), class: "forgot-password" %>
         </div>
-      <% end%>
 
-      <div class='social-login'>
+      <% end %>
+
+      <div class="social-login">
         <h3><%= t("auth.login_with") %></h3>
         <div class="social-icons">
-          <%- if devise_mapping.omniauthable? %>
-            <%- resource_class.omniauth_providers.each do |provider| %>
+          <% if devise_mapping.omniauthable? %>
+            <% resource_class.omniauth_providers.each do |provider| %>
+
               <%= button_to omniauth_authorize_path(resource_name, provider), data: { turbo: false } do %>
                 <%= image_tag("social_icons/#{provider}.png", alt: t("auth.social_icon_alt", provider: provider.capitalize)) %>
               <% end %>
             <% end %>
-          <% end%>
+          <% end %>
         </div>
       </div>
     </div>

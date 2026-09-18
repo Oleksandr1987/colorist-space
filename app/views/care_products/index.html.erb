@@ -3,10 +3,7 @@
   <div class="category-header with-search">
     <div class="category-title">
       <%= link_to services_path, class: "back" do %>
-        <%= image_tag "back.png",
-              class: "wiz-icon",
-              width: 24,
-              height: 24 %>
+        <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
       <% end %>
       <span><%= t("services.pages.care_products") %></span>
     </div>
@@ -20,23 +17,17 @@
                data-action="input->service#filter">
       </div>
 
-      <%= link_to new_care_product_path,
-          class: "formula-add-button" do %>
-          <%= image_tag "plus.png",
-              width: 38,
-              height: 38 %>
+      <%= link_to new_care_product_path, class: "formula-add-button" do %>
+          <%= image_tag "plus.png", width: 38, height: 38 %>
       <% end %>
     </div>
   </div>
 
   <% if @care_product.present? %>
-    <%= render "care_products/form",
-        care_product: @care_product %>
+    <%= render "care_products/form", care_product: @care_product %>
   <% end %>
 
-  <div id="care_products"
-       class="service-list"
-       data-service-target="list">
+  <div id="care_products" class="service-list scrollable-service-list" data-service-target="list">
     <%= render @care_products %>
   </div>
 </div>

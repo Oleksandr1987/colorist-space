@@ -36,16 +36,10 @@ class SlotRule < ApplicationRecord
 
     local_start = start_time.in_time_zone
 
-    base_time = Time.zone.local(
-      2000, 1, 1,
-      local_start.hour,
-      local_start.min
-    )
+    base_time = Time.zone.local(2000, 1, 1, local_start.hour, local_start.min)
 
     schedule = IceCube::Schedule.new(base_time)
-    schedule.add_recurrence_rule(
-      IceCube::Rule.weekly.day(*weekdays.map(&:to_sym))
-    )
+    schedule.add_recurrence_rule(IceCube::Rule.weekly.day(*weekdays.map(&:to_sym)))
 
     self.rule = schedule.to_hash
   end
@@ -53,10 +47,7 @@ class SlotRule < ApplicationRecord
   def time_on(date, time)
     local = time.in_time_zone
 
-    date.in_time_zone.change(
-      hour: local.hour,
-      min: local.min
-    )
+    date.in_time_zone.change(hour: local.hour, min: local.min)
   end
 
   def generate_slots(start_at, end_at, step_minutes)
@@ -66,10 +57,7 @@ class SlotRule < ApplicationRecord
     while current < end_at
       finish = [ current + step_minutes.minutes, end_at ].min
 
-      slots << {
-        start: current,
-        end: finish
-      }
+      slots << { start: current, end: finish }
 
       current = finish
     end

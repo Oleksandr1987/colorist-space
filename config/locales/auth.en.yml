@@ -39,10 +39,6 @@ en:
     need_login: "Already have an account?"
     need_register: "Don't have an account?"
 
-    # Placeholders
-    placeholder_email: "Email"
-    placeholder_phone: "Phone"
-
     # Social alt
     social_icon_alt: "%{provider} logo"
 

@@ -1,10 +1,6 @@
-<div class="formula-step-wrapper empty-haircut-step"
-     data-controller="collapse">
-
-  <div class="formula-step-header"
-       data-action="click->collapse#toggle">
-
-    <span>STEP 1</span>
+<div class="formula-step-wrapper empty-haircut-step" data-controller="collapse">
+  <div class="formula-step-header" data-action="click->collapse#toggle">
+    <span><%= t("haircut.step") %> 1</span>
 
     <svg class="chevron"
          xmlns="http://www.w3.org/2000/svg"
@@ -16,30 +12,17 @@
     </svg>
   </div>
 
-  <div class="formula-step-content"
-       data-collapse-target="content">
-
+  <div class="formula-step-content" data-collapse-target="content">
     <div class="sections-wrapper">
-
       <h5><%= t("haircut.select_zone") %></h5>
 
       <div class="haircut-zones-grid">
-
         <% HaircutStep::ZONES.each do |zone| %>
-          <button type="button"
-                  class="section-btn"
-                  data-action="click->haircut#createStep click->collapse#stop"
-                  data-zone="<%= zone %>">
-
+          <button type="button" class="section-btn" data-action="click->haircut#createStep" data-zone="<%= zone %>">
             <%= t("haircut.zones.#{zone.parameterize(separator: '_')}") %>
-
           </button>
         <% end %>
-
       </div>
-
     </div>
-
   </div>
-
 </div>
