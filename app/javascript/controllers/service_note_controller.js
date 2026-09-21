@@ -42,9 +42,7 @@ export default class extends Controller {
     }
 
     window.addEventListener("formula:changed", this.handleFormulaChanged)
-
     window.addEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
-
     window.addEventListener("care-products:changed", this.handleCareProductsChanged)
 
     this.renderCareProducts()
@@ -90,14 +88,10 @@ export default class extends Controller {
   }
 
   recalculatePrice() {
-    const total = this.services.reduce(
-      (sum, service) => sum + Number(service.price || 0),
-      0
-    )
+    const total = this.services.reduce((sum, service) => sum + Number(service.price || 0), 0)
 
     if (this.hasPriceValueTarget) {
-      this.priceValueTarget.innerHTML =
-        `<strong>${total} ₴</strong>`
+      this.priceValueTarget.innerHTML = `<strong>${total} ₴</strong>`
     }
 
     if (this.hasPriceInputTarget) {
@@ -123,22 +117,15 @@ export default class extends Controller {
   }
 
   removeFromNotes(event) {
-    const id = event.currentTarget
-      .closest(".notes-service-item")
-      .dataset.id
+    const id = event.currentTarget.closest(".notes-service-item").dataset.id
 
     window.dispatchEvent(
-      new CustomEvent("service-selector:remove", {
-        detail: { id }
-      })
+      new CustomEvent("service-selector:remove", {detail: { id }})
     )
   }
 
   calculateServices() {
-    return this.services.reduce(
-      (sum, service) => sum + Number(service.price || 0),
-      0
-    )
+    return this.services.reduce((sum, service) => sum + Number(service.price || 0), 0)
   }
 
   calculateDeveloper() {
@@ -163,31 +150,16 @@ export default class extends Controller {
 
       items.forEach(data => {
         const serviceId = data.formula_product_id || data.service_id
-
         const amount = parseFloat(data.amount || 0)
-
         const price = parseFloat(data.price || 0)
-
         if (!serviceId || isNaN(amount) || isNaN(price)) return
 
-        const serviceOption = document.querySelector(
-          `option[value="${serviceId}"]`
-        )
-
+        const serviceOption = document.querySelector(`option[value="${serviceId}"]`)
         const brand = serviceOption?.dataset.brand || ""
-
-        const name =
-          serviceOption
-            ? serviceOption.textContent.split("(")[0].trim()
-            : "Developer"
+        const name = serviceOption ? serviceOption.textContent.split("(")[0].trim() : "Developer"
 
         if (!grouped[serviceId]) {
-          grouped[serviceId] = {
-            name,
-            brand,
-            amount: 0,
-            total: 0
-          }
+          grouped[serviceId] = {name, brand, amount: 0, total: 0}
         }
 
         grouped[serviceId].amount += amount
@@ -199,9 +171,6 @@ export default class extends Controller {
 
 
     this.renderDeveloperList(grouped)
-    console.log({
-      oxidants: total,
-    })
 
     return total
   }
@@ -223,24 +192,15 @@ export default class extends Controller {
       if (destroy?.value === "1") return
 
       const brand = wrapper.querySelector("[data-field='brand']")?.value
-
       const shade = wrapper.querySelector("[data-field='shade']")?.value
-
-      const amount =
-        parseFloat(
-          wrapper.querySelector("[data-field='amount']")?.value || 0
-        )
+      const amount = parseFloat(wrapper.querySelector("[data-field='amount']")?.value || 0)
 
       if (!brand || !shade || amount <= 0) return
 
       const key = `${brand}|${shade}`
 
       if (!colors[key]) {
-        colors[key] = {
-          brand,
-          shade,
-          amount: 0
-        }
+        colors[key] = {brand, shade, amount: 0}
       }
 
       colors[key].amount += amount
@@ -248,7 +208,6 @@ export default class extends Controller {
 
 
     Object.values(colors).forEach(color => {
-
       this.colorsListTarget.insertAdjacentHTML(
         "beforeend",
         `
@@ -288,9 +247,7 @@ export default class extends Controller {
   renderCareProducts() {
     if (!this.hasCareProductsListTarget) return
 
-    const input = document.querySelector(
-      "input[name='service_note[care_products]']"
-    )
+    const input = document.querySelector("input[name='service_note[care_products]']")
 
     if (!input) return
 
@@ -348,26 +305,12 @@ export default class extends Controller {
     document.querySelectorAll(".ingredient-fields")
       .forEach(wrapper => {
 
-        const destroy =
-          wrapper.querySelector(
-            "[data-field='destroy']"
-          )
+        const destroy = wrapper.querySelector("[data-field='destroy']")
 
         if (destroy?.value === "1") return
 
-        const amount =
-          parseFloat(
-            wrapper.querySelector(
-              "[data-field='amount']"
-            )?.value || 0
-          )
-
-        const price =
-          parseFloat(
-            wrapper.querySelector(
-              "[data-field='price']"
-            )?.value || 0
-          )
+        const amount = parseFloat(wrapper.querySelector("[data-field='amount']")?.value || 0)
+        const price = parseFloat(wrapper.querySelector("[data-field='price']")?.value || 0)
 
         total += amount * price
       })
@@ -376,9 +319,7 @@ export default class extends Controller {
   }
 
   calculateCareProducts() {
-    const input = document.querySelector(
-      "input[name='service_note[care_products]']"
-    )
+    const input = document.querySelector("input[name='service_note[care_products]']")
 
     if (!input) return 0
 
@@ -399,10 +340,7 @@ export default class extends Controller {
     }
 
     return products.reduce((sum, item) => {
-      return sum + (
-        parseFloat(item.price || 0) *
-        parseFloat(item.qty || 0)
-      )
+      return sum + (parseFloat(item.price || 0) * parseFloat(item.qty || 0))
     }, 0)
   }
 
@@ -430,15 +368,7 @@ export default class extends Controller {
       } catch {}
     })
 
-    console.log({
-      services,
-      oxidants,
-      colors,
-      care
-    })
-
     const final = services + oxidants + colors + care
-    console.log("FINAL =", final)
 
     if (this.hasFinalPriceTarget) {
       this.finalPriceTarget.innerHTML = `<strong>${final} ₴</strong>`

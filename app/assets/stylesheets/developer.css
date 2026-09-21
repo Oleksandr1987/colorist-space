@@ -21,43 +21,10 @@
   color: #ccc;
 }
 
-.dev-ratio {
-  font-size: 18px;
-  color: #666;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.dev-ratio button {
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  background: #fff;
-  font-size: 12px;
-}
-
-.dev-ratio button.active {
-  background: #111;
-  color: white;
-}
-
-.dev-ratio::before {
-  width: 100%;
-  font-size: 12px;
-  color: #888;
-}
-
 .dev-right {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.dev-amount {
-  font-size: 18px;
-  font-weight: 500;
-  margin-top: 10px;
 }
 
 .dev-row-display .remove {
@@ -67,22 +34,7 @@
   color: #999;
 }
 
-.dev-amount-input {
-  width: 100px;
-  padding: 8px;
-  border-bottom: 1px solid #000;
-  border: none;
-  background: transparent;
-  font-size: 18px;
-  text-align: center;
-}
-
-.dev-amount-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+/* ACTIONS */
 .dev-actions {
   display: flex;
   align-items: center;
@@ -99,6 +51,17 @@
   cursor: pointer;
 }
 
+.dev-actions button:hover {
+  opacity: 0.7;
+}
+
+.edit-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+}
+
+/* HEADER */
 .dev-header {
   flex-shrink: 0;
   display: grid;
@@ -122,6 +85,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .dev-close {
   position: static;
   display: flex;
@@ -151,6 +115,7 @@
   cursor: default;
 }
 
+/* PREPARATIONS */
 .dev-preparations {
   display: flex;
   flex-direction: column;
@@ -174,6 +139,18 @@
   box-sizing: border-box;
 }
 
+/* RATIO */
+.dev-ratio-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dev-ratio-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .dev-ratio {
   display: flex;
   flex-wrap: wrap;
@@ -181,11 +158,12 @@
 }
 
 .dev-ratio > button {
-  min-height: 38px;
+  min-height: 42px;
   padding: 0 14px;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 10px;
+  font-family: inherit;
   font-size: 14px;
   cursor: pointer;
 }
@@ -196,37 +174,101 @@
   color: #fff;
 }
 
-.dev-ratio-custom {
+.dev-ratio .dev-add-ratio-btn {
+  border-style: dashed;
+  font-weight: 500;
+}
+
+/* CUSTOM RATIO */
+.dev-custom-ratio-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dev-custom-ratio-form.hidden {
+  display: none;
+}
+
+.dev-custom-ratio-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.dev-ratio-custom input {
-  width: 70px;
-  min-height: 38px;
-  padding: 0 10px;
-  border: 1px solid #ddd;
+.dev-custom-ratio-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid #d6d6d6;
   border-radius: 10px;
+  background: #fff;
   box-sizing: border-box;
 }
 
-.dev-ratio-custom button {
-  min-height: 38px;
-  padding: 0 12px;
-  border: 1px solid #ddd;
+.dev-custom-ratio-input span {
+  flex: 0 0 auto;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.dev-custom-ratio-input input {
+  flex: 1;
+  min-width: 0;
+  padding: 0 4px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.dev-custom-ratio-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.dev-custom-ratio-add,
+.dev-custom-ratio-cancel {
+  min-height: 42px;
+  padding: 0 16px;
   border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dev-custom-ratio-add {
+  border: 1px solid #5424b5;
+  background: #5424b5;
+  color: #fff;
+}
+
+.dev-custom-ratio-cancel {
+  border: 1px solid #d6d6d6;
   background: #fff;
+  color: #333;
 }
 
 .dev-hint {
-  font-size: 13px;
-  line-height: 1.4;
-  color: #777;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #888;
 }
 
+/* AMOUNT */
 .dev-amount {
   width: 100%;
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .dev-amount-row {
@@ -273,68 +315,7 @@
   box-sizing: border-box;
 }
 
-.dev-actions button:hover {
-  opacity: .7;
-}
-
-.dev-hint {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #888;
-  line-height: 1.35;
-}
-
-.edit-btn {
-  border: none;
-  background: transparent;
-  font-size: 18px;
-}
-
-.dev-ratio-custom {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.dev-ratio-custom input {
-  width: 32px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  font-size: 12px;
-}
-
-.dev-ratio-custom button {
-  padding: 8px 10px;
-  white-space: nowrap;
-}
-
-.dev-ratio-custom.active {
-  border-radius: 12px;
-  background: #111;
-  padding: 4px;
-}
-
-.dev-ratio-custom.active input {
-  color: white;
-  background: transparent;
-  border: none;
-  outline: none;
-  caret-color: white;
-}
-
-.dev-ratio-custom input::placeholder {
-  color: #999;
-}
-
-.dev-ratio-custom.active input::placeholder {
-  color: rgba(255,255,255,.7);
-}
-
-.dev-ratio-custom.active button {
-  background: white;
-  color: black;
-}
-
+/* EMPTY STATE */
 .empty-products {
   padding: 24px;
   text-align: center;

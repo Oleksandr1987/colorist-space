@@ -243,6 +243,10 @@
     0 0 0 2px rgba(84, 36, 181, 0.08);
 }
 
+.care-products-page-search {
+  width: 100%;
+  margin-bottom: 12px;
+}
 /* CATEGORY FILTERS */
 .care-products-filters {
   flex-shrink: 0;
@@ -409,7 +413,6 @@
 
 
 /* NUMBER INPUT Chrome, Safari, Edge */
-
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;

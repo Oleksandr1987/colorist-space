@@ -14,12 +14,10 @@ export default class extends Controller {
   connect() {
     this.boundServicesChanged = this.servicesChanged.bind(this)
 
-    window.addEventListener(
-      "service-selector:changed",
-      this.boundServicesChanged
-    )
+    window.addEventListener("service-selector:changed", this.boundServicesChanged)
 
     this.selectedServices = []
+    this.selectedCategories = []
 
     if (this.hasCategorySelectTarget) {
       this.updateSubtypeOptions()
@@ -27,22 +25,50 @@ export default class extends Controller {
   }
 
   disconnect() {
-    window.removeEventListener(
-      "service-selector:changed",
-      this.boundServicesChanged
-    )
+    window.removeEventListener("service-selector:changed", this.boundServicesChanged)
   }
 
   filter() {
-    if (!this.hasSearchTarget || !this.hasListTarget) return
+    if (!this.hasListTarget) return
 
-    const query = this.searchTarget.value.trim().toLowerCase()
+    const query = this.hasSearchTarget ? this.searchTarget.value.trim().toLowerCase() : ""
 
     this.listTarget.querySelectorAll(".service-item").forEach(item => {
-      const name = item.dataset.name || ""
+      const name = (item.dataset.name || "").toLowerCase()
+      const category = (item.dataset.category || "").trim().toLowerCase()
+      const matchesSearch = query === "" || name.includes(query)
+      const matchesCategory = this.selectedCategories.length === 0 || this.selectedCategories.includes(category)
 
-      item.classList.toggle("hidden", !name.includes(query))
+      item.classList.toggle("hidden", !(matchesSearch && matchesCategory))
     })
+  }
+
+  filterCategory(event) {
+    event.preventDefault()
+
+    const category = (event.currentTarget.dataset.category || "").trim().toLowerCase()
+
+    if (category === "") {
+      this.selectedCategories = []
+    } else if (this.selectedCategories.includes(category)) {
+      this.selectedCategories = this.selectedCategories.filter(selectedCategory => selectedCategory !== category)
+    } else {
+      this.selectedCategories.push(category)
+    }
+
+    this.updateCategoryButtons()
+    this.filter()
+  }
+
+  updateCategoryButtons() {
+    this.element
+      .querySelectorAll(".care-products-filters .filter-button")
+      .forEach(button => {
+        const category = (button.dataset.category || "").trim().toLowerCase()
+        const active = category === "" ? this.selectedCategories.length === 0 : this.selectedCategories.includes(category)
+
+        button.classList.toggle("active", active)
+      })
   }
 
   servicesChanged(event) {

@@ -2,40 +2,40 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "brandSelect", "serviceSelect", "saveBtn", "amountInput", "customInput", "customRatio"]
+  static targets = ["modal", "brandSelect", "serviceSelect", "saveBtn", "amountInput", "customInput", "customRatio", "customToggle"]
 
   connect() {
-  this.sourceController = null
-  this.editIndex = null
-  this.selectedServiceId = null
-  this.selectedPrice = null
-  this.selectedRatio = null
-  this.colorAmount = 0
-  this.manualOverride = false
-  this.serviceOptions = this.hasServiceSelectTarget ? Array.from(this.serviceSelectTarget.options) : []
-  this.productLookup = new Map()
-  this.serviceOptions.forEach(option => {
-    if (!option.value) return
+    this.sourceController = null
+    this.editIndex = null
+    this.selectedServiceId = null
+    this.selectedPrice = null
+    this.selectedRatio = null
+    this.colorAmount = 0
+    this.manualOverride = false
+    this.serviceOptions = this.hasServiceSelectTarget ? Array.from(this.serviceSelectTarget.options) : []
+    this.productLookup = new Map()
+    this.serviceOptions.forEach(option => {
+      if (!option.value) return
 
-    this.productLookup.set(String(option.value), {
-      brand: option.dataset.brand || "", name: option.dataset.name || option.textContent.trim()
+      this.productLookup.set(String(option.value), {
+        brand: option.dataset.brand || "", name: option.dataset.name || option.textContent.trim()
+      })
     })
-  })
 
-  this.handleOpen = this.handleOpen.bind(this)
-  this.handleEsc = this.handleEsc.bind(this)
+    this.handleOpen = this.handleOpen.bind(this)
+    this.handleEsc = this.handleEsc.bind(this)
 
-  window.addEventListener("developer:open", this.handleOpen)
-  document.addEventListener("keydown", this.handleEsc)
+    window.addEventListener("developer:open", this.handleOpen)
+    document.addEventListener("keydown", this.handleEsc)
 
-  window.dispatchEvent(
-    new CustomEvent("developer:products-ready", {
-      detail: {
-        products: Object.fromEntries(this.productLookup)
-      }
-    })
-  )
-}
+    window.dispatchEvent(
+      new CustomEvent("developer:products-ready", {
+        detail: {
+          products: Object.fromEntries(this.productLookup)
+        }
+      })
+    )
+  }
 
   disconnect() {
     window.removeEventListener("developer:open", this.handleOpen)
@@ -80,16 +80,6 @@ export default class extends Controller {
     }
 
     this.highlightRatio(item.ratio)
-
-    if (
-      item.ratio && !["1:1", "1:1.5", "1:2", "1:3"].includes(item.ratio)
-    ) {
-      if (this.hasCustomInputTarget) {
-        this.customInputTarget.value = item.ratio
-      }
-
-      this.highlightCustomRatio()
-    }
   }
 
   // CLOSE
@@ -144,11 +134,15 @@ export default class extends Controller {
       .forEach(button => { button.classList.remove("active") })
 
     if (this.hasCustomRatioTarget) {
-      this.customRatioTarget.classList.remove("active")
+      this.customRatioTarget.classList.add("hidden")
+    }
+
+    if (this.hasCustomToggleTarget) {
+      this.customToggleTarget.classList.remove("hidden")
     }
 
     if (this.hasCustomInputTarget) {
-      this.customInputTarget.value = "1:"
+      this.customInputTarget.value = ""
     }
 
     if (this.hasSaveBtnTarget) {
@@ -194,7 +188,7 @@ export default class extends Controller {
       if (!option.value) return
 
       if (option.dataset.brand === brand) {
-        this.serviceSelectTarget.appendChild( option.cloneNode(true))
+        this.serviceSelectTarget.appendChild(option.cloneNode(true))
       }
     })
 
@@ -231,22 +225,42 @@ export default class extends Controller {
 
     event.currentTarget.classList.add("active")
 
-    if (this.hasCustomRatioTarget) {
-      this.customRatioTarget.classList.remove("active")
-    }
-
     this.calculateAmount()
     this.enableSave()
+  }
+
+  showCustomRatio() {
+    if (!this.hasCustomRatioTarget) return
+
+    this.customRatioTarget.classList.remove("hidden")
+
+    if (this.hasCustomToggleTarget) {
+      this.customToggleTarget.classList.add("hidden")
+    }
+
+    requestAnimationFrame(() => {
+      this.customInputTarget?.focus()
+    })
+  }
+
+  cancelCustomRatio() {
+    if (this.hasCustomRatioTarget) {
+      this.customRatioTarget.classList.add("hidden")
+    }
+
+    if (this.hasCustomToggleTarget) {
+      this.customToggleTarget.classList.remove("hidden")
+    }
+
+    if (this.hasCustomInputTarget) {
+      this.customInputTarget.value = ""
+    }
   }
 
   addCustom() {
     if (!this.hasCustomInputTarget) return
 
-    let value = this.customInputTarget.value.trim()
-
-    value = value.replace(",", ".")
-    value = value.replace("1:", "")
-
+    const value = this.customInputTarget.value.trim().replace(",", ".")
     const number = parseFloat(value)
 
     if (isNaN(number) || number <= 0) return
@@ -258,31 +272,36 @@ export default class extends Controller {
       .forEach(button => {
         button.classList.remove("active")
       })
-    this.customInputTarget.value = this.selectedRatio
-    this.highlightCustomRatio()
+
     this.calculateAmount()
     this.enableSave()
+
+    if (this.hasCustomRatioTarget) {
+      this.customRatioTarget.classList.add("hidden")
+    }
+
+    if (this.hasCustomToggleTarget) {
+      this.customToggleTarget.classList.remove("hidden")
+    }
+
+    this.customInputTarget.value = ""
   }
 
   normalizeCustomRatio() {
     if (!this.hasCustomInputTarget) return
 
-    let value = this.customInputTarget.value.trim()
+    let value = this.customInputTarget.value
 
     value = value.replace(",", ".")
-    value = value.replace(/[^0-9:.]/g, "")
+    value = value.replace(/[^0-9.]/g, "")
 
-    if (!value.startsWith("1:")) {
-      value = "1:" + value.replace("1:", "").replace(":", "")
+    const parts = value.split(".")
+
+    if (parts.length > 2) {
+      value = `${parts.shift()}.${parts.join("")}`
     }
 
     this.customInputTarget.value = value
-    this.element
-      .querySelectorAll(".dev-ratio button[data-ratio]")
-      .forEach(button => {
-        button.classList.remove("active")
-      })
-    this.highlightCustomRatio()
   }
 
   highlightRatio(ratio) {
@@ -301,23 +320,12 @@ export default class extends Controller {
       })
 
     if (!found && ratio) {
+      this.showCustomRatio()
+
       if (this.hasCustomInputTarget) {
-        this.customInputTarget.value = ratio
+        this.customInputTarget.value =
+          ratio.split(":")[1] || ""
       }
-
-      this.highlightCustomRatio()
-    }
-  }
-
-  highlightCustomRatio() {
-    this.element
-      .querySelectorAll(".dev-ratio button[data-ratio]")
-      .forEach(button => {
-        button.classList.remove("active")
-      })
-
-    if (this.hasCustomRatioTarget) {
-      this.customRatioTarget.classList.add("active")
     }
   }
 
@@ -364,12 +372,12 @@ export default class extends Controller {
     const ratio = this.colorAmount > 0 ? (amount / this.colorAmount).toFixed(2) : 0
 
     this.selectedRatio = `1:${ratio}`
+    this.showCustomRatio()
 
     if (this.hasCustomInputTarget) {
-      this.customInputTarget.value = this.selectedRatio
+      this.customInputTarget.value = ratio
     }
 
-    this.highlightCustomRatio()
     this.enableSave()
   }
 
