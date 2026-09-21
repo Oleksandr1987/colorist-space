@@ -103,7 +103,6 @@ export default class extends Controller {
 
     this.saveOxidants()
 
-    window.dispatchEvent(new CustomEvent("services:changed"))
     window.dispatchEvent(new CustomEvent("formula:changed"))
   }
 
@@ -130,7 +129,6 @@ export default class extends Controller {
     this.oxidants.splice(index, 1)
     this.saveOxidants()
 
-    window.dispatchEvent(new CustomEvent("services:changed"))
     window.dispatchEvent(new CustomEvent("formula:changed"))
   }
 

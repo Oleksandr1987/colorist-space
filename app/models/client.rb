@@ -24,11 +24,22 @@ class Client < ApplicationRecord
     q = "%#{query.to_s.downcase}%"
     table = arel_table
 
-    where(
-      table[:first_name].lower.matches(q)
-        .or(table[:last_name].lower.matches(q))
-    )
+    where(table[:first_name].lower.matches(q).or(table[:last_name].lower.matches(q)))
   }
+
+  def self.resolve_for_appointment(user:, full_name:, phone:)
+    normalized_phone = PhoneValidator.normalize(phone)
+    first_name, last_name = full_name.to_s.strip.split(/\s+/, 2)
+
+    return nil if first_name.blank?
+
+    if normalized_phone.present?
+      client = user.clients.find_by(phone: normalized_phone)
+      return client if client
+    end
+
+    user.clients.create!(first_name: first_name, last_name: last_name.to_s, phone: normalized_phone)
+  end
 
   def full_name
     "#{first_name} #{last_name}".strip
@@ -44,24 +55,6 @@ class Client < ApplicationRecord
 
   def delete_all_photos
     photos.purge
-  end
-
-  def self.resolve_for_appointment(user:, full_name:, phone:)
-    normalized_phone = PhoneValidator.normalize(phone)
-    first_name, last_name = full_name.to_s.strip.split(/\s+/, 2)
-
-    return nil if first_name.blank?
-
-    if normalized_phone.present?
-      client = user.clients.find_by(phone: normalized_phone)
-      return client if client
-    end
-
-    client = user.clients.find_by(first_name: first_name, last_name: last_name.to_s)
-
-    return client if client
-
-    user.clients.create!(first_name: first_name, last_name: last_name.to_s, phone: normalized_phone)
   end
 
   def decorated_photos

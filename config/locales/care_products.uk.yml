@@ -27,6 +27,12 @@ uk:
       sale_price: "Ціна продажу"
       stock_quantity: "Кількість на складі"
 
+    modal:
+      stock: "Залишок"
+      selected: "Вибрано"
+      out_of_stock: "Немає в наявності"
+      only_available: "Доступно лише %{count} шт."
+
     categories:
       shampoo: "Шампунь"
       mask: "Маска"

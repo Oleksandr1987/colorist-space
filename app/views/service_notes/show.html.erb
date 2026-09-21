@@ -89,9 +89,7 @@
       step.formula_ingredients.any? || step.oxidant.present? || step.time.present?
     end
 
-    services_price = @service_note.services.sum do |service|
-      service.price.to_f
-    end
+    services_price = @service_note.services_total
 
     formula_price = formula_steps.sum do |step|
       step.colors_total_price + step.oxidant_total_price

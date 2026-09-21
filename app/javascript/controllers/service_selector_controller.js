@@ -14,7 +14,8 @@ export default class extends Controller {
     inputName: String,
     checkboxName: String,
     placeholderClass: String,
-    closeIcon: String
+    closeIcon: String,
+    prices: Object
   }
 
   connect() {
@@ -36,11 +37,13 @@ export default class extends Controller {
           if (existingIds.includes(id)) {
             checkbox.checked = true
 
+            const snapshotPrice = this.hasPricesValue ? this.pricesValue[String(id)] : undefined
+
             this.selected.push({
               id: checkbox.value,
               name: checkbox.dataset.name,
               subtype: checkbox.dataset.subtype,
-              price: checkbox.dataset.price,
+              price: snapshotPrice ?? checkbox.dataset.price,
               serviceType: checkbox.dataset.serviceType
             })
           }
@@ -129,11 +132,15 @@ export default class extends Controller {
 
     const container = this.hiddenInputTarget.parentElement
 
-    container
-      .querySelectorAll(
-        `input[name="${this.inputNameValue}"]`
-      )
-      .forEach(input => input.remove())
+    container.querySelectorAll(`input[name="${this.inputNameValue}"]`).forEach(input => input.remove())
+
+    const emptyInput = document.createElement("input")
+
+    emptyInput.type = "hidden"
+    emptyInput.name = this.inputNameValue
+    emptyInput.value = ""
+
+    container.appendChild(emptyInput)
 
     this.selected.forEach(service => {
       const input = document.createElement("input")

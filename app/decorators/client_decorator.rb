@@ -6,7 +6,7 @@ class ClientDecorator < Draper::Decorator
 
     month, day = object.birthday.split("-").map(&:to_i)
 
-    date = Date.new(Date.current.year, month, day)
+    date = Date.new(2000, month, day)
 
     I18n.l(date, format: :birthday)
   end

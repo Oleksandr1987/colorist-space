@@ -27,6 +27,12 @@ en:
       sale_price: "Sale price"
       stock_quantity: "Stock quantity"
 
+    modal:
+      stock: "Stock"
+      selected: "Selected"
+      out_of_stock: "Out of stock"
+      only_available: "Only %{count} item(s) available"
+
     categories:
       shampoo: "Shampoo"
       mask: "Mask"

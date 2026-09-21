@@ -4,6 +4,13 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["modal", "search", "productsList"]
 
+  static values = {
+    stockLabel: String,
+    selectedLabel: String,
+    outOfStockLabel: String,
+    onlyAvailableMessage: String
+  }
+
   connect() {
     this.sourceController = null
 
@@ -126,14 +133,14 @@ export default class extends Controller {
       existing.available_stock = availableStock
 
       if (existing.qty >= availableStock) {
-        alert(`Only ${availableStock} item(s) available`)
+        alert(this.onlyAvailableMessageValue.replace("%{count}", availableStock))
         return
       }
 
       existing.qty += 1
     } else {
       if (availableStock < 1) {
-        alert("Product is out of stock")
+        alert(this.outOfStockLabelValue)
         return
       }
 
@@ -188,12 +195,12 @@ export default class extends Controller {
               <br>
 
               <small>
-                Stock: ${remaining}
+                ${this.stockLabelValue}: ${remaining}
               </small>
 
-              ${qty > 0 ? `<br><small>Selected: ${qty}</small>` : ""}
+              ${qty > 0 ? `<br><small>${this.selectedLabelValue}: ${qty}</small>` : ""}
 
-              ${outOfStock ? `<br><small class="out-of-stock-label">Out of stock</small>` : ""}
+              ${outOfStock ? `<br><small class="out-of-stock-label">${this.outOfStockLabelValue}</small>` : ""}
             </div>
 
             <button type="button" data-action="click->care-products-modal#addProduct"

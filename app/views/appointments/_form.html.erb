@@ -1,13 +1,16 @@
+<% service_prices = @appointment.appointment_services_relations.pluck(:service_id, :price).to_h %>
 <div class="appointment-container">
   <%= form_with model: @appointment, local: true,
       data: {
         controller: "calendar appointment service-selector",
         appointment_nothing_selected_value: t("appointments.nothing_selected"),
         appointment_free_slots_url_value: free_slots_appointments_path,
+        appointment_no_free_slots_value: t("appointments.slots.no_free_slots"),
         service_selector_input_name_value: "appointment[service_ids][]",
         service_selector_checkbox_name_value: "appointment[modal_dummy][]",
         service_selector_placeholder_class_value: "add-service-placeholder",
-        service_selector_close_icon_value: asset_path("close.png")
+        service_selector_close_icon_value: asset_path("close.png"),
+        service_selector_prices_value: service_prices.to_json
       } do |f| %>
     <div class="appointment-header">
       <div class="appointment-header-left">
