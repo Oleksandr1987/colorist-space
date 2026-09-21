@@ -3,126 +3,22 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = [
-    "checkboxes", "total", "modal", "list", "selected", "field",
-    "serviceSelected", "hiddenInput",
-    "appointmentTime", "endTime", "timeError", "saveButton"
+    "appointmentTime",
+    "endTime",
+    "timeError",
+    "saveButton",
+    "date",
+    "slots",
+    "slotsList"
   ]
 
+  static values = {
+    freeSlotsUrl: String,
+    noFreeSlots: String
+  }
+
   connect() {
-    this.selected = {
-      service: []
-    }
-
-    if (this.hasHiddenInputTarget && this.hiddenInputTarget.value) {
-      const existingIds = this.hiddenInputTarget.value
-        .split(',')
-        .map(id => parseInt(id))
-        .filter(Boolean)
-
-      if (existingIds.length > 0) {
-        document.querySelectorAll('input[type=checkbox][name="appointment[modal_dummy][]"]').forEach((checkbox) => {
-          const id = parseInt(checkbox.value)
-          const type = checkbox.dataset.type
-          if (existingIds.includes(id)) {
-            checkbox.checked = true
-            this.selected[type].push({
-              id: checkbox.value,
-              subtype: checkbox.dataset.subtype,
-              price: checkbox.dataset.price
-            })
-          }
-        })
-      }
-    }
-
-    this.recalculate()
-    this.updateSelected()
-  }
-
-  open(event) {
-    const type = event.currentTarget.dataset.type
-    this.closeAllModals()
-    const modal = document.querySelector(`.modal[data-type='${type}']`)
-    if (modal) modal.classList.remove("hidden")
-  }
-
-  close(event) {
-    const modal =
-      event.currentTarget.closest(".modal") ||
-      event.currentTarget.closest(".modal-content")?.parentElement
-
-    if (modal) modal.classList.add("hidden")
-  }
-
-  closeAllModals() {
-    document.querySelectorAll(".modal").forEach(m => m.classList.add("hidden"))
-  }
-
-  toggleService(event) {
-    const input = event.target
-    const id = input.value
-    const subtype = input.dataset.subtype
-    const price = input.dataset.price
-    const type = input.dataset.type
-
-    if (!type) return
-
-    if (input.checked) {
-      this.selected[type].push({ id, subtype, price })
-    } else {
-      this.selected[type] = this.selected[type].filter(s => s.id !== id)
-    }
-
-    this.recalculate()
-    this.updateSelected()
-  }
-
-  updateSelected() {
-    const all = [...this.selected.service]
-
-    if (this.hasHiddenInputTarget) {
-      const container = this.hiddenInputTarget.parentElement
-      container.querySelectorAll("input[name='appointment[service_ids][]']").forEach(e => e.remove())
-
-      all.forEach(s => {
-        const input = document.createElement("input")
-        input.type = "hidden"
-        input.name = "appointment[service_ids][]"
-        input.value = s.id
-        container.appendChild(input)
-      })
-
-      this.hiddenInputTarget.value = ""
-    }
-
-    this.updateTargetContent("serviceSelected", this.selected.service)
-  }
-
-  updateTargetContent(targetName, items) {
-    const el = this[`${targetName}Target`]
-    if (items.length === 0) {
-      el.innerHTML = `<span class="placeholder">${I18n.t("appointments.form.nothing_selected")}</span>`
-    } else {
-      el.innerHTML = items.map(s => `${s.subtype} (${s.price} ₴)`).join(", ")
-    }
-  }
-
-  search(event) {
-    const query = event.target.value.toLowerCase()
-    const modal = event.target.closest(".modal")
-    modal.querySelectorAll(".service-option").forEach(opt => {
-      opt.classList.toggle("hidden", !opt.textContent.toLowerCase().includes(query))
-    })
-  }
-
-  recalculate() {
-    let total = 0
-    const all = [...this.selected.service]
-    all.forEach(item => {
-      const price = parseInt(item.price)
-      if (!isNaN(price)) total += price
-    })
-    if (this.hasTotalTarget) this.totalTarget.textContent = total
+    this.loadSlots()
   }
 
   roundToNearestFive(event) {
@@ -156,5 +52,92 @@ export default class extends Controller {
       this.timeErrorTarget.classList.add("hidden")
       this.saveButtonTarget.disabled = false
     }
+  }
+
+  async loadSlots() {
+    if (!this.hasDateTarget || !this.hasSlotsListTarget) return
+
+    const date = this.dateTarget.value
+    if (!date) return
+
+    const normalizedDate = this.normalizeDate(date)
+    const url = new URL(this.freeSlotsUrlValue, window.location.origin)
+
+    url.searchParams.set("date", normalizedDate)
+
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Accept: "application/json"
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
+      const slots = await response.json()
+
+      this.renderSlots(slots)
+    } catch (error) {
+      console.error("Unable to load appointment slots:", error)
+
+      this.slotsListTarget.replaceChildren()
+    }
+  }
+
+  renderSlots(slots) {
+    this.slotsListTarget.replaceChildren()
+
+    if (slots.length === 0) {
+      const empty = document.createElement("div")
+
+      empty.className = "appointment-slots-empty"
+      empty.textContent = this.noFreeSlotsValue
+
+      this.slotsListTarget.appendChild(empty)
+      return
+    }
+
+    slots.forEach(slot => {
+      const button = document.createElement("button")
+
+      button.type = "button"
+      button.className = "appointment-slot"
+      button.textContent = `${slot.start}–${slot.end}`
+      button.dataset.start = slot.start
+      button.dataset.end = slot.end
+      button.dataset.action = "click->appointment#selectSlot"
+
+      this.slotsListTarget.appendChild(button)
+    })
+  }
+
+  selectSlot(event) {
+    const button = event.currentTarget
+
+    this.appointmentTimeTarget.value = button.dataset.start
+    this.endTimeTarget.value = button.dataset.end
+    this.validateTimes()
+
+    this.slotsListTarget
+      .querySelectorAll(".appointment-slot")
+      .forEach(slot => slot.classList.remove("selected"))
+
+    button.classList.add("selected")
+  }
+
+  normalizeDate(value) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value
+    }
+
+    const match = value.match(/^(\d{2})\.(\d{2})\.(\d{4})$/)
+
+    if (!match) return value
+
+    const [, day, month, year] = match
+
+    return `${year}-${month}-${day}`
   }
 }

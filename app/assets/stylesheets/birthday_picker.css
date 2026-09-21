@@ -1,0 +1,107 @@
+.birthday-picker {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  position: relative;
+}
+
+.birthday-picker::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #d8d8e8;
+  background: rgba(255,255,255,.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.birthday-picker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to bottom,
+      white 0%,
+      rgba(255,255,255,0) 24%,
+      rgba(255,255,255,0) 76%,
+      white 100%
+    );
+  z-index: 4;
+}
+
+.birthday-wheel {
+  flex: 1;
+  height: 220px;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  position: relative;
+  padding: 0;
+}
+
+.birthday-wheel::-webkit-scrollbar {
+  display: none;
+}
+
+.birthday-wheel-spacer {
+  height: 88px;
+  flex-shrink: 0;
+  scroll-snap-align: none;
+}
+
+.birthday-wheel-item {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  transition:
+    transform .18s,
+    opacity .18s,
+    color .18s,
+    font-weight .18s;
+  opacity: .35;
+  font-size: 18px;
+  user-select: none;
+}
+
+.birthday-wheel-item.active {
+  opacity: 1;
+  transform: scale(1.18);
+  font-weight: 700;
+  color: #6200ea;
+}
+
+.birthday-wheel:last-child .birthday-wheel-item {
+  font-size: 17px;
+}
+
+.birthday-picker-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.birthday-picker-top span {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.birthday-picker-top button {
+  background: none;
+  border: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}

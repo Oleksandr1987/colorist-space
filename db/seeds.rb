@@ -38,34 +38,37 @@ puts "🌱 Seeding default services..."
 
 default_services = [
   # Haircuts
-  { category: "Haircut",  subtype: "Short haircut with clippers", price: 300 },
-  { category: "Haircut",  subtype: "Long haircut with scissors", price: 500 },
-  { category: "Haircut",  subtype: "Fade haircut", price: 400 },
-  { category: "Haircut",  subtype: "Children's haircut", price: 250 },
+  { category: "haircut", subtype: "Short haircut with clippers", price: 300 },
+  { category: "haircut", subtype: "Long haircut with scissors", price: 500 },
+  { category: "haircut", subtype: "Fade haircut", price: 400 },
+  { category: "haircut", subtype: "Children's haircut", price: 250 },
 
   # Coloring
-  { category: "Coloring", subtype: "Full hair coloring", price: 1500 },
-  { category: "Coloring", subtype: "Roots refresh", price: 1000 },
-  { category: "Coloring", subtype: "Balayage", price: 1800 },
-  { category: "Coloring", subtype: "Ombre", price: 1700 },
+  { category: "coloring", subtype: "Full hair coloring", price: 1500 },
+  { category: "coloring", subtype: "Roots refresh", price: 1000 },
+  { category: "coloring", subtype: "Balayage", price: 1800 },
+  { category: "coloring", subtype: "Ombre", price: 1700 },
 
   # Styling
-  { category: "Styling",  subtype: "Evening style", price: 700 },
-  { category: "Styling",  subtype: "Everyday styling", price: 400 },
-  { category: "Styling",  subtype: "Wedding styling", price: 1200 },
+  { category: "styling", subtype: "Evening style", price: 700 },
+  { category: "styling", subtype: "Everyday styling", price: 400 },
+  { category: "styling", subtype: "Wedding styling", price: 1200 },
 
   # Treatment
-  { category: "Treatment", subtype: "Keratin treatment", price: 2200 },
-  { category: "Treatment", subtype: "Deep hydration", price: 1000 },
-  { category: "Treatment", subtype: "Botox for hair", price: 1800 }
+  { category: "treatment", subtype: "Keratin treatment", price: 2200 },
+  { category: "treatment", subtype: "Deep hydration", price: 1000 },
+  { category: "treatment", subtype: "Botox for hair", price: 1800 }
 ]
 
 default_services.each do |attrs|
   Service.find_or_create_by!(
     user: demo_user,
-    name: "#{attrs[:category]}: #{attrs[:subtype]}"
+    service_type: "service",
+    category: attrs[:category],
+    subtype: attrs[:subtype]
   ) do |service|
-    service.assign_attributes(attrs)
+    service.name = attrs[:subtype]
+    service.price = attrs[:price]
   end
 end
 
@@ -200,7 +203,7 @@ puts "✅ Formula products seeded"
 
 puts "🌱 Seeding care products..."
 
-user = User.find_by(email: "solovij1987@gmail.com")
+user = User.find_by(email: "demo@colorist.space")
 
 if user.present?
   care_products = [

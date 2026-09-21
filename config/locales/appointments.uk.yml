@@ -10,26 +10,21 @@ uk:
 
     form:
       client_name: "Ім'я клієнта"
-      client_name_placeholder: "Введіть або оберіть ім’я клієнта"
+      client_name_placeholder: "Введіть чи оберіть ім’я клієнта"
       phone: "Телефон"
       date: "Дата"
       start_time: "Час початку"
       end_time: "Час завершення"
 
       services: "Основні послуги"
-      select_services: "Оберіть послуги"
+      add_services: "Оберіть послуги"
 
-      preparations: "Препарати"
-      select_preparations: "Оберіть препарати"
-
-      care_products: "Засоби догляду"
-      select_care_products: "Оберіть засоби догляду"
-
-      notes: "Нотатки"
+      notes: "НОТАТКИ"
       notes_placeholder: "До 256 символів..."
       total: "Загальна сума"
 
       save: "Зберегти"
+      slots: "Вільний час"
 
     modals:
       service:
@@ -90,6 +85,13 @@ uk:
         one: "%{count} запис"
         few: "%{count} записи"
         many: "%{count} записів"
+    filters:
+      years: "Роки"
+      services: "Сервіси"
+      categories: "Категорії"
+
+    slots:
+      no_free_slots: "Немає вільного часу"
 
   common:
     save: "Зберегти"

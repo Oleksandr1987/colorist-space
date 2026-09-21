@@ -3,67 +3,119 @@
     <div class="screen__content">
 
       <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "login" }) do |f| %>
-        <%= render "devise/shared/error_messages", resource: resource %>
         <div class="login__field">
-          <%= f.label :name, t("auth.name") %>
+          <%= f.label :name do %>
+            <%= t("auth.name") %>
+            <span class="required-asterisk">*</span>
+          <% end %>
+
           <%= f.text_field :name, class: "login__input", autofocus: true, autocomplete: "name" %>
+
+          <% resource.errors.full_messages_for(:name).each do |message| %>
+            <div class="inline-error">
+              <%= message %>
+            </div>
+          <% end %>
         </div>
 
         <div class="login__field">
-          <%= f.label :email, t("auth.email") %>
+          <%= f.label :email do %>
+            <%= t("auth.email") %>
+            <span class="required-asterisk">*</span>
+          <% end %>
+
           <%= f.email_field :email, class: "login__input", autocomplete: "email" %>
+
+          <% resource.errors.full_messages_for(:email).each do |message| %>
+            <div class="inline-error">
+              <%= message %>
+            </div>
+          <% end %>
         </div>
 
         <div class="login__field">
-          <%= f.label :phone, t("auth.phone") %>
+          <%= f.label :phone do %>
+            <%= t("auth.phone") %>
+            <span class="required-asterisk">*</span>
+          <% end %>
+
           <%= f.telephone_field :phone, class: "login__input", autocomplete: "tel", data: { controller: "phone-mask" } %>
+
+          <% resource.errors.full_messages_for(:phone).each do |message| %>
+            <div class="inline-error">
+              <%= message %>
+            </div>
+          <% end %>
         </div>
 
         <div class="login__field">
-          <%= f.label :password, t("auth.password") %>
+          <%= f.label :password do %>
+            <%= t("auth.password") %>
+            <span class="required-asterisk">*</span>
+          <% end %>
+
           <% if @minimum_password_length %>
             <em><%= t("auth.min_length", count: @minimum_password_length) %></em>
           <% end %>
+
           <%= f.password_field :password, class: "login__input", autocomplete: "new-password" %>
+
+          <% resource.errors.full_messages_for(:password).each do |message| %>
+            <div class="inline-error">
+              <%= message %>
+            </div>
+          <% end %>
         </div>
 
         <div class="login__field">
-          <%= f.label :password_confirmation, t("auth.password_confirmation") %>
+          <%= f.label :password_confirmation do %>
+            <%= t("auth.password_confirmation") %>
+            <span class="required-asterisk">*</span>
+          <% end %>
+
           <%= f.password_field :password_confirmation, class: "login__input", autocomplete: "new-password" %>
+
+          <% resource.errors.full_messages_for(:password_confirmation).each do |message| %>
+            <div class="inline-error">
+              <%= message %>
+            </div>
+          <% end %>
         </div>
 
         <div class="login__field remember-me">
           <%= f.check_box :tos_agreement %>
+
           <%= f.label :tos_agreement,
-              "#{t("auth.tos_agreement")} #{link_to(t("terms_of_service",
-              default: "Terms of Service"), terms_path, target: '_blank')}".html_safe %>
+              t(
+                "auth.oauth_consent_html",
+                terms: link_to(
+                  t("terms_of_service", default: "Terms of Service"),
+                  terms_path,
+                  target: "_blank",
+                  rel: "noopener"
+                ),
+                privacy: link_to(
+                  t("privacy_policy", default: "Privacy Policy"),
+                  privacy_policy_path,
+                  target: "_blank",
+                  rel: "noopener"
+                )
+              ).html_safe %>
         </div>
+
+        <% resource.errors.full_messages_for(:tos_agreement).each do |message| %>
+          <div class="inline-error">
+            <%= message %>
+          </div>
+        <% end %>
 
         <div class="actions">
           <%= f.submit t("auth.signup"), class: "button signup__submit" %>
         </div>
-
       <% end %>
 
       <div class="social-signup">
         <h3><%= t("auth.signup_with") %></h3>
-        <p class="oauth-consent-text">
-          <%= t(
-            "auth.oauth_consent_html",
-            terms: link_to(
-              t("terms_of_service", default: "Terms of Service"),
-              terms_path,
-              target: "_blank",
-              rel: "noopener"
-            ),
-            privacy: link_to(
-              t("privacy_policy", default: "Privacy Policy"),
-              privacy_policy_path,
-              target: "_blank",
-              rel: "noopener"
-            )
-          ).html_safe %>
-        </p>
 
         <div class="social-icons">
           <% if devise_mapping.omniauthable? %>

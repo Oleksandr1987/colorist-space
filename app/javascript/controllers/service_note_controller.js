@@ -16,14 +16,21 @@ export default class extends Controller {
     "careProductsList"
   ]
 
+  static values = {
+    formulaPriceLabel: String,
+    careProductsPriceLabel: String
+  }
+
   connect() {
-    this.handleServicesChanged = () => {
-      this.recalculatePrice()
-      this.renderServices()
-      this.calculateFinal()
+    this.services = []
+
+    this.handleServicesChanged = (event) => {
+      this.updateServices(event.detail?.services || [])
     }
 
     window.addEventListener("services:changed", this.handleServicesChanged)
+
+    this.loadInitialServices()
 
     this.handleFormulaChanged = () => {
       this.calculateFinal()
@@ -35,12 +42,9 @@ export default class extends Controller {
     }
 
     window.addEventListener("formula:changed", this.handleFormulaChanged)
-
     window.addEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
-
     window.addEventListener("care-products:changed", this.handleCareProductsChanged)
 
-    this.handleServicesChanged()
     this.renderCareProducts()
   }
 
@@ -49,6 +53,26 @@ export default class extends Controller {
     window.removeEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
     window.removeEventListener("formula:changed", this.handleFormulaChanged)
     window.removeEventListener("care-products:changed", this.handleCareProductsChanged)
+  }
+
+  updateServices(services) {
+    this.services = services
+
+    this.recalculatePrice()
+    this.renderServices()
+    this.calculateFinal()
+  }
+
+  loadInitialServices() {
+    const selectorElement = this.element.closest('[data-controller~="service-selector"]')
+
+    if (!selectorElement) return
+
+    const selectorController = this.application.getControllerForElementAndIdentifier(selectorElement, "service-selector")
+
+    if (!selectorController) return
+
+    this.updateServices(selectorController.selected || [])
   }
 
   showTab(event) {
@@ -64,20 +88,7 @@ export default class extends Controller {
   }
 
   recalculatePrice() {
-    const form = this.element.closest("form")
-
-    if (!form) return
-
-    const inputs = form.querySelectorAll(
-      "input[name='service_note[service_ids][]']:checked"
-    )
-
-    let total = 0
-
-    inputs.forEach(el => {
-      const price = parseInt(el.dataset.price || 0)
-      total += price
-    })
+    const total = this.services.reduce((sum, service) => sum + Number(service.price || 0), 0)
 
     if (this.hasPriceValueTarget) {
       this.priceValueTarget.innerHTML = `<strong>${total} ₴</strong>`
@@ -91,56 +102,30 @@ export default class extends Controller {
   renderServices() {
     if (!this.hasServicesListTarget) return
 
-    const form = this.element.closest("form")
-
-    const checked = form.querySelectorAll(
-      "input[name='service_note[service_ids][]']:checked"
-    )
-
     this.servicesListTarget.innerHTML = ""
 
-    checked.forEach(el => {
-      const name = el.dataset.name
-      const id = el.value
-
-      const html = `
-        <div class="notes-service-item" data-id="${id}">
-          <span>${name}</span>
-        </div>
-      `
-
-      this.servicesListTarget.insertAdjacentHTML("beforeend", html)
+    this.services.forEach(service => {
+      this.servicesListTarget.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="notes-service-item" data-id="${service.id}">
+            <span>${service.subtype}</span>
+          </div>
+        `
+      )
     })
   }
 
   removeFromNotes(event) {
-    const row = event.currentTarget.closest(".notes-service-item")
-    const id = row.dataset.id
+    const id = event.currentTarget.closest(".notes-service-item").dataset.id
 
-    const checkbox = document.querySelector(
-      `input[name='service_note[service_ids][]'][value='${id}']`
+    window.dispatchEvent(
+      new CustomEvent("service-selector:remove", {detail: { id }})
     )
-
-    if (checkbox) checkbox.checked = false
-
-    window.dispatchEvent(new CustomEvent("services:changed"))
   }
 
   calculateServices() {
-    let total = 0
-
-    const form = this.element.closest("form")
-    if (!form) return 0
-
-    const inputs = form.querySelectorAll(
-      "input[name='service_note[service_ids][]']:checked"
-    )
-
-    inputs.forEach(el => {
-      total += parseFloat(el.dataset.price || 0)
-    })
-
-    return total
+    return this.services.reduce((sum, service) => sum + Number(service.price || 0), 0)
   }
 
   calculateDeveloper() {
@@ -165,31 +150,16 @@ export default class extends Controller {
 
       items.forEach(data => {
         const serviceId = data.formula_product_id || data.service_id
-
         const amount = parseFloat(data.amount || 0)
-
         const price = parseFloat(data.price || 0)
-
         if (!serviceId || isNaN(amount) || isNaN(price)) return
 
-        const serviceOption = document.querySelector(
-          `option[value="${serviceId}"]`
-        )
-
+        const serviceOption = document.querySelector(`option[value="${serviceId}"]`)
         const brand = serviceOption?.dataset.brand || ""
-
-        const name =
-          serviceOption
-            ? serviceOption.textContent.split("(")[0].trim()
-            : "Developer"
+        const name = serviceOption ? serviceOption.textContent.split("(")[0].trim() : "Developer"
 
         if (!grouped[serviceId]) {
-          grouped[serviceId] = {
-            name,
-            brand,
-            amount: 0,
-            total: 0
-          }
+          grouped[serviceId] = {name, brand, amount: 0, total: 0}
         }
 
         grouped[serviceId].amount += amount
@@ -201,9 +171,6 @@ export default class extends Controller {
 
 
     this.renderDeveloperList(grouped)
-    console.log({
-      oxidants: total,
-    })
 
     return total
   }
@@ -225,24 +192,15 @@ export default class extends Controller {
       if (destroy?.value === "1") return
 
       const brand = wrapper.querySelector("[data-field='brand']")?.value
-
       const shade = wrapper.querySelector("[data-field='shade']")?.value
-
-      const amount =
-        parseFloat(
-          wrapper.querySelector("[data-field='amount']")?.value || 0
-        )
+      const amount = parseFloat(wrapper.querySelector("[data-field='amount']")?.value || 0)
 
       if (!brand || !shade || amount <= 0) return
 
       const key = `${brand}|${shade}`
 
       if (!colors[key]) {
-        colors[key] = {
-          brand,
-          shade,
-          amount: 0
-        }
+        colors[key] = {brand, shade, amount: 0}
       }
 
       colors[key].amount += amount
@@ -250,7 +208,6 @@ export default class extends Controller {
 
 
     Object.values(colors).forEach(color => {
-
       this.colorsListTarget.insertAdjacentHTML(
         "beforeend",
         `
@@ -263,7 +220,6 @@ export default class extends Controller {
     })
 
     Object.values(grouped).forEach(dev => {
-
       total += dev.total
 
       this.developerListTarget.insertAdjacentHTML(
@@ -278,9 +234,12 @@ export default class extends Controller {
     })
 
     if (this.hasDeveloperPriceTarget) {
+      const colorsTotal = this.calculateColorsPrice()
+      const formulaTotal = colorsTotal + total
+
       this.developerPriceTarget.innerHTML = `
-        <span><strong>FORMULA INGREDIENTS PRICE:</strong></span>
-        <span>${total} ₴</span>
+        <span><strong>${this.formulaPriceLabelValue}</strong></span>
+        <span>${formulaTotal} ₴</span>
       `
     }
   }
@@ -288,9 +247,7 @@ export default class extends Controller {
   renderCareProducts() {
     if (!this.hasCareProductsListTarget) return
 
-    const input = document.querySelector(
-      "input[name='service_note[care_products]']"
-    )
+    const input = document.querySelector("input[name='service_note[care_products]']")
 
     if (!input) return
 
@@ -335,7 +292,7 @@ export default class extends Controller {
       "beforeend",
       `
         <div class="notes-care-total">
-          <span><strong>CARE PRODUCTS PRICE:</strong></span>
+          <span><strong>${this.careProductsPriceLabelValue}</strong></span>
           <span>${total} ₴</span>
         </div>
       `
@@ -348,26 +305,12 @@ export default class extends Controller {
     document.querySelectorAll(".ingredient-fields")
       .forEach(wrapper => {
 
-        const destroy =
-          wrapper.querySelector(
-            "[data-field='destroy']"
-          )
+        const destroy = wrapper.querySelector("[data-field='destroy']")
 
         if (destroy?.value === "1") return
 
-        const amount =
-          parseFloat(
-            wrapper.querySelector(
-              "[data-field='amount']"
-            )?.value || 0
-          )
-
-        const price =
-          parseFloat(
-            wrapper.querySelector(
-              "[data-field='price']"
-            )?.value || 0
-          )
+        const amount = parseFloat(wrapper.querySelector("[data-field='amount']")?.value || 0)
+        const price = parseFloat(wrapper.querySelector("[data-field='price']")?.value || 0)
 
         total += amount * price
       })
@@ -376,9 +319,7 @@ export default class extends Controller {
   }
 
   calculateCareProducts() {
-    const input = document.querySelector(
-      "input[name='service_note[care_products]']"
-    )
+    const input = document.querySelector("input[name='service_note[care_products]']")
 
     if (!input) return 0
 
@@ -399,10 +340,7 @@ export default class extends Controller {
     }
 
     return products.reduce((sum, item) => {
-      return sum + (
-        parseFloat(item.price || 0) *
-        parseFloat(item.qty || 0)
-      )
+      return sum + (parseFloat(item.price || 0) * parseFloat(item.qty || 0))
     }, 0)
   }
 
@@ -430,16 +368,8 @@ export default class extends Controller {
       } catch {}
     })
 
-    console.log({
-      services,
-      oxidants,
-      colors,
-      care
-    })
-
     const final = services + oxidants + colors + care
-    console.log("FINAL =", final)
- 
+
     if (this.hasFinalPriceTarget) {
       this.finalPriceTarget.innerHTML = `<strong>${final} ₴</strong>`
     }

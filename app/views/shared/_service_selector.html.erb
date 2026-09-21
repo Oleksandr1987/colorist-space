@@ -1,0 +1,29 @@
+<div class="form-section">
+  <div class="services-header">
+    <label>
+      <%= label %>
+    </label>
+
+    <button
+      type="button"
+      class="service-add-button"
+      data-action="click->service-selector#open"
+      data-type="service">
+      <%= image_tag "plus.png",
+            class: "add-icon" %>
+    </button>
+  </div>
+
+  <div class="service-selector">
+    <div
+      class="<%= "hidden" if selected_ids.blank? %>"
+      data-service-selector-target="selectedContent">
+      <%= selected_names %>
+    </div>
+  </div>
+</div>
+
+<input
+  type="hidden"
+  data-service-selector-target="hiddenInput"
+  value="<%= selected_ids.join(",") %>">

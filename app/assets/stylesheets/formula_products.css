@@ -1,21 +1,12 @@
 /* Formula Products */
-
-.formula-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
 .formula-tabs {
   display: flex;
-  gap: 8px;
+  gap: 34px;
 }
 
 .formula-tab {
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 10px;
   text-decoration: none;
   background: #f3f3f3;
   color: #888;
@@ -35,9 +26,10 @@
 }
 
 .formula-search-input {
-  width: 140px;
+  width: 100%;
   height: 38px;
   padding: 0 12px;
+  box-sizing: border-box;
   border: 1px solid #060606;
   border-radius: 10px;
   font-size: 0.95rem;

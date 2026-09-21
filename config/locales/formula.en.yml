@@ -1,5 +1,21 @@
 en:
   formula:
+    title: "FORMULA"
+    add_step: "ADD STEP"
+    add_section: "Select zone"
+
+    colors: "COLORS"
+    developer: "DEVELOPER"
+    time: "TIME"
+    minutes: "min"
+
+    sections:
+      roots: "Roots"
+      midshaft: "Midshaft"
+      length: "Length"
+      strands: "Strands"
+      all_over: "All over"
+
     oxidant:
       empty: "No oxidants added yet"
       add: "Add oxidant"

@@ -1,7 +1,4 @@
-<%= form_with model: slot_rule,
-              url: slot_rule.persisted? ? slot_rule_path(slot_rule) : slot_rules_path,
-              local: true do |f| %>
-
+<%= form_with model: slot_rule, url: slot_rule.persisted? ? slot_rule_path(slot_rule) : slot_rules_path, local: true do |f| %>
   <div class="form-section">
     <%= f.label :start_time, t("slot_rules.form.start_time") %><br>
     <%= f.time_field :start_time, class: "form-input" %>
@@ -15,22 +12,17 @@
   <div class="form-section">
     <%= f.label :weekdays, t("slot_rules.form.weekdays") %><br>
 
-    <% weekdays = %w[sunday monday tuesday wednesday thursday friday saturday] %>
+    <% weekdays = %w[monday tuesday wednesday thursday friday saturday sunday] %>
 
     <% weekdays.each do |day| %>
       <label>
-        <%= check_box_tag "slot_rule[weekdays][]",
-              day,
-              slot_rule.weekdays&.include?(day) %>
+        <%= check_box_tag "slot_rule[weekdays][]", day, slot_rule.weekdays&.include?(day) %>
         <%= t("slot_rules.weekdays.#{day}") %>
       </label>
     <% end %>
   </div>
 
   <div class="form-actions">
-    <%= f.submit slot_rule.persisted? ?
-        t("slot_rules.form.update") :
-        t("slot_rules.form.create"),
-        class: "button primary" %>
+    <%= f.submit slot_rule.persisted? ? t("slot_rules.form.update") : t("slot_rules.form.create"), class: "button primary" %>
   </div>
 <% end %>

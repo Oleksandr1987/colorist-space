@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "rows", "actions", "paletteTemplate", "shadeTemplate", "list" ]
+  static targets = ["modal", "rows", "actions", "paletteTemplate", "shadeTemplate", "list", "saveBtn"]
 
   static values = {
     deleteIcon: String
@@ -32,6 +32,7 @@ export default class extends Controller {
     this.rowsTarget.innerHTML = ""
     this.actionsTarget.classList.add("hidden")
     this.currentPalette = null
+    this.saveBtnTarget.disabled = true
     this.addPalette()
   }
 
@@ -73,35 +74,33 @@ export default class extends Controller {
     row.dataset.price = this.currentPalette.price
     row.dataset.brand = this.currentPalette.brand
 
-    row.querySelector(
-      ".color-brand"
-    ).textContent =
+    row.querySelector(".color-brand").textContent =
       this.currentPalette.brand
 
+    const shadeInput = row.querySelector(".color-shade")
     const amountInput = row.querySelector(".color-amount")
 
-    amountInput.addEventListener(
-      "input",
-      () => {
-        let value = amountInput.value
+    shadeInput.addEventListener("input", () => {
+      shadeInput.classList.remove("color-error")
+      this.updateSaveButton()
+    })
 
-        value = value.replace(
-          /[^0-9.,]/g,
-          ""
-        )
+    amountInput.addEventListener("input", () => {
+      let value = amountInput.value
 
-        amountInput.value = value
+      value = value.replace(/[^0-9.,]/g, "")
 
-        amountInput.classList.remove(
-          "color-error"
-        )
-      }
-    )
+      amountInput.value = value
+      amountInput.classList.remove("color-error")
+
+      this.updateSaveButton()
+    })
 
     this.rowsTarget.appendChild(row)
+    this.updateSaveButton()
   }
 
-    addShade() {
+  addShade() {
     if (!this.currentPalette) {
       return
     }
@@ -133,6 +132,30 @@ export default class extends Controller {
         this.addPalette()
       }
     }
+
+    this.updateSaveButton()
+  }
+
+  updateSaveButton() {
+    const rows = this.rowsTarget.querySelectorAll(".color-row")
+
+    if (rows.length === 0) {
+      this.saveBtnTarget.disabled = true
+      return
+    }
+
+    const allValid = Array.from(rows).every(row => {
+      const shade = row.querySelector(".color-shade").value.trim()
+      const amountValue = row.querySelector(".color-amount").value.trim().replace(",", ".")
+      const amount = parseFloat(amountValue)
+
+      return shade !== "" &&
+        amountValue !== "" &&
+        !Number.isNaN(amount) &&
+        amount > 0
+    })
+
+    this.saveBtnTarget.disabled = !allValid
   }
 
   save() {
@@ -144,7 +167,6 @@ export default class extends Controller {
 
     rows.forEach(row => {
       const shadeInput = row.querySelector(".color-shade")
-
       const amountInput = row.querySelector(".color-amount")
 
       if (!shadeInput.value.trim()) {
@@ -165,7 +187,6 @@ export default class extends Controller {
     const stepId = this.currentStep.dataset.stepId
 
     rows.forEach(row => {
-
       const brand = row.dataset.brand
       const shade = row.querySelector(".color-shade").value.trim()
 
@@ -177,15 +198,10 @@ export default class extends Controller {
         return
       }
 
-      const template = this.currentStep.querySelector(
-        "[data-formula-target='ingredientTemplate']"
-      )
-
+      const template = this.currentStep.querySelector("[data-formula-target='ingredientTemplate']")
       const uid = `new_${Date.now()}_${Math.random().toString(36).slice(2)}`
 
-      let html = template.innerHTML
-        .replace(/NEW_ID/g, uid)
-        .replace(/STEP_ID/g, stepId)
+      let html = template.innerHTML.replace(/NEW_ID/g, uid).replace(/STEP_ID/g, stepId)
 
       const wrapper = document.createElement("div")
 
@@ -200,9 +216,7 @@ export default class extends Controller {
       hidden.querySelector("[data-field='formula_product_id']").value = row.dataset.productId
       hidden.querySelector("[data-field='price']").value = row.dataset.price
 
-      this.currentStep
-        .querySelector("[data-formula-target='colorsList']")
-        .appendChild(hidden)
+      this.currentStep.querySelector("[data-formula-target='colorsList']").appendChild(hidden)
 
       const display = document.createElement("div")
 
@@ -228,15 +242,12 @@ export default class extends Controller {
         </div>
       `
 
-      this.currentStep
-        .querySelector("[data-color-target='list']")
-        .appendChild(display)
+      this.currentStep.querySelector("[data-color-target='list']").appendChild(display)
     })
 
     this.closeModal()
 
     requestAnimationFrame(() => {
-
       window.dispatchEvent(
         new CustomEvent(
           "formula:colorAmountChanged",
@@ -249,13 +260,8 @@ export default class extends Controller {
         )
       )
 
-      window.dispatchEvent(
-        new CustomEvent("formula:changed")
-      )
-
-      window.dispatchEvent(
-        new CustomEvent("formula:firstStepFilled")
-      )
+      window.dispatchEvent(new CustomEvent("formula:changed"))
+      window.dispatchEvent(new CustomEvent("formula:firstStepFilled"))
     })
   }
 
@@ -265,16 +271,11 @@ export default class extends Controller {
     this.currentStep
       .querySelectorAll(".ingredient-fields")
       .forEach(wrapper => {
-
-        const destroyInput = wrapper.querySelector(
-          "[data-field='destroy']"
-        )
+        const destroyInput = wrapper.querySelector("[data-field='destroy']")
 
         if (destroyInput?.value === "1") return
 
-        const amountInput = wrapper.querySelector(
-          "[data-field='amount']"
-        )
+        const amountInput = wrapper.querySelector("[data-field='amount']")
 
         if (!amountInput) return
 

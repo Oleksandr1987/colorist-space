@@ -1,0 +1,17 @@
+<div class="service-form-wrapper">
+  <div class="appointment-header modal-header">
+    <div class="appointment-header-left">
+      <%= link_to formula_products_path(category: formula_product.category), class: "back-link inline" do %>
+        <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
+      <% end %>
+
+      <h2><%= title %></h2>
+    </div>
+
+    <button type="submit" form="formula-product-form" class="appointment-save-button">
+      <%= t("common.save").upcase %>
+    </button>
+  </div>
+
+  <%= render "form", formula_product: formula_product %>
+</div>

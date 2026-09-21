@@ -1,7 +1,4 @@
-/* ==========================
-   CARE PRODUCTS STEP
-========================== */
-
+/* CARE PRODUCTS STEP */
 .care-products-step {
   display: flex;
   flex-direction: column;
@@ -9,7 +6,6 @@
 }
 
 /* HEADER */
-
 .care-products-header {
   display: flex;
   justify-content: space-between;
@@ -20,15 +16,11 @@
   border: none;
   border-radius: 10px;
   padding: 8px 12px;
-  background: #e8dcff;
   cursor: pointer;
   font-weight: 600;
 }
 
-/* ==========================
-   CARE PRODUCTS LIST
-========================== */
-
+/* CARE PRODUCTS LIST */
 .care-products-list {
   display: flex;
   flex-direction: column;
@@ -39,11 +31,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 12px;
-
   padding: 12px;
-
   background: #fff;
   border: 1px solid #ececec;
   border-radius: 14px;
@@ -65,10 +54,7 @@
   color: #666;
 }
 
-/* ==========================
-   QTY CONTROL
-========================== */
-
+/* QTY CONTROL */
 .qty-control {
   display: flex;
   align-items: center;
@@ -78,22 +64,22 @@
 .qty-control button {
   width: 32px;
   height: 32px;
-
   border: none;
   border-radius: 50%;
-
   background: #e8dcff;
-
   font-size: 18px;
   font-weight: 700;
-
   cursor: pointer;
-
-  transition: 0.2s;
+  transition: opacity 0.2s ease;
 }
 
 .qty-control button:hover {
   opacity: 0.9;
+}
+
+.qty-control button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .qty-value {
@@ -102,155 +88,312 @@
   font-weight: 600;
 }
 
-/* ==========================
-   REMOVE
-========================== */
-
+/* REMOVE */
 .remove-care-product {
   border: none;
   background: transparent;
-
   font-size: 22px;
   line-height: 1;
-
   color: #999;
   cursor: pointer;
 }
 
-/* ==========================
-   TOTAL
-========================== */
-
+/* TOTAL */
 .care-products-total {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   padding-top: 10px;
   border-top: 1px solid #eee;
-
   font-size: 16px;
   font-weight: 600;
 }
 
-/* ===================================
-   CARE PRODUCTS MODAL
-=================================== */
-
+/* CARE PRODUCTS MODAL */
 .care-products-modal {
+  position: fixed;
   inset: 0;
-
-  background: rgba(0,0,0,.45);
-
+  z-index: 10000;
   display: flex;
   justify-content: center;
-  align-items: center;
-
-  z-index: 10000;
+  padding: 0;
+  background: #f8f6f5;
+  overflow: hidden;
 }
 
 .care-products-modal.hidden {
   display: none;
 }
 
+/* MODAL CONTENT */
 .care-products-modal-content {
-  width: 92%;
-  max-width: 500px;
-  max-height: 80vh;
-
-  overflow-y: auto;
-
-  background: #fff;
-  border-radius: 20px;
-
-  padding: 20px;
-
+  width: 100%;
+  max-width: 600px;
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: #f8f6f5;
   box-sizing: border-box;
-
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  overflow: hidden;
 }
 
+/* MODAL HEADER */
 .care-products-modal-header {
-  display: flex;
-  justify-content: space-between;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
   align-items: center;
-
-  margin-bottom: 16px;
+  gap: 8px;
+  padding: 18px 16px;
+  margin: 0;
+  background: #f8f6f5;
+  border-bottom: 1px solid #eee;
+  z-index: 2;
 }
 
 .care-products-modal-header h3 {
   margin: 0;
+  padding: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-.care-products-modal-header button {
+/* CLOSE BUTTON */
+.care-products-modal-header .sheet-back {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
   border: none;
-  background: transparent;
-
-  font-size: 24px;
+  background: none;
   cursor: pointer;
 }
 
+.care-products-modal-header .sheet-back .clear-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* SAVE BUTTON */
+.care-products-modal-header .sheet-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  background: #5424b5;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.care-products-modal-header .sheet-save:hover {
+  background: #481e9f;
+}
+
+.care-products-modal-header .sheet-save:active {
+  transform: scale(0.97);
+}
+
+
+/* SEARCH */
 .care-products-modal-search {
+  flex-shrink: 0;
+  padding: 16px 16px 10px;
+  margin: 0;
+  background: #f8f6f5;
+}
+
+.care-products-modal-search .form-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.care-products-modal-search .form-input:focus {
+  border-color: #5424b5;
+  box-shadow:
+    0 0 0 2px rgba(84, 36, 181, 0.08);
+}
+
+.care-products-page-search {
+  width: 100%;
   margin-bottom: 12px;
 }
 
+.care-products-page-search .formula-search-input {
+  display: block;
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 1px solid #bdbdbd;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.care-products-page-search .formula-search-input:focus {
+  border-color: #7e3af2;
+}
+
+.care-products-page-search .formula-search-input::placeholder {
+  color: #888;
+}
+
+/* CATEGORY FILTERS */
+.care-products-filters {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 6px 16px 14px;
+  background: #f8f6f5;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.care-products-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-button {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.filter-button:hover {
+  border-color: #5424b5;
+}
+
+.filter-button.active {
+  background: #5424b5;
+  border-color: #5424b5;
+  color: #fff;
+}
+
+/* PRODUCTS LIST */
 .care-products-modal-list {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
-
-  max-height: 300px;
+  max-height: none;
+  margin: 0;
+  padding: 4px 16px 28px;
   overflow-y: auto;
-
-  margin-top: 12px;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* PRODUCT OPTION */
-
 .care-product-option {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-
+  gap: 12px;
   padding: 12px;
-
-  border: 1px solid #ececec;
+  border: 1px solid #e5e5e5;
   border-radius: 12px;
+  background: #fff;
+  box-sizing: border-box;
 }
 
 .care-product-option strong {
   display: block;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .care-product-option small {
   color: #777;
 }
 
+/* ADD PRODUCT BUTTON */
 .care-product-option button {
   width: 38px;
   height: 38px;
-
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border: none;
   border-radius: 50%;
-
   background: #e8dcff;
-
+  color: #5424b5;
   font-size: 20px;
   font-weight: 700;
-
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
 }
 
-/* NEW PRODUCT */
-
-.care-products-new {
-  margin-top: 16px;
+.care-product-option button:hover:not(:disabled) {
+  background: #dcc8ff;
 }
 
-.care-products-new .button {
-  width: 100%;
+.care-product-option button:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
+.care-product-option button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* PRODUCT INFORMATION */
 .service-category {
   font-size: 13px;
   color: #777;
@@ -261,6 +404,7 @@
   font-size: 13px;
 }
 
+/* STOCK WARNING */
 .care-product-warning {
   display: inline-block;
   margin-top: 4px;
@@ -272,64 +416,9 @@
   font-weight: 600;
 }
 
-.care-products-filters {
-  display: flex;
-  flex-wrap: wrap;
-
-  gap: 8px;
-
-  margin: 12px 0 16px;
-}
-
-.filter-button {
-  border: none;
-
-  padding: 8px 14px;
-
-  border-radius: 999px;
-
-  background: #e8dcff;
-
-  color: #5c2ab8;
-
-  font-size: 14px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: all .2s ease;
-}
-
-.filter-button:hover {
-  background: #dcc8ff;
-}
-
-.filter-button.active {
-  background: #6f2dbd;
-  color: #fff;
-}
-/* Chrome, Safari, Edge */
-
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Firefox */
-
-input[type="number"] {
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-.qty-control button:disabled {
-  opacity: .4;
-  cursor: not-allowed;
-}
-
+/* OUT OF STOCK */
 .out-of-stock {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .out-of-stock button {
@@ -341,7 +430,71 @@ input[type="number"] {
   font-weight: 600;
 }
 
-.care-product-option button:disabled {
-  opacity: .4;
-  cursor: not-allowed;
+
+/* NUMBER INPUT Chrome, Safari, Edge */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+
+/* MOBIL */
+@media (max-width: 600px) {
+  .care-products-modal-content {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+  }
+
+  .care-products-modal-header {
+    padding: 16px 14px;
+  }
+
+  .care-products-modal-header h3 {
+    font-size: 20px;
+  }
+
+  .care-products-modal-search {
+    padding:
+      14px
+      14px
+      8px;
+  }
+
+  .care-products-filters {
+    padding:
+      6px
+      14px
+      12px;
+  }
+
+  .care-products-modal-list {
+    padding:
+      4px
+      14px
+      28px;
+  }
+
+  .care-product-option {
+    padding: 11px;
+  }
+
+  .care-product-option strong {
+    font-size: 14px;
+  }
+
+}
+
+@media (max-width: 768px) {
+  .service-wrapper .care-products-page-search,
+  .service-wrapper .care-products-filters {
+    flex-shrink: 0;
+  }
 }

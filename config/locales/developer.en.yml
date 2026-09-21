@@ -1,9 +1,14 @@
 en:
+  en:
   developer:
     oxidant_modal:
-      title: "Add Oxidant"
-      oxidant: "Oxidant"
-      choose: "Choose..."
-      add_ratio: "ADD"
-      amount: "Oxidant amount:"
-      save: "SAVE"
+      title: "Developer"
+      brand: "Brand"
+      select_brand: "Select brand..."
+      oxidant: "Developer"
+      choose: "Select developer..."
+      ratio: "Ratio"
+      add_ratio: "Add ratio"
+      add: "Add"
+      amount: "Amount"
+      save: "Save"

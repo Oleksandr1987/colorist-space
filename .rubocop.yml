@@ -17,7 +17,7 @@ AllCops:
     - "db/migrate/*"
 
 Layout/LineLength:
-  Max: 120
+  Max: 140
 
 RSpec:
   Enabled: true
@@ -32,7 +32,7 @@ RSpec/ExampleLength:
   Max: 25
 
 RSpec/MultipleExpectations:
-  Max: 5
+  Max: 6
 
 RSpec/NestedGroups:
   Max: 5

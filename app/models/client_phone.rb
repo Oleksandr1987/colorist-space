@@ -6,11 +6,7 @@ class ClientPhone < ApplicationRecord
 
   before_validation :set_user
 
-  validates :phone,
-            presence: true,
-            uniqueness: {
-              scope: :user_id
-            }
+  validates :phone, presence: true, uniqueness: { scope: :user_id }
 
   validate :phone_not_used_by_another_client
 

@@ -7,7 +7,7 @@
     align-items: center;
     margin-top: 2rem;
   }
-  
+
   .admin-dashboard h1 {
     font-size: 1.8rem;
     margin-bottom: 2rem;
@@ -30,12 +30,8 @@
     justify-content: center;
     transition: background-color 0.2s ease;
   }
-  
+
   .admin-card:hover {
     background-color: #efe3ff;
   }
   
-  .admin-card svg {
-    margin-right: 8px;
-    vertical-align: middle;
-  }

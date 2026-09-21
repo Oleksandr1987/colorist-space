@@ -1,14 +1,25 @@
 <div class="admin-dashboard">
-  <h1><%= t("services.pages.categories") %></h1>
+  <!-- Header -->
+  <div class="appointment-header modal-header">
+    <div class="appointment-header-left">
+      <%= link_to services_path, class: "back-link inline", aria: { label: t("services.pages.back") } do %>
+        <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
+      <% end %>
 
-  <% @categories.each do |category| %>
-    <% key = category.to_s.downcase %>
-    <%= link_to t("services.categories.#{key}", default: category),
-                section_services_path(category: category),
-                class: "admin-card" %>
-  <% end %>
+      <h1>
+        <%= t("services.pages.categories") %>
+      </h1>
+    </div>
 
-  <%= link_to t("services.pages.new_service"),
-              new_service_path(service_type: "service"),
-              class: "category-item category-new" %>
+    <%= link_to new_service_path(service_type: "service"), class: "service-header-icon", aria: { label: t("services.pages.new_service") } do %>
+      <%= image_tag "plus.png", class: "wiz-icon", width: 24,height: 24 %>
+    <% end %>
+  </div>
+
+  <!-- Categories -->
+    <% @categories.each do |category| %>
+      <% key = category.to_s.downcase %>
+
+      <%= link_to t("services.categories.#{key}", default: category), section_services_path(category: category), class: "admin-card" %>
+    <% end %>
 </div>

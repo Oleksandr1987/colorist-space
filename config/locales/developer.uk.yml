@@ -1,9 +1,14 @@
 uk:
+  uk:
   developer:
     oxidant_modal:
-      title: "Додати окисник"
-      oxidant: "Окисник"
-      choose: "Оберіть..."
-      add_ratio: "ДОДАТИ"
-      amount: "Кількість окисника:"
+      title: "Оксидант"
+      brand: "Бренд"
+      select_brand: "Оберіть бренд..."
+      oxidant: "Оксидант"
+      choose: "Оберіть оксидант..."
+      ratio: "Пропорція"
+      add_ratio: "Додати пропорцію"
+      add: "Додати"
+      amount: "Кількість"
       save: "ЗБЕРЕГТИ"

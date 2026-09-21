@@ -124,6 +124,7 @@ class ClientsController < ApplicationController
       :first_name,
       :last_name,
       :phone,
+      :birthday,
       :hair_type,
       :hair_length,
       :hair_structure,

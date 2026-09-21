@@ -1,11 +1,13 @@
+// app/javascript/controllers/photo_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "modalImage", "photo", "photoContainer", "dot"]
+  static targets = ["modal", "modalImage", "photo", "photoContainer", "dot", "mainButton", "heart"]
   static values = {
     photos: Array,
     index: Number,
-    mode: String // "fullscreen" or "inline"
+    mode: String,
+    mainPhotoUrl: String
   }
 
   connect() {
@@ -28,7 +30,6 @@ export default class extends Controller {
 
     this.photos = Array.from(document.querySelectorAll("[data-photo-url]"))
     this.index = 0
-
     this.setupKeyboard()
     this.setupSwipeMobileFullscreen()
     this.setupSwipeDesktopFullscreen()
@@ -36,10 +37,7 @@ export default class extends Controller {
     if (!this.hasPhotoTarget) return
   }
 
-  /* -----------------------------------
-     FULLSCREEN MODE (clients/show)
-  ------------------------------------*/
-
+  /* FULLSCREEN MODE (clients/show) */
   show(event) {
     if (this.modeValue !== "fullscreen") return
 
@@ -129,19 +127,64 @@ export default class extends Controller {
     })
   }
 
-  /* -----------------------------------
-     INLINE MODE (service_notes/show)
-  ------------------------------------*/
-
+  /* INLINE MODE (service_notes/show) */
   showInlinePhoto(index) {
     if (!this.hasPhotoTarget) return
 
-    const url = this.photosValue[index]
-    this.photoTarget.src = url
+    const photo = this.photosValue[index]
+    if (!photo) return
 
-    this.dotTargets.forEach((dot, i) =>
+    this.photoTarget.src = photo.url
+
+    this.dotTargets.forEach((dot, i) => {
       dot.classList.toggle("active", i === index)
-    )
+    })
+
+    this.updateMainPhotoButton()
+  }
+
+  updateMainPhotoButton() {
+    if (!this.hasHeartTarget || !this.hasMainButtonTarget) return
+
+    const photo = this.photosValue[this.indexValue]
+    if (!photo) return
+
+    const isMain = photo.main === true
+
+    this.mainButtonTarget.classList.toggle("active", isMain)
+  }
+
+  async setMainPhoto(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const photo = this.photosValue[this.indexValue]
+
+    if (!photo || !this.hasMainPhotoUrlValue) return
+
+    const response = await fetch(this.mainPhotoUrlValue, {
+      method: "PATCH",
+      headers: {
+        "X-CSRF-Token": document.querySelector(
+          'meta[name="csrf-token"]'
+        ).content,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({photo_id: photo.id})
+    })
+
+    if (!response.ok) return
+
+    const data = await response.json()
+    const photos = this.photosValue.map(item => ({...item, main: item.id === data.main_photo_id}))
+
+    const mainPhoto = photos.find(item => item.main)
+    const otherPhotos = photos.filter(item => !item.main)
+
+    this.photosValue = [mainPhoto, ...otherPhotos].filter(Boolean)
+    this.indexValue = 0
+    this.showInlinePhoto(0)
   }
 
   nextInline() {
@@ -150,8 +193,7 @@ export default class extends Controller {
   }
 
   prevInline() {
-    this.indexValue =
-      (this.indexValue - 1 + this.photosValue.length) % this.photosValue.length
+    this.indexValue = (this.indexValue - 1 + this.photosValue.length) % this.photosValue.length
     this.showInlinePhoto(this.indexValue)
   }
 
@@ -173,10 +215,7 @@ export default class extends Controller {
     })
   }
 
-  /* -----------------------------------
-     Long Press (delete)
-  ------------------------------------*/
-
+  /* Long Press (delete) */
   touchStart(event) {
     const wrapper = event.currentTarget
     wrapper.longPressTimer = setTimeout(() => {

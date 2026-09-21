@@ -2,25 +2,17 @@
   <h1><%= t("services.pages.service_management") %></h1>
 
     <%= link_to  main_services_path, class: "admin-card" do %>
-       <%= image_tag "services.png",
-            class: "wiz-icon",
-            width: 34,
-            height: 34 %>
+      <%= image_tag "services.png", class: "wiz-icon", width: 34, height: 34 %>
       <%= t("services.pages.services") %>
     <% end %>
+
     <%= link_to formula_products_path, class: "admin-card"  do %>
-    <%= image_tag "formula.png",
-          class: "wiz-icon",
-          width: 34,
-          height: 34 %>
+      <%= image_tag "formula.png", class: "wiz-icon", width: 34, height: 34 %>
       <%= t("services.pages.formula_ingredients") %>
     <% end %>
 
     <%= link_to care_products_path, class: "admin-card" do %>
-    <%= image_tag "skincare.png",
-          class: "wiz-icon",
-          width: 34,
-          height: 34 %>
+      <%= image_tag "skincare.png", class: "wiz-icon", width: 34, height: 34 %>
       <%= t("services.pages.care_products") %>
     <% end %>
 </div>

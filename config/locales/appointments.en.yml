@@ -17,19 +17,14 @@ en:
       end_time: "End Time"
 
       services: "Main Services"
-      select_services: "Select services"
-
-      preparations: "Preparations"
-      select_preparations: "Select preparations"
-
-      care_products: "Care Products"
-      select_care_products: "Select care products"
+      add_services: "Add services"
 
       notes: "Notes"
       notes_placeholder: "Up to 256 characters..."
       total: "Total"
 
       save: "Save"
+      slots: "Available Time"
 
     modals:
       service:
@@ -90,6 +85,13 @@ en:
       records:
         one: "%{count} record"
         other: "%{count} records"
+    filters:
+      years: "Years"
+      services: "Services"
+      categories: "Categories"
+
+    slots:
+      no_free_slots: "No available times"
 
   common:
     save: "Save"
