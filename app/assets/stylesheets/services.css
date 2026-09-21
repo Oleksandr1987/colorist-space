@@ -59,7 +59,8 @@
   padding: 32px 20px;
   background: white;
   border-radius: 20px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
 }
 
 .service-list {
@@ -427,24 +428,6 @@
   background-color: #d9363e;
 }
 
-.category-header.with-search {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.service-search-wrapper.inline-search {
-  margin-bottom: 0;
-}
-
 .service-item.selected {
   background: #f3f0ff;
   border: 1px solid #d6ccff;
@@ -539,8 +522,35 @@
   }
 
   .service-wrapper {
-    margin: 40px auto 80px;
-    padding: 24px 16px;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    min-height: 0;
+    margin: 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 0;
+    box-shadow: none;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .service-wrapper .category-header,
+  .service-wrapper .formula-header {
+    flex-shrink: 0;
+  }
+
+  .service-wrapper .scrollable-service-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    padding-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .service-item {
@@ -550,7 +560,6 @@
     flex-wrap: wrap;
     padding: 12px;
     position: relative;
-    overflow-x: hidden;
   }
 
   .create-button {

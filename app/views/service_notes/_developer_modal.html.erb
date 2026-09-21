@@ -58,31 +58,50 @@
           </select>
         </div>
 
-        <div class="dev-ratio">
-          <% ["1:1", "1:1.5", "1:2", "1:3"].each do |ratio| %>
-            <button type="button" data-action="click->developer-modal#setRatio" data-ratio="<%= ratio %>">
-              <%= ratio %>
-            </button>
-          <% end %>
+        <div class="dev-ratio-section">
+          <label class="dev-ratio-label">
+            <%= t("developer.oxidant_modal.ratio") %>
+          </label>
 
-          <div class="dev-ratio-custom" data-developer-modal-target="customRatio">
-            <input type="text"
-                   inputmode="decimal"
-                   placeholder="1:"
-                   value="1:"
-                   data-developer-modal-target="customInput"
-                   data-action="
-                     focus->developer-modal#highlightCustomRatio
-                     input->developer-modal#normalizeCustomRatio">
+          <div class="dev-ratio">
+            <% ["1:1", "1:1.5", "1:2", "1:3"].each do |ratio| %>
+              <button type="button" data-action="click->developer-modal#setRatio" data-ratio="<%= ratio %>">
+                <%= ratio %>
+              </button>
+            <% end %>
 
-            <button type="button" data-action="click->developer-modal#addCustom">
-              + <%= t("developer.oxidant_modal.add_ratio") %>
+            <button type="button" class="dev-add-ratio-btn" data-developer-modal-target="customToggle" data-action="click->developer-modal#showCustomRatio">
+              <%= t("developer.oxidant_modal.add_ratio") %>
             </button>
           </div>
-        </div>
 
-        <div class="dev-hint">
-          <%= t("formula.ratio_hint_html").html_safe %>
+          <div class="dev-custom-ratio-form hidden" data-developer-modal-target="customRatio">
+            <div class="dev-hint">
+              <%= t("formula.ratio_hint_html").html_safe %>
+            </div>
+
+            <div class="dev-custom-ratio-row">
+              <div class="dev-custom-ratio-input">
+                <span>1:</span>
+
+                <input type="text"
+                      inputmode="decimal"
+                      placeholder="2.5"
+                      data-developer-modal-target="customInput"
+                      data-action="input->developer-modal#normalizeCustomRatio">
+              </div>
+            </div>
+
+            <div class="dev-custom-ratio-actions">
+              <button type="button" class="dev-custom-ratio-cancel" data-action="click->developer-modal#cancelCustomRatio">
+                <%= t("common.cancel") %>
+              </button>
+
+              <button type="button" class="dev-custom-ratio-add" data-action="click->developer-modal#addCustom">
+                <%= t("developer.oxidant_modal.add") %>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="dev-amount">

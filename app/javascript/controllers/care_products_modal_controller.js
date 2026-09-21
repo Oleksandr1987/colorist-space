@@ -17,6 +17,7 @@ export default class extends Controller {
     this.catalog = []
     this.products = []
     this.initialProducts = []
+    this.selectedCategories = []
 
     this.handleOpen = this.handleOpen.bind(this)
     this.handleEsc = this.handleEsc.bind(this)
@@ -42,8 +43,7 @@ export default class extends Controller {
 
       this.sourceController = controller
       this.products = this.cloneProducts(products)
-      this.initialProducts =
-        this.cloneProducts(initialProducts)
+      this.initialProducts = this.cloneProducts(initialProducts)
 
       await this.reloadCatalog()
 
@@ -177,23 +177,17 @@ export default class extends Controller {
               <strong>
                 ${product.brand}
               </strong>
-
               <div>
                 ${product.name}
               </div>
-
               <small>
                 ${product.category}
               </small>
-
               <br>
-
               <small>
                 ${product.sale_price} ₴
               </small>
-
               <br>
-
               <small>
                 ${this.stockLabelValue}: ${remaining}
               </small>
@@ -220,35 +214,48 @@ export default class extends Controller {
 
   // FILTER
   filterCategory(event) {
-    this.selectedCategory = event.currentTarget.dataset.category || ""
+    event.preventDefault()
+    event.stopPropagation()
 
-    this.element
-      .querySelectorAll(".care-products-filters .filter-button")
-      .forEach(button => {
-        button.classList.remove("active")
-      })
+    const button = event.currentTarget
+    const category = (button.dataset.category || "").trim().toLowerCase()
+    // "All"
+    if (category === "") {
+      this.selectedCategories = []
+      this.updateCategoryButtons()
+      this.applyFilters()
+      return
+    }
 
-    event.currentTarget.classList.add("active")
+    if (this.selectedCategories.includes(category)) {
+      this.selectedCategories = this.selectedCategories.filter(selectedCategory => selectedCategory !== category)
+    } else {
+      this.selectedCategories.push(category)
+    }
 
+    this.updateCategoryButtons()
     this.applyFilters()
   }
 
+  updateCategoryButtons() {
+    this.element
+      .querySelectorAll(".care-products-filters .filter-button")
+      .forEach(button => {
+        const category = (button.dataset.category || "").trim().toLowerCase()
+        const active = category === "" ? this.selectedCategories.length === 0 : this.selectedCategories.includes(category)
+
+        button.classList.toggle("active", active)
+      })
+  }
+
   resetFilters() {
-    this.selectedCategory = ""
+    this.selectedCategories = []
 
     if (this.hasSearchTarget) {
       this.searchTarget.value = ""
     }
 
-    const buttons = this.element.querySelectorAll(".care-products-filters .filter-button")
-
-    buttons.forEach(button => {
-      button.classList.remove("active")
-    })
-
-    buttons[0]?.classList.add("active")
-
-    this.applyFilters()
+    this.updateCategoryButtons()
   }
 
   search() {
@@ -260,13 +267,11 @@ export default class extends Controller {
 
     const query = this.hasSearchTarget ? this.searchTarget.value.trim().toLowerCase() : ""
 
-    const category = this.selectedCategory || ""
-
     this.productsListTarget
       .querySelectorAll(".care-product-option")
       .forEach(item => {
-        const matchesCategory = category === "" || item.dataset.category === category
-
+        const itemCategory = (item.dataset.category || "").trim().toLowerCase()
+        const matchesCategory = this.selectedCategories.length === 0 || this.selectedCategories.includes(itemCategory)
         const matchesSearch = query === "" || item.textContent.toLowerCase().includes(query)
 
         item.classList.toggle("hidden", !(matchesCategory && matchesSearch))
