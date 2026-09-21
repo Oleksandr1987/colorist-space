@@ -240,9 +240,9 @@ export default class extends Controller {
       this.customToggleTarget.classList.add("hidden")
     }
 
-    if (focus) {
+    if (focus && this.hasCustomInputTarget) {
       requestAnimationFrame(() => {
-        this.customInputTarget?.focus()
+        this.customInputTarget.focus()
       })
     }
   }
@@ -269,16 +269,7 @@ export default class extends Controller {
 
     this.calculateAmount()
     this.enableSave()
-
-    if (this.hasCustomRatioTarget) {
-      this.customRatioTarget.classList.add("hidden")
-    }
-
-    if (this.hasCustomToggleTarget) {
-      this.customToggleTarget.classList.remove("hidden")
-    }
-
-    this.customInputTarget.value = ""
+    this.hideCustomRatio()
   }
 
   normalizeCustomRatio() {

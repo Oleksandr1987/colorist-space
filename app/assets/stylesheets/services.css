@@ -508,48 +508,6 @@
   object-fit: contain;
 }
 
-  .care-products-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .care-products-header .category-title {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .care-products-header .formula-add-button {
-    flex: 0 0 38px;
-  }
-
-  .care-products-page-search {
-    width: 100%;
-    margin-bottom: 12px;
-  }
-
-  .care-products-page-search .formula-search-input {
-    display: block;
-    width: 100%;
-    height: 42px;
-    padding: 0 14px;
-    box-sizing: border-box;
-    border: 1px solid #bdbdbd;
-    border-radius: 10px;
-    background: #fff;
-    font-size: 0.95rem;
-    outline: none;
-  }
-
-  .care-products-page-search .formula-search-input:focus {
-    border-color: #7e3af2;
-  }
-
-  .care-products-page-search .formula-search-input::placeholder {
-    color: #888;
-  }
 /* === Мобільна адаптація === */
 @media (max-width: 768px) {
   .category-wrapper {
@@ -580,9 +538,7 @@
   }
 
   .service-wrapper .category-header,
-  .service-wrapper .formula-header,
-  .service-wrapper .care-products-page-search,
-  .service-wrapper .care-products-filters {
+  .service-wrapper .formula-header {
     flex-shrink: 0;
   }
 
