@@ -2,13 +2,16 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type", "selected", "toggleButton"]
+  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type", "selected", "toggleButton", "colorFilters", "oxidantFilters", "formulaAddButton"]
 
   static values = {
     categories: Object,
     subtypes: Object,
     addLabel: String,
-    saveLabel: String
+    saveLabel: String,
+    formulaFilters: Boolean,
+    colorNewUrl: String,
+    oxidantNewUrl: String
   }
 
   connect() {
@@ -19,8 +22,16 @@ export default class extends Controller {
     this.selectedServices = []
     this.selectedCategories = []
 
+    this.formulaCategory = "color"
+    this.selectedFormulaBrands = []
+    this.selectedFormulaPercentages = []
+
     if (this.hasCategorySelectTarget) {
       this.updateSubtypeOptions()
+    }
+
+    if (this.formulaFiltersValue) {
+      this.filterFormulaProducts()
     }
   }
 
@@ -112,6 +123,96 @@ export default class extends Controller {
       const option = document.createElement("option")
       option.value = type
       datalist.appendChild(option)
+    })
+  }
+
+  selectFormulaCategory(event) {
+    event.preventDefault()
+
+    this.formulaCategory = event.currentTarget.dataset.formulaCategory
+
+    this.updateFormulaAddButton()
+
+    this.selectedFormulaBrands = []
+    this.selectedFormulaPercentages = []
+
+    this.element
+      .querySelectorAll("[data-formula-category]")
+      .forEach(button => { button.classList.toggle("active", button.dataset.formulaCategory === this.formulaCategory) })
+
+    this.element
+      .querySelectorAll("[data-brand], [data-percentage]")
+      .forEach(button => { button.classList.remove("active") })
+
+    if (this.hasColorFiltersTarget) {
+      this.colorFiltersTarget.classList.toggle("hidden", this.formulaCategory !== "color")
+    }
+
+    if (this.hasOxidantFiltersTarget) {
+      this.oxidantFiltersTarget.classList.toggle("hidden", this.formulaCategory !== "oxidant")
+    }
+
+    this.filterFormulaProducts()
+  }
+
+  updateFormulaAddButton() {
+    if (!this.hasFormulaAddButtonTarget) return
+
+    if (this.formulaCategory === "oxidant") {
+      this.formulaAddButtonTarget.href = this.oxidantNewUrlValue
+    } else {
+      this.formulaAddButtonTarget.href = this.colorNewUrlValue
+    }
+  }
+
+  filterFormulaBrand(event) {
+    event.preventDefault()
+
+    const brand = event.currentTarget.dataset.brand
+
+    if (this.selectedFormulaBrands.includes(brand)) {
+      this.selectedFormulaBrands = this.selectedFormulaBrands.filter(value => value !== brand)
+    } else {
+      this.selectedFormulaBrands.push(brand)
+    }
+
+    event.currentTarget.classList.toggle("active", this.selectedFormulaBrands.includes(brand))
+
+    this.filterFormulaProducts()
+  }
+
+  filterFormulaPercentage(event) {
+    event.preventDefault()
+
+    const percentage = event.currentTarget.dataset.percentage
+
+    if (this.selectedFormulaPercentages.includes(percentage)) {
+      this.selectedFormulaPercentages = this.selectedFormulaPercentages.filter(value => value !== percentage)
+    } else {
+      this.selectedFormulaPercentages.push(percentage)
+    }
+
+    event.currentTarget.classList.toggle("active", this.selectedFormulaPercentages.includes(percentage))
+
+    this.filterFormulaProducts()
+  }
+
+  filterFormulaProducts() {
+    if (!this.hasListTarget) return
+
+    const query = this.hasSearchTarget ? this.searchTarget.value.trim().toLowerCase() : ""
+
+    this.listTarget.querySelectorAll(".service-item").forEach(item => {
+      const name = (item.dataset.name || "").toLowerCase()
+      const category = (item.dataset.category || "").toLowerCase()
+      const brand = (item.dataset.brand || "").toLowerCase()
+      const percentage = (item.dataset.percentage || "").toLowerCase()
+      const matchesCategory = category === this.formulaCategory
+      const matchesBrand = this.selectedFormulaBrands.length === 0 || this.selectedFormulaBrands.includes(brand)
+      const matchesPercentage = this.formulaCategory !== "oxidant" || this.selectedFormulaPercentages.length === 0 || this.selectedFormulaPercentages.includes(percentage)
+      const matchesSearch = query === "" || name.includes(query)
+
+      item.classList.toggle("hidden", !(matchesCategory && matchesBrand && matchesPercentage && matchesSearch))
     })
   }
 

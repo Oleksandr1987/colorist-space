@@ -1,22 +1,19 @@
 class FormulaProductsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_formula_product,
-                only: %i[edit update destroy]
+  before_action :set_formula_product, only: %i[edit update destroy]
 
   def index
-    @category = params[:category].presence || "color"
+    @formula_products = current_user.formula_products.ordered
 
-    @formula_products =
-      current_user.formula_products
-                  .where(category: @category)
-                  .order(:brand, :name)
+    @color_brands = FormulaProduct.brands_for(@formula_products, "color")
+
+    @oxidant_brands = FormulaProduct.brands_for(@formula_products, "oxidant")
+
+    @oxidant_percentages = FormulaProduct.oxidant_percentages(@formula_products)
   end
 
   def new
-    @formula_product =
-      current_user.formula_products.build(
-        category: params[:category]
-      )
+    @formula_product = current_user.formula_products.build(category: params[:category])
   end
 
   def create
@@ -24,9 +21,7 @@ class FormulaProductsController < ApplicationController
 
     if @formula_product.save
       respond_to do |format|
-        format.html do
-          redirect_to formula_products_path(category: @formula_product.category)
-        end
+        format.html { redirect_to formula_products_path }
 
         format.json do
           render json: {
@@ -40,7 +35,12 @@ class FormulaProductsController < ApplicationController
     else
       respond_to do |format|
         format.html { render :new, status: :unprocessable_content }
-        format.json { render json: { errors: @formula_product.errors.full_messages }, status: :unprocessable_content }
+
+        format.json do
+          render json: {
+            errors: @formula_product.errors.full_messages
+          }, status: :unprocessable_content
+        end
       end
     end
   end
@@ -49,35 +49,23 @@ class FormulaProductsController < ApplicationController
   end
 
   def update
-    if @formula_product.update(
-         formula_product_params
-       )
-      redirect_to formula_products_path(
-        category: @formula_product.category
-      )
+    if @formula_product.update(formula_product_params)
+      redirect_to formula_products_path
     else
-      render :edit,
-             status: :unprocessable_content
+      render :edit, status: :unprocessable_content
     end
   end
 
   def destroy
-    category = @formula_product.category
-
     @formula_product.destroy
 
-    redirect_to formula_products_path(
-      category: category
-    )
+    redirect_to formula_products_path
   end
 
   private
 
   def set_formula_product
-    @formula_product =
-      current_user.formula_products.find(
-        params[:id]
-      )
+    @formula_product = current_user.formula_products.find(params[:id])
   end
 
   def formula_product_params
