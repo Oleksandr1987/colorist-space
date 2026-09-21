@@ -215,6 +215,8 @@ export default class extends Controller {
 
   // RATIO
   setRatio(event) {
+    this.hideCustomRatio()
+
     this.selectedRatio = event.currentTarget.dataset.ratio
     this.manualOverride = false
     this.element
@@ -229,7 +231,7 @@ export default class extends Controller {
     this.enableSave()
   }
 
-  showCustomRatio() {
+  showCustomRatio({ focus = true } = {}) {
     if (!this.hasCustomRatioTarget) return
 
     this.customRatioTarget.classList.remove("hidden")
@@ -238,23 +240,15 @@ export default class extends Controller {
       this.customToggleTarget.classList.add("hidden")
     }
 
-    requestAnimationFrame(() => {
-      this.customInputTarget?.focus()
-    })
+    if (focus) {
+      requestAnimationFrame(() => {
+        this.customInputTarget?.focus()
+      })
+    }
   }
 
   cancelCustomRatio() {
-    if (this.hasCustomRatioTarget) {
-      this.customRatioTarget.classList.add("hidden")
-    }
-
-    if (this.hasCustomToggleTarget) {
-      this.customToggleTarget.classList.remove("hidden")
-    }
-
-    if (this.hasCustomInputTarget) {
-      this.customInputTarget.value = ""
-    }
+    this.hideCustomRatio()
   }
 
   addCustom() {
@@ -304,6 +298,20 @@ export default class extends Controller {
     this.customInputTarget.value = value
   }
 
+  hideCustomRatio() {
+    if (this.hasCustomRatioTarget) {
+      this.customRatioTarget.classList.add("hidden")
+    }
+
+    if (this.hasCustomToggleTarget) {
+      this.customToggleTarget.classList.remove("hidden")
+    }
+
+    if (this.hasCustomInputTarget) {
+      this.customInputTarget.value = ""
+    }
+  }
+
   highlightRatio(ratio) {
     let found = false
 
@@ -320,7 +328,7 @@ export default class extends Controller {
       })
 
     if (!found && ratio) {
-      this.showCustomRatio()
+      this.showCustomRatio({ focus: false })
 
       if (this.hasCustomInputTarget) {
         this.customInputTarget.value =
@@ -372,7 +380,7 @@ export default class extends Controller {
     const ratio = this.colorAmount > 0 ? (amount / this.colorAmount).toFixed(2) : 0
 
     this.selectedRatio = `1:${ratio}`
-    this.showCustomRatio()
+    this.showCustomRatio({ focus: false })
 
     if (this.hasCustomInputTarget) {
       this.customInputTarget.value = ratio
