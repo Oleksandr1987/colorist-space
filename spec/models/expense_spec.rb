@@ -1,6 +1,16 @@
 require "rails_helper"
 
 RSpec.describe Expense do
+  include ActiveSupport::Testing::TimeHelpers
+
+  before do
+    travel_to Time.zone.local(2026, 1, 15, 12)
+  end
+
+  after do
+    travel_back
+  end
+
   describe "associations" do
     it { is_expected.to belong_to(:user) }
   end
@@ -33,8 +43,20 @@ RSpec.describe Expense do
       expect(expense.errors[:spent_on]).to be_present
     end
 
+    it "allows today's date" do
+      expense = build(:expense, spent_on: Date.current)
+
+      expect(expense).to be_valid
+    end
+
+    it "allows a date in the past" do
+      expense = build(:expense, spent_on: Date.current - 1.day)
+
+      expect(expense).to be_valid
+    end
+
     it "is invalid if spent_on is in the future" do
-      expense = build(:expense, spent_on: Date.today + 1)
+      expense = build(:expense, spent_on: Date.current + 1.day)
 
       expect(expense).not_to be_valid
       expect(expense.errors[:spent_on]).to include("Please select a date in the past or today")
@@ -47,7 +69,7 @@ RSpec.describe Expense do
 
     it ".ordered_by_date sorts expenses by spent_on desc" do
       older = create(:expense, spent_on: Date.new(2026, 1, 1))
-      newer = create(:expense, spent_on: Date.new(2026, 2, 1))
+      newer = create(:expense, spent_on: Date.new(2026, 1, 10))
 
       result = described_class.ordered_by_date
 
@@ -57,10 +79,12 @@ RSpec.describe Expense do
 
     it ".for_user_between returns only records for the user within range" do
       from = Date.new(2026, 1, 1)
-      to   = Date.new(2026, 1, 31)
+      to = Date.new(2026, 1, 31)
 
       in_range = create(:expense, user: user, spent_on: Date.new(2026, 1, 10))
-      out_of_range = create(:expense, user: user, spent_on: Date.new(2026, 2, 1))
+
+      out_of_range = create(:expense, user: user, spent_on: Date.new(2025, 12, 31))
+
       other_users = create(:expense, user: other_user, spent_on: Date.new(2026, 1, 10))
 
       result = described_class.for_user_between(user, from, to)
@@ -109,14 +133,15 @@ RSpec.describe Expense do
     it ".monthly_expenses groups by month label" do
       I18n.with_locale(:en) do
         create(:expense, spent_on: Date.new(2026, 1, 5))
-        create(:expense, spent_on: Date.new(2026, 1, 20))
-        create(:expense, spent_on: Date.new(2026, 2, 1))
+        create(:expense, spent_on: Date.new(2026, 1, 10))
+        create(:expense, spent_on: Date.new(2025, 12, 1))
 
         grouped = described_class.monthly_expenses(described_class.all)
 
-        expect(grouped.keys).to contain_exactly("February 2026", "January 2026")
+        expect(grouped.keys).to contain_exactly("December 2025", "January 2026")
+
         expect(grouped["January 2026"].size).to eq(2)
-        expect(grouped["February 2026"].size).to eq(1)
+        expect(grouped["December 2025"].size).to eq(1)
       end
     end
   end

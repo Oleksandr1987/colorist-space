@@ -16,29 +16,41 @@ RSpec.describe "Analytics" do
 
   describe "GET /analytics/expenses" do
     it "filters expenses by user, period and category" do
-      rent = create(:expense, user: user, category: "Оренда", amount: 100, spent_on: Date.current)
+      rent = create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
 
-      get expenses_analytics_path, params: { from: 1.month.ago.to_date, to: Date.current, category: "Оренда" }
+      create(:expense, user: user, category: "materials", amount: 200, spent_on: Date.current)
+      create(:expense, user: user, category: "rent", amount: 300, spent_on: 2.months.ago.to_date)
+      create(:expense, user: other_user, category: "rent", amount: 400, spent_on: Date.current)
+
+      get expenses_analytics_path, params: { from: 1.month.ago.to_date, to: Date.current, categories: [ "rent" ] }
 
       expect(response).to have_http_status(:ok)
 
-      scope = Expense.for_user_between(user, 1.month.ago.to_date, Date.current).apply_category_filter("Оренда")
+      scope = Expense.for_user_between(user, 1.month.ago.to_date, Date.current).apply_category_filter([ "rent" ])
 
       expect(scope).to contain_exactly(rent)
       expect(Expense.total_expenses(scope)).to eq(100)
-      expect(Expense.grouped_expenses(scope)).to eq({ "Оренда" => 100 })
+      expect(Expense.grouped_expenses(scope)).to eq({ "rent" => 100 })
     end
 
-    it "assigns category filter when category valid" do
-      get expenses_analytics_path, params: { category: Expense::CATEGORIES.first }
+    it "accepts valid category filters" do
+      get expenses_analytics_path, params: { categories: [ "rent", "materials" ] }
 
       expect(response).to have_http_status(:ok)
+
+      category_filters = controller.instance_variable_get(:@category_filters)
+
+      expect(category_filters).to eq([ "rent", "materials" ])
     end
 
-    it "ignores invalid category" do
-      get expenses_analytics_path, params: { category: "INVALID_CATEGORY" }
+    it "ignores invalid category filters" do
+      get expenses_analytics_path, params: { categories: [ "rent", "INVALID_CATEGORY" ] }
 
       expect(response).to have_http_status(:ok)
+
+      category_filters = controller.instance_variable_get(:@category_filters)
+
+      expect(category_filters).to eq([ "rent" ])
     end
 
     it "falls back to default dates when invalid dates passed" do
@@ -51,17 +63,11 @@ RSpec.describe "Analytics" do
   describe "GET /analytics/income" do
   let(:client) { create(:client, user: user) }
 
-  let(:service_a) do
-    create(:service, user: user, service_type: "service", category: "haircut", subtype: "A", price: 100)
-  end
+  let(:service_a) { create(:service, user: user, service_type: "service", category: "haircut", subtype: "A", price: 100) }
 
-  let(:service_b) do
-    create(:service, user: user, service_type: "service", category: "coloring", subtype: "B", price: 200)
-  end
+  let(:service_b) { create(:service, user: user, service_type: "service", category: "coloring", subtype: "B", price: 200) }
 
-  let(:other_service) do
-    create(:service, user: other_user, service_type: "service", category: "haircut", subtype: "X", price: 999)
-  end
+  let(:other_service) { create(:service, user: other_user, service_type: "service", category: "haircut", subtype: "X", price: 999) }
 
   let(:appointment_a) do
     create(:appointment, user: user, client: client,

@@ -7,8 +7,29 @@ class FormulaProduct < ApplicationRecord
   validates :price_per_unit, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
   scope :colors, -> { where(category: "color") }
-
   scope :oxidants, -> { where(category: "oxidant") }
+  scope :ordered, -> { order(:brand, :name) }
 
   scope :palette_list, -> { colors.select(:id, :brand, :unit, :price_per_unit).distinct.order(:brand) }
+
+  class << self
+    def brands_for(products, category)
+      products
+        .select { |product| product.category == category }
+        .map(&:brand)
+        .compact_blank
+        .uniq
+        .sort
+    end
+
+    def oxidant_percentages(products)
+      products.select { |product| product.category == "oxidant" }.filter_map(&:percentage).uniq.sort_by(&:to_f)
+    end
+  end
+
+  def percentage
+    return unless category == "oxidant"
+
+    name.to_s[/\d+(?:[.,]\d+)?\s*%/]&.delete(" ")&.tr(",", ".")
+  end
 end
