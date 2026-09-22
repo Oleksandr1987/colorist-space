@@ -1,10 +1,12 @@
-# :nocov:
 class HomeController < ApplicationController
-  before_action :prepare_devise_vars
-
   helper_method :resource, :resource_name, :devise_mapping
 
   def index
+    if user_signed_in?
+      redirect_to calendar_appointments_path
+    else
+      prepare_devise_vars
+    end
   end
 
   private
@@ -29,4 +31,3 @@ class HomeController < ApplicationController
     Devise.mappings[:user]
   end
 end
-# :nocov:
