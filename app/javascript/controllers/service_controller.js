@@ -10,6 +10,7 @@ export default class extends Controller {
     addLabel: String,
     saveLabel: String,
     formulaFilters: Boolean,
+    formulaCategory: String,
     colorNewUrl: String,
     oxidantNewUrl: String
   }
@@ -22,7 +23,7 @@ export default class extends Controller {
     this.selectedServices = []
     this.selectedCategories = []
 
-    this.formulaCategory = "color"
+    this.formulaCategory = this.hasFormulaCategoryValue ? this.formulaCategoryValue : "color"
     this.selectedFormulaBrands = []
     this.selectedFormulaPercentages = []
 
@@ -31,6 +32,7 @@ export default class extends Controller {
     }
 
     if (this.formulaFiltersValue) {
+      this.updateFormulaAddButton()
       this.filterFormulaProducts()
     }
   }

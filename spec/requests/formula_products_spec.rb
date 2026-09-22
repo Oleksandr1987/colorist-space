@@ -72,7 +72,15 @@ RSpec.describe "FormulaProducts" do
 
     it "creates formula product" do
       expect { post formula_products_path, params: valid_params }.to change(FormulaProduct, :count).by(1)
-      expect(response).to redirect_to(formula_products_path(locale: I18n.locale))
+
+      expect(response).to redirect_to(formula_products_path(category: "color", locale: I18n.locale))
+    end
+
+    it "redirects back to oxidants after creating an oxidant" do
+      post formula_products_path, params:
+          { formula_product: { category: "oxidant", brand: "Wella", name: "Developer 6%", unit: "ml", price_per_unit: 2 } }
+
+      expect(response).to redirect_to(formula_products_path(category: "oxidant", locale: I18n.locale))
     end
 
     it "assigns created product to current user" do
@@ -119,8 +127,9 @@ RSpec.describe "FormulaProducts" do
 
       patch formula_product_path(product), params: { formula_product: { name: "Updated", brand: "Loreal" } }
 
-      expect(response).to redirect_to(formula_products_path(locale: I18n.locale))
-      expect(product.reload.name).to eq("Updated")
+      expect(response).to redirect_to(formula_products_path(category: product.reload.category, locale: I18n.locale))
+
+      expect(product.name).to eq("Updated")
       expect(product.brand).to eq("Loreal")
     end
 
@@ -137,9 +146,11 @@ RSpec.describe "FormulaProducts" do
   describe "DELETE /formula_products/:id" do
     it "destroys formula product" do
       product = create(:formula_product, user: user)
+      category = product.category
 
-      expect { delete formula_product_path(product)}.to change(FormulaProduct, :count).by(-1)
-      expect(response).to redirect_to(formula_products_path(locale: I18n.locale))
+      expect { delete formula_product_path(product) }.to change(FormulaProduct, :count).by(-1)
+
+      expect(response).to redirect_to(formula_products_path(category: category, locale: I18n.locale))
     end
   end
 end

@@ -23,17 +23,13 @@ class FormulaProduct < ApplicationRecord
     end
 
     def oxidant_percentages(products)
-      products
-        .select { |product| product.category == "oxidant" }
-        .filter_map(&:percentage)
-        .uniq
-        .sort_by { |percentage| percentage.tr(",", ".").to_f }
+      products.select { |product| product.category == "oxidant" }.filter_map(&:percentage).uniq.sort_by(&:to_f)
     end
   end
 
   def percentage
     return unless category == "oxidant"
 
-    name.to_s[/\d+(?:[.,]\d+)?\s*%/]&.delete(" ")
+    name.to_s[/\d+(?:[.,]\d+)?\s*%/]&.delete(" ")&.tr(",", ".")
   end
 end

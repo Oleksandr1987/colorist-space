@@ -4,6 +4,7 @@ class Expense < ApplicationRecord
   validates :category, presence: true
   validates :amount, numericality: { only_integer: true, greater_than: 0 }
   validates :spent_on, presence: true
+
   validate :spent_on_cannot_be_in_the_future
 
   CATEGORIES = %w[
@@ -46,7 +47,7 @@ class Expense < ApplicationRecord
   private
 
   def spent_on_cannot_be_in_the_future
-    return unless spent_on.present? && spent_on > Date.today
+    return unless spent_on.present? && spent_on > Date.current
 
     errors.add(:spent_on, "Please select a date in the past or today")
   end

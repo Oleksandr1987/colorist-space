@@ -123,7 +123,7 @@ RSpec.describe FormulaProduct do
 
       result = described_class.oxidant_percentages(products)
 
-      expect(result).to eq([ "1,5%", "1.9%", "3%" ])
+      expect(result).to eq([ "1.5%", "1.9%", "3%" ])
     end
 
     it "ignores oxidants without a percentage" do
@@ -160,7 +160,7 @@ RSpec.describe FormulaProduct do
       it "extracts a percentage containing a comma" do
         product = build(:formula_product, :oxidant, name: "Developer 1,5%")
 
-        expect(product.percentage).to eq("1,5%")
+        expect(product.percentage).to eq("1.5%")
       end
 
       it "extracts a percentage containing a decimal point" do
@@ -179,6 +179,15 @@ RSpec.describe FormulaProduct do
         product = build(:formula_product, :oxidant, name: "Developer")
 
         expect(product.percentage).to be_nil
+      end
+
+      it "deduplicates equivalent comma and dot percentages" do
+        products = [
+          build(:formula_product, :oxidant, name: "Developer 1,5%"),
+          build(:formula_product, :oxidant, name: "Peroxide 1.5%")
+        ]
+
+        expect(described_class.oxidant_percentages(products)).to eq([ "1.5%" ])
       end
     end
 

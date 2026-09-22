@@ -4,11 +4,10 @@ class FormulaProductsController < ApplicationController
 
   def index
     @formula_products = current_user.formula_products.ordered
+    @formula_category = %w[color oxidant].include?(params[:category]) ? params[:category] : "color"
 
     @color_brands = FormulaProduct.brands_for(@formula_products, "color")
-
     @oxidant_brands = FormulaProduct.brands_for(@formula_products, "oxidant")
-
     @oxidant_percentages = FormulaProduct.oxidant_percentages(@formula_products)
   end
 
@@ -21,7 +20,9 @@ class FormulaProductsController < ApplicationController
 
     if @formula_product.save
       respond_to do |format|
-        format.html { redirect_to formula_products_path }
+        format.html do
+          redirect_to formula_products_path(category: @formula_product.category)
+        end
 
         format.json do
           render json: {
@@ -50,16 +51,17 @@ class FormulaProductsController < ApplicationController
 
   def update
     if @formula_product.update(formula_product_params)
-      redirect_to formula_products_path
+      redirect_to formula_products_path(category: @formula_product.category)
     else
       render :edit, status: :unprocessable_content
     end
   end
 
   def destroy
+    category = @formula_product.category
     @formula_product.destroy
 
-    redirect_to formula_products_path
+    redirect_to formula_products_path(category: category)
   end
 
   private
