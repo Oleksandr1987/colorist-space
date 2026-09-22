@@ -8,21 +8,24 @@ FactoryBot.define do
     password { "Password123!" }
     password_confirmation { password }
     tos_agreement { true }
-    plan_name { nil }
     role { nil }
 
     trait :trial do
-      plan_name { "trial" }
       created_at { 3.days.ago }
-      subscription_expires_at { nil }
     end
 
     trait :with_active_subscription do
-      subscription_expires_at { 10.days.from_now.to_date }
+      after(:create) do |user|
+        user.subscription.update!(plan: "monthly", status: "active",
+          current_period_start: Time.current, current_period_end: 10.days.from_now)
+      end
     end
 
     trait :expired_subscription do
-      subscription_expires_at { 2.days.ago.to_date }
+      after(:create) do |user|
+        user.subscription.update!(plan: "monthly", status: "expired",
+          current_period_start: 1.month.ago, current_period_end: 2.days.ago)
+      end
     end
 
     trait :superadmin do

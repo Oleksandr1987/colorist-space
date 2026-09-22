@@ -1,183 +1,156 @@
 require "rails_helper"
+require_relative "../support/wayforpay_test_config"
 
 RSpec.describe "Subscriptions" do
   include Devise::Test::IntegrationHelpers
+  include WayforpayTestConfig
+  include ActiveSupport::Testing::TimeHelpers
 
-  let(:user) do
-    create(
-      :user,
-      :trial,
-      email: "test@example.com",
-      name: "Oleksandr"
-    )
+  let(:user) { create(:user, :trial) }
+
+  before { configure_wayforpay }
+
+  it "requires login for checkout" do
+    post monthly_subscription_path
+
+    expect(response).to have_http_status(:redirect)
+    expect(SubscriptionPayment.count).to eq(0)
   end
 
-  before do
-    sign_in user, scope: :user
+  it "creates and reuses one stored checkout" do
+    sign_in user
+
+    2.times { post monthly_subscription_path }
+
+    expect(response).to have_http_status(:ok)
+    expect(user.subscription.subscription_payments.count).to eq(1)
+    expect(response.body).to include('https://secure.wayforpay.com/pay')
+    expect(response.body).to include('data-turbo="false"')
+
+    form = Nokogiri::HTML(response.body).at_css('form[action="https://secure.wayforpay.com/pay"]')
+    expect(form.at_css('input[name="authenticity_token"]')).to be_nil
   end
 
-  describe "POST /monthly" do
-    it "renders payment form for monthly plan" do
-      post monthly_subscription_path
+  it "prevents a second agreement while paid access exists" do
+    user.subscription.update!(plan: "monthly", current_period_end: 1.month.from_now)
 
-      expect(response).to have_http_status(:ok)
+    sign_in user
 
-      expect(response.body)
-        .to include("Colorist Space – підписка на 1 місяць")
-    end
+    expect { post yearly_subscription_path }.not_to change(SubscriptionPayment, :count)
   end
 
-  describe "POST /yearly" do
-    it "renders payment form for yearly plan" do
-      post yearly_subscription_path
+  it "handles a signed callback without a login or modern browser" do
+    payment = Subscriptions::Checkout.call(user, "monthly")
 
-      expect(response).to have_http_status(:ok)
+    post payment_callback_subscription_path, params: approval_for(payment), as: :json, headers: { "User-Agent" => "WayForPay" }
 
-      expect(response.body)
-        .to include("Colorist Space – підписка на 1 рік")
-    end
+    expect(response).to have_http_status(:ok)
+
+    data = response.parsed_body
+
+    expect(data["status"]).to eq("accept")
+    expect(data["signature"]).to eq(Wayforpay::Signature.generate(
+      [ data["orderReference"], "accept", data["time"] ], Wayforpay::Config.secret))
+    expect(user.reload.has_active_subscription?).to be(true)
+    expect(user.subscription.auto_renew?).to be(false)
   end
 
-  describe "DELETE /cancel" do
-    before do
-      user.update!(
-        plan_name: "monthly",
-        subscription_expires_at: 1.month.from_now
-      )
-    end
+  it "parses raw JSON sent with a form content type" do
+    payment = Subscriptions::Checkout.call(user, "monthly")
 
-    it "clears subscription data" do
-      delete cancel_subscription_path
+    post payment_callback_subscription_path, params: approval_for(payment).to_json,
+      headers: { "CONTENT_TYPE" => "application/x-www-form-urlencoded" }
 
-      expect(user.reload.plan_name).to be_nil
-      expect(user.reload.subscription_expires_at).to be_nil
-    end
-
-    it "redirects to settings subscription page" do
-      delete cancel_subscription_path
-
-      expect(response).to redirect_to(
-        settings_subscription_path(locale: I18n.locale)
-      )
-    end
+    expect(response).to have_http_status(:ok)
   end
 
-  describe "POST /payment_callback" do
-    let(:order_reference) { "monthly_test123" }
+  it "does not extend access when approval is replayed the next day" do
+    payment = Subscriptions::Checkout.call(user, "monthly")
+    payload = approval_for(payment)
 
-    let(:signature_fields) do
-      [
-        "merchant",
-        order_reference,
-        "1",
-        "UAH",
-        "AUTH123",
-        "444455XXXXXX1111",
-        "Approved",
-        "1100"
-      ]
+    post payment_callback_subscription_path, params: payload, as: :json
+
+    ends_at = user.reload.subscription.current_period_end
+
+    travel 1.day do
+      post payment_callback_subscription_path, params: payload, as: :json
     end
 
-    let(:signature) do
-      Wayforpay::Signature.generate(
-        signature_fields,
-        SubscriptionsController::SECRET_KEY
-      )
-    end
+    expect(user.reload.subscription.current_period_end).to eq(ends_at)
+    expect(WayforpayEvent.count).to eq(1)
+  end
 
-    let(:valid_params) do
-      {
-        merchantAccount: "merchant",
-        orderReference: order_reference,
-        amount: "1",
-        currency: "UAH",
-        authCode: "AUTH123",
-        cardPan: "444455XXXXXX1111",
-        transactionStatus: "Approved",
-        reasonCode: "1100",
-        merchantSignature: signature,
-        clientEmail: user.email
-      }
-    end
+  it "does not trust the callback email to select another user" do
+    other = create(:user)
+    payment = Subscriptions::Checkout.call(user, "monthly")
 
-    it "activates monthly subscription when payment approved" do
-      post payment_callback_subscription_path,
-           params: valid_params
+    post payment_callback_subscription_path,
+      params: approval_for(payment).merge("clientEmail" => other.email), as: :json
 
-      expect(response).to have_http_status(:ok)
+    expect(user.reload.has_active_subscription?).to be(true)
+    expect(other.reload.has_active_subscription?).to be(false)
+  end
 
-      expect(user.reload.plan_name).to eq("monthly")
-      expect(user.subscription_expires_at).to be_present
-    end
+  it "rejects a wrong amount even with a valid signature" do
+    payment = Subscriptions::Checkout.call(user, "yearly")
 
-    it "activates yearly subscription" do
-      valid_params[:orderReference] = "yearly_test123"
+    post payment_callback_subscription_path, params: approval_for(payment, amount: "1"), as: :json
 
-      yearly_signature_fields = [
-        "merchant",
-        "yearly_test123",
-        "1",
-        "UAH",
-        "AUTH123",
-        "444455XXXXXX1111",
-        "Approved",
-        "1100"
-      ]
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(user.reload.has_active_subscription?).to be(false)
+  end
 
-      valid_params[:merchantSignature] =
-        Wayforpay::Signature.generate(
-          yearly_signature_fields,
-          SubscriptionsController::SECRET_KEY
-        )
+  it "rejects an invalid signature" do
+    payment = Subscriptions::Checkout.call(user, "monthly")
 
-      post payment_callback_subscription_path,
-           params: valid_params
+    post payment_callback_subscription_path,
+      params: approval_for(payment).merge("merchantSignature" => "invalid"), as: :json
 
-      expect(user.reload.plan_name).to eq("yearly")
-    end
+    expect(response).to have_http_status(:forbidden)
+    expect(WayforpayEvent.count).to eq(0)
+  end
 
-    it "returns forbidden for invalid signature" do
-      valid_params[:merchantSignature] = "invalid"
+  it "rejects a different merchant even when signed by this test key" do
+    payment = Subscriptions::Checkout.call(user, "monthly")
 
-      post payment_callback_subscription_path,
-           params: valid_params
+    post payment_callback_subscription_path,
+      params: approval_for(payment, merchantAccount: "someone_else"), as: :json
 
-      expect(response).to have_http_status(:forbidden)
-    end
+    expect(response).to have_http_status(:forbidden)
+  end
 
-    it "does not activate subscription when status not approved" do
-      valid_params[:transactionStatus] = "Declined"
+  it "records an unknown reference without granting access" do
+    payment = Subscriptions::Checkout.call(user, "monthly")
 
-      declined_signature_fields = [
-        "merchant",
-        order_reference,
-        "1",
-        "UAH",
-        "AUTH123",
-        "444455XXXXXX1111",
-        "Declined",
-        "1100"
-      ]
+    post payment_callback_subscription_path,
+      params: approval_for(payment, orderReference: "provider-renewal-unknown"), as: :json
 
-      valid_params[:merchantSignature] =
-        Wayforpay::Signature.generate(
-          declined_signature_fields,
-          SubscriptionsController::SECRET_KEY
-        )
+    expect(response).to have_http_status(:ok)
+    expect(WayforpayEvent.last.state).to eq("unmatched")
+    expect(user.reload.has_active_subscription?).to be(false)
+  end
 
-      post payment_callback_subscription_path,
-           params: valid_params
+  it "does not activate a declined purchase" do
+    payment = Subscriptions::Checkout.call(user, "monthly")
 
-      expect(user.reload.plan_name).to eq("trial")
-    end
+    post payment_callback_subscription_path,
+      params: approval_for(payment, transactionStatus: "Declined", reasonCode: "1105"), as: :json
 
-    it "returns ok even if user not found" do
-      valid_params[:clientEmail] = "missing@example.com"
+    expect(user.reload.has_active_subscription?).to be(false)
+    expect(payment.reload.status).to eq("declined")
+  end
 
-      post payment_callback_subscription_path,
-           params: valid_params
+  it "never activates from the browser return" do
+    post payment_return_subscription_path, params: { transactionStatus: "Approved" }
 
-      expect(response).to have_http_status(:ok)
-    end
+    expect(response).to have_http_status(:see_other)
+    expect(user.has_active_subscription?).to be(false)
+  end
+
+  it "blocks checkout for superadmin on the server" do
+    sign_in create(:user, :superadmin)
+
+    post monthly_subscription_path
+    expect(response).to have_http_status(:forbidden)
   end
 end

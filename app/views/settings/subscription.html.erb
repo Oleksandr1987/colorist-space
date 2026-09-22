@@ -1,34 +1,126 @@
 <div class="subscription-page">
-  <h1><%= t("subscription.title") %></h1>
-
-  <div class="subscription-info">
-    <% plan = @user.superadmin? ? "superadmin" : (@user.plan_name || "trial") %>
-    <% expires = @user.subscription_expires_at&.strftime("%d.%m.%Y") || "—" %>
-
-    <p><strong><%= t("subscription.current_plan") %>:</strong> <%= plan %></p>
-    <p><strong><%= t("subscription.valid_until") %>:</strong> <%= expires %></p>
-
-    <% if @user.subscription_will_expire_soon? %>
-      <p class="warning"><%= t("subscription.expires_soon") %></p>
-    <% elsif !@user.has_active_subscription? && !@user.superadmin? %>
-      <p class="warning"><%= t("subscription.expired") %></p>
+  <div class="subscription-header">
+    <%= link_to settings_path, class: "back", aria: { label: t("subscription.back") } do %>
+      <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24, alt: "" %>
     <% end %>
+    <h1>
+      <%= t("subscription.title") %>
+    </h1>
   </div>
 
-  <div class="subscription-actions mt-3">
-    <%= button_to t("subscription.monthly"), monthly_subscription_path, method: :post, class: "button primary full", data: { turbo: false } %>
-    <%= button_to t("subscription.yearly"), yearly_subscription_path, method: :post, class: "button primary full", data: { turbo: false } %>
+  <section class="subscription-section">
+    <h2 class="settings-section-title">
+      <%= t("subscription.current_plan") %>
+    </h2>
+    <div class="subscription-current-plan">
+      <div class="subscription-plan-name">
+        <%= t("subscription.plans.#{@user.subscription_plan}") %>
+      </div>
+      <% unless @user.superadmin? %>
+        <div class="subscription-plan-expiration">
+          <span>
+            <%= t("subscription.valid_until") %>
+          </span>
+          <strong>
+            <%= subscription_end_label(@subscription) %>
+          </strong>
+        </div>
+        <p>
+          <%= t("subscription.statuses.#{@subscription&.display_status || 'pending'}") %>
+        </p>
+      <% end %>
+    </div>
 
-    <% if @user.has_active_subscription? %>
-      <%= button_to t("subscription.cancel"),
-            cancel_subscription_path,
-            method: :delete,
-            data: { confirm: t("subscription.confirm_cancel") },
-            class: "button secondary full mt-2" %>
+    <% if @subscription&.cancelled_at && @subscription.paid_access? %>
+      <p class="subscription-warning">
+        <%= t("subscription.cancelled_until", date: subscription_end_label(@subscription)) %>
+      </p>
     <% end %>
-  </div>
+    <% if @subscription&.next_plan %>
+      <p>
+        <%= t("subscription.scheduled", plan: t("subscription.plans.#{@subscription.next_plan}"), date: @subscription.next_plan_starts_at.strftime("%d.%m.%Y")) %>
+      </p>
+    <% end %>
+    <% if @subscription&.management_intent.present? %>
+      <p class="subscription-warning">
+        <%= t("subscription.pending_operation") %>
+      </p>
+    <% end %>
 
-  <div class="mt-3">
-    <%= link_to t("subscription.back"), settings_path, class: "button link" %>
-  </div>
+  </section>
+  <% unless @user.superadmin? %>
+    <% if @subscription&.wayforpay_order_reference.present? %>
+      <p>
+        <%= t("subscription.auto_renew") %>: <strong><%= t(@subscription.auto_renew? ? "subscription.enabled" : "subscription.disabled") %></strong>
+      </p>
+      <% if @subscription.provider_status == "Unverified" %>
+        <p class="subscription-warning">
+          <%= t("subscription.unverified") %>
+        </p>
+      <% end %>
+
+      <% if @subscription.provider_status == "Active" && @subscription.paid_access? %>
+        <% other_plan = @subscription.plan == "monthly" ? "yearly" : "monthly" %>
+        <%= button_to "#{t("subscription.change_to_#{other_plan}")} (#{subscription_price(other_plan)})", change_plan_subscription_path(plan: other_plan), method: :patch,
+          form: { class: "subscription-plan-form", data: { turbo_confirm: t("subscription.confirm_change") } }, class: "subscription-plan-button" %>
+      <% end %>
+
+      <% unless @subscription.provider_status == "Removed" %>
+        <%= button_to t("subscription.cancel"), cancel_subscription_path, method: :delete,
+          form: { data: { turbo_confirm: t("subscription.confirm_cancel") } }, class: "subscription-cancel-button" %>
+      <% end %>
+    <% end %>
+
+    <% if !@subscription&.paid_access? && (@subscription&.wayforpay_order_reference.blank? || @subscription&.provider_status == "Removed") %>
+      <section class="subscription-section">
+        <h2 class="settings-section-title">
+          <%= t("subscription.choose_plan") %>
+        </h2>
+
+        <% %w[monthly yearly].each do |plan| %>
+          <%= button_to public_send("#{plan}_subscription_path"), method: :post,
+            form: { data: { turbo: false }, class: "subscription-plan-form" }, class: "subscription-plan-button" do %>
+            <span>
+              <%= t("subscription.#{plan}") %>
+            </span>
+            <strong>
+              <%= subscription_price(plan) %>
+            </strong>
+          <% end %>
+        <% end %>
+      </section>
+
+    <% elsif @subscription&.paid_access? && @subscription&.wayforpay_order_reference.blank? %>
+      <p>
+        <%= t("subscription.legacy_access") %>
+      </p>
+    <% end %>
+
+    <% if @subscription&.checkout_payment_id %>
+      <%= button_to t("subscription.sync"), sync_subscription_path, method: :post, class: "subscription-plan-button" %>
+    <% end %>
+  <% end %>
+
+  <% if @payments.any? %>
+    <section class="subscription-section">
+      <h2 class="settings-section-title">
+        <%= t("subscription.payments") %>
+      </h2>
+      <% @payments.each do |payment| %>
+        <div class="settings-info-row">
+          <span>
+              <%= payment.created_at.strftime("%d.%m.%Y") %><br><%= t("subscription.payment_statuses.#{payment.status}") %>
+            <% if payment.source == "regular_status" %>
+            <small>
+              <%= t("subscription.reconciled_receipt") %>
+            </small>
+            <% end %>
+          </span>
+          <strong>
+            <%= number_to_currency(payment.amount, unit: "₴", format: "%n %u") %>
+          </strong>
+        </div>
+      <% end %>
+    </section>
+  <% end %>
 </div>

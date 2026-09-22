@@ -62,11 +62,13 @@ Rails.application.routes.draw do
   end
 
   resource :subscription, only: [] do
-    get :wayforpay, to: "subscriptions#wayforpay_form"
-    post :monthly,  to: "subscriptions#activate_monthly"
-    post :yearly,   to: "subscriptions#activate_yearly"
-    post :payment_callback, to: "subscriptions#payment_callback"
+    post :monthly, to: "subscriptions#activate_monthly"
+    post :yearly, to: "subscriptions#activate_yearly"
+    patch :change_plan, to: "subscriptions#change_plan"
     delete :cancel, to: "subscriptions#cancel"
+    post :sync, to: "subscriptions#sync"
+    post :payment_callback, to: "wayforpay_callbacks#create"
+    match :payment_return, to: "wayforpay_callbacks#payment_return", via: [:get, :post]
   end
 
   get "/admin", to: "admin#index", as: :admin

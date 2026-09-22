@@ -11,8 +11,7 @@ uk:
       change_password: "Змінити пароль"
       logout: "Вийти"
       delete: "Видалити обліковий запис"
-      confirm_delete: "Ви впевнені?"
-
+      confirm_delete: "Видалити обліковий запис?"
     language:
       title: "Мова інтерфейсу"
       uk: "Українська"
@@ -21,9 +20,9 @@ uk:
     subscription:
       title: "Підписка"
       plan: "Тариф"
-      active_until: "Дійсна до"
+      active_until: "Доступ включно до"
       days_left: "Залишилось"
       expired: "Підписка завершилась"
-      expires_soon: "⚠️ Залишилось менше 3 днів"
+      expires_soon: "Оплачений період скоро завершиться"
       manage: "Керувати підпискою"
       none: "—"

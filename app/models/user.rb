@@ -1,10 +1,9 @@
 class User < ApplicationRecord
   include PhoneValidator
+  include SubscriptionAccess
 
   attr_accessor :login
 
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :omniauthable, omniauth_providers: %i[facebook google_oauth2 instagram]
@@ -17,10 +16,10 @@ class User < ApplicationRecord
   \z/x.freeze
 
   validates :name, presence: true
-
   validates :password, format: { with: PASSWORD_FORMAT, message: :weak_password }, if: :password_required?
-
   validates_acceptance_of :tos_agreement, allow_nil: false, on: :create
+
+  has_one :subscription, dependent: :restrict_with_error
 
   has_many :clients, dependent: :destroy
   has_many :appointments, dependent: :destroy
@@ -34,16 +33,9 @@ class User < ApplicationRecord
     def find_for_database_authentication(warden_conditions)
       conditions = warden_conditions.dup
       login = conditions.delete(:login)&.strip
-
       return nil if login.blank?
-
-      if !login.include?("@")
-        login = PhoneValidator.normalize(login)
-      end
-
-      where(conditions).where(
-        [ "LOWER(email) = :value OR phone = :value", { value: login.downcase } ]
-      ).first
+      login = PhoneValidator.normalize(login) unless login.include?("@")
+      where(conditions).where("LOWER(email) = :value OR phone = :value", value: login.downcase).first
     end
 
     def from_omniauth(auth)
@@ -54,8 +46,6 @@ class User < ApplicationRecord
       else
         return_user = where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
           user.email = auth.info.email
-          # append guaranteed uppercase/digit/special characters so the random
-          # token reliably satisfies PASSWORD_FORMAT (it otherwise does so by chance)
           user.password = "#{Devise.friendly_token[0, 20]}A1!"
           user.name = auth.info.name
           user.phone = auth.info.phone || ""
@@ -64,28 +54,6 @@ class User < ApplicationRecord
       end
       return_user
     end
-  end
-
-  def has_active_subscription?
-    subscription_expires_at.present? && subscription_expires_at >= Date.today
-  end
-
-  def subscription_will_expire_soon?
-    subscription_expires_at.present? &&
-      subscription_expires_at <= 3.days.from_now.to_date &&
-      subscription_expires_at >= Date.today
-  end
-
-  def on_trial?
-    plan_name == "trial" && created_at >= 7.days.ago && !has_active_subscription?
-  end
-
-  def trial_days_left
-    [ (created_at.to_date + 7.days - Date.today).to_i, 0 ].max
-  end
-
-  def has_write_access?
-    has_active_subscription? || on_trial?
   end
 
   def superadmin?
