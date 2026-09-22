@@ -96,7 +96,7 @@ RSpec.describe "Subscriptions" do
 
     post payment_callback_subscription_path, params: approval_for(payment, amount: "1"), as: :json
 
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
     expect(user.reload.has_active_subscription?).to be(false)
   end
 

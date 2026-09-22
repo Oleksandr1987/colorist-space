@@ -16,7 +16,7 @@ class WayforpayCallbacksController < ActionController::Base
     head :bad_request
   rescue Wayforpay::Error => e
     Rails.logger.warn("WayForPay callback: #{e.message}")
-    head :unprocessable_entity
+    head :unprocessable_content
   end
 
   # Browser return is not proof of payment. No subscription mutation here.
