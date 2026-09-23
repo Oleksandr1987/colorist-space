@@ -12,9 +12,13 @@ RSpec.describe WayforpayBodyLimit do
 
   it "rejects a declared oversized body without reading it" do
     env = env_for("", "65537")
+    input = env["rack.input"]
+    allow(input).to receive(:read).and_call_original
 
-    expect(env["rack.input"]).not_to receive(:read)
-    expect(middleware.call(env).first).to eq(413)
+    response = middleware.call(env)
+
+    expect(response.first).to eq(413)
+    expect(input).not_to have_received(:read)
   end
 
   it "rejects oversized input without Content-Length after a bounded read" do
