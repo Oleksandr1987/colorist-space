@@ -1,73 +1,118 @@
-<div class="settings-page compact">
-  <h1 class="settings-title"><%= t("settings.title") %></h1>
-
-  <div class="settings-block">
-    <h2 class="settings-heading"><%= t("settings.account.title") %></h2>
-
-    <p><strong><%= t("settings.account.name") %>:</strong> <%= @user.name.presence || "—" %></p>
-    <p><strong><%= t("settings.account.email") %>:</strong> <%= @user.email %></p>
-    <p><strong><%= t("settings.account.phone") %>:</strong> <%= @user.phone.presence || "—" %></p>
-
-    <div class="mt-2">
-      <%= link_to t("settings.account.edit_profile"), edit_user_registration_path, class: "link-row" %>
-      <%= link_to t("settings.account.change_password"), edit_user_registration_path, class: "link-row" %>
-      <%= link_to t("settings.account.logout"), destroy_user_session_path,
-            data: { turbo_method: :delete }, class: "link-row logout" %>
-
-      <%= button_to t("settings.account.delete"),
-            registration_path(@user),
-            method: :delete,
-            data: { confirm: t("settings.account.confirm_delete") },
-            class: "link-row danger" %>
-    </div>
+<div class="settings-page">
+  <div class="settings-header">
+    <h1>
+      <%= t("settings.title") %>
+    </h1>
   </div>
 
-  <!-- LANGUAGE -->
-  <div class="settings-block">
-    <h2 class="settings-heading"><%= t("settings.language.title") %></h2>
+  <section class="settings-section">
+    <h2 class="settings-section-title">
+      <%= t("settings.account.title") %>
+    </h2>
 
-    <div class="language-select-wrapper">
-      <select class="language-dropdown" onchange="window.location = window.location.pathname + '?locale=' + this.value;">
-        <option value="uk" <%= 'selected' if I18n.locale == :uk %>>
-          <%= t("settings.language.uk") %>
-        </option>
-        <option value="en" <%= 'selected' if I18n.locale == :en %>>
-          <%= t("settings.language.en") %>
-        </option>
-      </select>
+    <div class="settings-info-list">
+      <% %w[name email phone].each do |field| %>
+        <div class="settings-info-row">
+          <span class="settings-label">
+            <%= t("settings.account.#{field}") %>
+          </span>
+          <span class="settings-value">
+            <%= @user.public_send(field).presence || "—" %>
+          </span>
+        </div>
+      <% end %>
     </div>
-  </div>
 
-  <!-- SUBSCRIPTION -->
-  <div class="settings-block">
-    <h2 class="settings-heading"><%= t("settings.subscription.title") %></h2>
-    <% plan =
-        if @user.superadmin?
-          "superadmin"
-        elsif @user.on_trial?
-          "trial"
-        elsif @user.plan_name.present?
-          @user.plan_name
-        else
-          "none"
-        end %>
+    <div class="settings-links">
+      <% %w[edit_profile change_password].each do |action| %>
+        <%= link_to edit_user_registration_path, class: "settings-link" do %>
+          <span>
+            <%= t("settings.account.#{action}") %>
+          </span>
+          <span class="settings-chevron">
+            ›
+          </span>
+        <% end %>
+      <% end %>
 
-    <p><strong><%= t("settings.subscription.plan") %>:</strong> <%= plan %></p>
+      <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "settings-link muted" do %>
+        <span>
+          <%= t("settings.account.logout") %>
+        </span>
+        <span class="settings-chevron">
+          ›
+        </span>
+      <% end %>
 
-    <% if @user.subscription_expires_at.present? %>
-      <p><strong><%= t("settings.subscription.active_until") %>:</strong> <%= @user.subscription_expires_at.strftime("%d.%m.%Y") %></p>
-    <% elsif @user.on_trial? %>
-      <p><strong><%= t("settings.subscription.days_left") %>:</strong> <%= @user.trial_days_left %></p>
-    <% else %>
-      <p><strong><%= t("settings.subscription.active_until") %>:</strong> <%= t("settings.subscription.none") %></p>
-    <% end %>
+      <%= button_to registration_path(@user), method: :delete,
+          form: { class: "settings-button-form", data: { turbo_confirm: t("settings.account.confirm_delete") } }, class: "settings-link danger" do %>
+        <span>
+          <%= t("settings.account.delete") %>
+        </span>
+        <span class="settings-chevron">
+          ›
+        </span>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="settings-section">
+    <h2 class="settings-section-title">
+      <%= t("settings.language.title") %>
+    </h2>
+    <select class="input-line settings-language-select" aria-label="<%= t('settings.language.title') %>"
+      onchange="window.location = window.location.pathname + '?locale=' + this.value;">
+      <% %w[uk en].each do |locale| %>
+        <option value="<%= locale %>" <%= "selected" if I18n.locale.to_s == locale %>>
+          <%= t("settings.language.#{locale}") %>
+        </option>
+      <% end %>
+    </select>
+  </section>
+
+  <section class="settings-section">
+    <h2 class="settings-section-title">
+      <%= t("settings.subscription.title") %>
+    </h2>
+    <div class="settings-info-list">
+      <div class="settings-info-row">
+        <span class="settings-label">
+          <%= t("settings.subscription.plan") %>
+        </span>
+        <span class="settings-value subscription-plan">
+          <%= t("subscription.plans.#{@user.subscription_plan}") %>
+        </span>
+      </div>
+
+      <% unless @user.superadmin? %>
+        <div class="settings-info-row">
+          <span class="settings-label">
+            <%= t("settings.subscription.active_until") %>
+          </span>
+          <span class="settings-value">
+            <%= subscription_end_label(@user.subscription) %>
+          </span>
+        </div>
+      <% end %>
+    </div>
 
     <% if @user.subscription_will_expire_soon? %>
-      <p class="warning"><%= t("settings.subscription.expires_soon") %></p>
-    <% elsif !@user.has_active_subscription? && !@user.superadmin? && !@user.on_trial? %>
-      <p class="warning"><%= t("settings.subscription.expired") %></p>
+      <div class="subscription-warning">
+        <%= t("settings.subscription.expires_soon") %>
+      </div>
+    <% elsif !@user.has_write_access? %>
+      <div class="subscription-warning">
+        <%= t("settings.subscription.expired") %>
+      </div>
     <% end %>
 
-    <%= link_to t("settings.subscription.manage"), settings_subscription_path, class: "link-row primary" %>
-  </div>
+    <%= link_to settings_subscription_path, class: "settings-link primary" do %>
+      <span>
+        <%= t("settings.subscription.manage") %>
+      </span>
+      <span class="settings-chevron">
+        ›
+      </span>
+    <% end %>
+  </section>
 </div>

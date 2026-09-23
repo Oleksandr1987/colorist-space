@@ -11,8 +11,7 @@ en:
       change_password: "Change Password"
       logout: "Log Out"
       delete: "Delete Account"
-      confirm_delete: "Are you sure?"
-
+      confirm_delete: "Delete your account?"
     language:
       title: "Language"
       uk: "Ukrainian"
@@ -24,6 +23,6 @@ en:
       active_until: "Active until"
       days_left: "Days left"
       expired: "Subscription expired"
-      expires_soon: "⚠️ Less than 3 days left"
+      expires_soon: "Your paid period ends soon"
       manage: "Manage Subscription"
       none: "—"

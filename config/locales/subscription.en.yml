@@ -1,13 +1,69 @@
 en:
   subscription:
-    title: "Subscription Management"
+    title: "Subscription management"
     current_plan: "Current plan"
-    valid_until: "Valid until"
+    valid_until: "Available through"
     expired: "Subscription expired"
-    expires_soon: "⚠️ Less than 3 days left"
+    expires_soon: "Your paid period ends soon"
+    monthly: "Subscribe monthly"
+    yearly: "Subscribe yearly"
+    cancel: "Cancel automatic renewal"
+    back: "Back to settings"
+    confirm_cancel: "Stop future charges? Your paid access will remain available."
+    checkout_title: "Confirm payment"
+    selected_plan: "Selected plan"
+    amount: "Amount"
+    renewal_terms: "This payment starts your subscription. Future charges of %{amount}
+      begin on %{date}, at the selected interval. You can cancel automatic renewal in settings."
+    demo: "Test payment environment"
+    pay: "Continue to payment"
+    cancelled: "Automatic renewal has been cancelled"
+    plan_changed: "Plan change scheduled for the next paid period"
+    synced: "Payment status updated"
+    operation_failed: "Could not complete the operation. Check payment status or try again.
+      If it keeps failing, contact support."
+    account_deletion_blocked: "This account has active paid access, a payment history or a billing agreement.
+      Contact support to delete the account. Deleting an account does not cancel automatic charges."
+    cancelled_until: "Automatic renewal is off. Access remains available through %{date}."
+    scheduled: "Next plan: %{plan}, starting %{date}."
+    pending_operation: "A billing operation is pending. Retry that same operation to finish it."
+    auto_renew: "Automatic renewal"
+    enabled: "On"
+    disabled: "Off or not yet confirmed"
+    unverified: "Payment received. Check payment status to confirm automatic renewal."
+    change_to_monthly: "Switch to monthly"
+    change_to_yearly: "Switch to yearly"
+    confirm_change: "Apply the new price and billing interval starting with the next payment?"
+    choose_plan: "Choose a plan"
+    sync: "Check payment status"
+    payments: "Recent payments"
+    reconciled_receipt: "Confirmed from the recurring payment status"
 
-    monthly: "Subscribe for 1 month"
-    yearly: "Subscribe for 1 year"
-    cancel: "Cancel subscription"
-    back: "← Back to settings"
-    confirm_cancel: "Are you sure?"
+    products:
+      monthly: "Colorist Space – 1 month subscription"
+      yearly: "Colorist Space – 1 year subscription"
+
+    plans:
+      none: "No plan"
+      trial: "Trial"
+      monthly: "Monthly"
+      yearly: "Yearly"
+      superadmin: "Superadmin"
+
+    statuses:
+      pending: "Awaiting payment"
+      trialing: "Trial period"
+      active: "Active"
+      past_due: "Payment overdue"
+      cancelled: "Renewal cancelled"
+      expired: "Expired"
+
+    payment_statuses:
+      pending: "Awaiting payment"
+      approved: "Paid"
+      declined: "Not paid"
+      refunded: "Refunded"
+      voided: "Voided"
+
+    paid_access_without_renewal: "Your paid access is active. You can subscribe with
+      automatic renewal when this period ends."

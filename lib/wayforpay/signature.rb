@@ -1,10 +1,8 @@
+require "openssl"
 module Wayforpay
   class Signature
-    require "digest"
-
-    def self.generate(data_array, secret_key)
-      signature_base_string = data_array.join(";")
-      Digest::SHA1.hexdigest(secret_key + signature_base_string)
+    def self.generate(fields, secret_key)
+      OpenSSL::HMAC.hexdigest("MD5", secret_key, fields.map(&:to_s).join(";"))
     end
   end
 end

@@ -1,28 +1,23 @@
-<div class="subscription-checkout-page">
-  <h1>Підтвердження оплати</h1>
-  <p>Ви обрали тариф: <strong><%= @plan == "yearly" ? "Річний" : "Місячний" %></strong></p>
-  <p>Сума до оплати: <strong><%= @form_data[:amount] %> грн</strong></p>
-
-  <%= form_tag "https://secure.wayforpay.com/pay", method: :post do %>
+<div class="subscription-page">
+  <div class="subscription-header">
+    <%= link_to settings_subscription_path, class: "back", aria: { label: t("subscription.back") } do %>
+      <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24, alt: "" %>
+    <% end %>
+    <h1><%= t("subscription.checkout_title") %></h1>
+  </div>
+  <p><%= t("subscription.selected_plan") %>: <strong><%= t("subscription.plans.#{@payment.plan}") %></strong></p>
+  <p><%= t("subscription.amount") %>: <strong><%= number_to_currency(@payment.amount, unit: "₴", format: "%n %u") %></strong></p>
+  <p><%= t("subscription.renewal_terms", amount: number_to_currency(@payment.amount, unit: "₴", format: "%n %u"), date: @payment.period_end.strftime("%d.%m.%Y")) %></p>
+  <% if Wayforpay::Config.demo? %><p class="subscription-warning"><%= t("subscription.demo") %></p><% end %>
+  <%= form_tag "https://secure.wayforpay.com/pay", method: :post,
+        authenticity_token: false, enforce_utf8: false, data: { turbo: false } do %>
     <% @form_data.each do |key, value| %>
       <% if value.is_a?(Array) %>
-        <% value.each do |v| %>
-          <%= hidden_field_tag "#{key}[]", v %>
-        <% end %>
+        <% value.each do |item| %><%= hidden_field_tag "#{key}[]", item %><% end %>
       <% else %>
         <%= hidden_field_tag key, value %>
       <% end %>
     <% end %>
-
-    <%= submit_tag "✅ Перейти до оплати", class: "button primary full" %>
+    <%= submit_tag t("subscription.pay"), class: "button primary full" %>
   <% end %>
-
-  <div class="mt-3">
-    <%= link_to settings_subscription_path, class: "button link" do %>
-      <%= image_tag "back.png",
-            class: "wiz-icon",
-            width: 24,
-            height: 24 %>
-    <% end %>
-  </div>
 </div>

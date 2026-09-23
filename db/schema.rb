@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_14_182735) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_22_190000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -218,25 +218,89 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_182735) do
     t.index ["user_id"], name: "index_slot_rules_on_user_id"
   end
 
+  create_table "subscription_payments", force: :cascade do |t|
+    t.integer "amount_minor", null: false
+    t.json "callback_metadata"
+    t.json "checkout_data"
+    t.datetime "checkout_expires_at"
+    t.datetime "created_at", null: false
+    t.string "currency", default: "UAH", null: false
+    t.string "merchant_account", null: false
+    t.string "order_reference", null: false
+    t.datetime "paid_at"
+    t.datetime "period_end"
+    t.datetime "period_start"
+    t.string "plan", null: false
+    t.datetime "processed_at"
+    t.string "provider_status"
+    t.string "reason_code"
+    t.string "source", default: "purchase", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "subscription_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["merchant_account", "order_reference"], name: "index_subscription_payments_on_merchant_and_reference", unique: true
+    t.index ["subscription_id"], name: "index_subscription_payments_on_subscription_id"
+    t.check_constraint "amount_minor > 0", name: "subscription_payment_amount_is_positive"
+    t.check_constraint "period_start IS NULL OR period_end IS NULL OR period_end > period_start", name: "subscription_payment_period_is_ordered"
+  end
+
+  create_table "subscriptions", force: :cascade do |t|
+    t.boolean "auto_renew", default: false, null: false
+    t.datetime "cancelled_at"
+    t.bigint "checkout_payment_id"
+    t.datetime "created_at", null: false
+    t.datetime "current_period_end"
+    t.datetime "current_period_start"
+    t.datetime "last_provider_paid_at"
+    t.datetime "last_synced_at"
+    t.json "management_intent"
+    t.string "merchant_account"
+    t.integer "next_amount_minor"
+    t.string "next_plan"
+    t.datetime "next_plan_starts_at"
+    t.string "plan", default: "none", null: false
+    t.string "provider_status"
+    t.integer "renewal_amount_minor"
+    t.string "source", default: "wayforpay", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "trial_ends_at"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.string "wayforpay_order_reference"
+    t.index ["merchant_account", "wayforpay_order_reference"], name: "index_subscriptions_on_merchant_and_reference", unique: true
+    t.index ["user_id"], name: "index_subscriptions_on_user_id", unique: true
+    t.check_constraint "current_period_start IS NULL OR current_period_end IS NULL OR current_period_end > current_period_start", name: "subscription_period_is_ordered"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "name"
     t.string "phone", null: false
-    t.string "plan_name"
     t.string "provider"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.string "role"
-    t.date "subscription_expires_at"
     t.boolean "tos_agreement"
     t.string "uid"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["phone"], name: "index_users_on_phone", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  end
+
+  create_table "wayforpay_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "fingerprint", null: false
+    t.string "merchant_account", null: false
+    t.json "metadata", null: false
+    t.string "order_reference", null: false
+    t.string "state", default: "received", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fingerprint"], name: "index_wayforpay_events_on_fingerprint", unique: true
+    t.index ["state", "created_at"], name: "index_wayforpay_events_on_state_and_created_at"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -261,4 +325,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_182735) do
   add_foreign_key "service_notes", "users"
   add_foreign_key "services", "users"
   add_foreign_key "slot_rules", "users"
+  add_foreign_key "subscription_payments", "subscriptions"
+  add_foreign_key "subscriptions", "users"
 end

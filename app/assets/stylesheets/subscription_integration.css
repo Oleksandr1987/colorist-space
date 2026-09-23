@@ -1,0 +1,79 @@
+.subscription-page {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px 96px;
+  box-sizing: border-box;
+}
+
+.subscription-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom:
+  24px;
+}
+
+.subscription-header h1 {
+  flex: 1;
+  margin: 0;
+  font-size: 20px;
+  text-align: center;
+  padding-right: 36px;
+}
+
+.subscription-header .back {
+  position: static;
+  flex: 0 0 24px;
+}
+
+.subscription-section {
+  margin-bottom: 24px;
+}
+
+.subscription-plan-form {
+  margin: 0;
+}
+
+.subscription-plan-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 1px solid #eee;
+  background: transparent;
+  color:  #481f9a;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.subscription-cancel-button {
+  min-height:
+  48px;
+  padding:12px 0;
+  border: 0;
+  background: transparent;
+  color: #c62828;
+  font: inherit;
+  cursor: pointer;
+}
+
+.subscription-page small {
+  display: block;
+  font-size: 11px;
+  color: #666;
+}
+
+.subscription-page p {
+  line-height: 1.5;
+}
+
+.subscription-page button:focus-visible, .subscription-page a:focus-visible {
+  outline: 2px solid #481f9a;
+  outline-offset: 3px;
+}

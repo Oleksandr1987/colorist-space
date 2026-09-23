@@ -27,17 +27,11 @@ RSpec.describe User do
 
   describe ".find_for_database_authentication" do
     let!(:user) do
-      FactoryBot.create(
-        :user,
-        email: "test@example.com",
-        phone: "+380501234567"
-      )
+      FactoryBot.create(:user, email: "test@example.com", phone: "+380501234567")
     end
 
     it "finds user by email (case insensitive)" do
-      result = described_class.find_for_database_authentication(
-        login: "TEST@EXAMPLE.COM"
-      )
+      result = described_class.find_for_database_authentication(login: "TEST@EXAMPLE.COM")
 
       expect(result).to eq(user)
     end
@@ -45,14 +39,10 @@ RSpec.describe User do
     it "does not normalize login when email used" do
       allow(PhoneValidator).to receive(:normalize).and_call_original
 
-      result = described_class.find_for_database_authentication(
-        login: "test@example.com"
-      )
+      result = described_class.find_for_database_authentication(login: "test@example.com")
 
       expect(result).to eq(user)
-
-      expect(PhoneValidator)
-        .not_to have_received(:normalize)
+      expect(PhoneValidator).not_to have_received(:normalize)
     end
 
     it "returns nil when login missing" do
@@ -64,9 +54,7 @@ RSpec.describe User do
     it "finds user by normalized phone" do
       allow(PhoneValidator).to receive(:normalize).and_return("+380501234567")
 
-      result = described_class.find_for_database_authentication(
-        login: "0501234567"
-      )
+      result = described_class.find_for_database_authentication(login: "0501234567")
 
       expect(result).to eq(user)
     end
@@ -77,11 +65,7 @@ RSpec.describe User do
       OmniAuth::AuthHash.new(
         provider: "google_oauth2",
         uid: "123456",
-        info: {
-          email: "oauth@example.com",
-          name: "OAuth User",
-          phone: "+380991112233"
-        }
+        info: { email: "oauth@example.com", name: "OAuth User", phone: "+380991112233" }
       )
     end
 
@@ -140,10 +124,9 @@ RSpec.describe User do
 
   describe "#subscription_will_expire_soon?" do
     subject(:user) do
-      FactoryBot.create(
-        :user,
-        subscription_expires_at: 2.days.from_now.to_date
-      )
+      FactoryBot.create(:user, :with_active_subscription).tap do |user|
+        user.subscription.update!(current_period_end: 2.days.from_now)
+      end
     end
 
     it "returns true" do

@@ -1,85 +1,36 @@
 # frozen_string_literal: true
 
-# :nocov:
-
 class Users::RegistrationsController < Devise::RegistrationsController
   before_action :configure_sign_up_params, only: [ :create ]
   before_action :configure_account_update_params, only: [ :update ]
 
-  # GET /resource/sign_up
-  # def new
-  #   super
-  # end
-
-  # POST /resource
-  # def create
-  #   super
-  # end
-
-  # GET /resource/edit
-  # def edit
-  #   super
-  # end
-
-  # PUT /resource
-  # def update
-  #   super
-  # end
-
-  # DELETE /resource
-  # def destroy
-  #   super
-  # end
-
-  # GET /resource/cancel
-  # Forces the session data which is usually expired after sign
-  # in to be expired now. This is useful if the user wants to
-  # cancel oauth signing in/up in the middle of the process,
-  # removing all OAuth session data.
-  # def cancel
-  #   super
-  # end
+  def destroy
+    # Preserve active paid access, payment history
+    # and provider agreements until the account deletion workflow handles them.
+    subscription = resource.subscription
+    if subscription&.paid_access? || subscription&.subscription_payments&.exists? ||
+        subscription&.wayforpay_order_reference.present?
+      redirect_to settings_subscription_path,
+        alert: I18n.t("subscription.account_deletion_blocked"), status: :see_other
+      return
+    end
+    resource.transaction do
+      resource.subscription&.destroy!
+      # Reload clears the cached has_one association before dependent checks.
+      resource.reload
+      super
+    end
+  end
 
   protected
 
-  # If you have extra params to permit, append them to the sanitizer.
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(
-      :sign_up,
-      keys: [
-        :name,
-        :email,
-        :phone,
-        :password,
-        :password_confirmation,
-        :tos_agreement
-      ]
-    )
+    devise_parameter_sanitizer.permit(:sign_up,
+      keys: [ :name, :email, :phone, :password, :password_confirmation, :tos_agreement ])
   end
 
-  # If you have extra params to permit, append them to the sanitizer.
   def configure_account_update_params
-    devise_parameter_sanitizer.permit(
-      :account_update,
-      keys: [
-        :name,
-        :email,
-        :phone,
-        :password,
-        :password_confirmation,
-        :current_password
-      ]
-    )
+    devise_parameter_sanitizer.permit(:account_update,
+      keys: [ :name, :email, :phone, :password, :password_confirmation, :current_password ])
   end
-
-  # The path used after sign up.
-  # def after_sign_up_path_for(resource)
-  #   super(resource)
-  # end
-
-  # The path used after sign up for inactive accounts.
-  # def after_inactive_sign_up_path_for(resource)
-  #   super(resource)
-  # end
 end
-# :nocov:
