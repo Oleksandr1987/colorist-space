@@ -124,7 +124,9 @@ RSpec.describe User do
 
   describe "#subscription_will_expire_soon?" do
     subject(:user) do
-      FactoryBot.create(:user, subscription_expires_at: 2.days.from_now.to_date)
+      FactoryBot.create(:user, :with_active_subscription).tap do |user|
+        user.subscription.update!(current_period_end: 2.days.from_now)
+      end
     end
 
     it "returns true" do

@@ -33,11 +33,7 @@ module SubscriptionAccess
   private
 
   def initialize_subscription
-    if self[:plan_name].present? || self[:subscription_expires_at].present?
-      Subscriptions::ImportLegacy.new(self).call
-    else
-      create_subscription!(source: "wayforpay", plan: "trial", status: "trialing",
-        trial_ends_at: created_at + 7.days)
-    end
+    create_subscription!(source: "wayforpay", plan: "trial", status: "trialing",
+      trial_ends_at: created_at + 7.days)
   end
 end

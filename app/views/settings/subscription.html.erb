@@ -92,7 +92,7 @@
 
     <% elsif @subscription&.paid_access? && @subscription&.wayforpay_order_reference.blank? %>
       <p>
-        <%= t("subscription.legacy_access") %>
+        <%= t("subscription.paid_access_without_renewal") %>
       </p>
     <% end %>
 

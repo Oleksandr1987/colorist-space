@@ -208,7 +208,6 @@ Keep styles modular
 
 ```bash
 bin/rails db:migrate
-bin/rails subscriptions:import_legacy
 bin/rails zeitwerk:check
 ```
 

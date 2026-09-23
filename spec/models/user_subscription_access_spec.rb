@@ -14,10 +14,11 @@ RSpec.describe User do
     expect(user.has_write_access?).to be(true)
   end
 
-  it "uses Subscription after migration instead of old User fields" do
+  it "gets paid access from the subscription" do
     user = create(:user)
-    user.update!(subscription_expires_at: 1.year.from_now.to_date)
+    user.subscription.update!(plan: "monthly", current_period_start: Time.current,
+      current_period_end: 1.month.from_now)
 
-    expect(user.has_active_subscription?).to be(false)
+    expect(user.has_active_subscription?).to be(true)
   end
 end

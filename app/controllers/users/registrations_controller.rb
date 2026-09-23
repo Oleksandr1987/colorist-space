@@ -5,10 +5,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
   before_action :configure_account_update_params, only: [ :update ]
 
   def destroy
-    # History/agreements must not be silently removed by Devise. Deletion with a
-    # payment history needs a separate anonymization/retention workflow.
-    if resource.subscription&.subscription_payments&.exists? ||
-        resource.subscription&.wayforpay_order_reference.present?
+    # Preserve active paid access, payment history
+    # and provider agreements until the account deletion workflow handles them.
+    subscription = resource.subscription
+    if subscription&.paid_access? || subscription&.subscription_payments&.exists? ||
+        subscription&.wayforpay_order_reference.present?
       redirect_to settings_subscription_path,
         alert: I18n.t("subscription.account_deletion_blocked"), status: :see_other
       return

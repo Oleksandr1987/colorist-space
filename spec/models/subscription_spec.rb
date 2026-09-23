@@ -57,10 +57,9 @@ RSpec.describe Subscription do
     expect(subscription.errors[:merchant_account]).to be_present
   end
 
-  it "does not mark imported access as an automatically renewing agreement" do
+  it "does not automatically renew a trial" do
     subscription =
-      paid_subscription(source: "legacy", auto_renew: true, merchant_account: "merchant", wayforpay_order_reference: "root")
-
+    paid_subscription(plan: "trial", auto_renew: true, merchant_account: "merchant", wayforpay_order_reference: "root")
     expect(subscription).not_to be_valid
   end
 
@@ -86,7 +85,7 @@ RSpec.describe Subscription do
     expect do
       described_class.transaction(requires_new: true) do
         described_class.insert_all!([ { user_id: user.id, plan: "none", status: "pending",
-          source: "legacy", auto_renew: false, created_at: now, updated_at: now } ])
+          source: "wayforpay", auto_renew: false, created_at: now, updated_at: now } ])
       end
     end.to raise_error(ActiveRecord::RecordNotUnique)
   end

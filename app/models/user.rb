@@ -19,8 +19,6 @@ class User < ApplicationRecord
   validates :password, format: { with: PASSWORD_FORMAT, message: :weak_password }, if: :password_required?
   validates_acceptance_of :tos_agreement, allow_nil: false, on: :create
 
-  has_one :subscription, dependent: :restrict_with_error
-
   has_many :clients, dependent: :destroy
   has_many :appointments, dependent: :destroy
   has_many :slot_rules, dependent: :destroy
