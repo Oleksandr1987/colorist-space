@@ -64,7 +64,10 @@ export default class extends Controller {
 
     select.closest(".palette-row").remove()
 
-    this.actionsTarget.classList.remove("hidden")
+    if (!this.editingId) {
+      this.actionsTarget.classList.remove("hidden")
+    }
+
     this.createShadeRow()
   }
 
@@ -157,7 +160,7 @@ export default class extends Controller {
   }
 
   removeRow(event) {
-    event.target.closest(".color-row")?.remove()
+    event.currentTarget.closest(".color-row")?.remove()
 
     if (this.rowsTarget.querySelectorAll(".color-row").length === 0) {
       this.actionsTarget.classList.add("hidden")
