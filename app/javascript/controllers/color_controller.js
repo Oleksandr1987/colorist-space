@@ -297,24 +297,30 @@ export default class extends Controller {
 
     display.innerHTML = `
       <div class="color-left">
-        <span class="shade">${shade}</span>
-        <span class="brand">${brand}</span>
+        <span class="shade"></span>
+        <span class="brand"></span>
       </div>
 
       <div class="color-right">
-        <span class="amount">${amount}g</span>
+        <span class="amount"></span>
 
         <div class="color-actions">
           <button type="button" class="edit-btn" data-action="click->formula#editColor">
-            <img src="${this.editIconValue}" alt="Edit">
+            <img class="edit-icon" alt="Edit">
           </button>
 
           <button type="button" class="delete-btn" data-action="click->formula#removeColor">
-            <img src="${this.deleteIconValue}" alt="Delete">
+            <img class="delete-icon" alt="Delete">
           </button>
         </div>
       </div>
     `
+
+    display.querySelector(".shade").textContent = shade
+    display.querySelector(".brand").textContent = brand
+    display.querySelector(".amount").textContent = `${amount}g`
+    display.querySelector(".edit-icon").src = this.editIconValue
+    display.querySelector(".delete-icon").src = this.deleteIconValue
 
     this.currentStep.querySelector("[data-color-target='list']").appendChild(display)
   }
