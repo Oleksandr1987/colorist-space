@@ -25,6 +25,17 @@ RSpec.describe User do
     end
   end
 
+  describe "phone validation" do
+    it "validates uniqueness after phone normalization" do
+      create(:user, phone: "+380950974165")
+
+      user = build(:user, email: "another@example.com", phone: "+38(095) 097 41 65")
+
+      expect(user).not_to be_valid
+      expect(user.errors.of_kind?(:phone, :taken)).to be(true)
+    end
+  end
+
   describe ".find_for_database_authentication" do
     let!(:user) do
       FactoryBot.create(:user, email: "test@example.com", phone: "+380501234567")

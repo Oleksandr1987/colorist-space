@@ -16,6 +16,9 @@ class User < ApplicationRecord
   \z/x.freeze
 
   validates :name, presence: true
+
+  validates :phone, uniqueness: true
+
   validates :password, format: { with: PASSWORD_FORMAT, message: :weak_password }, if: :password_required?
   validates_acceptance_of :tos_agreement, allow_nil: false, on: :create
 

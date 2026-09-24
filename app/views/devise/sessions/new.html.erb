@@ -24,7 +24,7 @@
             <span class="required-asterisk">*</span>
           <% end %>
 
-          <%= f.password_field :password, class: "login__input", autocomplete: "current-password", placeholder: t("auth.password") %>
+          <%= render "devise/shared/password_field", form: f, field: :password, autocomplete: "current-password", placeholder: t("auth.password") %>
         </div>
 
         <% if devise_mapping.rememberable? %>
