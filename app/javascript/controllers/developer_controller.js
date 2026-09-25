@@ -6,8 +6,16 @@ export default class extends Controller {
 
   connect() {
     this.oxidants = []
+    this.handleColorAmountChanged = this.handleColorAmountChanged.bind(this)
+
+    window.addEventListener("formula:colorAmountChanged", this.handleColorAmountChanged)
+
     this.loadOxidants()
     this.renderList()
+  }
+
+  disconnect() {
+    window.removeEventListener("formula:colorAmountChanged", this.handleColorAmountChanged)
   }
 
   // OPEN
@@ -48,7 +56,7 @@ export default class extends Controller {
     )
   }
 
-  //  COLOR AMOUNT
+  // COLOR AMOUNT
   getColorAmount() {
     let total = 0
 
@@ -56,18 +64,69 @@ export default class extends Controller {
       .querySelectorAll(".ingredient-fields")
       .forEach(wrapper => {
         const destroyInput = wrapper.querySelector("[data-field='destroy']")
-
         if (destroyInput?.value === "1") return
 
         const amountInput = wrapper.querySelector("[data-field='amount']")
         const value = parseFloat(amountInput?.value || 0)
-
-        if (!isNaN(value)) {
+        if (!Number.isNaN(value)) {
           total += value
         }
       })
 
     return total
+  }
+
+  // RECALCULATE RATIO WHEN COLOR AMOUNT CHANGES
+  handleColorAmountChanged(event) {
+    const eventStepId = String(event.detail?.stepId ?? "")
+    const currentStepId = String(this.element.dataset.stepId ?? "")
+    // The event may come from another formula step.
+    if (eventStepId !== currentStepId) {
+      return
+    }
+
+    const colorAmount = Number(event.detail?.total || 0)
+    if (colorAmount <= 0) {
+      return
+    }
+
+    let changed = false
+
+    this.oxidants = this.oxidants.map(oxidant => {
+      const oxidantAmount = Number(oxidant.amount || 0)
+      if (
+        !Number.isFinite(oxidantAmount) ||
+        oxidantAmount <= 0
+      ) {
+        return oxidant
+      }
+
+      const ratioValue = oxidantAmount / colorAmount
+      const ratio = this.formatRatio(ratioValue)
+      if (oxidant.ratio === ratio) {
+        return oxidant
+      }
+
+      changed = true
+      return {
+        ...oxidant, ratio
+      }
+    })
+
+    if (!changed) {
+      return
+    }
+
+    this.saveOxidants()
+    window.dispatchEvent(new CustomEvent("formula:changed"))
+  }
+
+  formatRatio(value) {
+    if (!Number.isFinite(value) || value <= 0) {
+      return ""
+    }
+    const rounded = Math.round(value * 100) / 100
+    return `1:${rounded}`
   }
 
   // LOAD
@@ -77,12 +136,10 @@ export default class extends Controller {
     if (!this.hasInputTarget) return
 
     const value = this.inputTarget.value
-
     if (!value) return
 
     try {
       const parsed = JSON.parse(value)
-
       if (Array.isArray(parsed)) {
         this.oxidants = parsed
       } else if (parsed?.formula_product_id) {
@@ -102,7 +159,6 @@ export default class extends Controller {
     }
 
     this.saveOxidants()
-
     window.dispatchEvent(new CustomEvent("formula:changed"))
   }
 
@@ -118,7 +174,6 @@ export default class extends Controller {
     event.preventDefault()
 
     const index = Number(event.currentTarget.dataset.index)
-
     if (
       Number.isNaN(index) ||
       !this.oxidants[index]
@@ -134,14 +189,12 @@ export default class extends Controller {
 
   getProductInfo(productId) {
     const modal = document.querySelector('[data-controller~="developer-modal"]')
-
     if (!modal) return null
 
     const option = Array.from(modal
       .querySelectorAll('[data-developer-modal-target="serviceSelect"] option'))
       .find(option => String(option.value) === String(productId)
     )
-
     if (!option) return null
 
     return {
@@ -163,7 +216,7 @@ export default class extends Controller {
       const row = this.itemTemplateTarget.content.firstElementChild.cloneNode(true)
       const product = this.getProductInfo(oxidant.formula_product_id)
       const brand = oxidant.brand || product?.brand || ""
-      const name = oxidant.name || product?.name || oxidant.label ||""
+      const name = oxidant.name || product?.name || oxidant.label || ""
       const displayName = [brand, name].filter(Boolean).join(" ")
 
       row.querySelector(".dev-name").textContent = displayName || `#${oxidant.formula_product_id}`

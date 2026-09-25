@@ -125,17 +125,17 @@ export default class extends Controller {
   }
 
   openNewAppointment(event) {
-    const url = new URL(event.target.href);
+    const url = new URL(event.currentTarget.href)
 
     if (this.clientIdValue) {
-      url.searchParams.set("client_id", this.clientIdValue);
+      url.searchParams.set("client_id", this.clientIdValue)
     }
 
     if (this.selectedDate) {
-      url.searchParams.set("date", this.selectedDate);
+      url.searchParams.set("date", this.formatDate(this.selectedDate))
     }
 
-    event.target.href = url.toString();
+    event.currentTarget.href = url.toString()
   }
 
   loadAppointments(date) {
@@ -247,11 +247,7 @@ export default class extends Controller {
       slot.service
         ? slot.service
             .split(" + ")
-            .map(service =>
-              `<div class="calendar-record-service">${service}</div>`
-            )
-            .join("")
-        : ""
+            .map(service => `<div class="calendar-record-service">${service}</div>`).join("") : ""
 
     const noteUrl =
       slot.service_note_id
@@ -392,7 +388,17 @@ export default class extends Controller {
   selectSlot(event) {
     const time = event.currentTarget.dataset.time
     const date = this.formatDate(this.selectedDate)
-    window.location.href = `/appointments/new?date=${date}&time=${time}`
+
+    const url = new URL("/appointments/new", window.location.origin)
+
+    url.searchParams.set("date", date)
+    url.searchParams.set("time", time)
+
+    if (this.clientIdValue) {
+      url.searchParams.set("client_id", this.clientIdValue)
+    }
+
+    window.location.href = url.toString()
   }
 
   scrollToToday() {

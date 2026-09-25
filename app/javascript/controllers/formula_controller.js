@@ -12,25 +12,24 @@ export default class extends Controller {
   connect() {
     this.initSortable()
     this.initSwipe()
-    this.observeAmountChanges()
+    this.handleAmountInput = this.handleAmountInput.bind(this)
+    this.element.addEventListener("input", this.handleAmountInput)
     this.updateStepNumbers()
     this.showAddStepHandler = () => this.showAddStep()
     window.addEventListener("formula:firstStepFilled", this.showAddStepHandler)
   }
 
   disconnect() {
+    this.element.removeEventListener("input", this.handleAmountInput)
     window.removeEventListener("formula:firstStepFilled", this.showAddStepHandler)
     window.removeEventListener("service-note:saved", this.savedHandler)
   }
 
   // ---------------- COLOR SUM ----------------
   getTotalColorAmount() {
-    const inputs = this.element.querySelectorAll(
-      "[name*='[amount]']"
-    )
+    const inputs = this.element.querySelectorAll("[name*='[amount]']")
 
     let total = 0
-
     inputs.forEach(input => {
       const val = parseFloat(input.value)
       if (!isNaN(val)) total += val
@@ -40,50 +39,39 @@ export default class extends Controller {
   }
 
   dispatchColorAmount(step) {
+    if (!step) return
+
     let total = 0
 
     step
       .querySelectorAll(".ingredient-fields")
       .forEach(wrapper => {
-
-        const destroyInput = wrapper.querySelector(
-          "[data-field='destroy']"
-        )
-
+        const destroyInput = wrapper.querySelector("[data-field='destroy']")
         if (destroyInput?.value === "1") return
 
-        const amountInput = wrapper.querySelector(
-          "[data-field='amount']"
-        )
-
+        const amountInput = wrapper.querySelector("[data-field='amount']")
         if (!amountInput) return
 
-        const val = parseFloat(amountInput.value || 0)
-
-        if (!isNaN(val)) {
-          total += val
+        const amount = parseFloat(amountInput.value || 0)
+        if (!Number.isNaN(amount)) {
+          total += amount
         }
       })
 
-    window.dispatchEvent(
-      new CustomEvent("formula:colorAmountChanged", {
-        detail: {
-          total,
-          stepId: step.dataset.stepId
-        }
-      })
-    )
+    window.dispatchEvent(new CustomEvent("formula:colorAmountChanged", { detail: { total, stepId: step.dataset.stepId } }))
   }
 
-  observeAmountChanges() {
-    this.element.addEventListener("input", (e) => {
-      if (e.target.name?.includes("[amount]")) {
-        const step = e.target.closest(".formula-card")
-        if (step) {
-          this.dispatchColorAmount(step)
-        }
-      }
-    })
+  handleAmountInput(event) {
+    if (
+      !event.target.matches(".ingredient-fields [data-field='amount']")
+    ) {
+      return
+    }
+
+    const step = event.target.closest(".formula-card")
+    if (!step) return
+
+    this.dispatchColorAmount(step)
   }
 
   // ---------------- CREATE STEP ----------------
@@ -99,11 +87,9 @@ export default class extends Controller {
       .replaceAll("__SECTION_VALUE__", section)
       .replaceAll("__SECTION_LABEL__", sectionLabel)
       .replaceAll("NEW_RECORD", stepId)
-
     this.containerTarget.insertAdjacentHTML("beforeend", html)
 
     const newStep = this.containerTarget.lastElementChild
-
     const destroyInput = newStep.querySelector(".destroy-field")
     if (destroyInput) destroyInput.value = "0"
 
@@ -128,8 +114,7 @@ export default class extends Controller {
       const destroyInput = card?.querySelector(".destroy-field")
 
       return (
-        wrapper.style.display !== "none" &&
-        (!destroyInput || destroyInput.value !== "1")
+        wrapper.style.display !== "none" && (!destroyInput || destroyInput.value !== "1")
       )
     })
 
@@ -147,7 +132,6 @@ export default class extends Controller {
     wrapper.style.display = "none"
 
     const destroyInput = card.querySelector(".destroy-field")
-
     if (destroyInput) {
       destroyInput.value = "1"
       card.style.display = "none"
@@ -161,15 +145,12 @@ export default class extends Controller {
     this.dispatchColorAmount(step)
 
     const visibleSteps = this.containerTarget.querySelectorAll(".formula-card:not([style*='display: none'])")
-
     if (visibleSteps.length === 0) {
-
       if (this.hasAddStepTarget) {
         this.addStepTarget.classList.remove("hidden")
       }
 
       const empty = this.element.querySelector(".empty-step")
-
       if (empty) {
         empty.classList.remove("hidden")
       }
@@ -180,7 +161,6 @@ export default class extends Controller {
     event.preventDefault()
 
     const step = event.currentTarget.closest(".formula-card")
-
     window.dispatchEvent(new CustomEvent("color:open", {
       detail: { step }
     }))
@@ -196,10 +176,7 @@ export default class extends Controller {
     const stepIndex = card.dataset.stepId
     const newId = `${Date.now()}_${Math.random().toString(36).slice(2)}`
 
-    let html = prototype
-      .replace(/NEW_COLOR/g, newId)
-      .replace(/NEW_RECORD/g, stepIndex)
-
+    let html = prototype.replace(/NEW_COLOR/g, newId).replace(/NEW_RECORD/g, stepIndex)
     list.insertAdjacentHTML("beforeend", html)
 
     this.dispatchColorAmount(card)
@@ -207,38 +184,48 @@ export default class extends Controller {
 
   removeColor(event) {
     event.preventDefault()
+    event.stopPropagation()
 
     const displayRow = event.currentTarget.closest(".color-row-display")
     if (!displayRow) return
 
-    const id = displayRow.dataset.id
-
+    const ingredientId = displayRow.dataset.id
     const step = displayRow.closest(".formula-card")
+    if (!ingredientId || !step) return
 
-    const hidden = step.querySelector(
-      `.ingredient-fields[data-id="${id}"]`
-    )
+    const hidden = step.querySelector(`.ingredient-fields[data-id="${CSS.escape(ingredientId)}"]`)
+    if (hidden) {
+      const destroyInput = hidden.querySelector("[data-field='destroy']")
+      const persisted = !ingredientId.startsWith("new_")
 
-    if (!hidden) {
-      displayRow.remove()
-      return
-    }
-
-    const destroyInput = hidden.querySelector("[data-field='destroy']")
-
-    const persisted = !hidden.dataset.id.startsWith("new_")
-
-    if (persisted) {
-      destroyInput.value = "1"
-      hidden.style.display = "none"
-    } else {
-      hidden.remove()
+      if (persisted && destroyInput) {
+        destroyInput.value = "1"
+        hidden.classList.add("hidden")
+      } else {
+        hidden.remove()
+      }
     }
 
     displayRow.remove()
 
     this.dispatchColorAmount(step)
     window.dispatchEvent(new CustomEvent("formula:changed"))
+  }
+
+  editColor(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const display = event.currentTarget.closest(".color-row-display")
+    if (!display) return
+
+    const ingredientId = display.dataset.id
+    if (!ingredientId) return
+
+    const step = display.closest(".formula-card")
+    if (!step) return
+
+    window.dispatchEvent(new CustomEvent("color:open", { detail: {step, ingredientId } }))
   }
 
   // ---------------- DRAG ----------------
@@ -258,14 +245,12 @@ export default class extends Controller {
     if (!this.hasStepsTarget) return
 
     let startX = 0
-
     this.stepsTarget.addEventListener("touchstart", e => {
       startX = e.changedTouches[0].screenX
     })
 
     this.stepsTarget.addEventListener("touchend", e => {
       const diff = e.changedTouches[0].screenX - startX
-
       if (Math.abs(diff) > 60) {
         diff > 0 ? this.prevStep() : this.nextStep()
       }

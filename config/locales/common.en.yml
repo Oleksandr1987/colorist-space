@@ -23,3 +23,8 @@ en:
       strands: "Strands"
       all_over: "All Over"
     ratio_hint_html: "Enter a ratio after <strong>1:</strong>, for example <strong>2</strong>, <strong>1.5</strong>, or <strong>2.7</strong>"
+
+  activerecord:
+    attributes:
+      user:
+        phone: "Phone"

@@ -26,7 +26,7 @@
         <!-- Password -->
         <div class="login__field">
           <%= f.label :password, t("auth.password") %>
-          <%= f.password_field :password, class: "login__input", autocomplete: "current-password" %>
+          <%= render "devise/shared/password_field", form: f, field: :password, autocomplete: "current-password", placeholder: t("auth.password") %>
         </div>
 
         <!-- Remember me -->

@@ -61,9 +61,16 @@
 
                 <div class="color-right">
                   <span class="amount"><%= ingredient_form.object.amount %>g</span>
-                  <button type="button" class="remove" data-action="click->formula#removeColor">
-                    <%= image_tag "close.png", class: "clear-icon" %>
-                  </button>
+
+                  <div class="color-actions">
+                    <button type="button" class="edit-btn" data-action="click->formula#editColor">
+                      <%= image_tag "pencil.png" %>
+                    </button>
+
+                    <button type="button" class="delete-btn" data-action="click->formula#removeColor">
+                      <%= image_tag "delete.png" %>
+                    </button>
+                  </div>
                 </div>
               </div>
             <% end %>

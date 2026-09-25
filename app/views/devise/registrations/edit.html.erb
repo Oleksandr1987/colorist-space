@@ -62,7 +62,7 @@
 
       <i><%= t("auth.leave_blank") %></i>
 
-      <%= f.password_field :password, class: "login__input", autocomplete: "new-password" %>
+      <%= render "devise/shared/password_field", form: f, field: :password, autocomplete: "new-password" %>
 
       <% if @minimum_password_length %>
         <em><%= t("auth.min_length", count: @minimum_password_length) %></em>
@@ -80,7 +80,7 @@
         <%= t("auth.password_confirmation") %>
       <% end %>
 
-      <%= f.password_field :password_confirmation, class: "login__input", autocomplete: "new-password" %>
+      <%= render "devise/shared/password_field", form: f, field: :password_confirmation, autocomplete: "new-password" %>
 
       <% resource.errors.full_messages_for(:password_confirmation).each do |message| %>
         <div class="inline-error">
@@ -96,7 +96,7 @@
 
       <i><%= t("auth.need_current_password") %></i>
 
-      <%= f.password_field :current_password, class: "login__input", autocomplete: "current-password" %>
+      <%= render "devise/shared/password_field", form: f, field: :current_password, autocomplete: "current-password" %>
 
       <% resource.errors.full_messages_for(:current_password).each do |message| %>
         <div class="inline-error">

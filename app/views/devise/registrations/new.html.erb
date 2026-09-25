@@ -58,7 +58,7 @@
             <em><%= t("auth.min_length", count: @minimum_password_length) %></em>
           <% end %>
 
-          <%= f.password_field :password, class: "login__input", autocomplete: "new-password" %>
+          <%= render "devise/shared/password_field", form: f, field: :password, autocomplete: "new-password" %>
 
           <% resource.errors.full_messages_for(:password).each do |message| %>
             <div class="inline-error">
@@ -73,7 +73,7 @@
             <span class="required-asterisk">*</span>
           <% end %>
 
-          <%= f.password_field :password_confirmation, class: "login__input", autocomplete: "new-password" %>
+          <%= render "devise/shared/password_field",form: f, field: :password_confirmation, autocomplete: "new-password" %>
 
           <% resource.errors.full_messages_for(:password_confirmation).each do |message| %>
             <div class="inline-error">

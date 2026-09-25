@@ -5,12 +5,14 @@ export default class extends Controller {
   static targets = ["modal", "rows", "actions", "paletteTemplate", "shadeTemplate", "list", "saveBtn"]
 
   static values = {
-    deleteIcon: String
+    deleteIcon: String,
+    editIcon: String
   }
 
   connect() {
     this.handleOpen = this.handleOpen.bind(this)
     window.addEventListener("color:open", this.handleOpen)
+    this.editingId = null
   }
 
   disconnect() {
@@ -19,8 +21,14 @@ export default class extends Controller {
 
   handleOpen(event) {
     this.currentStep = event.detail.step
+    this.editingId = event.detail.ingredientId || null
     this.modalTarget.classList.remove("hidden")
-    this.reset()
+
+    if (this.editingId) {
+      this.loadIngredientForEdit()
+    } else {
+      this.reset()
+    }
   }
 
   closeModal() {
@@ -32,22 +40,19 @@ export default class extends Controller {
     this.rowsTarget.innerHTML = ""
     this.actionsTarget.classList.add("hidden")
     this.currentPalette = null
+    this.editingId = null
     this.saveBtnTarget.disabled = true
     this.addPalette()
   }
 
   addPalette() {
-    this.rowsTarget.insertAdjacentHTML(
-      "beforeend",
-      this.paletteTemplateTarget.innerHTML
-    )
+    this.rowsTarget.insertAdjacentHTML("beforeend", this.paletteTemplateTarget.innerHTML)
   }
 
   selectPalette(event) {
     const select = event.target
     const option = select.selectedOptions[0]
-
-    if (!option) {
+    if (!option || !option.value) {
       return
     }
 
@@ -59,11 +64,16 @@ export default class extends Controller {
 
     select.closest(".palette-row").remove()
 
-    this.actionsTarget.classList.remove("hidden")
+    if (!this.editingId) {
+      this.actionsTarget.classList.remove("hidden")
+    }
+
     this.createShadeRow()
   }
 
   createShadeRow() {
+    if (!this.currentPalette) return
+
     const wrapper = document.createElement("div")
 
     wrapper.innerHTML = this.shadeTemplateTarget.innerHTML
@@ -73,9 +83,7 @@ export default class extends Controller {
     row.dataset.productId = this.currentPalette.id
     row.dataset.price = this.currentPalette.price
     row.dataset.brand = this.currentPalette.brand
-
-    row.querySelector(".color-brand").textContent =
-      this.currentPalette.brand
+    row.querySelector(".color-brand").textContent = this.currentPalette.brand
 
     const shadeInput = row.querySelector(".color-shade")
     const amountInput = row.querySelector(".color-amount")
@@ -100,6 +108,41 @@ export default class extends Controller {
     this.updateSaveButton()
   }
 
+  loadIngredientForEdit() {
+    this.rowsTarget.innerHTML = ""
+    this.actionsTarget.classList.add("hidden")
+    this.saveBtnTarget.disabled = true
+
+    const hidden = this.currentStep.querySelector(`.ingredient-fields[data-id="${CSS.escape(this.editingId)}"]`)
+    if (!hidden) {
+      this.closeModal()
+      return
+    }
+
+    const brandInput = hidden.querySelector("[data-field='brand']")
+    const shadeInput = hidden.querySelector("[data-field='shade']")
+    const amountInput = hidden.querySelector("[data-field='amount']")
+    const productInput = hidden.querySelector("[data-field='formula_product_id']")
+    const priceInput = hidden.querySelector("[data-field='price']")
+
+    this.currentPalette = {
+      id: productInput?.value || "",
+      brand: brandInput?.value || "",
+      price: priceInput?.value || ""
+    }
+
+    this.createShadeRow()
+
+    const row = this.rowsTarget.querySelector(".color-row")
+
+    if (!row) return
+
+    row.querySelector(".color-shade").value = shadeInput?.value || ""
+    row.querySelector(".color-amount").value = amountInput?.value || ""
+
+    this.updateSaveButton()
+  }
+
   addShade() {
     if (!this.currentPalette) {
       return
@@ -109,9 +152,7 @@ export default class extends Controller {
   }
 
   changePalette() {
-    if (
-      this.rowsTarget.querySelector(".palette-row")
-    ) {
+    if (this.rowsTarget.querySelector(".palette-row")) {
       return
     }
     this.currentPalette = null
@@ -119,16 +160,12 @@ export default class extends Controller {
   }
 
   removeRow(event) {
-    event.target.closest(".color-row").remove()
+    event.currentTarget.closest(".color-row")?.remove()
 
-    if (
-      this.rowsTarget.querySelectorAll(".color-row").length === 0
-    ) {
+    if (this.rowsTarget.querySelectorAll(".color-row").length === 0) {
       this.actionsTarget.classList.add("hidden")
 
-      if (
-        this.rowsTarget.querySelectorAll(".palette-row").length === 0
-      ) {
+      if (this.rowsTarget.querySelectorAll(".palette-row").length === 0) {
         this.addPalette()
       }
     }
@@ -138,7 +175,6 @@ export default class extends Controller {
 
   updateSaveButton() {
     const rows = this.rowsTarget.querySelectorAll(".color-row")
-
     if (rows.length === 0) {
       this.saveBtnTarget.disabled = true
       return
@@ -149,10 +185,7 @@ export default class extends Controller {
       const amountValue = row.querySelector(".color-amount").value.trim().replace(",", ".")
       const amount = parseFloat(amountValue)
 
-      return shade !== "" &&
-        amountValue !== "" &&
-        !Number.isNaN(amount) &&
-        amount > 0
+      return (shade !== "" && amountValue !== "" && !Number.isNaN(amount) && amount > 0)
     })
 
     this.saveBtnTarget.disabled = !allValid
@@ -174,7 +207,9 @@ export default class extends Controller {
         hasErrors = true
       }
 
-      if (!amountInput.value.trim()) {
+      const amount = parseFloat(amountInput.value.trim().replace(",", "."))
+
+      if (!amountInput.value.trim() || Number.isNaN(amount) || amount <= 0) {
         amountInput.classList.add("color-error")
         hasErrors = true
       }
@@ -185,103 +220,141 @@ export default class extends Controller {
     }
 
     const stepId = this.currentStep.dataset.stepId
+    if (this.editingId) {
+      this.updateIngredient(rows[0])
+
+      const total = this.calculateTotalAmount()
+
+      this.closeModal()
+      this.dispatchColorChanged(total, stepId)
+
+      return
+    }
 
     rows.forEach(row => {
-      const brand = row.dataset.brand
-      const shade = row.querySelector(".color-shade").value.trim()
-
-      let amount = row.querySelector(".color-amount").value.trim()
-
-      amount = amount.replace(",", ".")
-
-      if (parseFloat(amount) <= 0) {
-        return
-      }
-
-      const template = this.currentStep.querySelector("[data-formula-target='ingredientTemplate']")
-      const uid = `new_${Date.now()}_${Math.random().toString(36).slice(2)}`
-
-      let html = template.innerHTML.replace(/NEW_ID/g, uid).replace(/STEP_ID/g, stepId)
-
-      const wrapper = document.createElement("div")
-
-      wrapper.innerHTML = html
-
-      const hidden = wrapper.querySelector(".ingredient-fields")
-
-      hidden.dataset.id = uid
-      hidden.querySelector("[data-field='brand']").value = brand
-      hidden.querySelector("[data-field='shade']").value = shade
-      hidden.querySelector("[data-field='amount']").value = amount
-      hidden.querySelector("[data-field='formula_product_id']").value = row.dataset.productId
-      hidden.querySelector("[data-field='price']").value = row.dataset.price
-
-      this.currentStep.querySelector("[data-formula-target='colorsList']").appendChild(hidden)
-
-      const display = document.createElement("div")
-
-      display.className = "color-row-display"
-      display.dataset.id = uid
-      display.innerHTML = `
-        <div class="color-left">
-          <span class="shade">${shade}</span>
-          <span class="brand">${brand}</span>
-        </div>
-        <div class="color-right">
-          <span class="amount">${amount}g</span>
-
-          <button
-            type="button"
-            class="remove"
-            data-action="click->formula#removeColor">
-            <img
-              src="${this.deleteIconValue}"
-              alt="Delete"
-              class="clear-icon">
-          </button>
-        </div>
-      `
-
-      this.currentStep.querySelector("[data-color-target='list']").appendChild(display)
+      this.createIngredient(row, stepId)
     })
 
+    const total = this.calculateTotalAmount()
+
     this.closeModal()
+    this.dispatchColorChanged(total, stepId, true)
+  }
 
+  updateIngredient(row) {
+    const hidden = this.currentStep.querySelector(`.ingredient-fields[data-id="${CSS.escape(this.editingId)}"]`)
+    const display = this.currentStep.querySelector(`.color-row-display[data-id="${CSS.escape(this.editingId)}"]`)
+
+    if (!hidden || !display) return
+
+    const brand = row.dataset.brand
+    const shade = row.querySelector(".color-shade").value.trim()
+    const amount = row.querySelector(".color-amount").value.trim().replace(",", ".")
+
+    hidden.querySelector("[data-field='brand']").value = brand
+    hidden.querySelector("[data-field='shade']").value = shade
+    hidden.querySelector("[data-field='amount']").value = amount
+    hidden.querySelector("[data-field='formula_product_id']").value = row.dataset.productId
+    hidden.querySelector("[data-field='price']").value = row.dataset.price
+
+    display.querySelector(".brand").textContent = brand
+    display.querySelector(".shade").textContent = shade
+    display.querySelector(".amount").textContent = `${amount}g`
+  }
+
+  createIngredient(row, stepId) {
+    const brand = row.dataset.brand
+    const shade = row.querySelector(".color-shade").value.trim()
+    const amount = row.querySelector(".color-amount").value.trim().replace(",", ".")
+
+    if (parseFloat(amount) <= 0) {
+      return
+    }
+
+    const template = this.currentStep.querySelector("[data-formula-target='ingredientTemplate']")
+
+    if (!template) return
+
+    const uid = `new_${Date.now()}_${Math.random().toString(36).slice(2)}`
+    const html = template.innerHTML.replace(/NEW_ID/g, uid).replace(/STEP_ID/g, stepId)
+    const wrapper = document.createElement("div")
+
+    wrapper.innerHTML = html
+
+    const hidden = wrapper.querySelector(".ingredient-fields")
+
+    hidden.dataset.id = uid
+
+    hidden.querySelector("[data-field='brand']").value = brand
+    hidden.querySelector("[data-field='shade']").value = shade
+    hidden.querySelector("[data-field='amount']").value = amount
+    hidden.querySelector("[data-field='formula_product_id']").value = row.dataset.productId
+    hidden.querySelector("[data-field='price']").value = row.dataset.price
+
+    this.currentStep.querySelector("[data-formula-target='colorsList']").appendChild(hidden)
+
+    const display = document.createElement("div")
+
+    display.className = "color-row-display"
+    display.dataset.id = uid
+
+    display.innerHTML = `
+      <div class="color-left">
+        <span class="shade"></span>
+        <span class="brand"></span>
+      </div>
+
+      <div class="color-right">
+        <span class="amount"></span>
+
+        <div class="color-actions">
+          <button type="button" class="edit-btn" data-action="click->formula#editColor">
+            <img class="edit-icon" alt="Edit">
+          </button>
+
+          <button type="button" class="delete-btn" data-action="click->formula#removeColor">
+            <img class="delete-icon" alt="Delete">
+          </button>
+        </div>
+      </div>
+    `
+
+    display.querySelector(".shade").textContent = shade
+    display.querySelector(".brand").textContent = brand
+    display.querySelector(".amount").textContent = `${amount}g`
+    display.querySelector(".edit-icon").src = this.editIconValue
+    display.querySelector(".delete-icon").src = this.deleteIconValue
+
+    this.currentStep.querySelector("[data-color-target='list']").appendChild(display)
+  }
+
+  dispatchColorChanged(total, stepId, firstStepFilled = false) {
     requestAnimationFrame(() => {
-      window.dispatchEvent(
-        new CustomEvent(
-          "formula:colorAmountChanged",
-          {
-            detail: {
-              total: this.calculateTotalAmount(),
-              stepId: this.currentStep.dataset.stepId
-            }
-          }
-        )
-      )
-
+      window.dispatchEvent(new CustomEvent("formula:colorAmountChanged", { detail: {total, stepId } }))
       window.dispatchEvent(new CustomEvent("formula:changed"))
-      window.dispatchEvent(new CustomEvent("formula:firstStepFilled"))
+
+      if (firstStepFilled) {
+        window.dispatchEvent(new CustomEvent("formula:firstStepFilled"))
+      }
     })
   }
 
   calculateTotalAmount() {
+    if (!this.currentStep) return 0
+
     let total = 0
 
     this.currentStep
       .querySelectorAll(".ingredient-fields")
       .forEach(wrapper => {
         const destroyInput = wrapper.querySelector("[data-field='destroy']")
-
         if (destroyInput?.value === "1") return
 
         const amountInput = wrapper.querySelector("[data-field='amount']")
-
         if (!amountInput) return
 
         const value = parseFloat(amountInput.value || 0)
-
-        if (!isNaN(value)) {
+        if (!Number.isNaN(value)) {
           total += value
         }
       })
@@ -293,7 +366,7 @@ export default class extends Controller {
     return this.element.closest(".formula-card").dataset.stepId
   }
 
-  stop(e) {
-    e.stopPropagation()
+  stop(event) {
+    event.stopPropagation()
   }
 }

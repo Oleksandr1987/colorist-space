@@ -23,3 +23,8 @@ uk:
       strands: "Пасма"
       all_over: "По всій довжині"
     ratio_hint_html: "Введіть значення після <strong>1:</strong>, наприклад <strong>2</strong>, <strong>1.5</strong> або <strong>2.7</strong>"
+
+  activerecord:
+    attributes:
+      user:
+        phone: "Телефон"
