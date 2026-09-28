@@ -58,6 +58,25 @@ RSpec.describe "Analytics" do
 
       expect(response).to have_http_status(:ok)
     end
+
+    context "without period params" do
+      it "shows expenses from all time by default" do
+        current_expense =
+          create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
+
+        historical_expense =
+          create(:expense, user: user, category: "materials", amount: 200, spent_on: 1.year.ago.to_date)
+
+        get expenses_analytics_path
+
+        expect(response).to have_http_status(:ok)
+
+        expenses = controller.instance_variable_get(:@expenses)
+
+        expect(expenses).to contain_exactly(current_expense, historical_expense)
+        expect(controller.instance_variable_get(:@total_expenses)).to eq(300)
+      end
+    end
   end
 
   describe "GET /analytics/income" do
@@ -309,6 +328,23 @@ RSpec.describe "Analytics" do
 
     expect(total_income).to eq(400)
   end
+
+  it "shows income from all time by default when no period params are provided" do
+    historical_appointment =
+      create(:appointment, user: user, client: client,
+        appointment_date: Date.current,
+        appointment_time: "14:00",
+        end_time: "14:30",
+        main_service: service_a
+      )
+
+    historical_appointment.update_column(:appointment_date, 1.year.ago.to_date)
+
+    get income_analytics_path
+
+    expect(response).to have_http_status(:ok)
+    expect(total_income).to eq(400)
+  end
 end
 
   describe "GET /analytics/balance" do
@@ -385,6 +421,34 @@ end
       end
 
       it "includes all historical income and expenses" do
+        expect(response.body).to include("390")
+        expect(response.body).to include("170")
+        expect(response.body).to include("220")
+      end
+    end
+
+    context "without period params" do
+      before do
+        historical_appointment =
+          create(:appointment, user: user, client: client,
+            appointment_date: Date.current,
+            appointment_time: "12:00",
+            end_time: "12:30",
+            main_service: service
+          )
+
+        historical_appointment.update_column(:appointment_date, 1.year.ago.to_date)
+
+        create(:expense, user: user, amount: 70, spent_on: 2.years.ago.to_date)
+
+        get balance_analytics_path
+      end
+
+      it "returns success" do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "includes all historical income and expenses by default" do
         expect(response.body).to include("390")
         expect(response.body).to include("170")
         expect(response.body).to include("220")

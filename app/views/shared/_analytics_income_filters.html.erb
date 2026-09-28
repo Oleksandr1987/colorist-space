@@ -87,7 +87,7 @@
 
   <!-- FILTER MODAL -->
   <div class="analytics-filter-modal hidden" data-analytics-filter-target="modal" data-action="click->analytics-filter#closeOnOverlay">
-    <div class="analytics-filter-modal-content" data-action="click->analytics-filter#stopPropagation">
+    <div class="analytics-filter-modal-content">
       <%= form_with url: income_analytics_path, method: :get, local: true, class: "analytics-filter-form" do %>
         <!-- HEADER -->
         <div class="analytics-filter-modal-header">
