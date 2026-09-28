@@ -31,6 +31,17 @@ class Expense < ApplicationRecord
         .group_by { |expense| I18n.l(expense.spent_on, format: "%B %Y") }
     end
 
+    def grouped_by_year_and_month(scope)
+      scope
+        .ordered_by_date
+        .group_by { |expense| expense.spent_on.year }
+        .transform_values do |expenses|
+          expenses.group_by do |expense|
+            I18n.l(expense.spent_on, format: "%B %Y")
+          end
+        end
+    end
+
     def grouped_expenses(scope)
       scope.group(:category).sum(:amount)
     end

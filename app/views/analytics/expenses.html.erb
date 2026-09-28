@@ -1,10 +1,9 @@
 <%
   filters_applied = params[:all_time] == "1" || params[:from].present? || params[:to].present? || params[:categories].present?
-  back_path = filters_applied ? expenses_analytics_path : analytics_path
 %>
 
 <div class="analytics-header-bar">
-  <%= link_to back_path, class: "back-button-inline", title: t("analytics.back") do %>
+  <%= link_to analytics_path, class: "back-button-inline",ттtitle: t("analytics.back") do %>
     <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
   <% end %>
 
@@ -17,92 +16,77 @@
 
 <%= render "shared/analytics_expense_filters" %>
 
-<% if @expenses.present? || @category_filters.present? || @all_time || params[:from].present? || params[:to].present? %>
+<% if @expenses.present? %>
   <div class="grouped-expense-list">
-    <% @grouped_expenses.each do |category, sum| %>
+    <% @expenses_by_year.each do |year, months| %>
+      <% year_total = months.values.flatten.sum(&:amount) %>
 
-      <% category_params = { categories: @category_filters } %>
-
-      <% if @all_time %>
-        <% category_params[:all_time] = "1" %>
-      <% else %>
-        <% category_params[:from] = @from.strftime("%d.%m.%Y") %>
-        <% category_params[:to] = @to.strftime("%d.%m.%Y") %>
-      <% end %>
-
-      <% if @expanded_category != category %>
-        <% category_params[:expanded] = category %>
-      <% end %>
-
-      <div class="grouped-expense-block">
-        <%= link_to expenses_analytics_path(category_params), class: "category-summary-link aligned" do %>
+      <div class="grouped-expense-block" data-controller="collapse">
+        <div class="category-summary-link aligned" data-action="click->collapse#toggle">
           <span class="category-name-text">
-            <%= t("analytics.expenses.categories.#{category}") %>
+            <%= year %>
           </span>
 
           <span class="category-amount">
-            <%= sum %> ₴
+            <%= year_total.to_i %> ₴
           </span>
-        <% end %>
+        </div>
 
-        <% if @expanded_category == category %>
-          <div class="expenses-scroll-wrapper">
-            <% @monthly_expenses.each do |month_name, expenses| %>
-              <div class="monthly-expense-group" data-controller="collapse">
-                <div class="month-header-aligned" data-action="click->collapse#toggle">
-                  <span class="month-header-title">
-                    <%= month_name %>
+        <div class="expenses-scroll-wrapper collapsible hidden" data-collapse-target="content">
+          <% months.each do |month_name, expenses| %>
+            <div class="monthly-expense-group" data-controller="collapse">
+              <div class="month-header-aligned" data-action="click->collapse#toggle">
+                <span class="month-header-title">
+                  <%= month_name %>
+                </span>
+
+                <div class="month-header-right">
+                  <span class="month-header-amount">
+                    <%= expenses.sum(&:amount).to_i %> ₴
                   </span>
-
-                  <div class="month-header-right">
-                    <span class="month-header-amount">
-                      <%= expenses.sum(&:amount) %> ₴
-                    </span>
-                  </div>
                 </div>
-
-                <ul class="expenses-list collapsible hidden" data-collapse-target="content">
-                  <% expenses.each do |expense| %>
-                    <li class="expense-item">
-                      <div class="expense-record-content">
-                        <div class="expense-record-name">
-                          <strong>
-                            <%= expense.note.presence || t("analytics.expenses.categories.#{expense.category}") %>
-                          </strong>
-                        </div>
-
-                        <div class="expense-record-details">
-                          <span class="expense-record-date">
-                            <%= l(expense.spent_on, format: :default) %>
-                          </span>
-
-                          <span class="expense-record-amount red">
-                            <%= expense.amount.to_i %> ₴
-                          </span>
-                        </div>
-                      </div>
-
-                      <div class="appointment-record-actions">
-                        <%= link_to edit_expense_path(expense), class: "appointment-action-button", title: t("analytics.expenses.edit") do %>
-                          <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16 %>
-                        <% end %>
-
-                        <%= button_to expense_path(expense), method: :delete,
-                              form: {
-                                data: { turbo_confirm: t("analytics.expenses.confirm_delete") }
-                              },
-                              class: "appointment-action-button appointment-delete-button",
-                              title: t("analytics.expenses.delete") do %>
-                          <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16 %>
-                        <% end %>
-                      </div>
-                    </li>
-                  <% end %>
-                </ul>
               </div>
-            <% end %>
-          </div>
-        <% end %>
+
+              <ul class="expenses-list collapsible hidden" data-collapse-target="content">
+                <% expenses.each do |expense| %>
+                  <li class="expense-item">
+                    <div class="expense-record-content">
+                      <div class="expense-record-name">
+                        <strong>
+                          <%= expense.note.presence || expense.category_name %>
+                        </strong>
+                      </div>
+
+                      <div class="expense-record-details">
+                        <span class="expense-record-date">
+                          <%= l(expense.spent_on, format: :default) %>
+                        </span>
+
+                        <span class="expense-record-amount red">
+                          <%= expense.amount.to_i %> ₴
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="appointment-record-actions">
+                      <%= link_to edit_expense_path(expense), class: "appointment-action-button", title: t("analytics.expenses.edit") do %>
+                        <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16 %>
+                      <% end %>
+
+                      <%= button_to expense_path(expense),
+                            method: :delete,
+                            form: { data: { turbo_confirm: t("analytics.expenses.confirm_delete") } },
+                            class: "appointment-action-button appointment-delete-button",
+                            title: t("analytics.expenses.delete") do %>
+                        <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16 %>
+                      <% end %>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+        </div>
       </div>
     <% end %>
   </div>
@@ -115,5 +99,9 @@
     <strong>
       <%= @total_expenses.to_i %> ₴
     </strong>
+  </div>
+<% elsif filters_applied %>
+  <div class="grouped-expense-list">
+    <p><%= t("analytics.expenses.no_results", default: "Немає витрат за вибраними фільтрами") %></p>
   </div>
 <% end %>

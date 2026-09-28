@@ -59,10 +59,6 @@ export default class extends Controller {
     }
   }
 
-  stopPropagation(event) {
-    event.stopPropagation()
-  }
-
   toggleChip(event) {
     const chip = event.currentTarget.closest(".filter-chip")
 
@@ -74,7 +70,6 @@ export default class extends Controller {
   // SERVICES
   toggleIncomeCategory(event) {
     const chip = event.currentTarget.closest(".filter-chip")
-
     chip?.classList.toggle("active", event.currentTarget.checked)
 
     this.filterIncomeServices()
@@ -95,30 +90,23 @@ export default class extends Controller {
   filterIncomeServices() {
     if (!this.hasIncomeServicesTarget) return
 
-    const selectedCategories = Array.from(
-      this.element.querySelectorAll('input[name="income_categories[]"]:checked')
-    ).map((input) => input.value)
-
+    const selectedCategories = Array.from(this.element.querySelectorAll('input[name="income_categories[]"]:checked')).map((input) => input.value)
     const hasCategories = selectedCategories.length > 0
 
     if (this.hasIncomeServicesSectionTarget) {
       this.incomeServicesSectionTarget.classList.toggle("hidden", !hasCategories)
     }
 
-    this.element
-      .querySelector('[data-action~="click->analytics-filter#selectAllIncomeCategories"]')
-      ?.classList.toggle("active", !hasCategories)
+    this.element.querySelector('[data-action~="click->analytics-filter#selectAllIncomeCategories"]')?.classList.toggle("active", !hasCategories)
 
     this.incomeServicesTarget
       .querySelectorAll("[data-income-service-category]")
       .forEach((chip) => {
         const visible = hasCategories && selectedCategories.includes(chip.dataset.incomeServiceCategory)
-
         chip.classList.toggle("hidden", !visible)
 
         if (!visible) {
           const checkbox = chip.querySelector('input[name="service_ids[]"]')
-
           if (checkbox) checkbox.checked = false
 
           chip.classList.remove("active")
@@ -227,7 +215,6 @@ export default class extends Controller {
     this.toggleChip(event)
 
     const kind = event.currentTarget.dataset.formulaKind
-
     this.updateAllFormulaProducts(kind)
   }
 
@@ -248,7 +235,6 @@ export default class extends Controller {
       .forEach((chip) => {
         const brand = chip.getAttribute(productAttribute)
         const visible = selectedBrands.includes(brand)
-
         chip.classList.toggle("hidden", !visible)
       })
 
@@ -277,7 +263,6 @@ export default class extends Controller {
       .querySelectorAll(`[${attribute}="${CSS.escape(brand)}"]`)
       .forEach((chip) => {
         const checkbox = chip.querySelector(`input[name="formula_product_ids[]"][data-formula-kind="${kind}"]`)
-
         if (checkbox) checkbox.checked = false
 
         chip.classList.remove("active")
@@ -300,14 +285,12 @@ export default class extends Controller {
       if (!chip) return
 
       const brand = kind === "color" ? chip.dataset.colorProductBrand : chip.dataset.oxidantProductBrand
-
       const brandCheckbox =
         this.element.querySelector(kind === "color" ? `[data-color-brand="${CSS.escape(brand)}"]` : `[data-oxidant-brand="${CSS.escape(brand)}"]`)
 
       if (!brandCheckbox) return
 
       brandCheckbox.checked = true
-
       brandCheckbox.closest(".filter-chip")?.classList.add("active")
     })
 
@@ -315,7 +298,6 @@ export default class extends Controller {
   }
 
   // CARE PRODUCTS
-
   toggleCareBrand(event) {
     this.toggleChip(event)
 
@@ -373,13 +355,8 @@ export default class extends Controller {
   updateCareProductFilter() {
     if (!this.hasIncomeCareProductsTarget) return
 
-    const selectedBrands = Array.from(
-      this.element.querySelectorAll("[data-care-brand]:checked")
-    ).map((input) => input.value)
-
-    const selectedCategories = Array.from(
-      this.element.querySelectorAll("[data-care-category]:checked")
-    ).map((input) => input.value)
+    const selectedBrands = Array.from(this.element.querySelectorAll("[data-care-brand]:checked")).map((input) => input.value)
+    const selectedCategories = Array.from(this.element.querySelectorAll("[data-care-category]:checked")).map((input) => input.value)
 
     const hasBrands = selectedBrands.length > 0
     const hasCategories = selectedCategories.length > 0
@@ -423,7 +400,6 @@ export default class extends Controller {
       .querySelectorAll(`[data-care-product-brand="${CSS.escape(brand)}"]`)
       .forEach((chip) => {
         const checkbox = chip.querySelector('input[name="care_product_ids[]"]')
-
         if (checkbox) checkbox.checked = false
 
         chip.classList.remove("active")
@@ -435,7 +411,6 @@ export default class extends Controller {
       .querySelectorAll(`[data-care-product-category="${CSS.escape(category)}"]`)
       .forEach((chip) => {
         const checkbox = chip.querySelector('input[name="care_product_ids[]"]')
-
         if (checkbox) checkbox.checked = false
 
         chip.classList.remove("active")
@@ -451,12 +426,10 @@ export default class extends Controller {
   }
 
   restoreCareProductSelections() {
-    const selectedProducts =
-      this.element.querySelectorAll('input[name="care_product_ids[]"]:checked')
+    const selectedProducts = this.element.querySelectorAll('input[name="care_product_ids[]"]:checked')
 
     selectedProducts.forEach((input) => {
       const chip = input.closest("[data-care-product-brand]")
-
       if (!chip) return
 
       const brand = chip.dataset.careProductBrand
@@ -466,13 +439,11 @@ export default class extends Controller {
 
       if (brandCheckbox) {
         brandCheckbox.checked = true
-
         brandCheckbox.closest(".filter-chip")?.classList.add("active")
       }
 
       if (categoryCheckbox) {
         categoryCheckbox.checked = true
-
         categoryCheckbox.closest(".filter-chip")?.classList.add("active")
       }
     })
@@ -481,10 +452,16 @@ export default class extends Controller {
   }
 
   // PERIOD
-
   selectAllTime(event) {
     this.allTimeTarget.value = "1"
 
+    this.fromTarget.value = ""
+    this.toTarget.value = ""
+
+    this.fromDisplayTarget.value = ""
+    this.toDisplayTarget.value = ""
+
+    this.updateToMinDate(null)
     this.updatePeriodChips(event.currentTarget)
   }
 
@@ -502,26 +479,63 @@ export default class extends Controller {
     this.fromDisplayTarget.value = from
     this.toDisplayTarget.value = to
 
+    this.updateToMinDate(input.dataset.from)
     this.updatePeriodChips(input)
   }
 
   fromChanged() {
     this.allTimeTarget.value = "0"
-    this.fromTarget.value = this.fromDisplayTarget.value
+
+    const from = this.fromDisplayTarget.value
+
+    this.fromTarget.value = from
+
+    const fromIso = this.toIsoDate(from)
+
+    this.updateToMinDate(fromIso)
+
+    if (
+      this.toDisplayTarget.value &&
+      this.compareDates(this.toDisplayTarget.value, from) < 0
+    ) {
+      this.toDisplayTarget.value = from
+      this.toTarget.value = from
+    }
 
     this.clearPeriodChips()
   }
 
   toChanged() {
     this.allTimeTarget.value = "0"
-    this.toTarget.value = this.toDisplayTarget.value
+
+    const to = this.toDisplayTarget.value
+    this.toTarget.value = to
 
     this.clearPeriodChips()
   }
 
+  updateToMinDate(value) {
+    const element = this.element.querySelector('[data-analytics-filter-datepicker-target="toPicker"]')
+    if (!element) return
+
+    const controller = this.application.getControllerForElementAndIdentifier(element, "datepicker")
+    controller?.setMinDate(value)
+  }
+
+  compareDates(first, second) {
+    return this.toIsoDate(first).localeCompare(this.toIsoDate(second))
+  }
+
+  toIsoDate(value) {
+    if (!value) return ""
+
+    const [day, month, year] = value.split(".")
+    return `${year}-${month}-${day}`
+  }
+
   updatePeriodChips(selectedInput) {
     this.element
-      .querySelectorAll('input[type="radio"][name="period"]')
+      .querySelectorAll("[data-period-option]")
       .forEach((radio) => {
         const selected = radio === selectedInput
 
@@ -533,7 +547,7 @@ export default class extends Controller {
 
   clearPeriodChips() {
     this.element
-      .querySelectorAll('input[type="radio"][name="period"]')
+      .querySelectorAll("[data-period-option]")
       .forEach((radio) => {
         radio.checked = false
 

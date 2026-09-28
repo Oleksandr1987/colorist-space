@@ -2,7 +2,7 @@ class AnalyticsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_period
 
-  helper_method :permitted_params
+  helper_method :permitted_params, :period_filter_applied?
 
   def show; end
 
@@ -11,27 +11,16 @@ class AnalyticsController < ApplicationController
       Array(permitted_params[:categories])
         .select { |category| Expense::CATEGORIES.include?(category) }
 
-    @expanded_category =
-      if Expense::CATEGORIES.include?(permitted_params[:expanded])
-        permitted_params[:expanded]
-      end
+    @expenses = current_user.expenses
 
-    @expenses =
-      Expense
-        .for_user_between(current_user, @from, @to)
-        .apply_category_filter(@category_filters)
-        .ordered_by_date
-
-    @grouped_expenses = Expense.grouped_expenses(@expenses)
-    @total_expenses = Expense.total_expenses(@expenses)
-
-    if @expanded_category.present?
-      expanded_expenses = @expenses.where(category: @expanded_category)
-
-      @monthly_expenses = Expense.monthly_expenses(expanded_expenses)
-    else
-      @monthly_expenses = {}
+    if period_filter_applied? && !@all_time
+      @expenses = @expenses.where(spent_on: @from..@to)
     end
+
+    @expenses = @expenses.apply_category_filter(@category_filters).ordered_by_date
+
+    @expenses_by_year = Expense.grouped_by_year_and_month(@expenses)
+    @total_expenses = Expense.total_expenses(@expenses)
   end
 
   def income
@@ -40,16 +29,13 @@ class AnalyticsController < ApplicationController
         .select { |category| Service::CATEGORIES.include?(category) }
 
     @income_service_filters =
-      Array(permitted_params[:service_ids])
-        .filter_map { |id| Integer(id, exception: false) }
+      Array(permitted_params[:service_ids]).filter_map { |id| Integer(id, exception: false) }
 
     @income_formula_product_filters =
-      Array(permitted_params[:formula_product_ids])
-        .filter_map { |id| Integer(id, exception: false) }
+      Array(permitted_params[:formula_product_ids]).filter_map { |id| Integer(id, exception: false) }
 
     @income_care_product_filters =
-      Array(permitted_params[:care_product_ids])
-        .filter_map { |id| Integer(id, exception: false) }
+      Array(permitted_params[:care_product_ids]).filter_map { |id| Integer(id, exception: false) }
 
     summary =
       ::Analytics::IncomeSummary.new(
@@ -175,6 +161,11 @@ class AnalyticsController < ApplicationController
     rescue Date::Error
       nil
     end
+  end
+
+  def period_filter_applied?
+    permitted_params[:all_time] == "1" ||
+      permitted_params.values_at(:from, :to).any?(&:present?)
   end
 
   def permitted_params

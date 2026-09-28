@@ -1,11 +1,8 @@
 <%
-  filters_applied =
-    params[:all_time] == "1" ||
-    params[:from].present? ||
-    params[:to].present?
+  filters_applied = period_filter_applied?
 
-  from_date = @from
-  to_date = @to
+  from_date = permitted_params[:from].present? ? @from : nil
+  to_date = permitted_params[:to].present? ? @to : nil
 %>
 
 <div class="analytics-filter" data-controller="analytics-filter">
