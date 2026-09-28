@@ -40,8 +40,8 @@ class AnalyticsController < ApplicationController
     summary =
       ::Analytics::IncomeSummary.new(
         user: current_user,
-        from: @from,
-        to: @to,
+        from: filter_from,
+        to: filter_to,
         service_categories: @income_category_filters,
         service_ids: @income_service_filters,
         formula_product_ids: @income_formula_product_filters,
@@ -81,7 +81,7 @@ class AnalyticsController < ApplicationController
   end
 
   def balance
-    summary = ::Analytics::FinancialSummary.new(user: current_user, from: @from, to: @to)
+    summary = ::Analytics::FinancialSummary.new(user: current_user, from: filter_from, to: filter_to)
 
     @service_income = summary.service_income
     @formula_income = summary.formula_income
@@ -96,6 +96,14 @@ class AnalyticsController < ApplicationController
   end
 
   private
+
+  def filter_from
+    period_filter_applied? ? @from : nil
+  end
+
+  def filter_to
+    period_filter_applied? ? @to : nil
+  end
 
   def set_period
     @all_time = permitted_params[:all_time] == "1"

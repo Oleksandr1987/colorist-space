@@ -1,9 +1,9 @@
 <%
-  filters_applied = params[:all_time] == "1" || params[:from].present? || params[:to].present? || params[:categories].present?
+  filters_applied = period_filter_applied? || permitted_params[:categories].present?
 %>
 
 <div class="analytics-header-bar">
-  <%= link_to analytics_path, class: "back-button-inline",ттtitle: t("analytics.back") do %>
+  <%= link_to analytics_path, class: "back-button-inline",title: t("analytics.back") do %>
     <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
   <% end %>
 
@@ -102,6 +102,6 @@
   </div>
 <% elsif filters_applied %>
   <div class="grouped-expense-list">
-    <p><%= t("analytics.expenses.no_results", default: "Немає витрат за вибраними фільтрами") %></p>
+    <p><%= t("analytics.expenses.no_results") %></p>
   </div>
 <% end %>

@@ -32,6 +32,7 @@ en:
       edit: "Edit Expense"
       delete: "Delete Expense"
       confirm_delete: "Delete this expense?"
+      no_results: "No expenses found for the selected filters"
 
       category: "Expense category"
       note: "Description"

@@ -76,7 +76,7 @@ Rails.application.routes.draw do
   get "/settings", to: "settings#show"
   get "/settings/subscription", to: "settings#subscription", as: :settings_subscription
 
-  resources :expenses, except: [ :show ]
+  resources :expenses, except: [ :index, :show ]
 
   resource :analytics, controller: "analytics", only: [ :show ] do
     get :expenses
