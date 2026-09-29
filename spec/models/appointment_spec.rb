@@ -117,10 +117,10 @@ RSpec.describe Appointment do
       expect(appointment.reload.combined_service_name.split(" + ")).to contain_exactly("Haircut", "Coloring")
     end
 
-    it "returns an empty string when service_note has no services" do
+    it "returns appointment services when service_note has no services" do
       create(:service_note, :without_services, appointment: appointment, user: user, client: client)
 
-      expect(appointment.reload.combined_service_name).to eq("")
+      expect(appointment.reload.combined_service_name).to eq("Coloring")
     end
   end
 

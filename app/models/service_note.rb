@@ -139,6 +139,7 @@ class ServiceNote < ApplicationRecord
 
   def sync_appointment_services
     return unless appointment.present?
+    return if services.empty?
 
     appointment.sync_services_with_prices!(services.map(&:id))
   end

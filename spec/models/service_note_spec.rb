@@ -365,20 +365,17 @@ RSpec.describe ServiceNote do
       expect { note.send(:sync_appointment_services) }.not_to raise_error
     end
 
-    it "clears appointment services when service note services are empty" do
+    it "preserves appointment services and historical prices when service note has no services" do
       appointment.sync_services_with_prices!([ service.id ])
 
-      empty_note = described_class.new(
-        appointment: appointment,
-        user: appointment.user,
-        client: appointment.client
-      )
+      service_note =
+        build(:service_note, :without_services, appointment: appointment, user: appointment.user, client: appointment.client)
 
-      allow(empty_note).to receive(:services).and_return(Service.none)
+      expect { service_note.save! }.not_to change {
+        appointment.reload.appointment_services_relations.pluck(:service_id, :price)
+      }
 
-      empty_note.send(:sync_appointment_services)
-
-      expect(appointment.reload.services).to be_empty
+      expect(appointment.reload.services).to contain_exactly(service)
     end
   end
 
