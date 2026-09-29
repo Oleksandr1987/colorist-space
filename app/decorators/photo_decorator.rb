@@ -10,7 +10,7 @@ class PhotoDecorator < Draper::Decorator
 
   def thumb
     object.variant(
-      resize_to_fill: [ 400, 400 ],
+      resize_to_limit: [ 600, 600 ],
       saver: { quality: 75 }
     )
   end

@@ -2,15 +2,22 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "modalImage", "photo", "photoContainer", "dot", "mainButton", "heart"]
+  static targets = ["modal", "modalImage", "photo", "photoContainer", "dot", "mainButton", "heart", "previewGrid", "input", "picker"]
+
   static values = {
     photos: Array,
     index: Number,
     mode: String,
-    mainPhotoUrl: String
+    mainPhotoUrl: String,
+    removeIcon: String
   }
 
   connect() {
+    this.pendingFiles = []
+
+    this.handleSubmitEnd = this.handleSubmitEnd.bind(this)
+    this.element.closest("form")?.addEventListener("turbo:submit-end", this.handleSubmitEnd)
+
     if (this.hasPhotosValue) {
       this.modeValue = "inline"
       this.indexValue = 0
@@ -23,7 +30,6 @@ export default class extends Controller {
       return
     }
 
-    // fullscreen mode
     this.modeValue = "fullscreen"
 
     if (!this.hasModalTarget) return
@@ -35,6 +41,10 @@ export default class extends Controller {
     this.setupSwipeDesktopFullscreen()
 
     if (!this.hasPhotoTarget) return
+  }
+
+  disconnect() {
+    this.element.closest("form")?.removeEventListener("turbo:submit-end", this.handleSubmitEnd)
   }
 
   /* FULLSCREEN MODE (clients/show) */
@@ -80,6 +90,122 @@ export default class extends Controller {
       this.modalImageTarget.src = this.photos[this.index].dataset.photoUrl
     } else {
       this.prevInline()
+    }
+  }
+
+  preview(event) {
+    const picker = event.currentTarget
+    const newFiles = Array.from(picker.files).filter(file => file.type.startsWith("image/"))
+
+    newFiles.forEach(file => {
+      this.pendingFiles.push({
+        id: crypto.randomUUID(),
+        file
+      })
+    })
+
+    picker.value = ""
+
+    this.syncInput()
+    this.renderPendingPreviews()
+
+    window.dispatchEvent(new CustomEvent("wizard:changed"))
+  }
+
+  syncInput() {
+    if (!this.hasInputTarget) return
+
+    const dataTransfer = new DataTransfer()
+
+    this.pendingFiles.forEach(({ file }) => {
+      dataTransfer.items.add(file)
+    })
+
+    this.inputTarget.files = dataTransfer.files
+  }
+
+  renderPendingPreviews() {
+    if (!this.hasPreviewGridTarget) return
+
+    this.previewGridTarget.querySelectorAll(".photo-item--pending").forEach(item => item.remove())
+
+    this.pendingFiles.forEach(({ id, file }) => {
+      const reader = new FileReader()
+
+      reader.addEventListener("load", () => {
+        const stillExists = this.pendingFiles.some(pending => pending.id === id)
+
+        if (!stillExists) return
+
+        const item = document.createElement("div")
+
+        item.classList.add("photo-item", "photo-item--pending")
+
+        item.dataset.pendingId = id
+
+        const image = document.createElement("img")
+
+        image.src = reader.result
+        image.classList.add("photo-preview")
+        image.alt = file.name
+
+        const removeButton = document.createElement("button")
+
+        removeButton.type = "button"
+        removeButton.classList.add("delete-photo")
+        removeButton.dataset.action = "click->photo#removePending"
+        removeButton.setAttribute("aria-label", "Remove photo")
+
+        const removeIcon = document.createElement("img")
+
+        removeIcon.src = this.removeIconValue
+        removeIcon.alt = ""
+        removeIcon.classList.add("delete-photo-icon")
+
+        removeButton.appendChild(removeIcon)
+
+        item.appendChild(image)
+        item.appendChild(removeButton)
+
+        this.previewGridTarget.appendChild(item)
+      }, { once: true })
+
+      reader.readAsDataURL(file)
+    })
+  }
+
+  removePending(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const item = event.currentTarget.closest(".photo-item--pending")
+    const id = item?.dataset.pendingId
+
+    if (!id) return
+
+    this.pendingFiles = this.pendingFiles.filter(pending => pending.id !== id)
+
+    this.syncInput()
+    this.renderPendingPreviews()
+
+    window.dispatchEvent(new CustomEvent("wizard:changed"))
+  }
+
+  handleSubmitEnd(event) {
+    if (!event.detail.success) return
+
+    this.pendingFiles = []
+
+    if (this.hasInputTarget) {
+      this.inputTarget.value = ""
+    }
+
+    this.pickerTargets.forEach(picker => {
+      picker.value = ""
+    })
+
+    if (this.hasPreviewGridTarget) {
+      this.previewGridTarget.querySelectorAll(".photo-item--pending").forEach(item => item.remove())
     }
   }
 
