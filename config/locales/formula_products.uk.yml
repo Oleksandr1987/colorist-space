@@ -12,6 +12,14 @@ uk:
       delete: "Видалити"
       confirm_delete: "Видалити продукт?"
 
+    new:
+      color_title: "Новий колір"
+      oxidant_title: "Новий окисник"
+
+    edit:
+      color_title: "Редагувати колір"
+      oxidant_title: "Редагувати окисник"
+
     pages:
       title: "ІНГРЕДІЄНТИ ФОРМУЛИ"
 

@@ -60,7 +60,9 @@
                 </div>
 
                 <div class="color-right">
-                  <span class="amount"><%= ingredient_form.object.amount %>g</span>
+                  <span class="amount">
+                    <%= ingredient_form.object.amount %><%= ingredient_form.object.formula_product&.unit || "g" %>
+                  </span>
 
                   <div class="color-actions">
                     <button type="button" class="edit-btn" data-action="click->formula#editColor">

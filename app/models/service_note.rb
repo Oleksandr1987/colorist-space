@@ -14,7 +14,6 @@ class ServiceNote < ApplicationRecord
   accepts_nested_attributes_for :haircut_steps, allow_destroy: true, reject_if: :reject_empty_haircut_step?
 
   validates :appointment_id, uniqueness: true
-  validate :must_have_services
   validate :care_products_stock_available
 
   scope :for_client, ->(client_id) {
@@ -140,7 +139,6 @@ class ServiceNote < ApplicationRecord
 
   def sync_appointment_services
     return unless appointment.present?
-    return if services.empty?
 
     appointment.sync_services_with_prices!(services.map(&:id))
   end
@@ -150,13 +148,6 @@ class ServiceNote < ApplicationRecord
     return if appointment.notes == notes
 
     appointment.update_column(:notes, notes)
-  end
-
-  def must_have_services
-    return if services.any?
-    return if appointment&.services&.any?
-
-    errors.add(:base, I18n.t("service_notes.errors.services_required"))
   end
 
   def decrease_care_products_stock

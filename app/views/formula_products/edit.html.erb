@@ -1,1 +1,1 @@
-<%= render "form_page", formula_product: @formula_product, title: t("formula_products.form.edit_title") %>
+<%= render "form_page", formula_product: @formula_product, title: <%= t("formula_products.edit.#{@formula_product.category}_title") %>

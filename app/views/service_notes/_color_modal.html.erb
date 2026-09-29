@@ -31,7 +31,7 @@
             </option>
 
             <% current_user.formula_products.palette_list.each do |palette| %>
-              <option value="<%= palette.id %>" data-brand="<%= palette.brand %>" data-price="<%= palette.price_per_unit %>">
+              <option value="<%= palette.id %>" data-brand="<%= palette.brand %>" data-price="<%= palette.price_per_unit %>" data-unit="<%= palette.unit %>">
                 <%= palette.brand %>
               </option>
             <% end %>

@@ -199,7 +199,8 @@ export default class extends Controller {
 
     return {
       brand: option.dataset.brand || "",
-      name: option.dataset.name || option.textContent.trim()
+      name: option.dataset.name || option.textContent.trim(),
+      unit: option.dataset.unit || "g"
     }
   }
 
@@ -216,12 +217,13 @@ export default class extends Controller {
       const row = this.itemTemplateTarget.content.firstElementChild.cloneNode(true)
       const product = this.getProductInfo(oxidant.formula_product_id)
       const brand = oxidant.brand || product?.brand || ""
-      const name = oxidant.name || product?.name || oxidant.label || ""
+      const name = oxidant.name ||  product?.name || oxidant.label || ""
+      const unit = oxidant.unit || product?.unit || "g"
       const displayName = [brand, name].filter(Boolean).join(" ")
 
       row.querySelector(".dev-name").textContent = displayName || `#${oxidant.formula_product_id}`
       row.querySelector(".dev-ratio").textContent = oxidant.ratio || ""
-      row.querySelector(".dev-amount").textContent = `${oxidant.amount || 0}g`
+      row.querySelector(".dev-amount").textContent = `${oxidant.amount || 0}${unit}`
       row.querySelector(".edit-btn").dataset.index = index
       row.querySelector(".delete-btn").dataset.index = index
 

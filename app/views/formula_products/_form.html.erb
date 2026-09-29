@@ -55,21 +55,15 @@
       <%= f.hidden_field :name,
             data: { oxidant_product_target: "name" } %>
     </div>
-
-    <%= f.hidden_field :unit, value: "ml" %>
-  <% else %>
-    <div class="form-section">
-      <%= f.label :unit, t("formula_products.form.unit") %>
-
-      <%= f.select :unit,
-            [
-              [t("formula_products.units.gram"), "g"],
-              [t("formula_products.units.milliliter"), "ml"]
-            ],
-            {},
-            class: "form-input" %>
-    </div>
   <% end %>
+
+  <div class="form-section">
+    <%= f.label :unit, t("formula_products.form.unit") %>
+
+    <%= f.select :unit,
+          [ [t("formula_products.units.gram"), "g"], [t("formula_products.units.milliliter"), "ml"] ],
+          {}, class: "form-input", required: true %>
+  </div>
 
   <div class="form-section">
     <%= f.label :price_per_unit, t("formula_products.form.price_per_unit") %>

@@ -97,14 +97,18 @@ RSpec.describe "ServiceNotes" do
       expect(ServiceNote.last.service_ids).to eq([ service.id ])
     end
 
-    it "renders new when services missing" do
-      post client_service_notes_path(client), params: {
-        appointment_id: appointment.id,
-        service_note: { service_type: "coloring", notes: "Test" }
-      }
+    it "creates service note without services" do
+      expect do
+        post client_service_notes_path(client), params: {
+          appointment_id: appointment.id,
+          service_note: { service_type: "coloring", notes: "Without services" }
+        }
+      end.to change(ServiceNote, :count).by(1)
 
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(response.body).to include(I18n.t("service_notes.errors.services_required"))
+      service_note = ServiceNote.last
+
+      expect(service_note.services).to be_empty
+      expect(response).to redirect_to(edit_client_service_note_path(client, service_note, locale: I18n.locale))
     end
 
     it "creates service note with blank care_products" do
@@ -154,15 +158,18 @@ RSpec.describe "ServiceNotes" do
       expect(service_note.reload.notes).to eq("Updated")
     end
 
-    it "renders edit when services missing" do
-      service_note.appointment.services.clear
-      service_note.services.clear
+    it "removes all services from service note and appointment" do
+      service = create(:service, user: user)
+
+      service_note.services = [ service ]
+      service_note.appointment.sync_services_with_prices!([ service.id ])
 
       patch client_service_note_path(client, service_note), params: { service_note: { service_ids: [] } }
 
-      expect(response).to have_http_status(:unprocessable_content)
+      expect(response).to redirect_to(edit_client_service_note_path(client, service_note, locale: I18n.locale))
 
-      expect(response.body).to include(I18n.t("service_notes.errors.services_required"))
+      expect(service_note.reload.services).to be_empty
+      expect(service_note.appointment.reload.services).to be_empty
     end
 
     it "updates with unique service_ids" do

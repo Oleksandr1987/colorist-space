@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "brandSelect", "serviceSelect", "saveBtn", "amountInput", "customInput", "customRatio", "customToggle"]
+  static targets = ["modal", "brandSelect", "serviceSelect", "saveBtn", "amountInput", "amountUnit", "customInput", "customRatio", "customToggle"]
 
   connect() {
     this.sourceController = null
@@ -18,7 +18,7 @@ export default class extends Controller {
       if (!option.value) return
 
       this.productLookup.set(String(option.value), {
-        brand: option.dataset.brand || "", name: option.dataset.name || option.textContent.trim()
+        brand: option.dataset.brand || "", name: option.dataset.name || option.textContent.trim(), unit: option.dataset.unit || "g"
       })
     })
 
@@ -69,6 +69,10 @@ export default class extends Controller {
     }
 
     const option = this.serviceOptions.find(option => String(option.value) === String(item.formula_product_id))
+
+    if (option && this.hasAmountUnitTarget) {
+      this.amountUnitTarget.textContent = item.unit || option.dataset.unit || "g"
+    }
 
     if (option && this.hasBrandSelectTarget) {
       this.brandSelectTarget.value = option.dataset.brand || ""
@@ -127,6 +131,10 @@ export default class extends Controller {
 
     if (this.hasAmountInputTarget) {
       this.amountInputTarget.value = 0
+    }
+
+    if (this.hasAmountUnitTarget) {
+      this.amountUnitTarget.textContent = "g"
     }
 
     this.element
@@ -204,12 +212,22 @@ export default class extends Controller {
     if (!option?.value) {
       this.selectedServiceId = null
       this.selectedPrice = null
+
+      if (this.hasAmountUnitTarget) {
+        this.amountUnitTarget.textContent = "g"
+      }
+
       this.enableSave()
       return
     }
 
     this.selectedServiceId = option.value
     this.selectedPrice = parseFloat(option.dataset.price || 0)
+
+    if (this.hasAmountUnitTarget) {
+      this.amountUnitTarget.textContent = option.dataset.unit || "g"
+    }
+
     this.enableSave()
   }
 
@@ -394,6 +412,7 @@ export default class extends Controller {
       formula_product_id: this.selectedServiceId,
       brand: option?.dataset.brand || "",
       name: option?.dataset.name || option?.textContent.trim() || "",
+      unit: option?.dataset.unit || "g",
       price: this.selectedPrice,
       ratio: this.selectedRatio,
       amount
