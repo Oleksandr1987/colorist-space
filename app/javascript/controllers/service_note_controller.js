@@ -155,11 +155,12 @@ export default class extends Controller {
         if (!serviceId || isNaN(amount) || isNaN(price)) return
 
         const serviceOption = document.querySelector(`option[value="${serviceId}"]`)
-        const brand = serviceOption?.dataset.brand || ""
-        const name = serviceOption ? serviceOption.textContent.split("(")[0].trim() : "Developer"
+        const brand = data.brand || serviceOption?.dataset.brand || ""
+        const name = data.name || serviceOption?.dataset.name || serviceOption?.textContent.trim() || "Developer"
+        const unit = data.unit || serviceOption?.dataset.unit || "g"
 
         if (!grouped[serviceId]) {
-          grouped[serviceId] = {name, brand, amount: 0, total: 0}
+          grouped[serviceId] = { name, brand, unit, amount: 0, total: 0 }
         }
 
         grouped[serviceId].amount += amount
@@ -194,13 +195,18 @@ export default class extends Controller {
       const brand = wrapper.querySelector("[data-field='brand']")?.value
       const shade = wrapper.querySelector("[data-field='shade']")?.value
       const amount = parseFloat(wrapper.querySelector("[data-field='amount']")?.value || 0)
+      const productId = wrapper.querySelector("[data-field='formula_product_id']")?.value
+      const productOption = Array.from(document
+        .querySelectorAll('[data-color-target="paletteTemplate"] option'))
+        .find(option => String(option.value) === String(productId))
+      const unit =productOption?.dataset.unit || "g"
 
       if (!brand || !shade || amount <= 0) return
 
-      const key = `${brand}|${shade}`
+      const key = `${brand}|${shade}|${unit}`
 
       if (!colors[key]) {
-        colors[key] = {brand, shade, amount: 0}
+        colors[key] = {brand, shade, unit, amount: 0}
       }
 
       colors[key].amount += amount
@@ -213,7 +219,7 @@ export default class extends Controller {
         `
           <div class="notes-dev-row">
             <span>${color.brand} ${color.shade}</span>
-            <span>${color.amount}g</span>
+            <span>${color.amount}${color.unit}</span>
           </div>
         `
       )
@@ -227,7 +233,7 @@ export default class extends Controller {
         `
           <div class="notes-dev-row">
             <span>${dev.brand} ${dev.name}</span>
-            <span>${dev.amount}g</span>
+            <span>${dev.amount}${dev.unit}</span>
           </div>
         `
       )

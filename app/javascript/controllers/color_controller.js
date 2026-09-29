@@ -59,7 +59,8 @@ export default class extends Controller {
     this.currentPalette = {
       id: option.value,
       brand: option.dataset.brand,
-      price: option.dataset.price
+      price: option.dataset.price,
+      unit: option.dataset.unit || "g"
     }
 
     select.closest(".palette-row").remove()
@@ -83,6 +84,7 @@ export default class extends Controller {
     row.dataset.productId = this.currentPalette.id
     row.dataset.price = this.currentPalette.price
     row.dataset.brand = this.currentPalette.brand
+    row.dataset.unit = this.currentPalette.unit || "g"
     row.querySelector(".color-brand").textContent = this.currentPalette.brand
 
     const shadeInput = row.querySelector(".color-shade")
@@ -124,11 +126,14 @@ export default class extends Controller {
     const amountInput = hidden.querySelector("[data-field='amount']")
     const productInput = hidden.querySelector("[data-field='formula_product_id']")
     const priceInput = hidden.querySelector("[data-field='price']")
+    const productId = productInput?.value || ""
+    const paletteOption = Array.from(this.paletteTemplateTarget.content.querySelectorAll("option")).find(option =>String(option.value) === String(productId))
 
     this.currentPalette = {
-      id: productInput?.value || "",
+      id: productId,
       brand: brandInput?.value || "",
-      price: priceInput?.value || ""
+      price: priceInput?.value || "",
+      unit: paletteOption?.dataset.unit || "g"
     }
 
     this.createShadeRow()
@@ -248,6 +253,7 @@ export default class extends Controller {
     if (!hidden || !display) return
 
     const brand = row.dataset.brand
+    const unit = row.dataset.unit || "g"
     const shade = row.querySelector(".color-shade").value.trim()
     const amount = row.querySelector(".color-amount").value.trim().replace(",", ".")
 
@@ -259,11 +265,12 @@ export default class extends Controller {
 
     display.querySelector(".brand").textContent = brand
     display.querySelector(".shade").textContent = shade
-    display.querySelector(".amount").textContent = `${amount}g`
+    display.querySelector(".amount").textContent = `${amount}${unit}`
   }
 
   createIngredient(row, stepId) {
     const brand = row.dataset.brand
+    const unit = row.dataset.unit || "g"
     const shade = row.querySelector(".color-shade").value.trim()
     const amount = row.querySelector(".color-amount").value.trim().replace(",", ".")
 
@@ -321,7 +328,7 @@ export default class extends Controller {
 
     display.querySelector(".shade").textContent = shade
     display.querySelector(".brand").textContent = brand
-    display.querySelector(".amount").textContent = `${amount}g`
+    display.querySelector(".amount").textContent = `${amount}${unit}`
     display.querySelector(".edit-icon").src = this.editIconValue
     display.querySelector(".delete-icon").src = this.deleteIconValue
 

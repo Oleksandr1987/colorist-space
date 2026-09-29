@@ -8,7 +8,7 @@ class FormulaProductsController < ApplicationController
 
     @color_brands = FormulaProduct.brands_for(@formula_products, "color")
     @oxidant_brands = FormulaProduct.brands_for(@formula_products, "oxidant")
-    @oxidant_percentages = FormulaProduct.oxidant_percentages(@formula_products)
+    @oxidant_concentrations = FormulaProduct.oxidant_concentrations(@formula_products)
   end
 
   def new

@@ -38,14 +38,11 @@ RSpec.describe ServiceNote do
       expect(duplicate.errors[:appointment_id]).to be_present
     end
 
-    it "is invalid without services" do
-      invalid_appointment = create(:appointment, main_service: nil)
-      invalid_note = build(:service_note, :without_services, appointment: invalid_appointment)
+    it "is valid without services" do
+      appointment = create(:appointment, user: user, client: client, main_service: nil)
+      service_note = build(:service_note, :without_services, appointment: appointment, user: user, client: client)
 
-      expect(invalid_note).not_to be_valid
-      expect(invalid_note.errors[:base]).to include(
-        I18n.t("service_notes.errors.services_required")
-      )
+      expect(service_note).to be_valid
     end
   end
 
@@ -69,11 +66,11 @@ RSpec.describe ServiceNote do
     end
 
     it "keeps price nil if no services" do
-      invalid_note = build(:service_note, :without_services, price: nil)
+      service_note = build(:service_note, :without_services, price: nil)
 
-      invalid_note.valid?
+      service_note.valid?
 
-      expect(invalid_note.price).to be_nil
+      expect(service_note.price).to be_nil
     end
   end
 
@@ -241,12 +238,9 @@ RSpec.describe ServiceNote do
       create(:service_note, :without_services, appointment: appointment, user: user, client: client)
     end
 
-    before do
-      appointment.sync_services_with_prices!([ service.id ])
-    end
-
     it "returns services + formula + care products income" do
-      appointment.sync_services_with_prices!([ service.id, extra_service.id ])
+      price_note.services = [ service, extra_service ]
+      price_note.save!
 
       allow(price_note).to receive_messages(formula_ingredients_total_price: 75, care_products_income: 100)
 
@@ -254,12 +248,18 @@ RSpec.describe ServiceNote do
     end
 
     it "returns only historical services total when others absent" do
+      price_note.services = [ service ]
+      price_note.save!
+
       allow(price_note).to receive_messages(formula_ingredients_total_price: 0, care_products_income: 0)
 
       expect(price_note.final_price).to eq(100)
     end
 
     it "uses historical service price after catalog price changes" do
+      price_note.services = [ service ]
+      price_note.save!
+
       service.update!(price: 500)
 
       allow(price_note).to receive_messages(formula_ingredients_total_price: 0, care_products_income: 0)
@@ -365,18 +365,17 @@ RSpec.describe ServiceNote do
       expect { note.send(:sync_appointment_services) }.not_to raise_error
     end
 
-    it "does not overwrite appointment services when services empty" do
+    it "preserves appointment services and historical prices when service note has no services" do
       appointment.sync_services_with_prices!([ service.id ])
 
-      empty_note = described_class.new(
-        appointment: appointment,
-        user: appointment.user,
-        client: appointment.client
-      )
+      service_note =
+        build(:service_note, :without_services, appointment: appointment, user: appointment.user, client: appointment.client)
 
-      allow(empty_note).to receive(:services).and_return(Service.none)
+      expect { service_note.save! }.not_to change {
+        appointment.reload.appointment_services_relations.pluck(:service_id, :price)
+      }
 
-      expect { empty_note.send(:sync_appointment_services) }.not_to change { appointment.reload.services.to_a }
+      expect(appointment.reload.services).to contain_exactly(service)
     end
   end
 

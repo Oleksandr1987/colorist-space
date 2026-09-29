@@ -18,7 +18,7 @@
             </span>
 
             <span>
-              <%= ingredient.amount %>g
+              <%= ingredient.amount %><%= ingredient.formula_product&.unit || "g" %>
             </span>
           </div>
         <% end %>
@@ -43,7 +43,7 @@
             </span>
 
             <span>
-              <%= data["amount"] %><%= product&.unit || "g" %>
+              <%= data["amount"] %><%= data["unit"].presence || product&.unit || "g" %>
             </span>
           </div>
         <% end %>

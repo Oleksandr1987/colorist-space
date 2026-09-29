@@ -1,32 +1,73 @@
-<%= form_with(model: formula_product, id: "formula-product-form") do |f| %>
+<%= form_with(
+      model: formula_product,
+      id: "formula-product-form",
+      data: formula_product.oxidant? ? { controller: "oxidant-product" } : {}
+    ) do |f| %>
 
   <%= f.hidden_field :category %>
 
   <div class="form-section">
     <%= f.label :brand, t("formula_products.form.brand") %>
+
     <%= f.text_field :brand, class: "form-input", required: true %>
   </div>
+
+  <% if formula_product.oxidant? %>
+    <% concentration = formula_product.concentration %>
+    <% concentration_type = concentration&.downcase&.include?("vol") ? "vol" : "%" %>
+    <% concentration_value = concentration&.match(/\d+(?:\.\d+)?/)&.to_s %>
+
+    <div class="form-section">
+      <%= f.label :name, t("formula_products.form.concentration") %>
+
+      <div class="oxidant-concentration">
+        <input
+          type="text"
+          value="<%= concentration_value %>"
+          class="form-input"
+          inputmode="decimal"
+          required
+          data-oxidant-product-target="value"
+          data-action="input->oxidant-product#update"
+        >
+
+        <div class="oxidant-concentration-types">
+          <button
+            type="button"
+            class="oxidant-concentration-type <%= 'active' if concentration_type == '%' %>"
+            data-oxidant-product-target="type"
+            data-value="%"
+            data-action="click->oxidant-product#selectType">
+            %
+          </button>
+
+          <button
+            type="button"
+            class="oxidant-concentration-type <%= 'active' if concentration_type == 'vol' %>"
+            data-oxidant-product-target="type"
+            data-value="vol"
+            data-action="click->oxidant-product#selectType">
+            vol
+          </button>
+        </div>
+      </div>
+
+      <%= f.hidden_field :name,
+            data: { oxidant_product_target: "name" } %>
+    </div>
+  <% end %>
 
   <div class="form-section">
     <%= f.label :unit, t("formula_products.form.unit") %>
 
     <%= f.select :unit,
-          [
-            [t("formula_products.units.gram"), "g"],
-            [t("formula_products.units.milliliter"), "ml"]
-          ],
-          {},
-          class: "form-input" %>
+          [ [t("formula_products.units.gram"), "g"], [t("formula_products.units.milliliter"), "ml"] ],
+          {}, class: "form-input", required: true %>
   </div>
 
   <div class="form-section">
     <%= f.label :price_per_unit, t("formula_products.form.price_per_unit") %>
 
-    <%= f.number_field :price_per_unit,
-          class: "form-input",
-          step: :any,
-          min: 0,
-          required: true,
-          inputmode: "decimal" %>
+    <%= f.number_field :price_per_unit, class: "form-input", step: :any, min: 0, required: true, inputmode: "decimal" %>
   </div>
 <% end %>

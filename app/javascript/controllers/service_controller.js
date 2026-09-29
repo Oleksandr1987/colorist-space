@@ -1,4 +1,3 @@
-// app/javascript/controllers/service_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -25,7 +24,7 @@ export default class extends Controller {
 
     this.formulaCategory = this.hasFormulaCategoryValue ? this.formulaCategoryValue : "color"
     this.selectedFormulaBrands = []
-    this.selectedFormulaPercentages = []
+    this.selectedFormulaConcentrations = []
 
     if (this.hasCategorySelectTarget) {
       this.updateSubtypeOptions()
@@ -128,6 +127,7 @@ export default class extends Controller {
     })
   }
 
+  // FORMULA CATEGORY
   selectFormulaCategory(event) {
     event.preventDefault()
 
@@ -136,14 +136,14 @@ export default class extends Controller {
     this.updateFormulaAddButton()
 
     this.selectedFormulaBrands = []
-    this.selectedFormulaPercentages = []
+    this.selectedFormulaConcentrations = []
 
     this.element
       .querySelectorAll("[data-formula-category]")
       .forEach(button => { button.classList.toggle("active", button.dataset.formulaCategory === this.formulaCategory) })
 
     this.element
-      .querySelectorAll("[data-brand], [data-percentage]")
+      .querySelectorAll("[data-brand], [data-concentration]")
       .forEach(button => { button.classList.remove("active") })
 
     if (this.hasColorFiltersTarget) {
@@ -167,6 +167,7 @@ export default class extends Controller {
     }
   }
 
+  // FORMULA BRAND
   filterFormulaBrand(event) {
     event.preventDefault()
 
@@ -183,22 +184,24 @@ export default class extends Controller {
     this.filterFormulaProducts()
   }
 
-  filterFormulaPercentage(event) {
+  // OXIDANT CONCENTRATION
+  filterFormulaConcentration(event) {
     event.preventDefault()
 
-    const percentage = event.currentTarget.dataset.percentage
+    const concentration = event.currentTarget.dataset.concentration
 
-    if (this.selectedFormulaPercentages.includes(percentage)) {
-      this.selectedFormulaPercentages = this.selectedFormulaPercentages.filter(value => value !== percentage)
+    if (this.selectedFormulaConcentrations.includes(concentration)) {
+      this.selectedFormulaConcentrations = this.selectedFormulaConcentrations.filter(value => value !== concentration)
     } else {
-      this.selectedFormulaPercentages.push(percentage)
+      this.selectedFormulaConcentrations.push(concentration)
     }
 
-    event.currentTarget.classList.toggle("active", this.selectedFormulaPercentages.includes(percentage))
+    event.currentTarget.classList.toggle("active", this.selectedFormulaConcentrations.includes(concentration))
 
     this.filterFormulaProducts()
   }
 
+  // FORMULA PRODUCTS FILTERING
   filterFormulaProducts() {
     if (!this.hasListTarget) return
 
@@ -208,13 +211,12 @@ export default class extends Controller {
       const name = (item.dataset.name || "").toLowerCase()
       const category = (item.dataset.category || "").toLowerCase()
       const brand = (item.dataset.brand || "").toLowerCase()
-      const percentage = (item.dataset.percentage || "").toLowerCase()
+      const concentration = (item.dataset.concentration || "").toLowerCase()
       const matchesCategory = category === this.formulaCategory
       const matchesBrand = this.selectedFormulaBrands.length === 0 || this.selectedFormulaBrands.includes(brand)
-      const matchesPercentage = this.formulaCategory !== "oxidant" || this.selectedFormulaPercentages.length === 0 || this.selectedFormulaPercentages.includes(percentage)
+      const matchesConcentration = this.formulaCategory !== "oxidant" || this.selectedFormulaConcentrations.length === 0 || this.selectedFormulaConcentrations.includes(concentration)
       const matchesSearch = query === "" || name.includes(query)
-
-      item.classList.toggle("hidden", !(matchesCategory && matchesBrand && matchesPercentage && matchesSearch))
+      item.classList.toggle( "hidden", !(matchesCategory && matchesBrand && matchesConcentration && matchesSearch))
     })
   }
 

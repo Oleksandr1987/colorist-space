@@ -6,6 +6,9 @@ class FormulaProduct < ApplicationRecord
   validates :unit, presence: true, inclusion: { in: %w[g ml] }
   validates :price_per_unit, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
+  validates :name, presence: true, if: :oxidant?
+  validate :valid_oxidant_concentration
+
   scope :colors, -> { where(category: "color") }
   scope :oxidants, -> { where(category: "oxidant") }
   scope :ordered, -> { order(:brand, :name) }
@@ -22,14 +25,49 @@ class FormulaProduct < ApplicationRecord
         .sort
     end
 
-    def oxidant_percentages(products)
-      products.select { |product| product.category == "oxidant" }.filter_map(&:percentage).uniq.sort_by(&:to_f)
+    def oxidant_concentrations(products)
+      products
+        .select { |product| product.category == "oxidant" }
+        .filter_map(&:concentration)
+        .uniq
+        .sort_by { |value| concentration_sort_key(value) }
+    end
+
+    private
+
+    def concentration_sort_key(value)
+      number = value.to_f
+      type = value.include?("%") ? 0 : 1
+
+      [ type, number ]
     end
   end
 
-  def percentage
-    return unless category == "oxidant"
+  def oxidant?
+    category == "oxidant"
+  end
 
-    name.to_s[/\d+(?:[.,]\d+)?\s*%/]&.delete(" ")&.tr(",", ".")
+  def concentration
+    return unless oxidant?
+
+    match = name.to_s.strip.match(/\A(\d+(?:[.,]\d+)?)\s*(%|vol)\z/i)
+
+    return unless match
+
+    value = match[1].tr(",", ".")
+    type = match[2].downcase
+
+    type == "%" ? "#{value}%" : "#{value} vol"
+  end
+
+  private
+
+  def valid_oxidant_concentration
+    return unless oxidant?
+    return if name.blank?
+
+    return if name.match?(/\A\d+(?:[.,]\d+)?\s*(?:%|vol)\z/i)
+
+    errors.add(:name, :invalid)
   end
 end

@@ -12,7 +12,7 @@ RSpec.describe "FormulaProducts" do
   describe "GET /formula_products" do
     it "returns all formula products for current user" do
       color = create(:formula_product, user: user, category: "color")
-      oxidant = create(:formula_product, user: user, category: "oxidant")
+      oxidant = create(:formula_product, :oxidant, user: user)
 
       get formula_products_path
 
@@ -77,8 +77,12 @@ RSpec.describe "FormulaProducts" do
     end
 
     it "redirects back to oxidants after creating an oxidant" do
-      post formula_products_path, params:
-          { formula_product: { category: "oxidant", brand: "Wella", name: "Developer 6%", unit: "ml", price_per_unit: 2 } }
+      expect {
+        post formula_products_path,
+          params: {
+            formula_product: { category: "oxidant", brand: "Wella", name: "6%", unit: "ml", price_per_unit: 2 }
+          }
+      }.to change(FormulaProduct, :count).by(1)
 
       expect(response).to redirect_to(formula_products_path(category: "oxidant", locale: I18n.locale))
     end
@@ -131,6 +135,15 @@ RSpec.describe "FormulaProducts" do
 
       expect(product.name).to eq("Updated")
       expect(product.brand).to eq("Loreal")
+    end
+
+    it "updates an oxidant concentration" do
+      product = create(:formula_product, :oxidant, user: user, brand: "Wella", name: "6%")
+
+      patch formula_product_path(product), params: { formula_product: { name: "9%" } }
+
+      expect(response).to redirect_to(formula_products_path(category: "oxidant", locale: I18n.locale))
+      expect(product.reload.name).to eq("9%")
     end
 
     it "does not update formula product when invalid" do

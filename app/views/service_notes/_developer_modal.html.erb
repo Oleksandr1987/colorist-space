@@ -51,7 +51,7 @@
             </option>
 
             <% oxidants.each do |oxid| %>
-              <option value="<%= oxid.id %>" data-brand="<%= oxid.brand %>" data-name="<%= oxid.name %>" data-price="<%= oxid.price_per_unit %>">
+              <option value="<%= oxid.id %>" data-brand="<%= oxid.brand %>" data-name="<%= oxid.name %>" data-price="<%= oxid.price_per_unit %>" data-unit="<%= oxid.unit %>">
                 <%= oxid.name %>
               </option>
             <% end %>
@@ -116,7 +116,9 @@
                    data-developer-modal-target="amountInput"
                    data-action="input->developer-modal#manualAmountChanged">
 
-            <span class="dev-amount-unit">g</span>
+            <span class="dev-amount-unit" data-developer-modal-target="amountUnit">
+              g/ml
+            </span>
           </div>
         </div>
 

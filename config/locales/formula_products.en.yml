@@ -12,6 +12,14 @@ en:
       delete: "Delete"
       confirm_delete: "Delete product?"
 
+    new:
+      color_title: "New color"
+      oxidant_title: "New oxidant"
+
+    edit:
+      color_title: "Edit color"
+      oxidant_title: "Edit oxidant"
+
     pages:
       title: "Formula Ingredients"
 
@@ -29,6 +37,7 @@ en:
       brand: "Brand"
       unit: "Unit"
       price_per_unit: "Price per unit"
+      concentration: "Concentration"
 
     units:
       gram: "Gram"

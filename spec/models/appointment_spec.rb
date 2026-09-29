@@ -9,13 +9,16 @@ RSpec.describe Appointment do
   let(:client) { create(:client, user: user) }
   let(:main_service) { create(:service, user: user, subtype: "Coloring", price: 100) }
   let(:extra_service) { create(:service, user: user, subtype: "Haircut", price: 200) }
-  let(:appointment) { create(:appointment, user: user, client: client, main_service: main_service) }
+  let(:appointment) { create_appointment }
+
+  def create_appointment(**attributes)
+    defaults = { user: user, client: client, main_service: main_service }
+
+    create(:appointment, **defaults.merge(attributes))
+  end
 
   def appointment_at(date:, time:, end_time:, service: main_service)
-    create(
-      :appointment,
-      user: user,
-      client: client,
+    create_appointment(
       appointment_date: date,
       appointment_time: Time.zone.parse(time),
       end_time: Time.zone.parse(end_time),
@@ -23,39 +26,31 @@ RSpec.describe Appointment do
     )
   end
 
+  def create_slot_rule(start_time: "09:00", end_time: "10:00", weekdays: %w[wednesday])
+    create(:slot_rule, user: user, start_time: Time.zone.parse(start_time), end_time: Time.zone.parse(end_time), weekdays: weekdays)
+  end
+
+  def formatted_ranges(ranges)
+    ranges.map do |range|
+      [ range[:start].strftime("%H:%M"), range[:end].strftime("%H:%M") ]
+    end
+  end
+
   describe "validations" do
     subject do
-      build(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.current,
-        appointment_time: "10:00",
-        main_service: main_service
-      )
+      build(:appointment, user: user, client: client, appointment_date: Date.current, appointment_time: "10:00", main_service: main_service)
     end
 
     it { is_expected.to validate_presence_of(:appointment_date) }
     it { is_expected.to validate_presence_of(:appointment_time) }
 
     it "validates uniqueness of appointment_time scoped to appointment_date" do
-      create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.current,
-        appointment_time: "10:00",
-        main_service: main_service
-      )
+      create_appointment(appointment_date: Date.current, appointment_time: "10:00")
 
-      duplicate = build(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.current,
-        appointment_time: "10:00",
-        main_service: main_service
-      )
+      duplicate = build(:appointment, user: user, client: client,
+                         appointment_date: Date.current,
+                         appointment_time: "10:00",
+                         main_service: main_service)
 
       expect(duplicate).not_to be_valid
     end
@@ -63,13 +58,9 @@ RSpec.describe Appointment do
 
   describe "callbacks" do
     it "sets default end_time before validation" do
-      appointment = build(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_time: Time.zone.parse("10:00"),
-        main_service: main_service
-      )
+      appointment = build(:appointment, user: user, client: client,
+                           appointment_time: Time.zone.parse("10:00"),
+                           main_service: main_service)
 
       # the factory's own after(:build) hook fills end_time when blank, so
       # clear it again here to exercise the model's before_validation callback
@@ -82,33 +73,19 @@ RSpec.describe Appointment do
   end
 
   describe "#total_price" do
-    it "returns sum of historical service prices" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client,
-        main_service: main_service,
-        extra_services: [ extra_service ]
-      )
+    let(:priced_appointment) { create_appointment(extra_services: [ extra_service ]) }
 
-      expect(appointment.total_price).to eq(300)
+    it "returns sum of historical service prices" do
+      expect(priced_appointment.total_price).to eq(300)
     end
 
     it "does not change when current service prices change" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client,
-        main_service: main_service,
-        extra_services: [ extra_service ]
-      )
-
-      expect(appointment.total_price).to eq(300)
+      expect(priced_appointment.total_price).to eq(300)
 
       main_service.update!(price: 500)
       extra_service.update!(price: 700)
 
-      expect(appointment.reload.total_price).to eq(300)
+      expect(priced_appointment.reload.total_price).to eq(300)
     end
   end
 
@@ -126,47 +103,22 @@ RSpec.describe Appointment do
 
   describe "#combined_service_name" do
     it "joins service subtypes" do
-      appointment = create(
-        :appointment,
-        user: user,
-        client: client,
-        main_service: main_service,
-        extra_services: [ extra_service ]
-      )
+      appointment = create_appointment(extra_services: [ extra_service ])
 
-      expect(appointment.combined_service_name).to eq("Coloring + Haircut")
+      expect(appointment.combined_service_name.split(" + ")).to contain_exactly("Coloring", "Haircut")
     end
 
     it "returns service_note services when present" do
-      service_note = create(
-        :service_note,
-        services_count: 0,
-        appointment: appointment,
-        user: user,
-        client: client
-      )
+      service_note = create(:service_note, :without_services, appointment: appointment, user: user, client: client)
 
       service_note.services = [ extra_service, main_service ]
       service_note.save!
 
-      expect(
-        appointment.reload
-          .combined_service_name
-          .split(" + ")
-      ).to contain_exactly(
-        "Haircut",
-        "Coloring"
-      )
+      expect(appointment.reload.combined_service_name.split(" + ")).to contain_exactly("Haircut", "Coloring")
     end
 
-    it "falls back to appointment services if service_note has no services" do
-      create(
-        :service_note,
-        :without_services,
-        appointment: appointment,
-        user: user,
-        client: client
-      )
+    it "returns appointment services when service_note has no services" do
+      create(:service_note, :without_services, appointment: appointment, user: user, client: client)
 
       expect(appointment.reload.combined_service_name).to eq("Coloring")
     end
@@ -196,12 +148,7 @@ RSpec.describe Appointment do
     end
 
     it "includes service_note_id when present" do
-      service_note = create(
-        :service_note,
-        appointment: appointment,
-        user: user,
-        client: client
-      )
+      service_note = create(:service_note, appointment: appointment, user: user, client: client)
 
       json = appointment.as_calendar_json
 
@@ -211,21 +158,9 @@ RSpec.describe Appointment do
 
   describe ".by_date" do
     it "returns appointments for given date" do
-      today = create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.current,
-        main_service: main_service
-      )
+      today = create_appointment(appointment_date: Date.current)
 
-      create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.tomorrow,
-        main_service: main_service
-      )
+      create_appointment(appointment_date: Date.tomorrow)
 
       result = described_class.by_date(Date.current)
 
@@ -256,14 +191,10 @@ RSpec.describe Appointment do
 
       it "treats a nil end_time as still upcoming" do
         travel_to Time.zone.local(2026, 3, 4, 12, 0, 0) do
-          appointment = create(
-            :appointment,
-            user: user,
-            client: client,
-            appointment_date: Date.current,
-            appointment_time: Time.zone.parse("14:00"),
-            main_service: main_service
-          )
+          appointment = create(:appointment, user: user, client: client,
+                                appointment_date: Date.current,
+                                appointment_time: Time.zone.parse("14:00"),
+                                main_service: main_service)
 
           appointment.update_column(:end_time, nil)
 
@@ -274,22 +205,8 @@ RSpec.describe Appointment do
 
     describe ".for_styles" do
       it "orders by date/time desc and includes service_note photos" do
-        earlier = create(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_date: Date.current,
-          main_service: main_service
-        )
-
-        later = create(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_date: Date.tomorrow,
-          main_service: main_service
-        )
-
+        earlier = create_appointment(appointment_date: Date.current)
+        later = create_appointment(appointment_date: Date.tomorrow)
         result = described_class.for_styles
 
         expect(result.to_a).to eq([ later, earlier ])
@@ -306,21 +223,8 @@ RSpec.describe Appointment do
 
     describe ".ordered" do
       it "orders by date/time descending" do
-        earlier = create(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_date: Date.current,
-          main_service: main_service
-        )
-
-        later = create(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_date: Date.tomorrow,
-          main_service: main_service
-        )
+        earlier = create_appointment(appointment_date: Date.current)
+        later = create_appointment(appointment_date: Date.tomorrow)
 
         expect(described_class.ordered.to_a).to eq([ later, earlier ])
       end
@@ -374,21 +278,9 @@ RSpec.describe Appointment do
 
       it "filters appointments within the given year" do
         travel_to Time.zone.local(2026, 1, 1) do
-          in_year = create(
-            :appointment,
-            user: user,
-            client: client,
-            appointment_date: Date.new(2026, 6, 1),
-            main_service: main_service
-          )
+          in_year = create_appointment(appointment_date: Date.new(2026, 6, 1))
 
-          out_of_year = create(
-            :appointment,
-            user: user,
-            client: client,
-            appointment_date: Date.new(2027, 6, 1),
-            main_service: main_service
-          )
+          out_of_year = create_appointment(appointment_date: Date.new(2027, 6, 1))
 
           result = described_class.for_year(2026)
 
@@ -407,22 +299,8 @@ RSpec.describe Appointment do
 
       it "filters appointments within the given year/month" do
         travel_to Time.zone.local(2026, 1, 1) do
-          in_month = create(
-            :appointment,
-            user: user,
-            client: client,
-            appointment_date: Date.new(2026, 6, 15),
-            main_service: main_service
-          )
-
-          out_of_month = create(
-            :appointment,
-            user: user,
-            client: client,
-            appointment_date: Date.new(2026, 7, 1),
-            main_service: main_service
-          )
-
+          in_month = create_appointment(appointment_date: Date.new(2026, 6, 15))
+          out_of_month = create_appointment(appointment_date: Date.new(2026, 7, 1))
           result = described_class.for_month(2026, 6)
 
           expect(result).to include(in_month)
@@ -441,17 +319,8 @@ RSpec.describe Appointment do
 
       it "filters appointments by service category" do
         coloring_service = create(:service, user: user, category: "Coloring", subtype: "Balayage", price: 100)
-
-        matching = create(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_date: Date.current + 5.days,
-          main_service: coloring_service
-        )
-
+        matching = create_appointment(appointment_date: Date.current + 5.days, main_service: coloring_service)
         non_matching = appointment
-
         result = described_class.for_categories([ "Coloring" ])
 
         expect(result).to include(matching)
@@ -468,14 +337,7 @@ RSpec.describe Appointment do
       end
 
       it "filters appointments by service id" do
-        other_appointment = create(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_date: Date.current + 5.days,
-          main_service: extra_service
-        )
-
+        other_appointment = create_appointment(appointment_date: Date.current + 5.days, main_service: extra_service)
         result = described_class.for_services([ main_service.id ])
 
         expect(result).to include(appointment)
@@ -486,14 +348,13 @@ RSpec.describe Appointment do
 
   describe ".available_years" do
     it "returns distinct years sorted descending" do
-      travel_to(Time.zone.local(2024, 5, 1)) do
-        create(:appointment, user: user, client: client, appointment_date: Date.current, main_service: main_service)
+      travel_to Time.zone.local(2024, 5, 1) do
+        create_appointment(appointment_date: Date.current)
       end
 
       travel_to Time.zone.local(2026, 5, 1) do
-        create(:appointment, user: user, client: client, appointment_date: Date.current, main_service: main_service)
-        create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 6, 1),
-main_service: main_service)
+        create_appointment(appointment_date: Date.current)
+        create_appointment(appointment_date: Date.new(2026, 6, 1))
       end
 
       expect(described_class.available_years(described_class.all)).to eq([ 2026, 2024 ])
@@ -502,15 +363,13 @@ main_service: main_service)
 
   describe ".statistics" do
     it "returns total, current_year and current_month counts" do
-      travel_to(Time.zone.local(2025, 1, 1)) do
-        create(:appointment, user: user, client: client, appointment_date: Date.current, main_service: main_service)
+      travel_to Time.zone.local(2025, 1, 1) do
+        create_appointment(appointment_date: Date.current)
       end
 
       travel_to Time.zone.local(2026, 3, 4) do
-        create(:appointment, user: user, client: client, appointment_date: Date.current, main_service: main_service)
-        create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 6, 1),
-main_service: main_service)
-
+        create_appointment(appointment_date: Date.current)
+        create_appointment(appointment_date: Date.new(2026, 6, 1))
         stats = described_class.statistics(described_class.all, year: 2026, month: 3)
 
         expect(stats).to eq(total: 3, current_year: 2, current_month: 1)
@@ -527,15 +386,9 @@ main_service: main_service)
 
     it "returns the full working range when there are no appointments" do
       travel_to Time.zone.local(2026, 3, 4, 6, 0, 0) do
-        create(
-          :slot_rule,
-          user: user,
-          start_time: Time.zone.parse("09:00"),
-          end_time: Time.zone.parse("10:00"),
-          weekdays: %w[wednesday]
-        )
+        create_slot_rule
 
-        ranges = described_class.available_time_ranges(user, Date.current)
+        ranges =described_class.available_time_ranges(user, Date.current)
 
         expect(ranges.length).to eq(1)
         expect(ranges.first[:start].strftime("%H:%M")).to eq("09:00")
@@ -545,13 +398,7 @@ main_service: main_service)
 
     it "clamps the start of today's range to the current time, rounded up to 5 minutes" do
       travel_to Time.zone.local(2026, 3, 4, 9, 12, 0) do
-        create(
-          :slot_rule,
-          user: user,
-          start_time: Time.zone.parse("09:00"),
-          end_time: Time.zone.parse("10:00"),
-          weekdays: %w[wednesday]
-        )
+        create_slot_rule
 
         ranges = described_class.available_time_ranges(user, Date.current)
 
@@ -561,13 +408,7 @@ main_service: main_service)
 
     it "returns no ranges once the working day is already over" do
       travel_to Time.zone.local(2026, 3, 4, 23, 0, 0) do
-        create(
-          :slot_rule,
-          user: user,
-          start_time: Time.zone.parse("09:00"),
-          end_time: Time.zone.parse("10:00"),
-          weekdays: %w[wednesday]
-        )
+        create_slot_rule
 
         expect(described_class.available_time_ranges(user, Date.current)).to eq([])
       end
@@ -575,13 +416,7 @@ main_service: main_service)
 
     it "carves out booked appointments and skips appointments outside the working window" do
       travel_to Time.zone.local(2026, 3, 4, 6, 0, 0) do
-        create(
-          :slot_rule,
-          user: user,
-          start_time: Time.zone.parse("09:00"),
-          end_time: Time.zone.parse("12:00"),
-          weekdays: %w[wednesday]
-        )
+        create_slot_rule(end_time: "12:00")
 
         appointment_at(date: Date.current, time: "10:00", end_time: "10:30")
         appointment_at(date: Date.current, time: "07:00", end_time: "07:30")
@@ -589,47 +424,24 @@ main_service: main_service)
 
         ranges = described_class.available_time_ranges(user, Date.current)
 
-        formatted = ranges.map { |r| [ r[:start].strftime("%H:%M"), r[:end].strftime("%H:%M") ] }
-
-        expect(formatted).to eq([ [ "09:00", "10:00" ], [ "10:30", "12:00" ] ])
+        expect(formatted_ranges(ranges)).to eq([ [ "09:00", "10:00" ], [ "10:30", "12:00" ] ])
       end
     end
 
     it "combines ranges from multiple active slot rules, sorted by start" do
       travel_to Time.zone.local(2026, 3, 4, 6, 0, 0) do
-        create(
-          :slot_rule,
-          user: user,
-          start_time: Time.zone.parse("14:00"),
-          end_time: Time.zone.parse("15:00"),
-          weekdays: %w[wednesday]
-        )
-
-        create(
-          :slot_rule,
-          user: user,
-          start_time: Time.zone.parse("09:00"),
-          end_time: Time.zone.parse("10:00"),
-          weekdays: %w[wednesday]
-        )
+        create_slot_rule(start_time: "14:00", end_time: "15:00")
+        create_slot_rule(start_time: "09:00", end_time: "10:00")
 
         ranges = described_class.available_time_ranges(user, Date.current)
 
-        formatted = ranges.map { |r| [ r[:start].strftime("%H:%M"), r[:end].strftime("%H:%M") ] }
-
-        expect(formatted).to eq([ [ "09:00", "10:00" ], [ "14:00", "15:00" ] ])
+        expect(formatted_ranges(ranges)).to eq([ [ "09:00", "10:00" ], [ "14:00", "15:00" ] ])
       end
     end
 
     it "does not clamp the start time for a date other than today" do
       travel_to Time.zone.local(2026, 3, 4, 9, 30, 0) do
-        create(
-          :slot_rule,
-          user: user,
-          start_time: Time.zone.parse("09:00"),
-          end_time: Time.zone.parse("10:00"),
-          weekdays: %w[thursday]
-        )
+        create_slot_rule(weekdays: %w[thursday])
 
         ranges = described_class.available_time_ranges(user, Date.current + 1.day)
 
@@ -649,42 +461,21 @@ main_service: main_service)
 
     it "ignores appointments with a blank end_time" do
       travel_to Time.zone.local(2026, 3, 4, 6, 0, 0) do
-        create(
-          :slot_rule,
-          user: user,
-          start_time: Time.zone.parse("09:00"),
-          end_time: Time.zone.parse("10:00"),
-          weekdays: %w[wednesday]
-        )
+        create_slot_rule
 
-        appt = create(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_date: Date.current,
-          appointment_time: Time.zone.parse("09:15"),
-          main_service: main_service
-        )
+        appointment = create_appointment(appointment_date: Date.current, appointment_time: Time.zone.parse("09:15"))
 
-        appt.update_column(:end_time, nil)
+        appointment.update_column(:end_time, nil)
 
         ranges = described_class.available_time_ranges(user, Date.current)
 
-        formatted = ranges.map { |r| [ r[:start].strftime("%H:%M"), r[:end].strftime("%H:%M") ] }
-
-        expect(formatted).to eq([ [ "09:00", "10:00" ] ])
+        expect(formatted_ranges(ranges)).to eq([ [ "09:00", "10:00" ] ])
       end
     end
 
     it "produces no free ranges when appointments cover the window back-to-back" do
       travel_to Time.zone.local(2026, 3, 4, 6, 0, 0) do
-        create(
-          :slot_rule,
-          user: user,
-          start_time: Time.zone.parse("09:00"),
-          end_time: Time.zone.parse("10:00"),
-          weekdays: %w[wednesday]
-        )
+        create_slot_rule
 
         appointment_at(date: Date.current, time: "09:00", end_time: "09:30")
         appointment_at(date: Date.current, time: "09:30", end_time: "10:00")
@@ -701,53 +492,18 @@ main_service: main_service)
 
     after { travel_back }
 
+    let!(:march_appointment) { create_appointment(appointment_date: Date.new(2026, 3, 10)) }
+    let!(:april_appointment) { create_appointment(appointment_date: Date.new(2026, 4, 10)) }
+    let(:grouped) { described_class.grouped_by_month([ march_appointment, april_appointment ]) }
+
+
     it "groups appointments by appointment month" do
-      appointment_in_first_month = create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.new(2026, 3, 10),
-        main_service: main_service
-      )
-
-      appointment_in_second_month = create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.new(2026, 4, 10),
-        main_service: main_service
-      )
-
-      grouped = described_class.grouped_by_month(
-        [ appointment_in_first_month, appointment_in_second_month ]
-      )
-
       expect(grouped.keys).to contain_exactly(Date.new(2026, 3, 1), Date.new(2026, 4, 1))
-      expect(grouped[Date.new(2026, 3, 1)]).to contain_exactly(appointment_in_first_month)
-      expect(grouped[Date.new(2026, 4, 1)]).to contain_exactly(appointment_in_second_month)
+      expect(grouped[Date.new(2026, 3, 1)]).to contain_exactly(march_appointment)
+      expect(grouped[Date.new(2026, 4, 1)]).to contain_exactly(april_appointment)
     end
 
     it "orders months descending, most recent first" do
-      appointment_in_first_month = create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.new(2026, 3, 10),
-        main_service: main_service
-      )
-
-      appointment_in_second_month = create(
-        :appointment,
-        user: user,
-        client: client,
-        appointment_date: Date.new(2026, 4, 10),
-        main_service: main_service
-      )
-
-      grouped = described_class.grouped_by_month(
-        [ appointment_in_first_month, appointment_in_second_month ]
-      )
-
       expect(grouped.keys).to eq([ Date.new(2026, 4, 1), Date.new(2026, 3, 1) ])
     end
   end
@@ -762,20 +518,15 @@ main_service: main_service)
         new_client = create(:client, user: user)
 
         appointment.update_column(:client_id, new_client.id)
-
         appointment.send(:sync_service_note_client)
 
         expect(service_note.reload.client).to eq(new_client)
       end
 
       it "does nothing if no service_note" do
-        appointment_without_note = create(:appointment, user: user, client: client)
+        appointment_without_note = create_appointment(main_service: nil)
 
-        expect {
-          appointment_without_note.update!(
-            client: create(:client, user: user)
-          )
-        }.not_to raise_error
+        expect { appointment_without_note.update!(client: create(:client, user: user)) }.not_to raise_error
       end
     end
 
@@ -795,12 +546,7 @@ main_service: main_service)
       end
 
       it "does nothing if no service_note" do
-        appointment_without_note = create(
-          :appointment,
-          user: user,
-          client: client,
-          notes: "Test"
-        )
+        appointment_without_note = create_appointment(notes: "Test")
 
         expect { appointment_without_note.save! }.not_to raise_error
       end
@@ -810,16 +556,9 @@ main_service: main_service)
   describe "private validations and callbacks" do
     describe "#valid_date" do
       it "is invalid when appointment_date is in the past" do
-        appointment = build(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_date: Date.yesterday,
-          main_service: nil
-        )
+        appointment = build(:appointment, user: user, client: client, appointment_date: Date.yesterday, main_service: nil)
 
         expect(appointment).not_to be_valid
-
         expect(appointment.errors[:appointment_date]).to include("can't be in the past")
       end
     end
@@ -828,14 +567,7 @@ main_service: main_service)
       it "is invalid when end_time equals appointment_time" do
         time = Time.zone.parse("10:00")
 
-        appointment = build(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_time: time,
-          end_time: time,
-          main_service: nil
-        )
+        appointment = build(:appointment, user: user, client: client, appointment_time: time, end_time: time, main_service: nil)
 
         expect(appointment).not_to be_valid
         expect(appointment.errors[:end_time]).to include("must be later than start time")
@@ -844,14 +576,10 @@ main_service: main_service)
 
     describe "#time_step_interval" do
       it "is invalid when appointment_time is not divisible by 5 minutes" do
-        appointment = build(
-          :appointment,
-          user: user,
-          client: client,
-          appointment_time: Time.zone.parse("10:03"),
-          end_time: Time.zone.parse("10:33"),
-          main_service: nil
-        )
+        appointment = build(:appointment, user: user, client: client,
+                            appointment_time: Time.zone.parse("10:03"),
+                            end_time: Time.zone.parse("10:33"),
+                            main_service: nil)
 
         expect(appointment).not_to be_valid
         expect(appointment.errors[:appointment_time]).to include("must be in 5-minute intervals")
