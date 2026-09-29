@@ -52,6 +52,43 @@
   background: #f3f0ff;
 }
 
+.oxidant-concentration {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.oxidant-concentration .form-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.oxidant-concentration-types {
+  display: flex;
+  flex-shrink: 0;
+  border: 1px solid #ccc;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.oxidant-concentration-type {
+  min-width: 48px;
+  padding: 0 12px;
+  border: 0;
+  background: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.oxidant-concentration-type + .oxidant-concentration-type {
+  border-left: 1px solid #ccc;
+}
+
+.oxidant-concentration-type.active {
+  background: #5725b9;
+  color: #fff;
+}
+
 @media (max-width: 768px) {
   .formula-header {
     flex-direction: column;

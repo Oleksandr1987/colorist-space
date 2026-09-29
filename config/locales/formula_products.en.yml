@@ -29,6 +29,7 @@ en:
       brand: "Brand"
       unit: "Unit"
       price_per_unit: "Price per unit"
+      concentration: "Concentration"
 
     units:
       gram: "Gram"

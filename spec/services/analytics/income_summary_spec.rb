@@ -53,7 +53,7 @@ RSpec.describe Analytics::IncomeSummary do
     end
 
     context "when an oxidant is selected" do
-      let(:oxidant_product) { create(:formula_product, user: user, category: "oxidant") }
+      let(:oxidant_product) { create(:formula_product, :oxidant, user: user) }
       let(:filters) { { formula_product_ids: [ oxidant_product.id ] } }
 
       before do

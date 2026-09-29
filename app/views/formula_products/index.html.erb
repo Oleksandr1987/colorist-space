@@ -4,6 +4,7 @@
      data-service-formula-category-value="<%= @formula_category %>"
      data-service-color-new-url-value="<%= new_formula_product_path(category: "color") %>"
      data-service-oxidant-new-url-value="<%= new_formula_product_path(category: "oxidant") %>">
+
   <div class="category-header care-products-header">
     <div class="category-title">
       <%= link_to services_path, class: "back" do %>
@@ -58,6 +59,7 @@
 
   <%# OXIDANT FILTERS %>
   <div data-service-target="oxidantFilters" class="<%= 'hidden' unless @formula_category == 'oxidant' %>">
+    <%# Oxidant brands %>
     <% if @oxidant_brands.any? %>
       <div class="care-products-filters">
         <% @oxidant_brands.each do |brand| %>
@@ -68,17 +70,19 @@
       </div>
     <% end %>
 
-    <% if @oxidant_percentages.any? %>
+    <%# Oxidant concentrations: 1.9%, 3%, 20 vol, 30 vol, etc. %>
+    <% if @oxidant_concentrations.any? %>
       <div class="care-products-filters">
-        <% @oxidant_percentages.each do |percentage| %>
-          <button type="button" class="filter-button" data-percentage="<%= percentage.downcase %>" data-action="click->service#filterFormulaPercentage">
-            <%= percentage %>
+        <% @oxidant_concentrations.each do |concentration| %>
+          <button type="button" class="filter-button" data-concentration="<%= concentration.downcase %>" data-action="click->service#filterFormulaConcentration">
+            <%= concentration %>
           </button>
         <% end %>
       </div>
     <% end %>
   </div>
 
+  <%# PRODUCTS %>
   <div class="service-list scrollable-service-list" data-service-target="list">
     <% @formula_products.each do |product| %>
       <div id="<%= dom_id(product) %>"
@@ -86,12 +90,15 @@
            data-name="<%= "#{product.brand} #{product.name}".downcase %>"
            data-category="<%= product.category.to_s.downcase %>"
            data-brand="<%= product.brand.to_s.downcase %>"
-           data-percentage="<%= product.percentage.to_s.downcase %>">
+           data-concentration="<%= product.concentration.to_s.downcase %>">
 
         <div class="service-info">
           <div class="service-name">
             <strong><%= product.brand %></strong>
-            <%= product.name %>
+
+            <% if product.name.present? %>
+              <%= product.name %>
+            <% end %>
           </div>
 
           <div class="service-category">
@@ -105,7 +112,7 @@
 
         <div class="service-actions">
           <%= link_to edit_formula_product_path(product), class: "icon-button", aria: { label: t("common.edit") } do %>
-            <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16,alt: t("common.edit") %>
+            <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.edit") %>
           <% end %>
 
           <%= button_to formula_product_path(product),

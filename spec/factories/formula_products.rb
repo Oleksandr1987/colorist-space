@@ -12,7 +12,7 @@ FactoryBot.define do
   trait :oxidant do
     category { "oxidant" }
     brand { "Generic" }
-    name { "Oxidant 6%" }
+    name { "6%" }
     unit { "ml" }
     price_per_unit { 5 }
   end

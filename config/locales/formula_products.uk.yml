@@ -29,6 +29,7 @@ uk:
       brand: "Бренд"
       unit: "Одиниця вимірювання"
       price_per_unit: "Ціна за одиницю"
+      concentration: "Концентрація"
 
     units:
       gram: "Грам"
