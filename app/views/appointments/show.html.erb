@@ -1,8 +1,29 @@
 <div class="appointment-details-header">
-  <%= link_to  calendar_appointments_path, class: "back-button", title: t("common.back") do %>
-    <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
-  <% end %>
-  <h1><%= t("appointments.show.title") %></h1>
+  <div class="appointment-details-header-left">
+    <%= link_to calendar_appointments_path, class: "back-button", title: t("common.back") do %>
+      <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
+    <% end %>
+
+    <h1><%= t("appointments.show.title") %></h1>
+  </div>
+
+  <div class="appointment-details-header-actions">
+    <%= link_to edit_appointment_path(@appointment), class: "appointment-header-action", title: t("common.edit"), aria: { label: t("common.edit") } do %>
+      <%= image_tag "pencil.png", class: "appointment-header-action-icon" %>
+    <% end %>
+
+    <%= button_to appointment_path(@appointment),
+                  method: :delete,
+                  form: {
+                    class: "appointment-header-action-form",
+                    data: { turbo_confirm: t("appointments.confirm.delete") }
+                  },
+                  class: "appointment-header-action appointment-header-action-delete",
+                  title: t("common.delete"),
+                  aria: { label: t("common.delete") } do %>
+      <%= image_tag "delete.png", class: "appointment-header-action-icon" %>
+    <% end %>
+  </div>
 </div>
 
 <div class="appointment-details">
@@ -38,13 +59,7 @@
     </p>
   <% end %>
 
-  <div class="action-buttons-inline">
-    <%= link_to t("common.edit"), edit_appointment_path(@appointment), class: "button small-button edit" %>
-
-    <%= button_to t("common.delete"),
-                  appointment_path(@appointment),
-                  method: :delete,
-                  form: { data: { turbo_confirm: t("appointments.confirm.delete") } },
-                  class: "button small-button delete" %>
+  <div class="appointment-details-confirm">
+    <%= link_to t("common.ok"), calendar_appointments_path, class: "button appointment-ok-button" %>
   </div>
 </div>

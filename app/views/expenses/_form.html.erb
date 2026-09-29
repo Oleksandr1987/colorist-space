@@ -2,7 +2,7 @@
   <%= form_with(model: expense, local: true) do |f| %>
 
     <div class="form-modal-header">
-      <%= link_to expenses_path, class: "form-modal-close", data: { turbo: false }, aria: { label: t("analytics.cancel") } do %>
+      <%= link_to expenses_analytics_path, class: "form-modal-close", data: { turbo: false }, aria: { label: t("analytics.cancel") } do %>
         <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
       <% end %>
 
@@ -27,10 +27,10 @@
       <%= f.label :spent_on, t("analytics.expenses.date") %>
 
       <%= text_field_tag "expense[spent_on]",
-            expense.spent_on&.to_date || Date.current,
+            (expense.spent_on || Date.current).strftime("%d.%m.%Y"),
             class: "form-input",
             required: true,
-            max: Date.current,
+            max: Date.current.iso8601,
             data: {
               controller: "datepicker",
               datepicker_target: "input"

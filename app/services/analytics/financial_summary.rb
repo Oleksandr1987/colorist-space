@@ -17,7 +17,12 @@ module Analytics
     end
 
     def manual_expenses
-      @manual_expenses ||= Expense.for_user_between(user, from, to).sum(:amount)
+      @manual_expenses ||=
+        if period?
+          Expense.for_user_between(user, from, to).sum(:amount)
+        else
+          user.expenses.sum(:amount)
+        end
     end
 
     def care_products_cost

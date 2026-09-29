@@ -10,16 +10,6 @@ RSpec.describe "Expenses" do
     sign_in user, scope: :user
   end
 
-  describe "GET /expenses" do
-    it "returns success" do
-      create(:expense, user: user)
-
-      get expenses_path
-
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   describe "GET /expenses/new" do
     it "renders new page" do
       get new_expense_path
@@ -43,7 +33,7 @@ RSpec.describe "Expenses" do
         post expenses_path, params: params
       }.to change(user.expenses, :count).by(1)
 
-      expect(response).to redirect_to(expenses_url(locale: I18n.locale))
+      expect(response).to redirect_to(expenses_analytics_path(locale: I18n.locale))
     end
 
     it "renders new when invalid" do
@@ -77,7 +67,7 @@ RSpec.describe "Expenses" do
         }
       }
 
-      expect(response).to redirect_to(expenses_url(locale: I18n.locale))
+      expect(response).to redirect_to(expenses_analytics_path(locale: I18n.locale))
       expect(expense.reload.amount).to eq(200)
     end
 
@@ -100,7 +90,7 @@ RSpec.describe "Expenses" do
         delete expense_path(expense)
       }.to change(Expense, :count).by(-1)
 
-      expect(response).to redirect_to(expenses_url(locale: I18n.locale))
+      expect(response).to redirect_to(expenses_analytics_path(locale: I18n.locale))
     end
   end
 end

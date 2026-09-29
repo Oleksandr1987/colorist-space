@@ -6,9 +6,9 @@
   <div class="filter-chips">
     <label class="filter-chip <%= "active" if @all_time %>">
       <input type="radio"
-             name="period"
              value="all"
              <%= "checked" if @all_time %>
+             data-period-option
              data-action="change->analytics-filter#selectAllTime">
 
       <span>
@@ -30,9 +30,9 @@
 
       <label class="filter-chip <%= "active" if preset_active %>">
         <input type="radio"
-               name="period"
                value="<%= days %>"
                <%= "checked" if preset_active %>
+               data-period-option
                data-action="change->analytics-filter#selectPeriod"
                data-from="<%= preset_from %>"
                data-to="<%= Date.current %>">
@@ -49,14 +49,19 @@
       <%= t("analytics.period_filter.from") %>
     </label>
 
-    <input type="text"
-           value="<%= from_date.strftime("%d.%m.%Y") %>"
-           class="form-input small"
-           autocomplete="off"
-           data-controller="datepicker"
-           data-datepicker-target="input"
-           data-analytics-filter-target="fromDisplay"
-           data-action="datepicker:selected->analytics-filter#fromChanged">
+    <%= text_field_tag nil,
+      from_date&.strftime("%d.%m.%Y"),
+      class: "form-input small",
+      readonly: true,
+      autocomplete: "off",
+      data: {
+        controller: "datepicker",
+        datepicker_parent: ".analytics-filter-modal-content",
+        analytics_filter_target: "fromDisplay",
+        analytics_filter_datepicker_target: "fromPicker",
+        action: "datepicker:selected->analytics-filter#fromChanged",
+        max: Date.current.strftime("%Y-%m-%d")
+      } %>
   </div>
 
   <div class="form-section">
@@ -64,19 +69,25 @@
       <%= t("analytics.period_filter.to") %>
     </label>
 
-    <input type="text"
-           value="<%= to_date.strftime("%d.%m.%Y") %>"
-           class="form-input small"
-           autocomplete="off"
-           data-controller="datepicker"
-           data-datepicker-target="input"
-           data-analytics-filter-target="toDisplay"
-           data-action="datepicker:selected->analytics-filter#toChanged">
+    <%= text_field_tag nil,
+      to_date&.strftime("%d.%m.%Y"),
+      class: "form-input small",
+      readonly: true,
+      autocomplete: "off",
+      data: {
+        controller: "datepicker",
+        datepicker_parent: ".analytics-filter-modal-content",
+        analytics_filter_target: "toDisplay",
+        analytics_filter_datepicker_target: "toPicker",
+        action: "datepicker:selected->analytics-filter#toChanged",
+        min: from_date&.strftime("%Y-%m-%d"),
+        max: Date.current.strftime("%Y-%m-%d")
+      } %>
   </div>
 </div>
 
-<%= hidden_field_tag :from, from_date.strftime("%d.%m.%Y"), data: { analytics_filter_target: "from" } %>
+<%= hidden_field_tag :from, from_date&.strftime("%d.%m.%Y"), data: { analytics_filter_target: "from" } %>
 
-<%= hidden_field_tag :to, to_date.strftime("%d.%m.%Y"), data: { analytics_filter_target: "to" } %>
+<%= hidden_field_tag :to, to_date&.strftime("%d.%m.%Y"), data: { analytics_filter_target: "to" } %>
 
 <%= hidden_field_tag :all_time, @all_time ? "1" : "0", data: { analytics_filter_target: "allTime" } %>

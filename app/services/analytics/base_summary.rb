@@ -12,11 +12,21 @@ module Analytics
 
     def period_appointment_ids
       @period_appointment_ids ||=
-        user.appointments.where(appointment_date: from..to).pluck(:id)
+        begin
+          scope = user.appointments
+          scope = scope.where(appointment_date: from..to) if period?
+
+          scope.pluck(:id)
+        end
     end
 
     def period_service_relations
-      @period_service_relations ||= AppointmentServicesRelation.for_user_between(user, from, to)
+      @period_service_relations ||=
+        if period?
+          AppointmentServicesRelation.for_user_between(user, from, to)
+        else
+          AppointmentServicesRelation.for_user(user.id)
+        end
     end
 
     def period_service_notes
@@ -25,6 +35,10 @@ module Analytics
           .where(user: user, appointment_id: period_appointment_ids)
           .includes(formula_steps: :formula_ingredients)
           .to_a
+    end
+
+    def period?
+      from.present? && to.present?
     end
   end
 end

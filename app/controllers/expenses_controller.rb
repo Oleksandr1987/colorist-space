@@ -5,10 +5,6 @@ class ExpensesController < ApplicationController
   auto_authorize :expense, only: %i[new create edit update destroy]
   after_action :verify_authorized, only: %i[new create edit update destroy]
 
-  def index
-    @expenses_by_month = Expense.monthly_expenses(current_user.expenses)
-  end
-
   def new
     @expense = current_user.expenses.build
   end
@@ -17,7 +13,7 @@ class ExpensesController < ApplicationController
     @expense = current_user.expenses.build(expense_params)
 
     if @expense.save
-      redirect_to expenses_path, notice: "Витрату успішно додано"
+      redirect_to expenses_analytics_path, notice: "Витрату успішно додано"
     else
       render :new, status: :unprocessable_content
     end
@@ -28,7 +24,7 @@ class ExpensesController < ApplicationController
 
   def update
     if @expense.update(expense_params)
-      redirect_to expenses_path, notice: "Витрату оновлено"
+      redirect_to expenses_analytics_path, notice: "Витрату оновлено"
     else
       render :edit, status: :unprocessable_content
     end
@@ -36,7 +32,7 @@ class ExpensesController < ApplicationController
 
   def destroy
     @expense.destroy
-    redirect_to expenses_path, notice: "Витрату видалено"
+    redirect_to expenses_analytics_path, notice: "Витрату видалено"
   end
 
   private

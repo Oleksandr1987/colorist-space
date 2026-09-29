@@ -4,17 +4,17 @@
   income_formula_product_filters = Array(@income_formula_product_filters)
   income_care_product_filters = Array(@income_care_product_filters)
 
-  filters_applied =
-    params[:all_time] == "1" ||
-    params[:from].present? ||
-    params[:to].present? ||
-    income_category_filters.present? ||
-    income_service_filters.present? ||
-    income_formula_product_filters.present? ||
-    income_care_product_filters.present?
+  income_filters_applied = [
+    income_category_filters,
+    income_service_filters,
+    income_formula_product_filters,
+    income_care_product_filters
+  ].any?(&:present?)
 
-  from_date = @from
-  to_date = @to
+  filters_applied = period_filter_applied? || income_filters_applied
+
+  from_date = permitted_params[:from].present? ? @from : nil
+  to_date = permitted_params[:to].present? ? @to : nil
 %>
 
 <div class="analytics-filter" data-controller="analytics-filter">
@@ -87,7 +87,7 @@
 
   <!-- FILTER MODAL -->
   <div class="analytics-filter-modal hidden" data-analytics-filter-target="modal" data-action="click->analytics-filter#closeOnOverlay">
-    <div class="analytics-filter-modal-content" data-action="click->analytics-filter#stopPropagation">
+    <div class="analytics-filter-modal-content">
       <%= form_with url: income_analytics_path, method: :get, local: true, class: "analytics-filter-form" do %>
         <!-- HEADER -->
         <div class="analytics-filter-modal-header">

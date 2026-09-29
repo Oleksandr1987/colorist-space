@@ -89,7 +89,7 @@
             controller: "datepicker",
             datepicker_target: "input",
             appointment_target: "date",
-            action: "change->appointment#loadSlots",
+            action: "datepicker:selected->appointment#loadSlots",
             min: Date.current.strftime("%Y-%m-%d")
           } %>
 
