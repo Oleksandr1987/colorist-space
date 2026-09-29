@@ -58,6 +58,7 @@ uk:
       delete_all_photos_confirm: "Видалити всі фото клієнта?"
 
       details:
+        name: "Ім'я"
         phone: "Телефон"
         hair_type: "Тип волосся"
         hair_length: "Довжина волосся"
@@ -90,10 +91,12 @@ uk:
         dry: "Суха"
         oily: "Жирна"
         sensitive: "Чутлива"
+
   photos:
     main_photo: "Основне фото"
     gallery: "ГAЛЕРЕЯ"
     camera: "КAМЕРA"
+    remove: "Видалити фото"
 
   date:
     formats:

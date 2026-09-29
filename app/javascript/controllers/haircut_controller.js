@@ -47,7 +47,7 @@ export default class extends Controller {
       return
     }
 
-    const id = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    const id = Date.now()
     const zoneLabel = this.zonesValue[zone] || zone
 
     const html = this.templateTarget.innerHTML

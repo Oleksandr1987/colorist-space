@@ -96,6 +96,7 @@ en:
     main_photo: "Main Photo"
     gallery: "FROM GALLERY"
     camera: "TAKE PHOTO"
+    remove: "Remove photo"
 
   date:
     formats:

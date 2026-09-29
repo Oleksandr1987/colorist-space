@@ -1,28 +1,38 @@
-<!-- BUTTONS (TOP) -->
-<div class="photos-actions">
-  <!-- CAMERA -->
-  <label class="upload-btn">
-    <%= t("photos.camera") %>
-    <%= f.file_field :photos, multiple: true, accept: "image/*", capture: "environment", class: "hidden-file-input" %>
-  </label>
-  <!-- GALLERY -->
-  <label class="upload-btn light">
-    <%= t("photos.gallery") %>
-    <%= f.file_field :photos, multiple: true, accept: "image/*", class: "hidden-file-input" %>
-  </label>
-</div>
-<!-- GRID -->
-<div class="photos-grid" data-controller="photo">
-  <% @service_note.decorated_photos.each do |photo| %>
-    <div class="photo-item"
-      data-photo-id="<%= photo.id %>"
-      data-delete-url="<%= delete_photo_client_service_note_path(@client, @service_note, photo_id: photo.id) %>">
+<div class="service-note-photos"
+     data-controller="photo"
+     data-photo-remove-icon-value="<%= asset_path("remove.png") %>"
+     data-photo-remove-label-value="<%= t("photos.remove") %>">
+  <div class="photos-actions">
+    <label class="upload-btn">
+      <%= t("photos.camera") %>
 
-      <%= image_tag photo.thumb.processed, class: "photo-preview", loading: "lazy" %>
+      <input type="file"
+             multiple
+             accept="image/*"
+             capture="environment"
+             class="hidden-file-input"
+             data-photo-target="picker"
+             data-action="change->photo#preview">
+    </label>
 
-      <button type="button" class="delete-photo" data-action="click->photo#remove">
-        <%= image_tag "close.png", class: "clear-icon" %>
-      </button>
-    </div>
-  <% end %>
+    <label class="upload-btn light">
+      <%= t("photos.gallery") %>
+
+      <input type="file"
+             multiple
+             accept="image/*"
+             class="hidden-file-input"
+             data-photo-target="picker"
+             data-action="change->photo#preview">
+    </label>
+  </div>
+
+  <%= f.file_field :photos,
+        multiple: true,
+        accept: "image/*",
+        class: "hidden-file-input",
+        data: { photo_target: "input" }
+  %>
+
+  <%= render "service_notes/photos_gallery", service_note: @service_note, client: @client %>
 </div>

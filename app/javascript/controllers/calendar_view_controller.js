@@ -8,7 +8,7 @@ export default class extends Controller {
     datesWithAppointments: Array,
     clientId: Number,
     clientIcon: String,
-    notesIcon: String,
+    pencilIcon: String,
     deleteIcon: String
   }
 
@@ -260,7 +260,7 @@ export default class extends Controller {
     return `
       <div class="calendar-record">
         <div class="calendar-record-header">
-          <div class="calendar-record-content clickable" data-action="click->calendar-view#editAppointment" data-id="${slot.id}">
+          <div class="calendar-record-content clickable" data-action="click->calendar-view#openServiceNote" data-note-url="${noteUrl}">
             <div class="calendar-record-date">
               <strong>
                 ${start}–${end}
@@ -276,21 +276,18 @@ export default class extends Controller {
             <a href="/clients/${slot.client_id}" class="appointment-action-button" data-turbo="false">
               <img src="${this.clientIconValue}" class="wiz-icon" width="16" height="16">
             </a>
-            <a href="${noteUrl}" class="appointment-action-button" data-turbo="false">
-              <img src="${this.notesIconValue}" class="wiz-icon" width="16" height="16">
+
+            <a href="/appointments/${slot.id}/edit" class="appointment-action-button" data-turbo="false">
+              <img src="${this.pencilIconValue}" class="wiz-icon" width="16" height="16">
             </a>
 
             <form action="/appointments/${slot.id}" method="post" data-turbo-confirm="${this.t.delete_confirm}">
-              <input
-                type="hidden"
-                name="_method"
-                value="delete">
-              <input
-                type="hidden"
-                name="authenticity_token"
-                value="${this.csrfToken()}">
+              <input type="hidden" name="_method" value="delete">
+
+              <input type="hidden" name="authenticity_token" value="${this.csrfToken()}">
+
               <button type="submit" class="appointment-action-button appointment-delete-button">
-                <img src="${this.deleteIconValue}" class="wiz-icon" width="16" height="16">
+                <img src="${this.deleteIconValue}" class="wiz-icon"  width="16" height="16">
               </button>
             </form>
           </div>
@@ -299,9 +296,8 @@ export default class extends Controller {
     `
   }
 
-  editAppointment(event) {
-    window.location.href =
-      `/appointments/${event.currentTarget.dataset.id}/edit`
+  openServiceNote(event) {
+    window.location.href = event.currentTarget.dataset.noteUrl
   }
 
   mergeAdjacentFreeSlots(slots) {
