@@ -4,7 +4,7 @@
       data-delete-url="<%= delete_photo_client_service_note_path(client, service_note, photo_id: photo.id) %>">
       <%= image_tag photo.thumb.processed, class: "photo-preview", loading: "lazy" %>
 
-      <button type="button" class="delete-photo" aria-label="Remove photo" data-action="click->photo#remove">
+      <button type="button" class="delete-photo" aria-label="<%= t("photos.remove") %>" data-action="click->photo#remove">
         <%= image_tag "remove.png", class: "clear-icon" %>
       </button>
     </div>

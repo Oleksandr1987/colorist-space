@@ -9,7 +9,8 @@ export default class extends Controller {
     index: Number,
     mode: String,
     mainPhotoUrl: String,
-    removeIcon: String
+    removeIcon: String,
+    removeLabel: String
   }
 
   connect() {
@@ -154,7 +155,7 @@ export default class extends Controller {
         removeButton.type = "button"
         removeButton.classList.add("delete-photo")
         removeButton.dataset.action = "click->photo#removePending"
-        removeButton.setAttribute("aria-label", "Remove photo")
+        removeButton.setAttribute("aria-label", this.removeLabelValue)
 
         const removeIcon = document.createElement("img")
 
