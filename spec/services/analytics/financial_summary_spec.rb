@@ -12,7 +12,14 @@ RSpec.describe Analytics::FinancialSummary do
   let(:from) { 1.month.ago.to_date }
   let(:to) { Date.current }
 
-  let(:care_products) { [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ] }
+  let(:care_product) do
+      create(:care_product, user: user, brand: "Test", name: "Mask", category: "Mask",
+        purchase_price: 30, sale_price: 50, stock_quantity: 10)
+  end
+
+  let(:care_products) do
+    [ { "care_product_id" => care_product.id, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ]
+  end
 
   let(:appointment) do
     create(:appointment, user: user, client: client,
@@ -82,11 +89,41 @@ RSpec.describe Analytics::FinancialSummary do
 
       expect(summary.care_products_income).to eq(100)
     end
+
+    it "includes direct care product sales" do
+      create(:care_product_sale, user: user, care_product: care_product,
+              service_note: nil, quantity: 2, unit_price: 70, unit_cost: 30, sold_on: Date.current)
+
+      expect(summary.care_products_income).to eq(140)
+    end
+
+    it "excludes care product sales outside the period" do
+      create(:care_product_sale, user: user, care_product: care_product,
+              quantity: 2, unit_price: 70, unit_cost: 30, sold_on: 2.months.ago.to_date)
+
+      expect(summary.care_products_income).to eq(0)
+    end
+
+    it "excludes another user's care product sales" do
+      other_product = create(:care_product, user: other_user)
+
+      create(:care_product_sale, user: other_user, care_product: other_product,
+              quantity: 2, unit_price: 70, unit_cost: 30, sold_on: Date.current)
+
+      expect(summary.care_products_income).to eq(0)
+    end
   end
 
   describe "#care_products_cost" do
     it "uses historical purchase prices" do
       service_note
+
+      expect(summary.care_products_cost).to eq(60)
+    end
+
+    it "includes cost from direct care product sales" do
+      create(:care_product_sale, user: user, care_product: care_product,
+              service_note: nil,  quantity: 2, unit_price: 70, unit_cost: 30, sold_on: Date.current)
 
       expect(summary.care_products_cost).to eq(60)
     end

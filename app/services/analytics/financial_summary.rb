@@ -9,7 +9,7 @@ module Analytics
     end
 
     def care_products_income
-      @care_products_income ||= period_service_notes.sum(&:care_products_income)
+      @care_products_income ||= period_care_product_sales.sum("unit_price * quantity")
     end
 
     def total_income
@@ -21,7 +21,7 @@ module Analytics
     end
 
     def care_products_cost
-      @care_products_cost ||= period_service_notes.sum(&:care_products_cost)
+      @care_products_cost ||= period_care_product_sales.sum("unit_cost * quantity")
     end
 
     def total_expenses

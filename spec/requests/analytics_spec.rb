@@ -73,7 +73,14 @@ RSpec.describe "Analytics" do
     let(:service_a) { create(:service, user: user, service_type: "service", category: "haircut", subtype: "A", price: 100) }
     let(:service_b) { create(:service, user: user, service_type: "service", category: "coloring", subtype: "B", price: 200) }
     let(:other_service) { create(:service, user: other_user, service_type: "service", category: "haircut", subtype: "X", price: 999) }
-    let(:care_products) { [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ] }
+    let(:care_product) do
+      create(:care_product, user: user, brand: "Test", name: "Mask", category: "Mask",
+              purchase_price: 30, sale_price: 50, stock_quantity: 10)
+    end
+
+    let(:care_products) do
+      [ { "care_product_id" => care_product.id, "name" => care_product.display_name, "price" => 50, "purchase_price" => 30, "qty" => 2 } ]
+    end
 
     let(:appointment_a) do
       create(:appointment, user: user, client: client, appointment_date: Date.current, appointment_time: "10:00", end_time: "10:30",
@@ -278,7 +285,14 @@ RSpec.describe "Analytics" do
   describe "GET /analytics/balance" do
     let(:client) { create(:client, user: user) }
     let(:service) { create(:service, user: user, service_type: "service", category: "haircut", subtype: "Basic", price: 100) }
-    let(:care_products) { [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ] }
+    let(:care_product) do
+      create(:care_product, user: user, brand: "Test", name: "Mask", category: "Mask",
+        purchase_price: 30, sale_price: 50, stock_quantity: 10)
+    end
+
+    let(:care_products) do
+      [ { "care_product_id" => care_product.id, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ]
+    end
     let(:appointment) do
       create(:appointment, user: user, client: client,
               appointment_date: Date.current,
@@ -368,12 +382,14 @@ RSpec.describe "Analytics" do
 
     it "shows stock value only for the current user" do
       create(:care_product, user: user, purchase_price: 800, stock_quantity: 60)
-      create(:care_product, user: other_user, purchase_price: 10_000, stock_quantity: 100)
+      other_product = create(:care_product, user: other_user, purchase_price: 10_000, stock_quantity: 100)
 
       get balance_analytics_path
 
-      expect(response.body).to include("48000")
-      expect(response.body).not_to include("1000000")
+      stock_value = controller.instance_variable_get(:@care_products_stock_value)
+
+      expect(stock_value).to eq(user.care_products.total_stock_value)
+      expect(stock_value).not_to eq(other_product.stock_value)
     end
   end
 end

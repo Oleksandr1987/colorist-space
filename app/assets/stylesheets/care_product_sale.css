@@ -125,3 +125,118 @@
   opacity: 0.45;
   cursor: default;
 }
+
+.care-product-adjustment-product {
+  margin: 24px 0;
+}
+
+.care-product-adjustment-name {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.care-product-adjustment-stock {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.care-product-adjustment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.care-product-adjustment-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.care-product-adjustment-field label,
+.care-product-adjustment-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.care-product-adjustment-type {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.care-product-adjustment-type-button {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+.care-product-adjustment-type-button.active {
+  border-color: #222;
+  background: #f3f3f3;
+  font-weight: 600;
+}
+
+.care-product-adjustment-select,
+.care-product-adjustment-date,
+.care-product-adjustment-note {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: white;
+  font: inherit;
+}
+
+.care-product-adjustment-select,
+.care-product-adjustment-date {
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.care-product-adjustment-note {
+  min-height: 90px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.care-product-adjustment-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+  border-radius: 10px;
+  background: #f7f7f7;
+}
+
+.care-product-adjustment-preview strong {
+  font-size: 20px;
+}
+
+.care-product-adjustment-error {
+  font-size: 13px;
+  color: #b42318;
+}
+
+.care-product-adjustment-error.hidden {
+  display: none;
+}
+
+.care-product-adjustment-submit {
+  width: 100%;
+  min-height: 46px;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.care-product-adjustment-submit:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

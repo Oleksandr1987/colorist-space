@@ -208,9 +208,14 @@ RSpec.describe Analytics::IncomeSummary do
       )
     end
 
-    it "builds care product options from historical snapshots" do
+    it "builds care product options from sales" do
       expect(summary.care_product_options).to contain_exactly(
-        { id: care_product.id, brand: care_product.brand, category: care_product.category, label: "Londa Visible Repair Mask" }
+        {
+          id: care_product.id,
+          brand: care_product.brand,
+          category: care_product.category,
+          label: care_product.display_name
+        }
       )
     end
 
@@ -224,6 +229,37 @@ RSpec.describe Analytics::IncomeSummary do
 
     it "builds care product categories from historical care product options" do
       expect(summary.care_product_categories).to eq([ care_product.category ])
+    end
+  end
+
+  describe "direct care product sales" do
+    let(:care_product) { create(:care_product, user: user, purchase_price: 30, sale_price: 50, stock_quantity: 10) }
+
+    it "includes direct sales in care product income" do
+      create(:care_product_sale, user: user, care_product: care_product,
+              quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
+
+      expect(summary.care_products_income).to eq(100)
+    end
+
+    it "includes direct sales in care product income breakdown" do
+      create(:care_product_sale, user: user, care_product: care_product,
+              quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
+
+      expect(summary.care_product_income).to contain_exactly(
+        { id: care_product.id, label: care_product.display_name, amount: 100 }
+      )
+    end
+
+    it "excludes direct sales when filtering by service" do
+      service = create(:service, user: user, service_type: "service", category: "haircut", subtype: "Haircut", price: 100)
+
+      create(:care_product_sale, user: user, care_product: care_product,
+              quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
+
+      filtered_summary = described_class.new(user: user, from: 1.month.ago.to_date, to: Date.current, service_ids: [ service.id ])
+
+      expect(filtered_summary.care_products_income).to eq(0)
     end
   end
 
@@ -278,9 +314,9 @@ RSpec.describe Analytics::IncomeSummary do
       )
     end
 
-    it "builds historical care product income" do
+    it "builds care product income from historical sale prices" do
       expect(summary.care_product_income).to contain_exactly(
-        { id: care_product.id, label: "Londa Visible Repair Mask", amount: 600 }
+        { id: care_product.id, label: care_product.display_name, amount: 600 }
       )
     end
 

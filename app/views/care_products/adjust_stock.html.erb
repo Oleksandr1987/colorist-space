@@ -1,0 +1,141 @@
+<div class="service-wrapper care-product-adjustment-page"
+     data-controller="care-product-adjustment"
+     data-care-product-adjustment-stock-value="<%= @care_product.stock_quantity.to_i %>">
+
+  <div class="category-header care-products-header">
+    <div class="category-title">
+      <%= link_to care_products_path, class: "back" do %>
+        <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
+      <% end %>
+
+      <span><%= t("care_products.adjustment.title") %></span>
+    </div>
+  </div>
+
+  <div class="care-product-adjustment-product">
+    <div class="care-product-adjustment-name">
+      <%= @care_product.display_name %>
+    </div>
+
+    <div class="care-product-adjustment-stock">
+      <%= t("care_products.adjustment.current_stock") %>:
+      <strong><%= @care_product.stock_quantity.to_i %></strong>
+    </div>
+  </div>
+
+  <%= form_with url: adjust_stock_care_product_path(@care_product),
+                method: :patch,
+                scope: :adjustment,
+                class: "care-product-adjustment-form",
+                data: { action: "submit->care-product-adjustment#prepareSubmit" } do |f| %>
+
+    <%= f.hidden_field :quantity,
+                       value: "",
+                       data: { care_product_adjustment_target: "signedQuantity" } %>
+
+    <div class="care-product-adjustment-field">
+      <span class="care-product-adjustment-label">
+        <%= t("care_products.adjustment.type") %>
+      </span>
+
+      <div class="care-product-adjustment-type">
+        <button type="button"
+                class="care-product-adjustment-type-button active"
+                data-care-product-adjustment-target="decreaseButton"
+                data-action="care-product-adjustment#selectDecrease">
+          <%= t("care_products.adjustment.decrease") %>
+        </button>
+
+        <button type="button"
+                class="care-product-adjustment-type-button"
+                data-care-product-adjustment-target="increaseButton"
+                data-action="care-product-adjustment#selectIncrease">
+          <%= t("care_products.adjustment.increase") %>
+        </button>
+      </div>
+    </div>
+
+    <div class="care-product-adjustment-field">
+      <%= label_tag :adjustment_amount, t("care_products.adjustment.quantity") %>
+
+      <div class="care-product-quantity-control">
+        <button type="button"
+                class="care-product-quantity-button"
+                data-action="care-product-adjustment#decrement">
+          −
+        </button>
+
+        <%= number_field_tag :adjustment_amount,
+                             1,
+                             min: 1,
+                             inputmode: "numeric",
+                             required: true,
+                             class: "care-product-quantity-input",
+                             data: {
+                               care_product_adjustment_target: "quantity",
+                               action: "input->care-product-adjustment#update"
+                             } %>
+
+        <button type="button"
+                class="care-product-quantity-button"
+                data-action="care-product-adjustment#increment">
+          +
+        </button>
+      </div>
+    </div>
+
+    <div class="care-product-adjustment-field">
+      <%= f.label :reason, t("care_products.adjustment.reason") %>
+
+      <%= f.select :reason,
+                   [
+                     [t("care_products.adjustment.reasons.inventory"), "inventory"],
+                     [t("care_products.adjustment.reasons.damaged"), "damaged"],
+                     [t("care_products.adjustment.reasons.expired"), "expired"],
+                     [t("care_products.adjustment.reasons.personal_use"), "personal_use"],
+                     [t("care_products.adjustment.reasons.missing"), "missing"],
+                     [t("care_products.adjustment.reasons.data_correction"), "data_correction"],
+                     [t("care_products.adjustment.reasons.other"), "other"]
+                   ],
+                   {},
+                   required: true,
+                   class: "care-product-adjustment-select" %>
+    </div>
+
+    <div class="care-product-adjustment-preview">
+      <span><%= t("care_products.adjustment.new_stock") %></span>
+
+      <strong data-care-product-adjustment-target="newStock">
+        <%= @care_product.stock_quantity.to_i - 1 %>
+      </strong>
+    </div>
+
+    <div class="care-product-adjustment-field">
+      <%= f.label :occurred_on, t("care_products.adjustment.occurred_on") %>
+
+      <%= f.date_field :occurred_on,
+                       value: Date.current,
+                       max: Date.current,
+                       required: true,
+                       class: "care-product-adjustment-date" %>
+    </div>
+
+    <div class="care-product-adjustment-field">
+      <%= f.label :note, t("care_products.adjustment.note") %>
+
+      <%= f.text_area :note,
+                      rows: 3,
+                      class: "care-product-adjustment-note",
+                      placeholder: t("care_products.adjustment.note_placeholder") %>
+    </div>
+
+    <div class="care-product-adjustment-error hidden"
+         data-care-product-adjustment-target="error">
+      <%= t("care_products.errors.adjustment_negative_stock") %>
+    </div>
+
+    <%= f.submit t("care_products.adjustment.submit"),
+                 class: "care-product-adjustment-submit",
+                 data: { care_product_adjustment_target: "submit" } %>
+  <% end %>
+</div>

@@ -1,6 +1,6 @@
 class CareProductsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_care_product, only: %i[edit update destroy restock create_restock]
+  before_action :set_care_product, only: %i[edit update destroy restock create_restock adjust_stock update_stock]
 
   def index
     @care_product =
@@ -83,7 +83,7 @@ class CareProductsController < ApplicationController
   def create_restock
     @quantity = restock_params[:quantity]
     @unit_cost = restock_params[:unit_cost]
-    @purchased_on = parse_restock_date(restock_params[:purchased_on])
+    @purchased_on = parse_date(restock_params[:purchased_on])
 
     CareProducts::Restock.new(
       user: current_user,
@@ -99,6 +99,25 @@ class CareProductsController < ApplicationController
     flash.now[:alert] = e.message
 
     render :restock, status: :unprocessable_content
+  end
+
+  def adjust_stock
+  end
+
+  def update_stock
+    CareProducts::AdjustStock.new(
+      user: current_user,
+      care_product: @care_product,
+      quantity: adjustment_params[:quantity],
+      reason: adjustment_params[:reason],
+      note: adjustment_params[:note],
+      occurred_on: parse_date(adjustment_params[:occurred_on])
+    ).call
+
+    redirect_to care_products_path, notice: t("care_products.adjustment.success")
+  rescue ArgumentError => e
+    flash.now[:alert] = e.message
+    render :adjust_stock, status: :unprocessable_content
   end
 
   def destroy
@@ -142,6 +161,10 @@ class CareProductsController < ApplicationController
     params.require(:restock).permit(:quantity, :unit_cost, :purchased_on)
   end
 
+  def adjustment_params
+    params.require(:adjustment).permit(:quantity, :reason, :note, :occurred_on)
+  end
+
   def purchased_on
     value = params.dig(:care_product, :purchased_on)
 
@@ -150,7 +173,7 @@ class CareProductsController < ApplicationController
     Date.iso8601(value)
   end
 
-  def parse_restock_date(value)
+  def parse_date(value)
     return if value.blank?
 
     Date.iso8601(value)

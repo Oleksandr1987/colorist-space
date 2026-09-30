@@ -63,6 +63,8 @@ Rails.application.routes.draw do
     member do
       get :restock
       post :restock, action: :create_restock
+      get :adjust_stock
+      patch :adjust_stock, action: :update_stock
     end
 
     resources :sales, only: %i[new create], controller: "care_product_sales"

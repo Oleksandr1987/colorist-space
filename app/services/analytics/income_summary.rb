@@ -34,7 +34,7 @@ module Analytics
     end
 
     def care_products_income
-      @care_products_income ||= service_notes.sum(&:care_products_income)
+      @care_products_income ||= care_product_sales.sum("unit_price * quantity")
     end
 
     def total_income
@@ -74,30 +74,20 @@ module Analytics
 
     def care_product_options
       @care_product_options ||=
-        begin
-          items = period_service_notes.flat_map { |note| Array(note.care_products) }
+        care_product_sales
+          .includes(:care_product)
+          .map do |sale|
+            product = sale.care_product
 
-          ids = items.filter_map { |item| Integer(item["care_product_id"], exception: false) }.uniq
-
-          products = user.care_products.where(id: ids).index_by(&:id)
-
-          items
-            .filter_map do |item|
-              id = Integer(item["care_product_id"], exception: false)
-              next if id.blank?
-
-              product = products[id]
-
-              {
-                id: id,
-                brand: product&.brand,
-                category: product&.category,
-                label: item["name"].presence || product&.display_name || "##{id}"
-              }
-            end
-            .uniq { |option| option[:id] }
-            .sort_by { |option| option[:label].downcase }
-        end
+            {
+              id: product.id,
+              brand: product.brand,
+              category: product.category,
+              label: product.display_name
+            }
+          end
+          .uniq { |option| option[:id] }
+          .sort_by { |option| option[:label].downcase }
     end
 
     def expanded_relations(category)
@@ -160,21 +150,17 @@ module Analytics
 
     def care_product_income
       @care_product_income ||=
-        service_notes
-        .flat_map { |note| Array(note.care_products) }
-        .group_by { |item| item["care_product_id"].to_i }
-        .filter_map do |product_id, items|
-          next if product_id.zero?
-
-          {
-            id: product_id,
-            label: items.first["name"].presence || "##{product_id}",
-            amount: items.sum do |item|
-              item["price"].to_f * item["qty"].to_i
-            end
-          }
-        end
-        .sort_by { |item| item[:label].downcase }
+        care_product_sales
+          .includes(:care_product)
+          .group_by(&:care_product_id)
+          .map do |product_id, sales|
+            {
+              id: product_id,
+              label: sales.first.care_product.display_name,
+              amount: sales.sum(&:revenue)
+            }
+          end
+          .sort_by { |item| item[:label].downcase }
     end
 
     def formula_color_brands
@@ -279,7 +265,29 @@ module Analytics
     end
 
     def care_product_filtered_appointment_ids
-      period_service_notes.select { |note| note_matches_care_product_filter?(note) }.map(&:appointment_id)
+      period_care_product_sales
+        .where(care_product_id: care_product_ids)
+        .where.not(service_note_id: nil)
+        .joins(:service_note)
+        .pluck("service_notes.appointment_id")
+        .compact
+        .uniq
+    end
+
+    def care_product_sales
+      @care_product_sales ||=
+        begin
+          scope = period_care_product_sales
+
+          if service_filters? || formula_product_ids.present?
+            service_note_ids = ServiceNote.where(user: user, appointment_id: appointment_ids).select(:id)
+            scope = scope.where(service_note_id: service_note_ids)
+          end
+
+          scope = scope.where(care_product_id: care_product_ids) if care_product_ids.present?
+
+          scope
+        end
     end
 
     def note_matches_formula_filter?(note)
@@ -298,14 +306,12 @@ module Analytics
       end
     end
 
-    def note_matches_care_product_filter?(note)
-      Array(note.care_products).any? do |item|
-        care_product_ids.include?(item["care_product_id"].to_i)
-      end
-    end
-
     def service_filters?
       service_categories.present? || service_ids.present?
+    end
+
+    def appointment_filters?
+      service_filters? || formula_product_ids.present?
     end
 
     def valid_category?(category)

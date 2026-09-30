@@ -51,6 +51,10 @@
       <%= link_to restock_care_product_path(care_product), class: "care-product-action-button" do %>
         <%= t("care_products.restock.action") %>
       <% end %>
+
+      <%= link_to adjust_stock_care_product_path(care_product), class: "care-product-action-button" do %>
+        <%= t("care_products.adjustment.action") %>
+      <% end %>
     </div>
 
     <% if care_product.incomplete? %>
