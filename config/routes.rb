@@ -64,6 +64,8 @@ Rails.application.routes.draw do
       get :restock
       post :restock, action: :create_restock
     end
+
+    resources :sales, only: %i[new create], controller: "care_product_sales"
   end
 
   resource :subscription, only: [] do

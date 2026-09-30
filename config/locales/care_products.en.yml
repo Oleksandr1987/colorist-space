@@ -12,7 +12,7 @@ en:
     stock: "Stock"
     out_of_stock: "Out of Stock"
     unknown_brand: "Unknown Brand"
-    sale: "Sale"
+    sale_label: "Sale"
     purchase: "Purchase"
     need_details: "Need details"
     confirm_delete: "Delete product?"
@@ -52,6 +52,16 @@ en:
       submit: "Restock"
       success: "Stock successfully replenished"
 
+    sale:
+      title: "Sell product"
+      action: "Sell"
+      quantity: "Quantity"
+      unit_price: "Sale price per unit"
+      sold_on: "Sale date"
+      stock: "Available"
+      submit: "Sell"
+      success: "Product successfully sold"
+
     errors:
       already_exists: "This care product already exists. Restock the existing product instead."
       wrong_user: "Care product does not belong to the current user."
@@ -62,5 +72,6 @@ en:
       purchased_on_future: "Purchase date cannot be in the future."
       unit_price_must_be_non_negative: "Sale price cannot be negative."
       sold_on_required: "Sale date is required."
+      sold_on_future: "Sale date cannot be in the future."
       wrong_service_note_user: "Service note does not belong to the current user."
       not_enough_stock: "Not enough stock."

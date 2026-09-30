@@ -19,7 +19,7 @@
     <% end %>
 
     <div class="service-price">
-      <%= t("care_products.sale") %>:
+      <%= t("care_products.sale_label") %>:
       <%= care_product.sale_price || 0 %> ₴
     </div>
 
@@ -37,8 +37,18 @@
       </div>
     <% end %>
 
-    <div class="care-product-restock-action">
-      <%= link_to restock_care_product_path(care_product), class: "care-product-restock-button" do %>
+    <div class="care-product-actions">
+      <% if care_product.stock_quantity.to_i.positive? %>
+        <%= link_to new_care_product_sale_path(care_product), class: "care-product-action-button" do %>
+          <%= t("care_products.sale.action") %>
+        <% end %>
+      <% else %>
+        <span class="care-product-action-button disabled" aria-disabled="true">
+          <%= t("care_products.sale.action") %>
+        </span>
+      <% end %>
+
+      <%= link_to restock_care_product_path(care_product), class: "care-product-action-button" do %>
         <%= t("care_products.restock.action") %>
       <% end %>
     </div>

@@ -1,0 +1,127 @@
+.care-product-sale-page {
+  min-height: calc(100dvh - 160px);
+}
+
+.care-product-sale-product {
+  margin: 28px 0 32px;
+  padding: 18px;
+  background: #f7f7f7;
+  border-radius: 14px;
+}
+
+.care-product-sale-name {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.care-product-sale-stock {
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.care-product-sale-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.care-product-sale-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.care-product-sale-field label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.care-product-quantity-control {
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  gap: 10px;
+}
+
+.care-product-quantity-button {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 12px;
+  background: #f1f1f1;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.care-product-quantity-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 16px;
+}
+
+.care-product-price-input {
+  position: relative;
+}
+
+.care-product-price-input input {
+  width: 100%;
+  height: 48px;
+  padding: 0 44px 0 14px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.care-product-price-input span {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  opacity: 0.6;
+}
+
+.care-product-sale-date {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-sizing: border-box;
+  font-size: 16px;
+  background: white;
+}
+
+.care-product-sale-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  font-size: 18px;
+}
+
+.care-product-sale-total strong {
+  font-size: 22px;
+}
+
+.care-product-sale-submit {
+  width: 100%;
+  min-height: 50px;
+  border: 0;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.care-product-sale-submit:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
