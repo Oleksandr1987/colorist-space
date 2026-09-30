@@ -54,3 +54,13 @@ uk:
 
     errors:
       already_exists: "Такий засіб догляду вже існує. Поповніть запас існуючого товару."
+      wrong_user: "Засіб догляду не належить поточному користувачу."
+      quantity_must_be_positive: "Кількість має бути більшою за нуль."
+      unit_cost_must_be_non_negative: "Закупівельна ціна не може бути від’ємною."
+      unit_cost_must_be_whole_number: "Закупівельна ціна має бути цілим числом."
+      purchased_on_required: "Вкажіть дату закупівлі."
+      purchased_on_future: "Дата закупівлі не може бути в майбутньому."
+      unit_price_must_be_non_negative: "Ціна продажу не може бути від’ємною."
+      sold_on_required: "Вкажіть дату продажу."
+      wrong_service_note_user: "Запис послуги не належить поточному користувачу."
+      not_enough_stock: "Недостатньо товару на залишку."

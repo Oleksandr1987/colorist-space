@@ -54,3 +54,13 @@ en:
 
     errors:
       already_exists: "This care product already exists. Restock the existing product instead."
+      wrong_user: "Care product does not belong to the current user."
+      quantity_must_be_positive: "Quantity must be greater than zero."
+      unit_cost_must_be_non_negative: "Purchase price cannot be negative."
+      unit_cost_must_be_whole_number: "Purchase price must be a whole number."
+      purchased_on_required: "Purchase date is required."
+      purchased_on_future: "Purchase date cannot be in the future."
+      unit_price_must_be_non_negative: "Sale price cannot be negative."
+      sold_on_required: "Sale date is required."
+      wrong_service_note_user: "Service note does not belong to the current user."
+      not_enough_stock: "Not enough stock."

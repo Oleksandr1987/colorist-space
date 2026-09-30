@@ -11,6 +11,8 @@ class CareProductStockMovement < ApplicationRecord
   belongs_to :service_note, optional: true
   belongs_to :expense, optional: true
 
+  has_one :care_product_sale, foreign_key: :stock_movement_id, dependent: :nullify
+
   validates :movement_type, presence: true, inclusion: { in: MOVEMENT_TYPES }
   validates :quantity, numericality: { only_integer: true, other_than: 0 }
   validates :unit_cost, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true

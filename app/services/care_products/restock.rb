@@ -43,12 +43,12 @@ module CareProducts
     private
 
     def validate!
-      raise ArgumentError, "Care product must belong to user" unless care_product.user_id == user.id
-      raise ArgumentError, "Quantity must be greater than zero" unless quantity.positive?
-      raise ArgumentError, "Unit cost must be greater than or equal to zero" if unit_cost.negative?
-      raise ArgumentError, "Unit cost must be a whole number" unless unit_cost.frac.zero?
-      raise ArgumentError, "Purchased on is required" if purchased_on.blank?
-      raise ArgumentError, "Purchased on cannot be in the future" if purchased_on > Date.current
+      raise ArgumentError, I18n.t("care_products.errors.wrong_user") unless care_product.user_id == user.id
+      raise ArgumentError, I18n.t("care_products.errors.quantity_must_be_positive") unless quantity.positive?
+      raise ArgumentError, I18n.t("care_products.errors.unit_cost_must_be_non_negative") if unit_cost.negative?
+      raise ArgumentError, I18n.t("care_products.errors.unit_cost_must_be_whole_number") unless unit_cost.frac.zero?
+      raise ArgumentError, I18n.t("care_products.errors.purchased_on_required") if purchased_on.blank?
+      raise ArgumentError, I18n.t("care_products.errors.purchased_on_future") if purchased_on > Date.current
     end
 
     def total_cost

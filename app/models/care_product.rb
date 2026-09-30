@@ -12,6 +12,7 @@ class CareProduct < ApplicationRecord
   belongs_to :user
 
   has_many :stock_movements, class_name: "CareProductStockMovement", dependent: :destroy
+  has_many :sales, class_name: "CareProductSale", dependent: :restrict_with_error
 
   validate :unique_product_identity
   validates :name, presence: true

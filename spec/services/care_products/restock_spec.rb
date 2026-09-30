@@ -77,7 +77,7 @@ RSpec.describe CareProducts::Restock do
       let(:quantity) { 0 }
 
       it "raises an error" do
-        expect { restock.call }.to raise_error(ArgumentError, "Quantity must be greater than zero")
+        expect { restock.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.quantity_must_be_positive"))
       end
 
       it "does not change stock" do
@@ -97,7 +97,7 @@ RSpec.describe CareProducts::Restock do
       let(:unit_cost) { -1 }
 
       it "raises an error" do
-        expect { restock.call }.to raise_error(ArgumentError, "Unit cost must be greater than or equal to zero")
+        expect { restock.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.unit_cost_must_be_non_negative"))
       end
     end
 
@@ -105,7 +105,7 @@ RSpec.describe CareProducts::Restock do
       let(:purchased_on) { nil }
 
       it "raises an error" do
-        expect { restock.call }.to raise_error(ArgumentError, "Purchased on is required")
+        expect { restock.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.purchased_on_required"))
       end
     end
 
@@ -114,7 +114,7 @@ RSpec.describe CareProducts::Restock do
       let(:care_product) { create(:care_product, user: other_user, purchase_price: 800, stock_quantity: 60) }
 
       it "raises an error" do
-        expect { restock.call }.to raise_error(ArgumentError, "Care product must belong to user")
+        expect { restock.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.wrong_user"))
       end
 
       it "does not change the other user's stock" do
@@ -144,7 +144,7 @@ RSpec.describe CareProducts::Restock do
       let(:unit_cost) { 850.50 }
 
       it "raises an error" do
-        expect { restock.call }.to raise_error(ArgumentError, "Unit cost must be a whole number")
+        expect { restock.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.unit_cost_must_be_whole_number"))
       end
 
       it "does not create an expense" do
@@ -160,7 +160,7 @@ RSpec.describe CareProducts::Restock do
       let(:purchased_on) { Date.tomorrow }
 
       it "raises an error" do
-        expect { restock.call }.to raise_error(ArgumentError, "Purchased on cannot be in the future")
+        expect { restock.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.purchased_on_future"))
       end
 
       it "does not create an expense" do

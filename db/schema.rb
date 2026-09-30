@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_145429) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_160639) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -62,6 +62,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_145429) do
     t.integer "user_id", null: false
     t.index ["client_id"], name: "index_appointments_on_client_id"
     t.index ["user_id"], name: "index_appointments_on_user_id"
+  end
+
+  create_table "care_product_sales", force: :cascade do |t|
+    t.integer "care_product_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "quantity", null: false
+    t.integer "service_note_id"
+    t.date "sold_on", null: false
+    t.integer "stock_movement_id"
+    t.decimal "unit_cost", precision: 10, scale: 2, null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["care_product_id"], name: "index_care_product_sales_on_care_product_id"
+    t.index ["service_note_id"], name: "index_care_product_sales_on_service_note_id"
+    t.index ["sold_on"], name: "index_care_product_sales_on_sold_on"
+    t.index ["stock_movement_id"], name: "index_care_product_sales_on_stock_movement_id"
+    t.index ["user_id"], name: "index_care_product_sales_on_user_id"
   end
 
   create_table "care_product_stock_movements", force: :cascade do |t|
@@ -332,6 +350,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_145429) do
   add_foreign_key "appointment_services_relations", "services"
   add_foreign_key "appointments", "clients"
   add_foreign_key "appointments", "users"
+  add_foreign_key "care_product_sales", "care_product_stock_movements", column: "stock_movement_id"
+  add_foreign_key "care_product_sales", "care_products"
+  add_foreign_key "care_product_sales", "service_notes"
+  add_foreign_key "care_product_sales", "users"
   add_foreign_key "care_product_stock_movements", "care_products"
   add_foreign_key "care_product_stock_movements", "expenses"
   add_foreign_key "care_product_stock_movements", "service_notes"
