@@ -42,6 +42,7 @@ RSpec.describe CareProducts::Restock do
       expect(movement.quantity).to eq(10)
       expect(movement.unit_cost).to eq(850)
       expect(movement.occurred_on).to eq(purchased_on)
+      expect(movement.stock_after).to eq(care_product.reload.stock_quantity)
     end
 
     it "links the stock movement to the expense" do
@@ -50,6 +51,13 @@ RSpec.describe CareProducts::Restock do
       expect(movement.expense).to be_present
       expect(movement.expense.category).to eq("care_products")
       expect(movement.expense.amount).to eq(8_500)
+    end
+
+    it "stores stock after restock in stock movement" do
+      movement = restock.call
+
+      expect(movement.stock_after).to eq(70)
+      expect(movement.stock_after).to eq(care_product.reload.stock_quantity)
     end
 
     context "when stock is zero" do

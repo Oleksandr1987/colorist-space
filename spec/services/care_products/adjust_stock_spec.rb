@@ -33,15 +33,23 @@ RSpec.describe CareProducts::AdjustStock do
       expect(movement.occurred_on).to eq(Date.current)
     end
 
-    it "increases stock" do
-      expect { adjust.call }.to change { care_product.reload.stock_quantity }.from(10).to(13)
+    it "increases stock and stores stock after adjustment" do
+      movement = adjust.call
+
+      expect(care_product.reload.stock_quantity).to eq(13)
+      expect(movement.stock_after).to eq(13)
+      expect(movement.stock_after).to eq(care_product.stock_quantity)
     end
 
     context "when quantity is negative" do
       let(:quantity) { -3 }
 
-      it "decreases stock" do
-        expect { adjust.call }.to change { care_product.reload.stock_quantity }.from(10).to(7)
+      it "decreases stock and stores stock after adjustment" do
+        movement = adjust.call
+
+        expect(care_product.reload.stock_quantity).to eq(7)
+        expect(movement.stock_after).to eq(7)
+        expect(movement.stock_after).to eq(care_product.stock_quantity)
       end
 
       it "stores negative movement quantity" do

@@ -87,6 +87,38 @@ en:
         data_correction: "Data correction"
         other: "Other"
 
+    history:
+      title: "Stock history"
+      empty: "No stock history yet"
+      current_stock: "Stock"
+      purchase_price: "Cost price"
+      sale_price: "Sale price"
+      stock_value: "Stock value"
+      unit_cost: "Cost price"
+      unit_price: "Sale price"
+      note: "Note"
+      total: "Total"
+      client: "Client"
+      appointment: "Appointment"
+      open_record: "Open record"
+      stock_after: "Stock after transaction"
+
+
+      types:
+        opening_balance: "Opening balance"
+        purchase: "Restocked"
+        service_note_sale: "Sale through appointment"
+        direct_sale: "Direct sale"
+        inventory: "Inventory adjustment"
+        damaged: "Damaged"
+        expired: "Expired"
+        personal_use: "Personal use"
+        missing: "Missing"
+        data_correction: "Data correction"
+        service_note_sync: "Sale adjustment"
+        service_note_cancel: "Sale cancellation"
+        other: "Other"
+
     errors:
       already_exists: "This care product already exists. Restock the existing product instead."
       wrong_user: "Care product does not belong to the current user."

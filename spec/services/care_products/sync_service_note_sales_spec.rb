@@ -36,6 +36,8 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
         expect(movement.adjustment_reason).to eq("service_note_sync")
         expect(movement.quantity).to eq(-3)
         expect(movement.unit_cost).to eq(60)
+        expect(movement.stock_after).to eq(5)
+        expect(movement.stock_after).to eq(care_product.reload.stock_quantity)
       end
     end
 
@@ -64,6 +66,8 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
         expect(movement.adjustment_reason).to eq("service_note_sync")
         expect(movement.quantity).to eq(1)
         expect(movement.unit_cost).to eq(60)
+        expect(movement.stock_after).to eq(9)
+        expect(movement.stock_after).to eq(care_product.reload.stock_quantity)
       end
     end
 
@@ -128,6 +132,8 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
         expect(sale.unit_cost).to eq(40)
         expect(sale.stock_movement.movement_type).to eq("sale")
         expect(sale.stock_movement.quantity).to eq(-3)
+        expect(sale.stock_movement.stock_after).to eq(2)
+        expect(sale.stock_movement.stock_after).to eq(second_product.reload.stock_quantity)
       end
     end
 
@@ -154,6 +160,8 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
         expect(movement.adjustment_reason).to eq("service_note_sync")
         expect(movement.quantity).to eq(2)
         expect(movement.unit_cost).to eq(60)
+        expect(movement.stock_after).to eq(10)
+        expect(movement.stock_after).to eq(care_product.reload.stock_quantity)
       end
     end
 

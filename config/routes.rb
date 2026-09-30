@@ -55,7 +55,7 @@ Rails.application.routes.draw do
 
   resources :formula_products
 
-  resources :care_products, except: [:show] do
+  resources :care_products do
     collection do
       get :options
     end
@@ -63,6 +63,7 @@ Rails.application.routes.draw do
     member do
       get :restock
       post :restock, action: :create_restock
+
       get :adjust_stock
       patch :adjust_stock, action: :update_stock
     end

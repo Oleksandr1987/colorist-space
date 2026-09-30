@@ -24,6 +24,8 @@ RSpec.describe CareProducts::Create do
       expect(movement.quantity).to eq(10)
       expect(movement.unit_cost).to eq(800)
       expect(movement.occurred_on).to eq(purchased_on)
+      expect(movement.stock_after).to eq(10)
+      expect(movement.stock_after).to eq(movement.care_product.stock_quantity)
     end
 
     it "creates care product expense" do

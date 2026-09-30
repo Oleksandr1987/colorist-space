@@ -35,6 +35,7 @@ RSpec.describe CareProducts::CancelServiceNoteSales do
       expect(movement.quantity).to eq(3)
       expect(movement.unit_cost).to eq(60)
       expect(movement.occurred_on).to eq(appointment.appointment_date)
+      expect(movement.stock_after).to eq(care_product.reload.stock_quantity)
     end
 
     it "links adjustment movement to service note" do

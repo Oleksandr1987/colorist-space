@@ -3,6 +3,9 @@ require "rails_helper"
 RSpec.describe CareProductStockMovement do
   subject(:movement) { build(:care_product_stock_movement) }
 
+  let(:user) { create(:user) }
+  let(:care_product) { create(:care_product, user: user, stock_quantity: 10) }
+
   it { is_expected.to belong_to(:user) }
   it { is_expected.to belong_to(:care_product) }
   it { is_expected.to belong_to(:service_note).optional }
@@ -160,6 +163,79 @@ RSpec.describe CareProductStockMovement do
       movement = build(:care_product_stock_movement, movement_type: "opening_balance", quantity: -10)
 
       expect(movement).not_to be_valid
+    end
+  end
+
+  describe "#history_type" do
+    it "returns opening balance" do
+      movement = build(:care_product_stock_movement, movement_type: "opening_balance")
+
+      expect(movement.history_type).to eq("opening_balance")
+    end
+
+    it "returns purchase" do
+      movement = build(:care_product_stock_movement, movement_type: "purchase")
+
+      expect(movement.history_type).to eq("purchase")
+    end
+
+    it "returns direct sale for a sale without service note" do
+      movement = create(:care_product_stock_movement, user: user, care_product: care_product,
+                        movement_type: "sale", quantity: -1, unit_cost: 30, occurred_on: Date.current)
+
+      create(:care_product_sale, user: user, care_product: care_product, stock_movement: movement,
+              service_note: nil, quantity: 1, unit_price: 50, unit_cost: 30, sold_on: Date.current)
+
+      expect(movement.reload.history_type).to eq("direct_sale")
+    end
+
+    it "returns service note sale for a sale linked to a service note" do
+      service_note = create(:service_note, user: user)
+      movement = create(:care_product_stock_movement, user: user, care_product: care_product,
+                        service_note: service_note, movement_type: "sale", quantity: -1, unit_cost: 30, occurred_on: Date.current)
+
+      create(:care_product_sale, user: user, care_product: care_product,
+              service_note: service_note, stock_movement: movement, quantity: 1, unit_price: 50, unit_cost: 30, sold_on: Date.current)
+
+      expect(movement.reload.history_type).to eq("service_note_sale")
+    end
+
+    it "returns the adjustment reason for an adjustment" do
+      movement = build(:care_product_stock_movement, :adjustment, adjustment_reason: "damaged")
+
+      expect(movement.history_type).to eq("damaged")
+    end
+  end
+
+  describe "#total_cost" do
+    it "returns unit cost multiplied by absolute quantity" do
+      movement = build(:care_product_stock_movement, quantity: -3, unit_cost: 40)
+
+      expect(movement.total_cost).to eq(120)
+    end
+
+    it "returns nil without unit cost" do
+      movement = build(:care_product_stock_movement, unit_cost: nil)
+
+      expect(movement.total_cost).to be_nil
+    end
+  end
+
+  describe "#sale_total" do
+    it "returns historical sale total" do
+      movement = create(:care_product_stock_movement, user: user, care_product: care_product,
+                        movement_type: "sale", quantity: -2, unit_cost: 30, occurred_on: Date.current)
+
+      create(:care_product_sale, user: user, care_product: care_product,
+              stock_movement: movement, quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
+
+      expect(movement.reload.sale_total).to eq(100)
+    end
+
+    it "returns nil without a sale" do
+      movement = build(:care_product_stock_movement, movement_type: "purchase")
+
+      expect(movement.sale_total).to be_nil
     end
   end
 end

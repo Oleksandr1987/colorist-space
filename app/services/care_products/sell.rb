@@ -20,6 +20,8 @@ module CareProducts
         care_product.with_lock do
           validate_stock!
 
+          new_stock = care_product.stock_quantity.to_i - quantity
+
           sale = user.care_product_sales.create!(
             care_product: care_product,
             service_note: service_note,
@@ -35,11 +37,12 @@ module CareProducts
             movement_type: "sale",
             quantity: -quantity,
             unit_cost: care_product.purchase_price.to_d,
+            stock_after: new_stock,
             occurred_on: sold_on
           )
 
           sale.update!(stock_movement: movement)
-          care_product.update!(stock_quantity: care_product.stock_quantity.to_i - quantity)
+          care_product.update!(stock_quantity: new_stock)
 
           sale
         end

@@ -4,6 +4,7 @@ RSpec.describe "CareProducts" do
   include Devise::Test::IntegrationHelpers
 
   let(:user) { create(:user, :trial) }
+  let(:other_user) { create(:user) }
   let(:care_product) { create(:care_product, user: user) }
 
   before { sign_in user, scope: :user }
@@ -128,6 +129,52 @@ RSpec.describe "CareProducts" do
 
       expect(care_product.purchase_price).to eq(800)
       expect(care_product.stock_quantity).to eq(60)
+    end
+  end
+
+  describe "GET /care_products/:id" do
+    it "returns success" do
+      get care_product_path(care_product)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "loads the care product stock movements newest first" do
+      older_movement = create(:care_product_stock_movement, user: user, care_product: care_product,
+                              movement_type: "purchase", quantity: 5, occurred_on: 2.days.ago.to_date)
+
+      newer_movement = create(:care_product_stock_movement, user: user, care_product: care_product,
+                              movement_type: "purchase", quantity: 10, occurred_on: Date.current)
+
+      get care_product_path(care_product)
+
+      movements = controller.instance_variable_get(:@stock_movements)
+
+      expect(movements.to_a).to eq([ newer_movement, older_movement ])
+    end
+
+    it "does not include movements from another care product" do
+      movement = create(:care_product_stock_movement, user: user, care_product: care_product,
+                        movement_type: "purchase", quantity: 5, occurred_on: Date.current)
+
+      other_product = create(:care_product, user: user, brand: "Wella", name: "Mask", category: "Mask")
+
+      create(:care_product_stock_movement, user: user, care_product: other_product,
+              movement_type: "purchase", quantity: 10, occurred_on: Date.current)
+
+      get care_product_path(care_product)
+
+      movements = controller.instance_variable_get(:@stock_movements)
+
+      expect(movements).to contain_exactly(movement)
+    end
+
+    it "does not allow access to another user's care product" do
+      other_product = create(:care_product, user: other_user)
+
+      get care_product_path(other_product)
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 

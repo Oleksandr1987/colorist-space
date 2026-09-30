@@ -4,37 +4,39 @@
      data-category="<%= care_product.category.to_s.downcase %>">
 
   <div class="service-info">
-    <div class="service-name">
-      <strong>
-        <%= care_product.brand.presence || t("care_products.unknown_brand") %>
-      </strong>
+    <%= link_to care_product_path(care_product), class: "care-product-main-link" do %>
+      <div class="service-name">
+        <strong>
+          <%= care_product.brand.presence || t("care_products.unknown_brand") %>
+        </strong>
 
-      <%= care_product.name %>
-    </div>
-
-    <% if care_product.category.present? %>
-      <div class="service-category">
-        <%= t("care_products.categories.#{care_product.category}", default: care_product.category) %>
+        <%= care_product.name %>
       </div>
-    <% end %>
 
-    <div class="service-price">
-      <%= t("care_products.sale_label") %>:
-      <%= care_product.sale_price || 0 %> ₴
-    </div>
+      <% if care_product.category.present? %>
+        <div class="service-category">
+          <%= t("care_products.categories.#{care_product.category}", default: care_product.category) %>
+        </div>
+      <% end %>
 
-    <% if care_product.purchase_price.present? %>
-      <div class="service-purchase-price">
-        <%= t("care_products.purchase") %>:
-        <%= care_product.purchase_price %> ₴
+      <div class="service-price">
+        <%= t("care_products.sale_label") %>:
+        <%= care_product.sale_price || 0 %> ₴
       </div>
-    <% end %>
 
-    <% if care_product.stock_quantity.present? %>
-      <div class="service-stock">
-        <%= t("care_products.stock") %>:
-        <%= care_product.stock_quantity %>
-      </div>
+      <% if care_product.purchase_price.present? %>
+        <div class="service-purchase-price">
+          <%= t("care_products.purchase") %>:
+          <%= care_product.purchase_price %> ₴
+        </div>
+      <% end %>
+
+      <% if care_product.stock_quantity.present? %>
+        <div class="service-stock">
+          <%= t("care_products.stock") %>:
+          <%= care_product.stock_quantity %>
+        </div>
+      <% end %>
     <% end %>
 
     <div class="care-product-actions">

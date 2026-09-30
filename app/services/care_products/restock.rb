@@ -30,6 +30,7 @@ module CareProducts
             movement_type: "purchase",
             quantity: quantity,
             unit_cost: unit_cost,
+            stock_after: new_stock,
             occurred_on: purchased_on
           )
 

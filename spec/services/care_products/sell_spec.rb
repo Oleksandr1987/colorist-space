@@ -68,6 +68,14 @@ RSpec.describe CareProducts::Sell do
       expect(sale.profit).to eq(300)
     end
 
+    it "stores stock after sale in stock movement" do
+      sale = sell.call
+
+      movement = sale.stock_movement
+
+      expect(movement.stock_after).to eq(care_product.reload.stock_quantity)
+    end
+
     context "with service note" do
       let(:client) { create(:client, user: user) }
       let(:appointment) { create(:appointment, user: user, client: client) }

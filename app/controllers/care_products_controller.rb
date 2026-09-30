@@ -1,6 +1,8 @@
 class CareProductsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_care_product, only: %i[edit update destroy restock create_restock adjust_stock update_stock]
+  before_action :set_care_product, only: %i[
+    show edit update destroy restock create_restock adjust_stock update_stock
+  ]
 
   def index
     @care_product =
@@ -60,6 +62,18 @@ class CareProductsController < ApplicationController
         status: :unprocessable_content
       end
     end
+  end
+
+  def show
+    @stock_movements =
+      @care_product
+        .stock_movements
+        .includes(
+          :expense,
+          :care_product_sale,
+          service_note: %i[client appointment]
+        )
+        .order(occurred_on: :desc, created_at: :desc)
   end
 
   def edit

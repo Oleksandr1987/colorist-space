@@ -41,6 +41,51 @@ class CareProductStockMovement < ApplicationRecord
   scope :sales, -> { where(movement_type: "sale") }
   scope :adjustments, -> { where(movement_type: "adjustment") }
 
+  def history_type
+    case movement_type
+    when "opening_balance"
+      "opening_balance"
+    when "purchase"
+      "purchase"
+    when "sale"
+      service_note_id.present? ? "service_note_sale" : "direct_sale"
+    when "adjustment"
+      adjustment_reason
+    end
+  end
+
+  def sale?
+    movement_type == "sale"
+  end
+
+  def purchase?
+    movement_type == "purchase"
+  end
+
+  def opening_balance?
+    movement_type == "opening_balance"
+  end
+
+  def adjustment?
+    movement_type == "adjustment"
+  end
+
+  def sale_unit_price
+    care_product_sale&.unit_price
+  end
+
+  def total_cost
+    return unless unit_cost.present?
+
+    unit_cost.to_d * quantity.to_i.abs
+  end
+
+  def sale_total
+    return unless care_product_sale.present?
+
+    care_product_sale.unit_price.to_d * care_product_sale.quantity.to_i
+  end
+
   private
 
   def adjustment?

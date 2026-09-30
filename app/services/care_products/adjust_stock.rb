@@ -28,6 +28,7 @@ module CareProducts
             adjustment_reason: reason,
             quantity: quantity,
             unit_cost: care_product.purchase_price.to_d,
+            stock_after: new_stock,
             note: note.presence,
             occurred_on: occurred_on
           )
@@ -46,6 +47,7 @@ module CareProducts
       raise ArgumentError, I18n.t("care_products.errors.adjustment_quantity_required") if quantity.zero?
       raise ArgumentError, I18n.t("care_products.errors.adjustment_date_required") if occurred_on.blank?
       raise ArgumentError, I18n.t("care_products.errors.adjustment_date_future") if occurred_on > Date.current
+
       unless CareProductStockMovement::ADJUSTMENT_REASONS.include?(reason)
         raise ArgumentError, I18n.t("care_products.errors.adjustment_reason_required")
       end

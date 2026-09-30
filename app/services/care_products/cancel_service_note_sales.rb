@@ -22,6 +22,8 @@ module CareProducts
       product = sale.care_product
 
       product.with_lock do
+        new_stock = product.stock_quantity.to_i + sale.quantity
+
         service_note.user.care_product_stock_movements.create!(
           care_product: product,
           service_note: service_note,
@@ -29,10 +31,11 @@ module CareProducts
           adjustment_reason: "service_note_cancel",
           quantity: sale.quantity,
           unit_cost: sale.unit_cost,
+          stock_after: new_stock,
           occurred_on: service_note.appointment_date
         )
 
-        product.update!(stock_quantity: product.stock_quantity.to_i + sale.quantity)
+        product.update!(stock_quantity: new_stock)
 
         sale.destroy!
       end

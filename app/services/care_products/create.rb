@@ -41,6 +41,7 @@ module CareProducts
         care_product: care_product,
         expense: expense,
         movement_type: "opening_balance",
+        stock_after: care_product.stock_quantity.to_i,
         quantity: care_product.stock_quantity,
         unit_cost: care_product.purchase_price,
         occurred_on: purchased_on

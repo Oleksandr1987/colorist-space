@@ -39,9 +39,13 @@ module CareProducts
 
         validate_stock!(product, quantity_diff)
 
-        create_adjustment_movement(product, quantity_diff, sale.unit_cost) unless quantity_diff.zero?
+        unless quantity_diff.zero?
+          new_stock = product.stock_quantity.to_i - quantity_diff
 
-        product.update!(stock_quantity: product.stock_quantity.to_i - quantity_diff) unless quantity_diff.zero?
+          create_adjustment_movement(product, quantity: -quantity_diff, unit_cost: sale.unit_cost, stock_after: new_stock)
+
+          product.update!(stock_quantity: new_stock)
+        end
 
         sale.update!(
           quantity: new_quantity,
@@ -76,22 +80,25 @@ module CareProducts
       product = sale.care_product
 
       product.with_lock do
-        create_adjustment_movement(product, -sale.quantity, sale.unit_cost)
+        new_stock = product.stock_quantity.to_i + sale.quantity
 
-        product.update!(stock_quantity: product.stock_quantity.to_i + sale.quantity)
+        create_adjustment_movement(product, quantity: sale.quantity, unit_cost: sale.unit_cost, stock_after: new_stock)
+
+        product.update!(stock_quantity: new_stock)
 
         sale.destroy!
       end
     end
 
-    def create_adjustment_movement(product, quantity_diff, unit_cost)
+    def create_adjustment_movement(product, quantity:, unit_cost:, stock_after:)
       service_note.user.care_product_stock_movements.create!(
         care_product: product,
         service_note: service_note,
         movement_type: "adjustment",
         adjustment_reason: "service_note_sync",
-        quantity: -quantity_diff,
+        quantity: quantity,
         unit_cost: unit_cost,
+        stock_after: stock_after,
         occurred_on: service_note.appointment_date
       )
     end
