@@ -37,6 +37,12 @@
       </div>
     <% end %>
 
+    <div class="care-product-restock-action">
+      <%= link_to restock_care_product_path(care_product), class: "care-product-restock-button" do %>
+        <%= t("care_products.restock.action") %>
+      <% end %>
+    </div>
+
     <% if care_product.incomplete? %>
       <div class="care-product-warning">
         ⚠ <%= t("care_products.need_details") %>
@@ -53,11 +59,7 @@
           method: :delete,
           class: "icon-button delete-button",
           aria: { label: t("common.delete") },
-          form: {
-            data: {
-              turbo_confirm: t("care_products.confirm_delete")
-            }
-          } do %>
+          form: { data: { turbo_confirm: t("care_products.confirm_delete") } } do %>
       <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.delete") %>
     <% end %>
   </div>

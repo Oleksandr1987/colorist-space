@@ -24,6 +24,7 @@ uk:
       care_products_income: "Продаж засобів догляду"
       manual_expenses: "Інші витрати"
       care_products_cost: "Собівартість засобів догляду"
+      stock_value: "Вартість залишків на складі"
 
     expenses:
       title: "Аналітика: Витрати"

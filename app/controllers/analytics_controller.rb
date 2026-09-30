@@ -93,6 +93,8 @@ class AnalyticsController < ApplicationController
     @total_income = summary.total_income
     @total_expenses = summary.total_expenses
     @balance = summary.balance
+
+    @care_products_stock_value = current_user.care_products.total_stock_value
   end
 
   private

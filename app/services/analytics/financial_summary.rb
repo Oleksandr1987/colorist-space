@@ -17,12 +17,7 @@ module Analytics
     end
 
     def manual_expenses
-      @manual_expenses ||=
-        if period?
-          Expense.for_user_between(user, from, to).sum(:amount)
-        else
-          user.expenses.sum(:amount)
-        end
+      @manual_expenses ||= expenses_scope.where.not(category: "care_products").sum(:amount)
     end
 
     def care_products_cost
@@ -35,6 +30,16 @@ module Analytics
 
     def balance
       @balance ||= total_income - total_expenses
+    end
+
+    private
+
+    def expenses_scope
+      if period?
+        Expense.for_user_between(user, from, to)
+      else
+        user.expenses
+      end
     end
   end
 end

@@ -1,0 +1,52 @@
+<div class="service-form-wrapper">
+  <div class="appointment-header modal-header">
+    <div class="appointment-header-left">
+      <%= link_to care_products_path, class: "back-link inline" do %>
+        <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
+      <% end %>
+
+      <h2><%= t("care_products.restock.title") %></h2>
+    </div>
+
+    <button type="submit" form="care-product-restock-form" class="appointment-save-button">
+      <%= t("care_products.restock.submit").upcase %>
+    </button>
+  </div>
+
+  <div class="care-product-restock-summary">
+    <strong>
+      <%= [@care_product.brand, @care_product.name].compact_blank.join(" ") %>
+    </strong>
+
+    <div>
+      <%= t("care_products.stock") %>:
+      <%= @care_product.stock_quantity.to_i %>
+    </div>
+
+    <div>
+      <%= t("care_products.restock.current_cost") %>:
+      <%= @care_product.purchase_price || 0 %> ₴
+    </div>
+  </div>
+
+  <%= form_with url: restock_care_product_path(@care_product), method: :post, id: "care-product-restock-form", scope: :restock do |f| %>
+
+    <div class="form-section">
+      <%= f.label :quantity, t("care_products.restock.quantity") %>
+
+      <%= f.number_field :quantity, value: @quantity, class: "form-input", min: 1, step: 1, inputmode: "numeric", required: true %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :unit_cost, t("care_products.restock.unit_cost") %>
+
+      <%= f.number_field :unit_cost, value: @unit_cost, class: "form-input", min: 0, step: 1, inputmode: "numeric", required: true %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :purchased_on, t("care_products.restock.purchased_on") %>
+
+      <%= f.date_field :purchased_on, value: @purchased_on, class: "form-input", max: Date.current, required: true %>
+    </div>
+  <% end %>
+</div>

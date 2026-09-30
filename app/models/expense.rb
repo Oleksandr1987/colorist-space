@@ -1,5 +1,6 @@
 class Expense < ApplicationRecord
   belongs_to :user
+  has_many :care_product_stock_movements, dependent: :nullify
 
   validates :category, presence: true
   validates :amount, numericality: { only_integer: true, greater_than: 0 }
@@ -17,6 +18,8 @@ class Expense < ApplicationRecord
     utilities
     other
   ].freeze
+
+  MANUAL_CATEGORIES = (CATEGORIES - %w[care_products]).freeze
 
   scope :ordered_by_date, -> { order(spent_on: :desc) }
 

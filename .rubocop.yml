@@ -26,7 +26,7 @@ RSpecRails:
   Enabled: true
 
 RSpec/MultipleMemoizedHelpers:
-  Max: 10
+  Max: 12
 
 RSpec/ExampleLength:
   Max: 25

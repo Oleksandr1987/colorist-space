@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_22_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_145429) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -64,16 +64,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_22_190000) do
     t.index ["user_id"], name: "index_appointments_on_user_id"
   end
 
+  create_table "care_product_stock_movements", force: :cascade do |t|
+    t.integer "care_product_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "expense_id"
+    t.string "movement_type", null: false
+    t.date "occurred_on", null: false
+    t.integer "quantity", null: false
+    t.integer "service_note_id"
+    t.decimal "unit_cost", precision: 10, scale: 2
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["care_product_id"], name: "index_care_product_stock_movements_on_care_product_id"
+    t.index ["expense_id"], name: "index_care_product_stock_movements_on_expense_id"
+    t.index ["movement_type"], name: "index_care_product_stock_movements_on_movement_type"
+    t.index ["occurred_on"], name: "index_care_product_stock_movements_on_occurred_on"
+    t.index ["service_note_id"], name: "index_care_product_stock_movements_on_service_note_id"
+    t.index ["user_id"], name: "index_care_product_stock_movements_on_user_id"
+  end
+
   create_table "care_products", force: :cascade do |t|
     t.string "brand"
     t.string "category"
     t.datetime "created_at", null: false
     t.string "name"
+    t.string "normalized_brand", null: false
+    t.string "normalized_category", null: false
+    t.string "normalized_name", null: false
     t.decimal "purchase_price", precision: 10, scale: 2
     t.decimal "sale_price", precision: 10, scale: 2
     t.integer "stock_quantity"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.index ["user_id", "normalized_brand", "normalized_name", "normalized_category"], name: "index_care_products_on_unique_identity", unique: true
     t.index ["user_id"], name: "index_care_products_on_user_id"
   end
 
@@ -309,6 +332,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_22_190000) do
   add_foreign_key "appointment_services_relations", "services"
   add_foreign_key "appointments", "clients"
   add_foreign_key "appointments", "users"
+  add_foreign_key "care_product_stock_movements", "care_products"
+  add_foreign_key "care_product_stock_movements", "expenses"
+  add_foreign_key "care_product_stock_movements", "service_notes"
+  add_foreign_key "care_product_stock_movements", "users"
   add_foreign_key "care_products", "users"
   add_foreign_key "client_phones", "clients"
   add_foreign_key "client_phones", "users"

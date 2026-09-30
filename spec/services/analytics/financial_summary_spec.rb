@@ -32,10 +32,7 @@ RSpec.describe Analytics::FinancialSummary do
   end
 
   let(:formula_step) do
-    create(:formula_step,
-      service_note: service_note,
-      oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ]
-    )
+    create(:formula_step, service_note: service_note, oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ])
   end
 
   before do
@@ -60,9 +57,7 @@ RSpec.describe Analytics::FinancialSummary do
       other_client = create(:client, user: other_user)
       other_service = create(:service, user: other_user, service_type: "service", category: "haircut", subtype: "Other", price: 1_000)
 
-      create(:appointment,
-        user: other_user,
-        client: other_client,
+      create(:appointment, user: other_user, client: other_client,
         appointment_date: Date.current,
         appointment_time: "11:00",
         end_time: "11:30",
@@ -105,6 +100,13 @@ RSpec.describe Analytics::FinancialSummary do
       expect(summary.manual_expenses).to eq(50)
     end
 
+    it "excludes care product purchase expenses" do
+      create(:expense, user: user, category: "rent", amount: 10_000, spent_on: Date.current)
+      create(:expense, user: user, category: "care_products", amount: 48_000, spent_on: Date.current)
+
+      expect(summary.manual_expenses).to eq(10_000)
+    end
+
     it "excludes another user's expenses" do
       create(:expense, user: other_user, amount: 500, spent_on: Date.current)
 
@@ -128,6 +130,19 @@ RSpec.describe Analytics::FinancialSummary do
 
     it "calculates balance" do
       expect(summary.balance).to eq(290)
+    end
+  end
+
+  describe "care product purchase accounting" do
+    it "uses sold care product cost instead of care product purchase expenses" do
+      create(:expense, user: user, category: "rent", amount: 10_000, spent_on: Date.current)
+      create(:expense, user: user, category: "care_products", amount: 48_000, spent_on: Date.current)
+
+      service_note
+
+      expect(summary.manual_expenses).to eq(10_000)
+      expect(summary.care_products_cost).to eq(60)
+      expect(summary.total_expenses).to eq(10_060)
     end
   end
 end

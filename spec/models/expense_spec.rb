@@ -17,7 +17,15 @@ RSpec.describe Expense do
 
   describe "constants" do
     it "defines categories list" do
-      expect(described_class::CATEGORIES).to include("rent", "materials", "other")
+      expect(described_class::CATEGORIES).to include("rent", "materials", "care_products", "other")
+    end
+
+    it "excludes care products from manual categories" do
+      expect(described_class::MANUAL_CATEGORIES).not_to include("care_products")
+    end
+
+    it "includes regular categories in manual categories" do
+      expect(described_class::MANUAL_CATEGORIES).to include("rent", "materials", "other")
     end
   end
 

@@ -1,4 +1,15 @@
 <%= form_with(model: care_product, id: "care-product-form") do |f| %>
+
+  <% if care_product.errors.any? %>
+    <div class="form-errors">
+      <% care_product.errors.full_messages.each do |message| %>
+        <div class="form-error">
+          <%= message %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
   <div class="form-section">
     <%= f.label :brand, t("care_products.form.brand") %>
     <%= f.text_field :brand, class: "form-input" %>
@@ -20,18 +31,30 @@
     </datalist>
   </div>
 
-  <div class="form-section">
-    <%= f.label :purchase_price, t("care_products.form.purchase_price") %>
-    <%= f.number_field :purchase_price, class: "form-input", min: 0, step: 0.01, inputmode: "decimal" %>
-  </div>
+  <% if care_product.new_record? %>
+    <div class="form-section">
+      <%= f.label :purchase_price, t("care_products.form.purchase_price") %>
+      <%= f.number_field :purchase_price, class: "form-input", min: 0, step: 1, inputmode: "numeric" %>
+    </div>
+  <% end %>
 
   <div class="form-section">
     <%= f.label :sale_price, t("care_products.form.sale_price") %>
     <%= f.number_field :sale_price, class: "form-input", min: 0, step: 0.01, inputmode: "decimal" %>
   </div>
 
-  <div class="form-section">
-    <%= f.label :stock_quantity, t("care_products.form.stock_quantity") %>
-    <%= f.number_field :stock_quantity, class: "form-input", min: 0, step: 1, inputmode: "numeric" %>
-  </div>
+  <% if care_product.new_record? %>
+    <div class="form-section">
+      <%= f.label :stock_quantity, t("care_products.form.stock_quantity") %>
+      <%= f.number_field :stock_quantity, class: "form-input", min: 0, step: 1, inputmode: "numeric" %>
+    </div>
+
+    <div class="form-section">
+      <%= f.label :purchased_on, t("care_products.form.purchased_on") %>
+      <%= f.date_field :purchased_on,
+            value: params.dig(:care_product, :purchased_on).presence || Date.current,
+            class: "form-input",
+            max: Date.current %>
+    </div>
+  <% end %>
 <% end %>

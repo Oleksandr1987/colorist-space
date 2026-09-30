@@ -41,3 +41,16 @@ en:
       spray: "Spray"
       cream: "Cream"
       treatment: "Treatment"
+
+    restock:
+      title: "Restock"
+      action: "Restock"
+      quantity: "Quantity"
+      unit_cost: "Purchase price per unit"
+      purchased_on: "Purchase date"
+      current_cost: "Current cost"
+      submit: "Restock"
+      success: "Stock successfully replenished"
+
+    errors:
+      already_exists: "This care product already exists. Restock the existing product instead."

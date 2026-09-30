@@ -1,11 +1,6 @@
 class CareProductsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_care_product,
-                only: %i[
-                  edit
-                  update
-                  destroy
-                ]
+  before_action :set_care_product, only: %i[edit update destroy restock create_restock]
 
   def index
     @care_product =
@@ -23,41 +18,46 @@ class CareProductsController < ApplicationController
 
   def create
     @care_product =
-      current_user.care_products.build(
-        care_product_params
-      )
+      CareProducts::Create.new(
+        user: current_user,
+        attributes: create_care_product_params,
+        purchased_on: purchased_on
+      ).call
 
-    if @care_product.save
-      respond_to do |format|
-        format.html do
-          redirect_to care_products_path,
-            notice: "Care product created successfully."
-        end
-
-        format.json do
-          render json: {
-            id: @care_product.id,
-            brand: @care_product.brand,
-            name: @care_product.name,
-            category: @care_product.category,
-            sale_price: @care_product.sale_price.to_f,
-            incomplete: @care_product.incomplete?
-          }
-        end
+    respond_to do |format|
+      format.html do
+        redirect_to care_products_path,
+          notice: "Care product created successfully."
       end
-    else
-      respond_to do |format|
-        format.html do
-          render :new,
-                 status: :unprocessable_content
-        end
 
-        format.json do
-          render json: {
-            errors: @care_product.errors.full_messages
-          },
-          status: :unprocessable_content
-        end
+      format.json do
+        render json: {
+          id: @care_product.id,
+          brand: @care_product.brand,
+          name: @care_product.name,
+          category: @care_product.category,
+          sale_price: @care_product.sale_price.to_f,
+          incomplete: @care_product.incomplete?
+        }
+      end
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    @care_product =
+      e.record.is_a?(CareProduct) ?
+        e.record :
+        current_user.care_products.build(create_care_product_params)
+
+    respond_to do |format|
+      format.html do
+        render :new,
+              status: :unprocessable_content
+      end
+
+      format.json do
+        render json: {
+          errors: e.record.errors.full_messages
+        },
+        status: :unprocessable_content
       end
     end
   end
@@ -66,15 +66,39 @@ class CareProductsController < ApplicationController
   end
 
   def update
-    if @care_product.update(
-         care_product_params
-       )
+    if @care_product.update(update_care_product_params)
       redirect_to care_products_path,
         notice: "Care product updated successfully."
     else
-      render :edit,
-             status: :unprocessable_content
+      render :edit, status: :unprocessable_content
     end
+  end
+
+  def restock
+    @quantity = nil
+    @unit_cost = @care_product.purchase_price
+    @purchased_on = Date.current
+  end
+
+  def create_restock
+    @quantity = restock_params[:quantity]
+    @unit_cost = restock_params[:unit_cost]
+    @purchased_on = parse_restock_date(restock_params[:purchased_on])
+
+    CareProducts::Restock.new(
+      user: current_user,
+      care_product: @care_product,
+      quantity: @quantity,
+      unit_cost: @unit_cost,
+      purchased_on: @purchased_on
+    ).call
+
+    redirect_to care_products_path, notice: t("care_products.restock.success")
+
+  rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = e.message
+
+    render :restock, status: :unprocessable_content
   end
 
   def destroy
@@ -103,20 +127,34 @@ class CareProductsController < ApplicationController
   private
 
   def set_care_product
-    @care_product =
-      current_user.care_products.find(
-        params[:id]
-      )
+    @care_product = current_user.care_products.find(params[:id])
   end
 
-  def care_product_params
-    params.require(:care_product).permit(
-      :brand,
-      :name,
-      :category,
-      :purchase_price,
-      :sale_price,
-      :stock_quantity
-    )
+  def create_care_product_params
+    params.require(:care_product).permit(:brand, :name, :category, :purchase_price, :sale_price, :stock_quantity)
+  end
+
+  def update_care_product_params
+    params.require(:care_product).permit(:brand, :name, :category, :sale_price)
+  end
+
+  def restock_params
+    params.require(:restock).permit(:quantity, :unit_cost, :purchased_on)
+  end
+
+  def purchased_on
+    value = params.dig(:care_product, :purchased_on)
+
+    return Date.current if value.blank?
+
+    Date.iso8601(value)
+  end
+
+  def parse_restock_date(value)
+    return if value.blank?
+
+    Date.iso8601(value)
+  rescue Date::Error
+    nil
   end
 end

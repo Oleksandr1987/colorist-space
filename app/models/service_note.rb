@@ -7,6 +7,7 @@ class ServiceNote < ApplicationRecord
   has_many :services, through: :service_note_services
   has_many :formula_steps, dependent: :destroy, inverse_of: :service_note
   has_many :haircut_steps, dependent: :destroy, inverse_of: :service_note
+  has_many :care_product_stock_movements, dependent: :nullify
 
   has_many_attached :photos
 

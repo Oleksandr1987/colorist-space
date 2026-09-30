@@ -6,6 +6,8 @@ RSpec.describe "Analytics" do
 
   let(:user) { create(:user, :trial) }
   let(:other_user) { create(:user) }
+  let(:from) { 1.month.ago.to_date }
+  let(:to) { Date.current }
 
   before do
     travel_to Time.zone.local(2026, 1, 15)
@@ -17,16 +19,15 @@ RSpec.describe "Analytics" do
   describe "GET /analytics/expenses" do
     it "filters expenses by user, period and category" do
       rent = create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
-
       create(:expense, user: user, category: "materials", amount: 200, spent_on: Date.current)
       create(:expense, user: user, category: "rent", amount: 300, spent_on: 2.months.ago.to_date)
       create(:expense, user: other_user, category: "rent", amount: 400, spent_on: Date.current)
 
-      get expenses_analytics_path, params: { from: 1.month.ago.to_date, to: Date.current, categories: [ "rent" ] }
+      get expenses_analytics_path, params: { from: from, to: to, categories: [ "rent" ] }
 
       expect(response).to have_http_status(:ok)
 
-      scope = Expense.for_user_between(user, 1.month.ago.to_date, Date.current).apply_category_filter([ "rent" ])
+      scope = Expense.for_user_between(user, from, to).apply_category_filter([ "rent" ])
 
       expect(scope).to contain_exactly(rent)
       expect(Expense.total_expenses(scope)).to eq(100)
@@ -37,20 +38,14 @@ RSpec.describe "Analytics" do
       get expenses_analytics_path, params: { categories: [ "rent", "materials" ] }
 
       expect(response).to have_http_status(:ok)
-
-      category_filters = controller.instance_variable_get(:@category_filters)
-
-      expect(category_filters).to eq([ "rent", "materials" ])
+      expect(controller.instance_variable_get(:@category_filters)).to eq([ "rent", "materials" ])
     end
 
     it "ignores invalid category filters" do
       get expenses_analytics_path, params: { categories: [ "rent", "INVALID_CATEGORY" ] }
 
       expect(response).to have_http_status(:ok)
-
-      category_filters = controller.instance_variable_get(:@category_filters)
-
-      expect(category_filters).to eq([ "rent" ])
+      expect(controller.instance_variable_get(:@category_filters)).to eq([ "rent" ])
     end
 
     it "falls back to default dates when invalid dates passed" do
@@ -61,321 +56,246 @@ RSpec.describe "Analytics" do
 
     context "without period params" do
       it "shows expenses from all time by default" do
-        current_expense =
-          create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
-
-        historical_expense =
-          create(:expense, user: user, category: "materials", amount: 200, spent_on: 1.year.ago.to_date)
+        current_expense = create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
+        historical_expense = create(:expense, user: user, category: "materials", amount: 200, spent_on: 1.year.ago.to_date)
 
         get expenses_analytics_path
 
         expect(response).to have_http_status(:ok)
-
-        expenses = controller.instance_variable_get(:@expenses)
-
-        expect(expenses).to contain_exactly(current_expense, historical_expense)
+        expect(controller.instance_variable_get(:@expenses)).to contain_exactly(current_expense, historical_expense)
         expect(controller.instance_variable_get(:@total_expenses)).to eq(300)
       end
     end
   end
 
   describe "GET /analytics/income" do
-  let(:client) { create(:client, user: user) }
-
-  let(:service_a) { create(:service, user: user, service_type: "service", category: "haircut", subtype: "A", price: 100) }
-
-  let(:service_b) { create(:service, user: user, service_type: "service", category: "coloring", subtype: "B", price: 200) }
-
-  let(:other_service) { create(:service, user: other_user, service_type: "service", category: "haircut", subtype: "X", price: 999) }
-
-  let(:appointment_a) do
-    create(:appointment, user: user, client: client,
-      appointment_date: Date.current,
-      appointment_time: "10:00",
-      end_time: "10:30",
-      main_service: service_a
-    )
-  end
-
-  let(:appointment_b) do
-    create(:appointment, user: user, client: client,
-      appointment_date: Date.current,
-      appointment_time: "11:00",
-      end_time: "11:30",
-      main_service: service_b
-    )
-  end
-
-  let(:from) { 1.month.ago.to_date }
-  let(:to) { Date.current }
-
-  def total_income
-    controller.instance_variable_get(:@total_income)
-  end
-
-  def grouped_income
-    controller.instance_variable_get(:@grouped_income)
-  end
-
-  def monthly_income
-    controller.instance_variable_get(:@monthly_income)
-  end
-
-  before do
-    appointment_a
-    appointment_b
-
-    other_client = create(:client, user: other_user)
-
-    create(:appointment, user: other_user, client: other_client,
-      appointment_date: Date.current,
-      appointment_time: "12:00",
-      end_time: "12:30",
-      main_service: other_service
-    )
-  end
-
-  it "returns success response" do
-    get income_analytics_path, params: { from: from, to: to }
-
-    expect(response).to have_http_status(:ok)
-  end
-
-  it "calculates income from historical service prices" do
-    get income_analytics_path, params: { from: from, to: to }
-
-    expect(total_income).to eq(300)
-  end
-
-  it "keeps historical service prices after catalog prices change" do
-    service_a.update!(price: 500)
-    service_b.update!(price: 800)
-
-    get income_analytics_path, params: { from: from, to: to }
-
-    expect(total_income).to eq(300)
-  end
-
-  it "groups historical service income by category" do
-    get income_analytics_path, params: { from: from, to: to }
-
-    expect(grouped_income).to eq({ "haircut" => 100, "coloring" => 200 })
-  end
-
-  it "includes formula ingredient income" do
-    service_note =
-      build(:service_note, :without_services, appointment: appointment_b, user: user, client: client)
-
-    service_note.services = [ service_b ]
-    service_note.save!
-
-    formula_step = create(:formula_step, service_note: service_note)
-
-    create(:formula_ingredient, formula_step: formula_step, amount: 10, price: 5)
-
-    get income_analytics_path, params: { from: from, to: to }
-
-    expect(total_income).to eq(350)
-  end
-
-  it "includes oxidant income" do
-    service_note =
-      build(:service_note, :without_services, appointment: appointment_b, user: user, client: client)
-
-    service_note.services = [ service_b ]
-    service_note.save!
-
-    create(:formula_step,
-      service_note: service_note,
-      oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ]
-    )
-
-    get income_analytics_path, params: { from: from, to: to }
-
-    expect(total_income).to eq(340)
-  end
-
-  it "includes care product sale income" do
-    service_note =
-      build(:service_note, :without_services,
-        appointment: appointment_a,
-        user: user,
-        client: client,
-        care_products: [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ]
-      )
-
-    service_note.services = [ service_a ]
-    service_note.save!
-
-    get income_analytics_path, params: { from: from, to: to }
-
-    expect(total_income).to eq(400)
-  end
-
-  it "calculates service, formula and care product income together" do
-    service_note =
-      build(:service_note, :without_services,
-        appointment: appointment_b,
-        user: user,
-        client: client,
-        care_products: [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ]
-      )
-
-    service_note.services = [ service_b ]
-    service_note.save!
-
-    formula_step =
-      create(:formula_step,
-        service_note: service_note,
-        oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ]
-      )
-
-    create(:formula_ingredient, formula_step: formula_step, amount: 10, price: 5)
-
-    get income_analytics_path, params: { from: from, to: to }
-    expect(total_income).to eq(490)
-  end
-
-  it "filters income by service category" do
-    get income_analytics_path, params: { from: from, to: to, income_categories: [ "coloring" ] }
-
-    expect(total_income).to eq(200)
-    expect(grouped_income).to eq({ "coloring" => 200 })
-  end
-
-  it "filters income by service id" do
-    get income_analytics_path, params: { from: from, to: to, service_ids: [ service_a.id ] }
-
-    expect(total_income).to eq(100)
-    expect(grouped_income).to eq({ "haircut" => 100 })
-  end
-
-  it "includes formula and care product income from appointments matching the service filter" do
-    service_note =
-      build(:service_note, :without_services,
-        appointment: appointment_b,
-        user: user,
-        client: client,
-        care_products: [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ]
-      )
-
-    service_note.services = [ service_b ]
-    service_note.save!
-
-    expect(appointment_b.reload.appointment_services_relations.pluck(:service_id, :price)).to eq([ [ service_b.id, 200 ] ])
-
-    get income_analytics_path, params: { from: from, to: to, service_ids: [ service_b.id ] }
-
-    expect(total_income).to eq(300)
-  end
-
-  it "does not include formula or care product income from appointments excluded by service filter" do
-    create(:service_note,
-      appointment: appointment_b,
-      user: user,
-      client: client,
-      care_products: [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ]
-    )
-
-    get income_analytics_path, params: { from: from, to: to, service_ids: [ service_a.id ] }
-
-    expect(total_income).to eq(100)
-  end
-
-  it "expands a selected income category into monthly historical relations" do
-    get income_analytics_path, params: { from: from, to: to, expanded: "haircut" }
-
-    expect(monthly_income).to be_present
-
-    relations = monthly_income.values.flatten
-
-    expect(relations.map(&:service_id)).to contain_exactly(service_a.id)
-    expect(relations.sum(&:price)).to eq(100)
-  end
-
-  it "does not expand an unknown income category" do
-    get income_analytics_path, params: { from: from, to: to, expanded: "unknown" }
-
-    expect(monthly_income).to eq({})
-  end
-
-  it "ignores invalid income categories" do
-    get income_analytics_path, params: { from: from, to: to, income_categories: [ "INVALID_CATEGORY" ] }
-
-    expect(response).to have_http_status(:ok)
-    expect(total_income).to eq(300)
-  end
-
-  it "ignores invalid service ids" do
-    get income_analytics_path, params: { from: from, to: to, service_ids: [ "INVALID" ] }
-
-    expect(response).to have_http_status(:ok)
-    expect(total_income).to eq(300)
-  end
-
-  it "supports all-time income" do
-    old_appointment =
+    let(:client) { create(:client, user: user) }
+    let(:service_a) { create(:service, user: user, service_type: "service", category: "haircut", subtype: "A", price: 100) }
+    let(:service_b) { create(:service, user: user, service_type: "service", category: "coloring", subtype: "B", price: 200) }
+    let(:other_service) { create(:service, user: other_user, service_type: "service", category: "haircut", subtype: "X", price: 999) }
+    let(:care_products) { [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ] }
+
+    let(:appointment_a) do
+      create(:appointment, user: user, client: client, appointment_date: Date.current, appointment_time: "10:00", end_time: "10:30",
+            main_service: service_a)
+    end
+    let(:appointment_b) do
       create(:appointment, user: user, client: client,
-        appointment_date: Date.current,
-        appointment_time: "14:00",
-        end_time: "14:30",
-        main_service: service_a
-      )
+              appointment_date: Date.current,
+              appointment_time: "11:00",
+              end_time: "11:30",
+              main_service: service_b)
+    end
 
-    old_appointment.update_column(:appointment_date, 1.year.ago.to_date)
+    let(:service_note_b) do
+      note = build(:service_note, :without_services, appointment: appointment_b, user: user, client: client)
+      note.services = [ service_b ]
+      note.save!
+      note
+    end
 
-    get income_analytics_path, params: { all_time: "1" }
+    def total_income
+      controller.instance_variable_get(:@total_income)
+    end
 
-    expect(total_income).to eq(400)
+    def grouped_income
+      controller.instance_variable_get(:@grouped_income)
+    end
+
+    def monthly_income
+      controller.instance_variable_get(:@monthly_income)
+    end
+
+    before do
+      appointment_a
+      appointment_b
+
+      other_client = create(:client, user: other_user)
+      create(:appointment, user: other_user, client: other_client,
+              appointment_date: Date.current,
+              appointment_time: "12:00",
+              end_time: "12:30",
+              main_service: other_service)
+    end
+
+    it "returns success response" do
+      get income_analytics_path, params: { from: from, to: to }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "calculates income from historical service prices" do
+      get income_analytics_path, params: { from: from, to: to }
+
+      expect(total_income).to eq(300)
+    end
+
+    it "keeps historical service prices after catalog prices change" do
+      service_a.update!(price: 500)
+      service_b.update!(price: 800)
+
+      get income_analytics_path, params: { from: from, to: to }
+
+      expect(total_income).to eq(300)
+    end
+
+    it "groups historical service income by category" do
+      get income_analytics_path, params: { from: from, to: to }
+
+      expect(grouped_income).to eq({ "haircut" => 100, "coloring" => 200 })
+    end
+
+    it "includes formula ingredient income" do
+      formula_step = create(:formula_step, service_note: service_note_b)
+      create(:formula_ingredient, formula_step: formula_step, amount: 10, price: 5)
+
+      get income_analytics_path, params: { from: from, to: to }
+
+      expect(total_income).to eq(350)
+    end
+
+    it "includes oxidant income" do
+      create(:formula_step, service_note: service_note_b, oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ])
+
+      get income_analytics_path, params: { from: from, to: to }
+
+      expect(total_income).to eq(340)
+    end
+
+    it "includes care product sale income" do
+      service_note =
+        build(:service_note, :without_services, appointment: appointment_a, user: user, client: client, care_products: care_products)
+      service_note.services = [ service_a ]
+      service_note.save!
+
+      get income_analytics_path, params: { from: from, to: to }
+
+      expect(total_income).to eq(400)
+    end
+
+    it "calculates service, formula and care product income together" do
+      service_note_b.update!(care_products: care_products)
+      formula_step =
+        create(:formula_step, service_note: service_note_b, oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ])
+      create(:formula_ingredient, formula_step: formula_step, amount: 10, price: 5)
+
+      get income_analytics_path, params: { from: from, to: to }
+
+      expect(total_income).to eq(490)
+    end
+
+    it "filters income by service category" do
+      get income_analytics_path, params: { from: from, to: to, income_categories: [ "coloring" ] }
+
+      expect(total_income).to eq(200)
+      expect(grouped_income).to eq({ "coloring" => 200 })
+    end
+
+    it "filters income by service id" do
+      get income_analytics_path, params: { from: from, to: to, service_ids: [ service_a.id ] }
+
+      expect(total_income).to eq(100)
+      expect(grouped_income).to eq({ "haircut" => 100 })
+    end
+
+    it "includes formula and care product income from appointments matching the service filter" do
+      service_note_b.update!(care_products: care_products)
+
+      expect(appointment_b.reload.appointment_services_relations.pluck(:service_id, :price)).to eq([ [ service_b.id, 200 ] ])
+
+      get income_analytics_path, params: { from: from, to: to, service_ids: [ service_b.id ] }
+
+      expect(total_income).to eq(300)
+    end
+
+    it "does not include formula or care product income from appointments excluded by service filter" do
+      create(:service_note, appointment: appointment_b, user: user, client: client, care_products: care_products)
+
+      get income_analytics_path, params: { from: from, to: to, service_ids: [ service_a.id ] }
+
+      expect(total_income).to eq(100)
+    end
+
+    it "expands a selected income category into monthly historical relations" do
+      get income_analytics_path, params: { from: from, to: to, expanded: "haircut" }
+
+      expect(monthly_income).to be_present
+
+      relations = monthly_income.values.flatten
+
+      expect(relations.map(&:service_id)).to contain_exactly(service_a.id)
+      expect(relations.sum(&:price)).to eq(100)
+    end
+
+    it "does not expand an unknown income category" do
+      get income_analytics_path, params: { from: from, to: to, expanded: "unknown" }
+
+      expect(monthly_income).to eq({})
+    end
+
+    it "ignores invalid income categories" do
+      get income_analytics_path, params: { from: from, to: to, income_categories: [ "INVALID_CATEGORY" ] }
+
+      expect(response).to have_http_status(:ok)
+      expect(total_income).to eq(300)
+    end
+
+    it "ignores invalid service ids" do
+      get income_analytics_path, params: { from: from, to: to, service_ids: [ "INVALID" ] }
+
+      expect(response).to have_http_status(:ok)
+      expect(total_income).to eq(300)
+    end
+
+    it "supports all-time income" do
+      historical_appointment = create(:appointment, user: user, client: client,
+                                      appointment_date: Date.current,
+                                      appointment_time: "14:00",
+                                      end_time: "14:30",
+                                      main_service: service_a)
+      historical_appointment.update_column(:appointment_date, 1.year.ago.to_date)
+
+      get income_analytics_path, params: { all_time: "1" }
+
+      expect(total_income).to eq(400)
+    end
+
+    it "shows income from all time by default when no period params are provided" do
+      historical_appointment = create(:appointment, user: user, client: client,
+                                      appointment_date: Date.current,
+                                      appointment_time: "14:00",
+                                      end_time: "14:30",
+                                      main_service: service_a)
+      historical_appointment.update_column(:appointment_date, 1.year.ago.to_date)
+
+      get income_analytics_path
+
+      expect(response).to have_http_status(:ok)
+      expect(total_income).to eq(400)
+    end
   end
-
-  it "shows income from all time by default when no period params are provided" do
-    historical_appointment =
-      create(:appointment, user: user, client: client,
-        appointment_date: Date.current,
-        appointment_time: "14:00",
-        end_time: "14:30",
-        main_service: service_a
-      )
-
-    historical_appointment.update_column(:appointment_date, 1.year.ago.to_date)
-
-    get income_analytics_path
-
-    expect(response).to have_http_status(:ok)
-    expect(total_income).to eq(400)
-  end
-end
 
   describe "GET /analytics/balance" do
     let(:client) { create(:client, user: user) }
     let(:service) { create(:service, user: user, service_type: "service", category: "haircut", subtype: "Basic", price: 100) }
-    let(:from) { 1.month.ago.to_date }
-    let(:to) { Date.current }
     let(:care_products) { [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ] }
-
     let(:appointment) do
       create(:appointment, user: user, client: client,
-        appointment_date: Date.current,
-        appointment_time: "10:00",
-        end_time: "10:30",
-        main_service: service
-      )
+              appointment_date: Date.current,
+              appointment_time: "10:00",
+              end_time: "10:30",
+              main_service: service)
     end
 
     let(:service_note) do
       note = build(:service_note, :without_services, user: user, client: client, appointment: appointment, care_products: care_products)
-
       note.services = [ service ]
       note.save!
       note
     end
 
     let(:formula_step) do
-      create(:formula_step,
-        service_note: service_note,
-        oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ]
-      )
+      create(:formula_step, service_note: service_note, oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ])
     end
 
     before do
@@ -384,9 +304,7 @@ end
     end
 
     context "with selected period" do
-      before do
-        get balance_analytics_path, params: { from: from, to: to }
-      end
+      before { get balance_analytics_path, params: { from: from, to: to } }
 
       it "returns success" do
         expect(response).to have_http_status(:ok)
@@ -399,60 +317,63 @@ end
       end
     end
 
-    context "with all_time" do
+    context "with historical data" do
       before do
-        historical_appointment =
-          create(:appointment, user: user, client: client,
-            appointment_date: Date.current,
-            appointment_time: "12:00",
-            end_time: "12:30",
-            main_service: service
-          )
-
+        historical_appointment = create(:appointment, user: user, client: client,
+                                        appointment_date: Date.current,
+                                        appointment_time: "12:00",
+                                        end_time: "12:30",
+                                        main_service: service)
         historical_appointment.update_column(:appointment_date, 1.year.ago.to_date)
-
         create(:expense, user: user, amount: 70, spent_on: 2.years.ago.to_date)
-
-        get balance_analytics_path, params: { all_time: "1" }
       end
 
-      it "returns success" do
-        expect(response).to have_http_status(:ok)
+      context "with all_time" do
+        before { get balance_analytics_path, params: { all_time: "1" } }
+
+        it "returns success" do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it "includes all historical income and expenses" do
+          expect(response.body).to include("390")
+          expect(response.body).to include("170")
+          expect(response.body).to include("220")
+        end
       end
 
-      it "includes all historical income and expenses" do
-        expect(response.body).to include("390")
-        expect(response.body).to include("170")
-        expect(response.body).to include("220")
+      context "without period params" do
+        before { get balance_analytics_path }
+
+        it "returns success" do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it "includes all historical income and expenses by default" do
+          expect(response.body).to include("390")
+          expect(response.body).to include("170")
+          expect(response.body).to include("220")
+        end
       end
     end
 
-    context "without period params" do
-      before do
-        historical_appointment =
-          create(:appointment, user: user, client: client,
-            appointment_date: Date.current,
-            appointment_time: "12:00",
-            end_time: "12:30",
-            main_service: service
-          )
+    it "does not count care product purchases as manual expenses in balance" do
+      create(:expense, user: user, category: "care_products", amount: 48_000, spent_on: Date.current)
 
-        historical_appointment.update_column(:appointment_date, 1.year.ago.to_date)
+      get balance_analytics_path, params: { from: Date.current.beginning_of_month.iso8601, to: Date.current.iso8601 }
 
-        create(:expense, user: user, amount: 70, spent_on: 2.years.ago.to_date)
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@manual_expenses)).to eq(40)
+    end
 
-        get balance_analytics_path
-      end
+    it "shows stock value only for the current user" do
+      create(:care_product, user: user, purchase_price: 800, stock_quantity: 60)
+      create(:care_product, user: other_user, purchase_price: 10_000, stock_quantity: 100)
 
-      it "returns success" do
-        expect(response).to have_http_status(:ok)
-      end
+      get balance_analytics_path
 
-      it "includes all historical income and expenses by default" do
-        expect(response.body).to include("390")
-        expect(response.body).to include("170")
-        expect(response.body).to include("220")
-      end
+      expect(response.body).to include("48000")
+      expect(response.body).not_to include("1000000")
     end
   end
 end

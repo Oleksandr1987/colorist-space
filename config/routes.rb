@@ -59,6 +59,11 @@ Rails.application.routes.draw do
     collection do
       get :options
     end
+
+    member do
+      get :restock
+      post :restock, action: :create_restock
+    end
   end
 
   resource :subscription, only: [] do

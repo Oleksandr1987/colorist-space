@@ -17,7 +17,7 @@
       <%= f.label :category, t("analytics.expenses.category") %>
 
       <%= f.select :category,
-            Expense::CATEGORIES.map { |c| [t("analytics.expenses.categories.#{c}"), c] },
+            Expense::MANUAL_CATEGORIES.map { |c| [t("analytics.expenses.categories.#{c}"), c] },
             {},
             class: "form-input",
             required: true %>
