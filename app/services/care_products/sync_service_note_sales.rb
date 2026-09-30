@@ -89,6 +89,7 @@ module CareProducts
         care_product: product,
         service_note: service_note,
         movement_type: "adjustment",
+        adjustment_reason: "service_note_sync",
         quantity: -quantity_diff,
         unit_cost: unit_cost,
         occurred_on: service_note.appointment_date

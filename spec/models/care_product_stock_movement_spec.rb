@@ -10,7 +10,7 @@ RSpec.describe CareProductStockMovement do
 
   it do
     expect(movement).to validate_inclusion_of(:movement_type)
-      .in_array(%w[purchase sale adjustment])
+      .in_array(%w[opening_balance purchase sale adjustment])
   end
 
   it do
@@ -59,13 +59,45 @@ RSpec.describe CareProductStockMovement do
 
   describe "adjustment quantity" do
     it "allows positive quantity" do
-      movement = build(:care_product_stock_movement, :adjustment, quantity: 5)
+      movement = build(:care_product_stock_movement, :adjustment, quantity: 5, adjustment_reason: "inventory")
 
       expect(movement).to be_valid
     end
 
     it "allows negative quantity" do
-      movement = build(:care_product_stock_movement, :adjustment, quantity: -5)
+      movement = build(:care_product_stock_movement, :adjustment, quantity: -5, adjustment_reason: "inventory")
+
+      expect(movement).to be_valid
+    end
+  end
+
+  describe "adjustment reason" do
+    it "requires a reason for adjustment" do
+      movement = build(:care_product_stock_movement, :adjustment, adjustment_reason: nil)
+
+      expect(movement).not_to be_valid
+    end
+
+    it "allows a valid adjustment reason" do
+      movement = build(:care_product_stock_movement, :adjustment, adjustment_reason: "inventory")
+
+      expect(movement).to be_valid
+    end
+
+    it "does not allow an invalid adjustment reason" do
+      movement = build(:care_product_stock_movement, :adjustment, adjustment_reason: "unknown")
+
+      expect(movement).not_to be_valid
+    end
+
+    it "does not require a reason for purchase" do
+      movement = build(:care_product_stock_movement, :purchase, adjustment_reason: nil)
+
+      expect(movement).to be_valid
+    end
+
+    it "does not require a reason for sale" do
+      movement = build(:care_product_stock_movement, :sale, adjustment_reason: nil)
 
       expect(movement).to be_valid
     end

@@ -26,6 +26,7 @@ module CareProducts
           care_product: product,
           service_note: service_note,
           movement_type: "adjustment",
+          adjustment_reason: "service_note_cancel",
           quantity: sale.quantity,
           unit_cost: sale.unit_cost,
           occurred_on: service_note.appointment_date

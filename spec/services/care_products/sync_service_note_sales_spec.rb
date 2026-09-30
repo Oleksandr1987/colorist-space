@@ -33,6 +33,7 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
         movement = user.care_product_stock_movements.last
 
         expect(movement.movement_type).to eq("adjustment")
+        expect(movement.adjustment_reason).to eq("service_note_sync")
         expect(movement.quantity).to eq(-3)
         expect(movement.unit_cost).to eq(60)
       end
@@ -60,6 +61,7 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
         movement = user.care_product_stock_movements.last
 
         expect(movement.movement_type).to eq("adjustment")
+        expect(movement.adjustment_reason).to eq("service_note_sync")
         expect(movement.quantity).to eq(1)
         expect(movement.unit_cost).to eq(60)
       end
@@ -149,6 +151,7 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
         movement = user.care_product_stock_movements.last
 
         expect(movement.movement_type).to eq("adjustment")
+        expect(movement.adjustment_reason).to eq("service_note_sync")
         expect(movement.quantity).to eq(2)
         expect(movement.unit_cost).to eq(60)
       end

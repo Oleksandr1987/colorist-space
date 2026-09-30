@@ -21,6 +21,7 @@ FactoryBot.define do
 
     trait :adjustment do
       movement_type { "adjustment" }
+      adjustment_reason { "inventory" }
       quantity { 1 }
     end
   end

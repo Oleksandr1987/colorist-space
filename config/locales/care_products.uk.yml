@@ -62,6 +62,26 @@ uk:
       submit: "Продати"
       success: "Товар успішно продано"
 
+    adjustment:
+      title: "Коригування залишку"
+      action: "Скоригувати залишок"
+      quantity: "Зміна кількості"
+      reason: "Причина"
+      note: "Коментар"
+      occurred_on: "Дата"
+      submit: "Зберегти"
+      success: "Залишок успішно скориговано"
+
+      reasons:
+        inventory: "Інвентаризація"
+        damaged: "Пошкоджено"
+        expired: "Прострочено"
+        personal_use: "Використано для власних потреб"
+        missing: "Нестача"
+        data_correction: "Виправлення даних"
+        other: "Інше"
+
+
     errors:
       already_exists: "Такий засіб догляду вже існує. Поповніть запас існуючого товару."
       wrong_user: "Засіб догляду не належить поточному користувачу."
@@ -75,3 +95,9 @@ uk:
       sold_on_future: "Дата продажу не може бути в майбутньому."
       wrong_service_note_user: "Запис послуги не належить поточному користувачу."
       not_enough_stock: "Недостатньо товару на залишку."
+
+      adjustment_quantity_required: "Вкажіть зміну кількості."
+      adjustment_reason_required: "Вкажіть причину коригування."
+      adjustment_date_required: "Вкажіть дату коригування."
+      adjustment_date_future: "Дата коригування не може бути в майбутньому."
+      adjustment_negative_stock: "Залишок товару не може бути меншим за нуль."

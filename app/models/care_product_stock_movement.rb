@@ -6,6 +6,18 @@ class CareProductStockMovement < ApplicationRecord
     adjustment
   ].freeze
 
+  ADJUSTMENT_REASONS = %w[
+    inventory
+    damaged
+    expired
+    personal_use
+    missing
+    data_correction
+    service_note_sync
+    service_note_cancel
+    other
+  ].freeze
+
   belongs_to :user
   belongs_to :care_product
   belongs_to :service_note, optional: true
@@ -17,6 +29,7 @@ class CareProductStockMovement < ApplicationRecord
   validates :quantity, numericality: { only_integer: true, other_than: 0 }
   validates :unit_cost, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :occurred_on, presence: true
+  validates :adjustment_reason, presence: true, inclusion: { in: ADJUSTMENT_REASONS }, if: :adjustment?
 
   validate :care_product_belongs_to_user
   validate :opening_balance_has_positive_quantity
@@ -29,6 +42,10 @@ class CareProductStockMovement < ApplicationRecord
   scope :adjustments, -> { where(movement_type: "adjustment") }
 
   private
+
+  def adjustment?
+    movement_type == "adjustment"
+  end
 
   def care_product_belongs_to_user
     return if user.blank? || care_product.blank?

@@ -62,6 +62,25 @@ en:
       submit: "Sell"
       success: "Product successfully sold"
 
+    adjustment:
+      title: "Stock adjustment"
+      action: "Adjust stock"
+      quantity: "Quantity change"
+      reason: "Reason"
+      note: "Comment"
+      occurred_on: "Date"
+      submit: "Save"
+      success: "Stock successfully adjusted"
+
+      reasons:
+        inventory: "Inventory count"
+        damaged: "Damaged"
+        expired: "Expired"
+        personal_use: "Personal use"
+        missing: "Missing"
+        data_correction: "Data correction"
+        other: "Other"
+
     errors:
       already_exists: "This care product already exists. Restock the existing product instead."
       wrong_user: "Care product does not belong to the current user."
@@ -75,3 +94,9 @@ en:
       sold_on_future: "Sale date cannot be in the future."
       wrong_service_note_user: "Service note does not belong to the current user."
       not_enough_stock: "Not enough stock."
+
+      adjustment_quantity_required: "Enter the quantity change."
+      adjustment_reason_required: "Select an adjustment reason."
+      adjustment_date_required: "Adjustment date is required."
+      adjustment_date_future: "Adjustment date cannot be in the future."
+      adjustment_negative_stock: "Stock quantity cannot be less than zero."

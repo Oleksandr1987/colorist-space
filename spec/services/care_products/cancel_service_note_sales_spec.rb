@@ -31,6 +31,7 @@ RSpec.describe CareProducts::CancelServiceNoteSales do
       movement = user.care_product_stock_movements.order(:id).last
 
       expect(movement.movement_type).to eq("adjustment")
+      expect(movement.adjustment_reason).to eq("service_note_cancel")
       expect(movement.quantity).to eq(3)
       expect(movement.unit_cost).to eq(60)
       expect(movement.occurred_on).to eq(appointment.appointment_date)
@@ -90,6 +91,10 @@ RSpec.describe CareProducts::CancelServiceNoteSales do
         expect { cancel.call }.to change {
           user.care_product_stock_movements.where(movement_type: "adjustment").count
         }.by(2)
+
+        reasons = user.care_product_stock_movements.where(movement_type: "adjustment").pluck(:adjustment_reason)
+
+        expect(reasons).to contain_exactly("service_note_cancel", "service_note_cancel")
       end
     end
 
