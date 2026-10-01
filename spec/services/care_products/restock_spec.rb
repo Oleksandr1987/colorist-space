@@ -175,5 +175,31 @@ RSpec.describe CareProducts::Restock do
         expect { restock.call rescue nil }.not_to change { user.expenses.count }
       end
     end
+
+    context "when care product is archived" do
+      before { care_product.update!(archived_at: Time.current) }
+
+      it "raises an error" do
+        expect { restock.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.archived_product"))
+      end
+
+      it "does not change stock or create expense" do
+        expect { restock.call rescue nil }.not_to change { care_product.reload.stock_quantity }
+        expect(user.expenses.count).to eq(0)
+      end
+    end
+
+    context "when care product is deleted" do
+      before { care_product.update!(deleted_at: Time.current) }
+
+      it "raises an error" do
+        expect { restock.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.deleted_product"))
+      end
+
+      it "does not change stock or create expense" do
+        expect { restock.call rescue nil }.not_to change { care_product.reload.stock_quantity }
+        expect(user.expenses.count).to eq(0)
+      end
+    end
   end
 end

@@ -53,6 +53,8 @@ module CareProducts
 
     def validate!
       raise ArgumentError, I18n.t("care_products.errors.wrong_user") unless care_product.user_id == user.id
+      raise ArgumentError, I18n.t("care_products.errors.deleted_product") if care_product.deleted?
+      raise ArgumentError, I18n.t("care_products.errors.archived_product") if care_product.archived?
       raise ArgumentError, I18n.t("care_products.errors.quantity_must_be_positive") unless quantity.positive?
       raise ArgumentError, I18n.t("care_products.errors.unit_price_must_be_non_negative") if unit_price.negative?
       raise ArgumentError, I18n.t("care_products.errors.sold_on_required") if sold_on.blank?

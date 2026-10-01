@@ -10,6 +10,18 @@
     </div>
   <% end %>
 
+  <% if @archived_duplicate.present? %>
+    <div class="care-product-archived-duplicate">
+      <p>
+        <%= t("care_products.errors.archived_duplicate") %>
+      </p>
+
+      <%= link_to t("care_products.restore.action"),
+        care_product_path(@archived_duplicate),
+        class: "care-product-details-action" %>
+    </div>
+  <% end %>
+
   <div class="form-section">
     <%= f.label :brand, t("care_products.form.brand") %>
     <%= f.text_field :brand, class: "form-input" %>

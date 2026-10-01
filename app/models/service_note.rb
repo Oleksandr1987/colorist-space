@@ -186,7 +186,7 @@ class ServiceNote < ApplicationRecord
     return unless care_products.is_a?(Array)
 
     care_products.each do |item|
-      product = CareProduct.find_by(id: item["care_product_id"])
+      product = user.care_products.find_by(id: item["care_product_id"])
 
       next unless product
 

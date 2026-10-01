@@ -25,6 +25,130 @@ RSpec.describe CareProduct do
       .allow_nil
   end
 
+  describe "scopes" do
+    describe ".active" do
+      it "returns only active products" do
+        active_product = create(:care_product, archived_at: nil, deleted_at: nil)
+        create(:care_product, archived_at: Time.current)
+        create(:care_product, deleted_at: Time.current)
+
+        expect(described_class.active).to contain_exactly(active_product)
+      end
+    end
+
+    describe ".archived" do
+      it "returns only archived products that are not deleted" do
+        create(:care_product)
+        archived_product = create(:care_product, archived_at: Time.current)
+        create(:care_product, archived_at: 1.day.ago, deleted_at: Time.current)
+
+        expect(described_class.archived).to contain_exactly(archived_product)
+      end
+    end
+
+    describe ".deleted" do
+      it "returns only deleted products" do
+        create(:care_product)
+        create(:care_product, archived_at: Time.current)
+        deleted_product = create(:care_product, deleted_at: Time.current)
+
+        expect(described_class.deleted).to contain_exactly(deleted_product)
+      end
+    end
+  end
+
+  describe "#archived?" do
+    it "returns false for active product" do
+      care_product = build(:care_product, archived_at: nil)
+
+      expect(care_product).not_to be_archived
+    end
+
+    it "returns true for archived product" do
+      care_product = build(:care_product, archived_at: Time.current)
+
+      expect(care_product).to be_archived
+    end
+  end
+
+  describe "#archive!" do
+    it "archives product with zero stock" do
+      care_product = create(:care_product, stock_quantity: 0)
+
+      expect { care_product.archive! }.to change { care_product.reload.archived_at }.from(nil)
+    end
+
+    it "does not archive product with remaining stock" do
+      care_product = create(:care_product, stock_quantity: 5)
+
+      expect { care_product.archive! }.to raise_error(ActiveRecord::RecordInvalid)
+      expect(care_product.reload.archived_at).to be_nil
+      expect(care_product.errors[:base]).to include(I18n.t("care_products.errors.cannot_archive_with_stock"))
+    end
+
+    it "does not archive deleted product" do
+      care_product = create(:care_product, stock_quantity: 0, deleted_at: Time.current)
+
+      expect(care_product.archive!).to be(false)
+      expect(care_product.reload.archived_at).to be_nil
+    end
+  end
+
+  describe "#restore!" do
+    it "restores archived product" do
+      care_product = create(:care_product, stock_quantity: 0, archived_at: 1.day.ago)
+
+      expect { care_product.restore! }.to change { care_product.reload.archived_at }.to(nil)
+    end
+
+    it "does not restore deleted product" do
+      care_product = create(:care_product, stock_quantity: 0, archived_at: 1.day.ago, deleted_at: Time.current)
+
+      expect(care_product.restore!).to be(false)
+      expect(care_product.reload).to be_deleted
+    end
+  end
+
+  describe "#deleted?" do
+    it "returns false for active product" do
+      care_product = build(:care_product, deleted_at: nil)
+
+      expect(care_product).not_to be_deleted
+    end
+
+    it "returns true for deleted product" do
+      care_product = build(:care_product, deleted_at: Time.current)
+
+      expect(care_product).to be_deleted
+    end
+  end
+
+  describe "#soft_delete!" do
+    it "soft deletes product with zero stock" do
+      care_product = create(:care_product, stock_quantity: 0)
+
+      expect { care_product.soft_delete! }.to change { care_product.reload.deleted_at }.from(nil)
+      expect(care_product).to be_deleted
+    end
+
+    it "removes archived state when deleting archived product" do
+      care_product = create(:care_product, stock_quantity: 0, archived_at: 1.day.ago)
+
+      care_product.soft_delete!
+
+      expect(care_product.reload.deleted_at).to be_present
+      expect(care_product.archived_at).to be_nil
+    end
+
+    it "does not delete product with remaining stock" do
+      care_product = create(:care_product, stock_quantity: 5)
+
+      expect { care_product.soft_delete! }.to raise_error(ActiveRecord::RecordInvalid)
+      expect(care_product.reload.deleted_at).to be_nil
+      expect(care_product.errors[:base]).to include(I18n.t("care_products.errors.cannot_delete_with_stock"))
+    end
+  end
+
   describe "#incomplete?" do
     it "returns false when all required values present" do
       expect(build(:care_product, purchase_price: 100, stock_quantity: 10)).not_to be_incomplete
@@ -132,6 +256,33 @@ RSpec.describe CareProduct do
       product.sale_price = 1500
 
       expect(product).to be_valid
+    end
+
+    it "does not allow duplicate archived product identity" do
+      create(:care_product, user: user, brand: "Londa", name: "Visible Repair", category: "Shampoo", archived_at: Time.current)
+
+      duplicate = build(:care_product, user: user, brand: "Londa", name: "Visible Repair", category: "Shampoo")
+
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:name]).to include(I18n.t("care_products.errors.archived_duplicate"))
+    end
+
+    it "allows reusing identity of deleted product" do
+      create(:care_product, user: user, brand: "Londa", name: "Visible Repair", category: "Shampoo", deleted_at: Time.current)
+
+      duplicate = build(:care_product, user: user, brand: "Londa", name: "Visible Repair", category: "Shampoo")
+
+      expect(duplicate).to be_valid
+    end
+
+    it "allows duplicate identity when previous product is deleted" do
+      deleted_product =
+        create(:care_product, user: user, brand: "Londa", name: "Visible Repair", category: "Shampoo", deleted_at: Time.current)
+      new_product =
+        create(:care_product, user: user, brand: deleted_product.brand, name: deleted_product.name, category: deleted_product.category)
+
+      expect(new_product).to be_persisted
+      expect(new_product.id).not_to eq(deleted_product.id)
     end
   end
 

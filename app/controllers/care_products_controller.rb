@@ -1,16 +1,13 @@
 class CareProductsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_care_product, only: %i[
-    show edit update destroy restock create_restock adjust_stock update_stock
-  ]
+  before_action :set_care_product, only: %i[show edit update destroy archive restore]
+
+  before_action :set_active_care_product, only: %i[restock create_restock adjust_stock update_stock]
 
   def index
-    @care_product =
-      CareProduct.new if params[:new] == "true"
+    @care_product = CareProduct.new if params[:new] == "true"
 
-    @care_products =
-      current_user.care_products
-                  .order(:name)
+    @care_products = current_user.care_products.active.order(:name)
   end
 
   def new
@@ -20,16 +17,11 @@ class CareProductsController < ApplicationController
 
   def create
     @care_product =
-      CareProducts::Create.new(
-        user: current_user,
-        attributes: create_care_product_params,
-        purchased_on: purchased_on
-      ).call
+      CareProducts::Create.new(user: current_user, attributes: create_care_product_params, purchased_on: purchased_on).call
 
     respond_to do |format|
       format.html do
-        redirect_to care_products_path,
-          notice: "Care product created successfully."
+        redirect_to care_products_path, notice: "Care product created successfully."
       end
 
       format.json do
@@ -44,22 +36,17 @@ class CareProductsController < ApplicationController
       end
     end
   rescue ActiveRecord::RecordInvalid => e
-    @care_product =
-      e.record.is_a?(CareProduct) ?
-        e.record :
-        current_user.care_products.build(create_care_product_params)
+    @care_product = e.record.is_a?(CareProduct) ? e.record : current_user.care_products.build(create_care_product_params)
+
+    @archived_duplicate = @care_product.archived_duplicate
 
     respond_to do |format|
       format.html do
-        render :new,
-              status: :unprocessable_content
+        render :new, status: :unprocessable_content
       end
 
       format.json do
-        render json: {
-          errors: e.record.errors.full_messages
-        },
-        status: :unprocessable_content
+        render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
       end
     end
   end
@@ -68,11 +55,7 @@ class CareProductsController < ApplicationController
     @stock_movements =
       @care_product
         .stock_movements
-        .includes(
-          :expense,
-          :care_product_sale,
-          service_note: %i[client appointment]
-        )
+        .includes(:expense, :care_product_sale, service_note: %i[client appointment])
         .order(occurred_on: :desc, created_at: :desc)
   end
 
@@ -134,16 +117,36 @@ class CareProductsController < ApplicationController
     render :adjust_stock, status: :unprocessable_content
   end
 
-  def destroy
-    @care_product.destroy
+  def archive
+    @care_product.archive!
 
-    redirect_to care_products_path,
-      notice: "Care product deleted."
+    redirect_to care_products_path, notice: t("care_products.archive.success")
+  rescue ActiveRecord::RecordInvalid
+    redirect_to care_product_path(@care_product), alert: @care_product.errors.full_messages.to_sentence
+  end
+
+  def archived
+    @care_products = current_user.care_products.archived
+  end
+
+  def restore
+    @care_product.restore!
+
+    redirect_to care_product_path(@care_product), notice: t("care_products.restore.success")
+  end
+
+  def destroy
+    @care_product.soft_delete!
+
+    redirect_to care_products_path, notice: t("care_products.delete.success")
+  rescue ActiveRecord::RecordInvalid
+    redirect_to care_product_path(@care_product), alert: @care_product.errors.full_messages.to_sentence
   end
 
   def options
     render json: current_user
       .care_products
+      .active
       .order(:brand, :name)
       .map do |product|
         {
@@ -161,6 +164,10 @@ class CareProductsController < ApplicationController
 
   def set_care_product
     @care_product = current_user.care_products.find(params[:id])
+  end
+
+  def set_active_care_product
+    @care_product = current_user.care_products.active.find(params[:id])
   end
 
   def create_care_product_params

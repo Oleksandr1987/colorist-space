@@ -103,7 +103,6 @@ en:
       open_record: "Open record"
       stock_after: "Stock after transaction"
 
-
       types:
         opening_balance: "Opening balance"
         purchase: "Restocked"
@@ -119,6 +118,26 @@ en:
         service_note_cancel: "Sale cancellation"
         other: "Other"
 
+    archive:
+      action: "Archive"
+      view: "Archive"
+      title: "Product archive"
+      empty: "There are no archived products."
+      success: "Product was archived."
+
+    restore:
+      action: "Restore"
+      success: "Product was restored."
+
+    status:
+      archived: "Archived"
+      deleted: "Deleted"
+
+    delete:
+      action: "Delete"
+      confirm: "Delete this product? Its transaction history will be preserved."
+      success: "Product was deleted."
+
     errors:
       already_exists: "This care product already exists. Restock the existing product instead."
       wrong_user: "Care product does not belong to the current user."
@@ -132,6 +151,12 @@ en:
       sold_on_future: "Sale date cannot be in the future."
       wrong_service_note_user: "Service note does not belong to the current user."
       not_enough_stock: "Not enough stock."
+      cannot_archive_with_stock: "A product with remaining stock cannot be archived."
+      cannot_delete_with_stock: "A product with remaining stock cannot be deleted."
+
+      archived_duplicate: "This care product is archived. Restore it instead of creating a new one."
+      archived_product: "The product is archived. Restore it first."
+      deleted_product: "The product has been deleted. Operations with it are unavailable."
 
       adjustment_quantity_required: "Enter the quantity change."
       adjustment_reason_required: "Select an adjustment reason."

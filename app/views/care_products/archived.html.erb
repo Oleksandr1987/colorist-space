@@ -1,0 +1,41 @@
+<div class="care-products-page">
+  <header class="care-products-header">
+    <%= link_to care_products_path,
+      class: "care-products-back",
+      aria: { label: t("common.back", default: "Back") } do %>
+      ‹
+    <% end %>
+
+    <h1><%= t("care_products.archive.title") %></h1>
+  </header>
+
+  <% if @care_products.any? %>
+    <div class="care-products-list">
+      <% @care_products.each do |care_product| %>
+        <div class="care-product-archived-item">
+          <%= link_to care_product_path(care_product), class: "care-product-main-link" do %>
+            <strong><%= care_product.brand %></strong>
+            <span><%= care_product.name %></span>
+          <% end %>
+
+          <div class="care-product-archived-actions">
+            <%= button_to t("care_products.restore.action"),
+              restore_care_product_path(care_product),
+              method: :patch,
+              class: "care-product-details-action" %>
+
+            <%= button_to t("common.delete"),
+              care_product_path(care_product),
+              method: :delete,
+              class: "care-product-details-action delete-button",
+              form: { data: { turbo_confirm: t("care_products.confirm_delete") } } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="care-product-history-empty">
+      <%= t("care_products.archive.empty") %>
+    </div>
+  <% end %>
+</div>

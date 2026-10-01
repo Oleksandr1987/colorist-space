@@ -73,5 +73,16 @@ RSpec.describe CareProducts::Create do
         expect { create_product.call }.not_to change { user.expenses.count }
       end
     end
+
+    context "when deleted product has the same identity" do
+      before do
+        create(:care_product, user: user, brand: "Londa", name: "Visible Repair",
+                category: "Shampoo", stock_quantity: 0, deleted_at: Time.current)
+      end
+
+      it "creates a new care product" do
+        expect { create_product.call }.to change(user.care_products, :count).by(1)
+      end
+    end
   end
 end

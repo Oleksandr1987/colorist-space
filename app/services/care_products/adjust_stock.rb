@@ -44,6 +44,8 @@ module CareProducts
 
     def validate!
       raise ArgumentError, I18n.t("care_products.errors.wrong_user") unless care_product.user_id == user.id
+      raise ArgumentError, I18n.t("care_products.errors.deleted_product") if care_product.deleted?
+      raise ArgumentError, I18n.t("care_products.errors.archived_product") if care_product.archived?
       raise ArgumentError, I18n.t("care_products.errors.adjustment_quantity_required") if quantity.zero?
       raise ArgumentError, I18n.t("care_products.errors.adjustment_date_required") if occurred_on.blank?
       raise ArgumentError, I18n.t("care_products.errors.adjustment_date_future") if occurred_on > Date.current

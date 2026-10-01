@@ -204,5 +204,83 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
         expect { sync.call rescue nil }.not_to change { care_product.reload.stock_quantity }
       end
     end
+
+    context "when existing sale product is archived" do
+      before do
+        service_note
+        care_product.update!(archived_at: Time.current)
+      end
+
+      context "when quantity increases" do
+        it "raises an error" do
+          service_note.care_products = [ { "care_product_id" => care_product.id.to_s, "qty" => 3, "price" => 100 } ]
+
+          expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.archived_product"))
+        end
+      end
+
+      context "when quantity decreases" do
+        it "raises an error" do
+          service_note.care_products = [ { "care_product_id" => care_product.id.to_s, "qty" => 1, "price" => 100 } ]
+
+          expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.archived_product"))
+        end
+      end
+
+      context "when existing sale product is archived" do
+        before do
+          service_note
+          care_product.update!(archived_at: Time.current)
+        end
+
+        context "when only sale price changes" do
+          it "allows historical correction" do
+            service_note.care_products = [ { "care_product_id" => care_product.id.to_s, "qty" => 2, "price" => 120 } ]
+
+            expect { sync.call }.not_to raise_error
+            expect(service_note.care_product_sales.first.reload.unit_price).to eq(120)
+          end
+        end
+
+        context "when product is removed" do
+          it "raises an error" do
+            service_note.care_products = []
+
+            expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.archived_product"))
+          end
+        end
+      end
+    end
+
+    context "when existing sale product is deleted" do
+      before do
+        service_note
+        care_product.update!(deleted_at: Time.current)
+      end
+
+      context "when quantity increases" do
+        it "raises an error" do
+          service_note.care_products = [ { "care_product_id" => care_product.id.to_s, "qty" => 3, "price" => 100 } ]
+
+          expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.deleted_product"))
+        end
+      end
+
+      context "when quantity decreases" do
+        it "raises an error" do
+          service_note.care_products = [ { "care_product_id" => care_product.id.to_s, "qty" => 1, "price" => 100 } ]
+
+          expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.deleted_product"))
+        end
+      end
+
+      context "when product is removed" do
+        it "raises an error" do
+          service_note.care_products = []
+
+          expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.deleted_product"))
+        end
+      end
+    end
   end
 end

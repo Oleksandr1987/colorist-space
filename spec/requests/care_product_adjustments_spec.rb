@@ -24,6 +24,22 @@ RSpec.describe "Care product adjustments" do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "does not allow access to archived product" do
+      care_product.update!(archived_at: Time.current)
+
+      get adjust_stock_care_product_path(care_product)
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "does not allow access to deleted product" do
+      care_product.update!(deleted_at: Time.current)
+
+      get adjust_stock_care_product_path(care_product)
+
+      expect(response).to have_http_status(:not_found)
+    end
   end
 
   describe "PATCH /care_products/:id/adjust_stock" do
@@ -57,6 +73,34 @@ RSpec.describe "Care product adjustments" do
       patch adjust_stock_care_product_path(care_product), params: params
 
       expect(response).to redirect_to(care_products_path(locale: I18n.locale))
+    end
+
+    it "does not allow adjustment of another user's product" do
+      other_product = create(:care_product)
+
+      patch adjust_stock_care_product_path(other_product), params: params
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "does not allow adjusting archived product" do
+      care_product.update!(archived_at: Time.current)
+
+      expect {
+        patch adjust_stock_care_product_path(care_product), params: params
+      }.not_to change(CareProductStockMovement, :count)
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "does not allow adjusting deleted product" do
+      care_product.update!(deleted_at: Time.current)
+
+      expect {
+        patch adjust_stock_care_product_path(care_product), params: params
+      }.not_to change(CareProductStockMovement, :count)
+
+      expect(response).to have_http_status(:not_found)
     end
 
     context "when quantity is positive" do
@@ -117,14 +161,6 @@ RSpec.describe "Care product adjustments" do
 
         expect(response).to have_http_status(:unprocessable_content)
       end
-    end
-
-    it "does not allow adjustment of another user's product" do
-      other_product = create(:care_product)
-
-      patch adjust_stock_care_product_path(other_product), params: params
-
-      expect(response).to have_http_status(:not_found)
     end
   end
 end

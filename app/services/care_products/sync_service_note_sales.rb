@@ -37,6 +37,7 @@ module CareProducts
         new_quantity = item["qty"].to_i
         quantity_diff = new_quantity - sale.quantity
 
+        validate_product_status!(product, quantity_diff)
         validate_stock!(product, quantity_diff)
 
         unless quantity_diff.zero?
@@ -80,6 +81,8 @@ module CareProducts
       product = sale.care_product
 
       product.with_lock do
+        validate_product_status!(product, -sale.quantity)
+
         new_stock = product.stock_quantity.to_i + sale.quantity
 
         create_adjustment_movement(product, quantity: sale.quantity, unit_cost: sale.unit_cost, stock_after: new_stock)
@@ -121,6 +124,13 @@ module CareProducts
         service_note.care_product_sales.index_by do |sale|
           sale.care_product_id.to_s
         end
+    end
+
+    def validate_product_status!(product, quantity_diff)
+      return if quantity_diff.zero?
+
+      raise ArgumentError, I18n.t("care_products.errors.deleted_product") if product.deleted?
+      raise ArgumentError, I18n.t("care_products.errors.archived_product") if product.archived?
     end
   end
 end

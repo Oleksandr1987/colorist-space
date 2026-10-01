@@ -58,6 +58,7 @@ Rails.application.routes.draw do
   resources :care_products do
     collection do
       get :options
+      get :archived
     end
 
     member do
@@ -66,6 +67,9 @@ Rails.application.routes.draw do
 
       get :adjust_stock
       patch :adjust_stock, action: :update_stock
+
+      patch :archive
+      patch :restore
     end
 
     resources :sales, only: %i[new create], controller: "care_product_sales"

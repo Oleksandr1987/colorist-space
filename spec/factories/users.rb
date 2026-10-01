@@ -3,7 +3,7 @@ FactoryBot.define do
     name { Faker::Name.name }
     email { Faker::Internet.unique.email }
 
-    sequence(:phone) { |n| "+380501234#{format('%03d', n)}" }
+    sequence(:phone) { |n| "+380#{format('%09d', n % 1_000_000_000)}" }
 
     password { "Password123!" }
     password_confirmation { password }

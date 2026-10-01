@@ -57,6 +57,14 @@
       <%= link_to adjust_stock_care_product_path(care_product), class: "care-product-action-button" do %>
         <%= t("care_products.adjustment.action") %>
       <% end %>
+
+      <% if care_product.stock_quantity.to_i.zero? %>
+        <%= button_to archive_care_product_path(care_product),
+          method: :patch,
+          class: "care-product-action-button" do %>
+          <%= t("care_products.archive.action") %>
+        <% end %>
+      <% end %>
     </div>
 
     <% if care_product.incomplete? %>
@@ -71,12 +79,12 @@
       <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.edit") %>
     <% end %>
 
-    <%= button_to care_product_path(care_product),
-          method: :delete,
-          class: "icon-button delete-button",
-          aria: { label: t("common.delete") },
-          form: { data: { turbo_confirm: t("care_products.confirm_delete") } } do %>
-      <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.delete") %>
+    <% if care_product.stock_quantity.to_i.zero? %>
+      <%= button_to care_product_path(care_product),
+        method: :delete, class: "icon-button delete-button", aria: { label: t("common.delete") },
+        form: { data: { turbo_confirm: t("care_products.confirm_delete") } } do %>
+        <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.delete") %>
+      <% end %>
     <% end %>
   </div>
 </div>

@@ -26,6 +26,22 @@ RSpec.describe "CareProductSales" do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "does not allow access to archived product" do
+      care_product.update!(archived_at: Time.current)
+
+      get new_care_product_sale_path(care_product)
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "does not allow access to deleted product" do
+      care_product.update!(deleted_at: Time.current)
+
+      get new_care_product_sale_path(care_product)
+
+      expect(response).to have_http_status(:not_found)
+    end
   end
 
   describe "POST /care_products/:care_product_id/sales" do
@@ -77,6 +93,20 @@ RSpec.describe "CareProductSales" do
       expect(response).to redirect_to(care_products_path(locale: I18n.locale))
     end
 
+    it "does not sell archived product" do
+      care_product.update!(archived_at: Time.current)
+
+      expect { post care_product_sales_path(care_product), params: params }.not_to change(CareProductSale, :count)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "does not sell deleted product" do
+      care_product.update!(deleted_at: Time.current)
+
+      expect { post care_product_sales_path(care_product), params: params }.not_to change(CareProductSale, :count)
+      expect(response).to have_http_status(:not_found)
+    end
+
     context "when sold on is in the future" do
       let(:params) do
         { care_product_sale: { quantity: 2, unit_price: 120, sold_on: Date.tomorrow } }
@@ -107,15 +137,11 @@ RSpec.describe "CareProductSales" do
       end
 
       it "does not create a sale" do
-        expect {
-          post care_product_sales_path(care_product), params: params
-        }.not_to change(CareProductSale, :count)
+        expect { post care_product_sales_path(care_product), params: params }.not_to change(CareProductSale, :count)
       end
 
       it "does not change stock" do
-        expect {
-          post care_product_sales_path(care_product), params: params
-        }.not_to change { care_product.reload.stock_quantity }
+        expect { post care_product_sales_path(care_product), params: params }.not_to change { care_product.reload.stock_quantity }
       end
 
       it "returns unprocessable content" do
@@ -131,9 +157,7 @@ RSpec.describe "CareProductSales" do
       end
 
       it "does not create a sale" do
-        expect {
-          post care_product_sales_path(care_product), params: params
-        }.not_to change(CareProductSale, :count)
+        expect { post care_product_sales_path(care_product), params: params }.not_to change(CareProductSale, :count)
       end
 
       it "returns unprocessable content" do
@@ -147,9 +171,7 @@ RSpec.describe "CareProductSales" do
       let(:other_product) { create(:care_product) }
 
       it "does not create a sale" do
-        expect {
-          post care_product_sales_path(other_product), params: params
-        }.not_to change(CareProductSale, :count)
+        expect { post care_product_sales_path(other_product), params: params }.not_to change(CareProductSale, :count)
       end
 
       it "returns not found" do

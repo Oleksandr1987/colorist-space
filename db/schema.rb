@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_224328) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_105513) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -105,9 +105,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_224328) do
   end
 
   create_table "care_products", force: :cascade do |t|
+    t.datetime "archived_at"
     t.string "brand"
     t.string "category"
     t.datetime "created_at", null: false
+    t.datetime "deleted_at"
     t.string "name"
     t.string "normalized_brand", null: false
     t.string "normalized_category", null: false
@@ -117,7 +119,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_224328) do
     t.integer "stock_quantity"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
-    t.index ["user_id", "normalized_brand", "normalized_name", "normalized_category"], name: "index_care_products_on_unique_identity", unique: true
+    t.index ["archived_at"], name: "index_care_products_on_archived_at"
+    t.index ["deleted_at"], name: "index_care_products_on_deleted_at"
+    t.index ["user_id", "normalized_brand", "normalized_name", "normalized_category"], name: "index_care_products_on_unique_identity", unique: true, where: "deleted_at IS NULL"
     t.index ["user_id"], name: "index_care_products_on_user_id"
   end
 

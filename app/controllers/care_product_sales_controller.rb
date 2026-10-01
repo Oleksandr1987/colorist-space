@@ -37,7 +37,7 @@ class CareProductSalesController < ApplicationController
   private
 
   def set_care_product
-    @care_product = current_user.care_products.find(params[:care_product_id])
+    @care_product = current_user.care_products.active.find(params[:care_product_id])
   end
 
   def validate_sold_on!

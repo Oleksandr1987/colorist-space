@@ -496,7 +496,8 @@ RSpec.describe ServiceNote do
 
     describe "#care_products_stock_available" do
       it "is valid when enough stock available" do
-        note = build(:service_note, care_products: [ { "care_product_id" => care_product.id, "qty" => 5 } ])
+        note = build(:service_note, user: care_product.user,
+          care_products: [ { "care_product_id" => care_product.id, "qty" => 5 } ])
 
         note.valid?
 
@@ -504,7 +505,8 @@ RSpec.describe ServiceNote do
       end
 
       it "adds validation error when stock insufficient" do
-        note = build(:service_note, care_products: [ { "care_product_id" => care_product.id, "qty" => 20 } ])
+        note = build(:service_note, user: care_product.user,
+          care_products: [ { "care_product_id" => care_product.id, "qty" => 20 } ])
 
         note.valid?
 
