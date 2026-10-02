@@ -1,0 +1,183 @@
+<div class="care-product-details">
+  <header class="care-product-details-header">
+    <%= link_to care_products_path, class: "care-product-details-back", aria: { label: t("common.back", default: "Back") } do %>
+      ‹
+    <% end %>
+
+    <div>
+      <div class="care-product-details-brand"><%= @care_product.brand %></div>
+      <h1><%= @care_product.name %></h1>
+
+      <% if @care_product.deleted? %>
+        <div class="care-product-status deleted">
+          <%= t("care_products.delete.status") %>
+        </div>
+      <% elsif @care_product.archived? %>
+        <div class="care-product-status archived">
+          <%= t("care_products.archive.status") %>
+        </div>
+      <% end %>
+    </div>
+  </header>
+
+  <section class="care-product-summary">
+    <div class="care-product-summary-item">
+      <span><%= t("care_products.history.current_stock") %></span>
+      <strong><%= @care_product.stock_quantity %></strong>
+    </div>
+
+    <div class="care-product-summary-item">
+      <span><%= t("care_products.history.purchase_price") %></span>
+      <strong><%= care_product_money(@care_product.purchase_price) %></strong>
+    </div>
+
+    <div class="care-product-summary-item">
+      <span><%= t("care_products.history.sale_price") %></span>
+      <strong><%= care_product_money(@care_product.sale_price) %></strong>
+    </div>
+
+    <div class="care-product-summary-item">
+      <span><%= t("care_products.history.stock_value") %></span>
+      <strong><%= care_product_money(@care_product.stock_value) %></strong>
+    </div>
+  </section>
+
+  <% unless @care_product.deleted? %>
+    <div class="care-product-details-actions">
+      <% if @care_product.archived? %>
+        <%= button_to t("care_products.restore.action"),
+          restore_care_product_path(@care_product),
+          method: :patch,
+          class: "care-product-details-action" %>
+
+        <%= button_to t("common.delete"),
+          care_product_path(@care_product),
+          method: :delete,
+          class: "care-product-details-action delete-button",
+          form: { data: { turbo_confirm: t("care_products.confirm_delete") } } %>
+      <% else %>
+        <% if @care_product.stock_quantity.to_i.positive? %>
+          <%= link_to t("care_products.sale.action"),
+            new_care_product_sale_path(@care_product),
+            class: "care-product-details-action" %>
+        <% end %>
+
+        <%= link_to t("care_products.restock.action"),
+          restock_care_product_path(@care_product),
+          class: "care-product-details-action" %>
+
+        <%= link_to t("care_products.adjustment.action"),
+          adjust_stock_care_product_path(@care_product),
+          class: "care-product-details-action" %>
+
+        <% if @care_product.stock_quantity.to_i.zero? %>
+          <%= button_to t("care_products.archive.action"),
+            archive_care_product_path(@care_product),
+            method: :patch,
+            class: "care-product-details-action" %>
+
+          <%= button_to t("common.delete"),
+            care_product_path(@care_product),
+            method: :delete,
+            class: "care-product-details-action delete-button",
+            form: { data: { turbo_confirm: t("care_products.confirm_delete") } } %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <section class="care-product-history">
+    <h2><%= t("care_products.history.title") %></h2>
+
+    <% if @stock_movements.any? %>
+      <div class="care-product-history-list">
+        <% @stock_movements.each do |movement| %>
+          <article class="care-product-history-item">
+            <div class="care-product-history-main">
+              <div>
+                <strong><%= care_product_movement_title(movement) %></strong>
+
+                <div class="care-product-history-date">
+                  <%= l(movement.occurred_on, format: :long) %>
+                </div>
+              </div>
+
+              <span class="care-product-history-quantity <%= movement.quantity.positive? ? "positive" : "negative" %>">
+                <%= care_product_movement_quantity(movement) %>
+              </span>
+            </div>
+
+            <div class="care-product-history-prices">
+              <% if movement.unit_cost.present? %>
+                <span>
+                  <%= t("care_products.history.unit_cost") %>:
+                  <strong><%= care_product_money(movement.unit_cost) %></strong>
+                </span>
+              <% end %>
+
+              <% if movement.sale_unit_price.present? %>
+                <span>
+                  <%= t("care_products.history.unit_price") %>:
+                  <strong><%= care_product_money(movement.sale_unit_price) %></strong>
+                </span>
+              <% end %>
+
+              <% if movement.sale_total.present? %>
+                <span>
+                  <%= t("care_products.history.total") %>:
+                  <strong><%= care_product_money(movement.sale_total) %></strong>
+                </span>
+              <% elsif movement.purchase? && movement.total_cost.present? %>
+                <span>
+                  <%= t("care_products.history.total") %>:
+                  <strong><%= care_product_money(movement.total_cost) %></strong>
+                </span>
+              <% end %>
+            </div>
+
+            <% if movement.stock_after.present? %>
+              <div class="care-product-history-stock">
+                <%= t("care_products.history.stock_after") %>:
+                <strong><%= movement.stock_after %></strong>
+              </div>
+            <% end %>
+
+            <% if movement.service_note.present? %>
+              <div class="care-product-history-record">
+                <% if movement.service_note.client.present? %>
+                  <div>
+                    <%= t("care_products.history.client") %>:
+                    <strong><%= movement.service_note.client.full_name %></strong>
+                  </div>
+                <% end %>
+
+                <% if movement.service_note.appointment.present? %>
+                  <div>
+                    <%= t("care_products.history.appointment") %>:
+                    <strong>
+                      <%= l(movement.service_note.appointment.appointment_date, format: :long) %>
+                    </strong>
+                  </div>
+                <% end %>
+
+                <%= link_to t("care_products.history.open_record"),
+                  service_note_path(movement.service_note),
+                  class: "care-product-history-record-link" %>
+              </div>
+            <% end %>
+
+            <% if movement.note.present? %>
+              <div class="care-product-history-note">
+                <%= movement.note %>
+              </div>
+            <% end %>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="care-product-history-empty">
+        <%= t("care_products.history.empty") %>
+      </div>
+    <% end %>
+  </section>
+</div>

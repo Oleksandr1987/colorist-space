@@ -24,6 +24,7 @@ en:
       care_products_income: "Care product sales"
       manual_expenses: "Other expenses"
       care_products_cost: "Care product cost"
+      stock_value: "Inventory value"
 
     expenses:
       title: "Analytics: Expenses"

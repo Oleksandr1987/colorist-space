@@ -1,0 +1,100 @@
+<div class="service-wrapper care-product-sale-page"
+     data-controller="care-product-sale"
+     data-care-product-sale-stock-value="<%= @care_product.stock_quantity.to_i %>">
+
+  <div class="category-header care-products-header">
+    <div class="category-title">
+      <%= link_to care_products_path, class: "back" do %>
+        <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
+      <% end %>
+
+      <span><%= t("care_products.sale.title") %></span>
+    </div>
+  </div>
+
+  <div class="care-product-sale-product">
+    <div class="care-product-sale-name">
+      <%= @care_product.display_name %>
+    </div>
+
+    <div class="care-product-sale-stock">
+      <%= t("care_products.sale.stock") %>:
+      <strong><%= @care_product.stock_quantity.to_i %></strong>
+    </div>
+  </div>
+
+  <%= form_with model: @sale,
+                url: care_product_sales_path(@care_product),
+                class: "care-product-sale-form" do |f| %>
+
+    <div class="care-product-sale-field">
+      <%= f.label :quantity, t("care_products.sale.quantity") %>
+
+      <div class="care-product-quantity-control">
+        <button type="button"
+                class="care-product-quantity-button"
+                data-action="care-product-sale#decrement">
+          −
+        </button>
+
+        <%= f.number_field :quantity,
+                           min: 1,
+                           max: @care_product.stock_quantity,
+                           required: true,
+                           inputmode: "numeric",
+                           class: "care-product-quantity-input",
+                           data: {
+                             care_product_sale_target: "quantity",
+                             action: "input->care-product-sale#update"
+                           } %>
+
+        <button type="button"
+                class="care-product-quantity-button"
+                data-action="care-product-sale#increment">
+          +
+        </button>
+      </div>
+    </div>
+
+    <div class="care-product-sale-field">
+      <%= f.label :unit_price, t("care_products.sale.unit_price") %>
+
+      <div class="care-product-price-input">
+        <%= f.number_field :unit_price,
+                           min: 0,
+                           step: 1,
+                           required: true,
+                           inputmode: "decimal",
+                           data: {
+                             care_product_sale_target: "price",
+                             action: "input->care-product-sale#update"
+                           } %>
+
+        <span>₴</span>
+      </div>
+    </div>
+
+    <div class="care-product-sale-field">
+      <%= f.label :sold_on, t("care_products.sale.sold_on") %>
+
+      <%= f.date_field :sold_on,
+                       max: Date.current,
+                       required: true,
+                       class: "care-product-sale-date" %>
+    </div>
+
+    <div class="care-product-sale-total">
+      <span><%= t("care_products.total") %></span>
+
+      <strong>
+        <span data-care-product-sale-target="total">0</span>
+        ₴
+      </strong>
+    </div>
+
+    <%= f.submit t("care_products.sale.submit"),
+                 class: "care-product-sale-submit",
+                 disabled: @care_product.stock_quantity.to_i.zero?,
+                 data: { care_product_sale_target: "submit" } %>
+  <% end %>
+</div>

@@ -390,142 +390,114 @@ RSpec.describe ServiceNote do
   describe "care products stock management" do
     let(:care_product) { create(:care_product, stock_quantity: 10) }
 
-    describe "#decrease_care_products_stock" do
-      it "decreases stock quantity" do
-        note = build(:service_note, care_products: [ { "care_product_id" => care_product.id, "qty" => 3 } ])
+    describe "#create_care_product_sales" do
+      let(:care_product) { create(:care_product, user: user, purchase_price: 60, sale_price: 100, stock_quantity: 10) }
+      let(:care_products) { [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 3 } ] }
 
-        note.send(:decrease_care_products_stock)
-
-        expect(care_product.reload.stock_quantity).to eq(7)
+      def create_note_with_care_products
+        create(:service_note, user: user, client: client, appointment: appointment, care_products: care_products)
       end
 
-      it "does not go below zero" do
-        care_product.update!(stock_quantity: 2)
-
-        note = build(:service_note, care_products: [ { "care_product_id" => care_product.id, "qty" => 10 } ])
-
-        note.send(:decrease_care_products_stock)
-
-        expect(care_product.reload.stock_quantity).to eq(0)
+      it "creates care product sale after create" do
+        expect { create_note_with_care_products }.to change(user.care_product_sales, :count).by(1)
       end
 
-      it "ignores missing products" do
-        note = build(:service_note, care_products: [ { "care_product_id" => 999_999, "qty" => 3 } ])
+      it "stores sale snapshots" do
+        sale = create_note_with_care_products.care_product_sales.last
 
-        expect { note.send(:decrease_care_products_stock) }.not_to raise_error
+        expect(sale.quantity).to eq(3)
+        expect(sale.unit_price).to eq(100)
+        expect(sale.unit_cost).to eq(60)
+        expect(sale.sold_on).to eq(appointment.appointment_date)
       end
 
-      it "ignores zero quantity" do
-        note = build(:service_note, care_products: [ { "care_product_id" => care_product.id, "qty" => 0 } ])
-
-        expect { note.send(:decrease_care_products_stock) }.not_to change { care_product.reload.stock_quantity }
-      end
-    end
-
-    describe "#restore_care_products_stock" do
-      it "restores stock quantity" do
-        note = build(:service_note, care_products: [ { "care_product_id" => care_product.id, "qty" => 4 } ])
-
-        note.send(:restore_care_products_stock)
-
-        expect(care_product.reload.stock_quantity).to eq(14)
+      it "decreases stock through sale" do
+        expect { create_note_with_care_products }.to change { care_product.reload.stock_quantity }.from(10).to(7)
       end
 
-      it "ignores missing products" do
-        note = build(:service_note, care_products: [ { "care_product_id" => 999_999, "qty" => 4 } ])
+      it "creates sale stock movement" do
+        expect { create_note_with_care_products }.to change(user.care_product_stock_movements, :count).by(1)
 
-        expect { note.send(:restore_care_products_stock) }.not_to raise_error
+        movement = user.care_product_stock_movements.last
+
+        expect(movement.movement_type).to eq("sale")
+        expect(movement.quantity).to eq(-3)
+        expect(movement.unit_cost).to eq(60)
       end
 
-      it "does nothing when care_products is not an array" do
-        note = build(:service_note, care_products: nil)
+      it "links sale and movement to service note" do
+        sale = create_note_with_care_products.care_product_sales.last
 
-        expect { note.send(:restore_care_products_stock) }.not_to raise_error
-      end
-
-      it "ignores zero or negative quantities" do
-        note = build(:service_note, care_products: [ { "care_product_id" => care_product.id, "qty" => 0 } ])
-
-        expect { note.send(:restore_care_products_stock) }.not_to change { care_product.reload.stock_quantity }
+        expect(sale.service_note).to eq(note = sale.service_note)
+        expect(sale.stock_movement.service_note).to eq(note)
       end
     end
 
-    it "skips a product_id that no longer exists" do
-      note = build(:service_note)
+    describe "care product sales synchronization" do
+      let(:care_product) { create(:care_product, user: user, purchase_price: 60, sale_price: 100, stock_quantity: 10) }
+      let(:care_products) { [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 2 } ] }
+      let(:service_note) { create(:service_note, user: user, client: client, appointment: appointment, care_products: care_products) }
 
-      allow(note).to receive_messages(
-        care_products_before_last_save: [ { "care_product_id" => 999_999, "qty" => 2 } ],
-        care_products: [ { "care_product_id" => 999_999, "qty" => 5 } ]
-      )
+      it "synchronizes sale when care products change" do
+        service_note
 
-      expect { note.send(:sync_care_products_stock) }.not_to raise_error
+        expect do
+          service_note.update!(
+            care_products: [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 5 } ]
+          )
+        end.to change { service_note.care_product_sales.first.reload.quantity }.from(2).to(5)
+      end
+
+      it "synchronizes stock when care products change" do
+        service_note
+
+        expect do
+          service_note.update!(
+            care_products: [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 5 } ]
+          )
+        end.to change { care_product.reload.stock_quantity }.from(8).to(5)
+      end
+
+      it "does not synchronize sales when care products do not change" do
+        allow(CareProducts::SyncServiceNoteSales).to receive(:new)
+        service_note
+
+        expect(CareProducts::SyncServiceNoteSales).not_to have_received(:new)
+
+        service_note.update!(notes: "Updated note")
+      end
     end
 
-    it "treats a newly added care product as increasing usage from zero" do
-      note = build(:service_note)
+    describe "care product sales cancellation" do
+      let(:care_product) { create(:care_product, user: user, purchase_price: 60, sale_price: 100, stock_quantity: 10) }
+      let(:care_products) { [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 3 } ] }
+      let(:service_note) { create(:service_note, user: user, client: client, appointment: appointment, care_products: care_products) }
 
-      allow(note).to receive_messages(
-        care_products_before_last_save: [],
-        care_products: [ { "care_product_id" => care_product.id, "qty" => 3 } ]
-      )
+      it "restores stock when service note is destroyed" do
+        service_note
 
-      note.send(:sync_care_products_stock)
+        expect { service_note.destroy! }.to change { care_product.reload.stock_quantity }.from(7).to(10)
+      end
 
-      expect(care_product.reload.stock_quantity).to eq(7)
-    end
+      it "removes care product sale when service note is destroyed" do
+        service_note
 
-    it "treats a removed care product as decreasing usage to zero" do
-      note = build(:service_note)
+        expect { service_note.destroy! }.to change(CareProductSale, :count).by(-1)
+      end
 
-      allow(note).to receive_messages(
-        care_products_before_last_save: [ { "care_product_id" => care_product.id, "qty" => 4 } ],
-        care_products: []
-      )
+      it "creates adjustment movement when service note is destroyed" do
+        service_note
 
-      note.send(:sync_care_products_stock)
-
-      expect(care_product.reload.stock_quantity).to eq(14)
-    end
-
-    it "does nothing when quantity is unchanged" do
-      note = build(:service_note)
-
-      allow(note).to receive_messages(
-        care_products_before_last_save: [ { "care_product_id" => care_product.id, "qty" => 3 } ],
-        care_products: [ { "care_product_id" => care_product.id, "qty" => 3 } ]
-      )
-
-      expect { note.send(:sync_care_products_stock) }.not_to change { care_product.reload.stock_quantity }
-    end
-
-    it "decreases stock when qty increased" do
-      note = build(:service_note)
-
-
-      allow(note).to receive_messages(care_products_before_last_save: [ { "care_product_id" => care_product.id, "qty" => 2 } ],
-                                      care_products: [ { "care_product_id" => care_product.id, "qty" => 5 } ]
-      )
-
-      note.send(:sync_care_products_stock)
-
-      expect(care_product.reload.stock_quantity).to eq(7)
-    end
-
-    it "increases stock when qty decreased" do
-      note = build(:service_note)
-
-      allow(note).to receive_messages(care_products_before_last_save: [ { "care_product_id" => care_product.id, "qty" => 5 } ],
-                                      care_products: [ { "care_product_id" => care_product.id, "qty" => 2 } ]
-      )
-
-      note.send(:sync_care_products_stock)
-
-      expect(care_product.reload.stock_quantity).to eq(13)
+        expect { service_note.destroy! }.to change {
+          user.care_product_stock_movements.where(movement_type: "adjustment").count
+        }.by(1)
+      end
     end
 
     describe "#care_products_stock_available" do
       it "is valid when enough stock available" do
-        note = build(:service_note, care_products: [ { "care_product_id" => care_product.id, "qty" => 5 } ])
+        note = build(:service_note, user: care_product.user,
+          care_products: [ { "care_product_id" => care_product.id, "qty" => 5 } ])
 
         note.valid?
 
@@ -533,11 +505,82 @@ RSpec.describe ServiceNote do
       end
 
       it "adds validation error when stock insufficient" do
-        note = build(:service_note, care_products: [ { "care_product_id" => care_product.id, "qty" => 20 } ])
+        note = build(:service_note, user: care_product.user,
+          care_products: [ { "care_product_id" => care_product.id, "qty" => 20 } ])
 
         note.valid?
 
         expect(note.errors[:base]).to include("#{care_product.name}: only 10 left in stock")
+      end
+
+      describe "#care_products_are_active_for_stock_increase" do
+        let(:care_product) { create(:care_product, user: user, purchase_price: 60, sale_price: 100, stock_quantity: 10) }
+        let(:care_products) { [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 2 } ] }
+        let(:service_note) { create(:service_note, user: user, client: client, appointment: appointment, care_products: care_products) }
+
+        context "when product is archived" do
+          before do
+            service_note
+            care_product.update!(archived_at: Time.current)
+          end
+
+          it "rejects quantity increase" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 3 } ]
+
+            expect(service_note).not_to be_valid
+            expect(service_note.errors[:base]).to include(I18n.t("care_products.errors.archived_product"))
+          end
+
+          it "allows quantity decrease" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 1 } ]
+
+            expect(service_note).to be_valid
+          end
+
+          it "allows product removal" do
+            service_note.care_products = []
+
+            expect(service_note).to be_valid
+          end
+
+          it "allows sale price change" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 120, "purchase_price" => 60, "qty" => 2 } ]
+
+            expect(service_note).to be_valid
+          end
+        end
+
+        context "when product is deleted" do
+          before do
+            service_note
+            care_product.update!(deleted_at: Time.current)
+          end
+
+          it "rejects quantity increase" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 3 } ]
+
+            expect(service_note).not_to be_valid
+            expect(service_note.errors[:base]).to include(I18n.t("care_products.errors.deleted_product"))
+          end
+
+          it "allows quantity decrease" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 1 } ]
+
+            expect(service_note).to be_valid
+          end
+
+          it "allows product removal" do
+            service_note.care_products = []
+
+            expect(service_note).to be_valid
+          end
+
+          it "allows sale price change" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 120, "purchase_price" => 60, "qty" => 2 } ]
+
+            expect(service_note).to be_valid
+          end
+        end
       end
     end
 

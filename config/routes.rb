@@ -55,10 +55,24 @@ Rails.application.routes.draw do
 
   resources :formula_products
 
-  resources :care_products, except: [:show] do
+  resources :care_products do
     collection do
       get :options
+      get :archived
     end
+
+    member do
+      get :restock
+      post :restock, action: :create_restock
+
+      get :adjust_stock
+      patch :adjust_stock, action: :update_stock
+
+      patch :archive
+      patch :restore
+    end
+
+    resources :sales, only: %i[new create], controller: "care_product_sales"
   end
 
   resource :subscription, only: [] do

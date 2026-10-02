@@ -7,6 +7,8 @@ class ServiceNote < ApplicationRecord
   has_many :services, through: :service_note_services
   has_many :formula_steps, dependent: :destroy, inverse_of: :service_note
   has_many :haircut_steps, dependent: :destroy, inverse_of: :service_note
+  has_many :care_product_stock_movements, dependent: :nullify
+  has_many :care_product_sales, dependent: :nullify
 
   has_many_attached :photos
 
@@ -15,6 +17,7 @@ class ServiceNote < ApplicationRecord
 
   validates :appointment_id, uniqueness: true
   validate :care_products_stock_available
+  validate :care_products_are_active_for_stock_increase
 
   scope :for_client, ->(client_id) {
     where(client_id: client_id).order(created_at: :desc)
@@ -26,11 +29,9 @@ class ServiceNote < ApplicationRecord
   after_save :sync_appointment_services
   after_save :sync_appointment_notes
 
-  after_create :decrease_care_products_stock
-
-  after_update :sync_care_products_stock, if: :saved_change_to_care_products?
-
-  after_destroy :restore_care_products_stock
+  after_create :create_care_product_sales
+  after_update :sync_care_product_sales, if: :saved_change_to_care_products?
+  before_destroy :cancel_care_product_sales, prepend: true
 
   def decorated_photos
     photos.map { |photo| PhotoDecorator.decorate(photo) }
@@ -151,83 +152,42 @@ class ServiceNote < ApplicationRecord
     appointment.update_column(:notes, notes)
   end
 
-  def decrease_care_products_stock
+  def create_care_product_sales
     return unless care_products.is_a?(Array)
 
     care_products.each do |item|
-      product = CareProduct.find_by(id: item["care_product_id"])
+      product = user.care_products.find_by(id: item["care_product_id"])
 
       next unless product
 
-      qty = item["qty"].to_i
+      quantity = item["qty"].to_i
 
-      next if qty <= 0
+      next unless quantity.positive?
 
-      current_stock = product.stock_quantity.to_i
-
-      product.update!(stock_quantity: [ current_stock - qty, 0 ].max)
+      CareProducts::Sell.new(
+        user: user,
+        care_product: product,
+        quantity: quantity,
+        unit_price: item["price"],
+        sold_on: appointment.appointment_date,
+        service_note: self
+      ).call
     end
   end
 
-  def restore_care_products_stock
-    return unless care_products.is_a?(Array)
-
-    care_products.each do |item|
-      product = CareProduct.find_by(id: item["care_product_id"])
-
-      next unless product
-
-      qty = item["qty"].to_i
-
-      next if qty <= 0
-
-      product.increment!(:stock_quantity, qty)
-    end
+  def cancel_care_product_sales
+    CareProducts::CancelServiceNoteSales.new(service_note: self).call
   end
 
-  def sync_care_products_stock
-    old_products = care_products_before_last_save || []
-
-    new_products = care_products || []
-
-    old_hash =
-      old_products.index_by do |item|
-        item["care_product_id"].to_s
-      end
-
-    new_hash =
-      new_products.index_by do |item|
-        item["care_product_id"].to_s
-      end
-
-    product_ids = old_hash.keys | new_hash.keys
-
-    product_ids.each do |product_id|
-      product = CareProduct.find_by(id: product_id)
-
-      next unless product
-
-      old_qty = old_hash[product_id]&.dig("qty").to_i
-
-      new_qty = new_hash[product_id]&.dig("qty").to_i
-
-      diff = new_qty - old_qty
-
-      next if diff.zero?
-
-      if diff.positive?
-        product.decrement!(:stock_quantity, diff)
-      else
-        product.increment!(:stock_quantity, diff.abs)
-      end
-    end
+  def sync_care_product_sales
+    CareProducts::SyncServiceNoteSales.new(service_note: self).call
   end
 
   def care_products_stock_available
     return unless care_products.is_a?(Array)
 
     care_products.each do |item|
-      product = CareProduct.find_by(id: item["care_product_id"])
+      product = user.care_products.find_by(id: item["care_product_id"])
 
       next unless product
 
@@ -241,16 +201,36 @@ class ServiceNote < ApplicationRecord
     end
   end
 
-  def available_stock_for(product)
-    current_qty =
-      Array(attribute_in_database("care_products"))
-        .find do |item|
-          item["care_product_id"].to_s == product.id.to_s
-        end
-        &.dig("qty")
-        .to_i
+  def care_products_are_active_for_stock_increase
+    return unless care_products.is_a?(Array)
 
-    product.stock_quantity.to_i + current_qty
+    care_products.each do |item|
+      product = user.care_products.find_by(id: item["care_product_id"])
+
+      next unless product
+
+      requested_qty = item["qty"].to_i
+      previous_qty = previous_care_product_quantity(product)
+
+      next unless requested_qty > previous_qty
+
+      if product.deleted?
+        errors.add(:base, I18n.t("care_products.errors.deleted_product"))
+      elsif product.archived?
+        errors.add(:base, I18n.t("care_products.errors.archived_product"))
+      end
+    end
+  end
+
+  def previous_care_product_quantity(product)
+    Array(attribute_in_database("care_products"))
+      .find { |item| item["care_product_id"].to_s == product.id.to_s }
+      &.dig("qty")
+      .to_i
+  end
+
+  def available_stock_for(product)
+    product.stock_quantity.to_i + previous_care_product_quantity(product)
   end
 
   def reject_empty_haircut_step?(attrs)

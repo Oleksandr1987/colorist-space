@@ -551,6 +551,51 @@ RSpec.describe Appointment do
         expect { appointment_without_note.save! }.not_to raise_error
       end
     end
+
+    describe "#sync_care_product_sale_dates" do
+      let(:care_product) { create(:care_product, user: user, purchase_price: 60, sale_price: 100, stock_quantity: 10) }
+
+      let(:service_note) do
+        create(:service_note, appointment: appointment, client: client, user: user,
+          care_products: [ { "care_product_id" => care_product.id,   "price" => 100,   "purchase_price" => 60,   "qty" => 2 } ]
+        )
+      end
+
+      it "updates sale date when appointment date changes" do
+        sale = service_note.care_product_sales.first
+        new_date = appointment.appointment_date + 1.day
+
+        appointment.update!(appointment_date: new_date)
+
+        expect(sale.reload.sold_on).to eq(new_date)
+      end
+
+      it "updates stock movement date when appointment date changes" do
+        sale = service_note.care_product_sales.first
+        movement = sale.stock_movement
+        new_date = appointment.appointment_date + 1.day
+
+        appointment.update!(appointment_date: new_date)
+
+        expect(movement.reload.occurred_on).to eq(new_date)
+      end
+
+      it "does not change stock when appointment date changes" do
+        service_note
+        new_date = appointment.appointment_date + 1.day
+
+        expect {
+          appointment.update!(appointment_date: new_date)
+        }.not_to change { care_product.reload.stock_quantity }
+      end
+
+      it "does nothing if appointment has no service note" do
+        appointment_without_note = create_appointment
+        new_date = appointment_without_note.appointment_date + 1.day
+
+        expect { appointment_without_note.update!(appointment_date: new_date) }.not_to raise_error
+      end
+    end
   end
 
   describe "private validations and callbacks" do

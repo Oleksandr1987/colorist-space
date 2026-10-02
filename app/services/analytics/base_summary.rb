@@ -37,6 +37,16 @@ module Analytics
           .to_a
     end
 
+    def period_care_product_sales
+      @period_care_product_sales ||=
+        begin
+          scope = user.care_product_sales
+          scope = scope.where(sold_on: from..to) if period?
+
+          scope
+        end
+    end
+
     def period?
       from.present? && to.present?
     end

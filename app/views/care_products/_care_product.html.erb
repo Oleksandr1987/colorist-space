@@ -4,38 +4,68 @@
      data-category="<%= care_product.category.to_s.downcase %>">
 
   <div class="service-info">
-    <div class="service-name">
-      <strong>
-        <%= care_product.brand.presence || t("care_products.unknown_brand") %>
-      </strong>
+    <%= link_to care_product_path(care_product), class: "care-product-main-link" do %>
+      <div class="service-name">
+        <strong>
+          <%= care_product.brand.presence || t("care_products.unknown_brand") %>
+        </strong>
 
-      <%= care_product.name %>
+        <%= care_product.name %>
+      </div>
+
+      <% if care_product.category.present? %>
+        <div class="service-category">
+          <%= t("care_products.categories.#{care_product.category}", default: care_product.category) %>
+        </div>
+      <% end %>
+
+      <div class="service-price">
+        <%= t("care_products.sale_label") %>:
+        <%= care_product.sale_price || 0 %> ₴
+      </div>
+
+      <% if care_product.purchase_price.present? %>
+        <div class="service-purchase-price">
+          <%= t("care_products.purchase") %>:
+          <%= care_product.purchase_price %> ₴
+        </div>
+      <% end %>
+
+      <% if care_product.stock_quantity.present? %>
+        <div class="service-stock">
+          <%= t("care_products.stock") %>:
+          <%= care_product.stock_quantity %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div class="care-product-actions">
+      <% if care_product.stock_quantity.to_i.positive? %>
+        <%= link_to new_care_product_sale_path(care_product), class: "care-product-action-button" do %>
+          <%= t("care_products.sale.action") %>
+        <% end %>
+      <% else %>
+        <span class="care-product-action-button disabled" aria-disabled="true">
+          <%= t("care_products.sale.action") %>
+        </span>
+      <% end %>
+
+      <%= link_to restock_care_product_path(care_product), class: "care-product-action-button" do %>
+        <%= t("care_products.restock.action") %>
+      <% end %>
+
+      <%= link_to adjust_stock_care_product_path(care_product), class: "care-product-action-button" do %>
+        <%= t("care_products.adjustment.action") %>
+      <% end %>
+
+      <% if care_product.stock_quantity.to_i.zero? %>
+        <%= button_to archive_care_product_path(care_product),
+          method: :patch,
+          class: "care-product-action-button" do %>
+          <%= t("care_products.archive.action") %>
+        <% end %>
+      <% end %>
     </div>
-
-    <% if care_product.category.present? %>
-      <div class="service-category">
-        <%= t("care_products.categories.#{care_product.category}", default: care_product.category) %>
-      </div>
-    <% end %>
-
-    <div class="service-price">
-      <%= t("care_products.sale") %>:
-      <%= care_product.sale_price || 0 %> ₴
-    </div>
-
-    <% if care_product.purchase_price.present? %>
-      <div class="service-purchase-price">
-        <%= t("care_products.purchase") %>:
-        <%= care_product.purchase_price %> ₴
-      </div>
-    <% end %>
-
-    <% if care_product.stock_quantity.present? %>
-      <div class="service-stock">
-        <%= t("care_products.stock") %>:
-        <%= care_product.stock_quantity %>
-      </div>
-    <% end %>
 
     <% if care_product.incomplete? %>
       <div class="care-product-warning">
@@ -49,16 +79,12 @@
       <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.edit") %>
     <% end %>
 
-    <%= button_to care_product_path(care_product),
-          method: :delete,
-          class: "icon-button delete-button",
-          aria: { label: t("common.delete") },
-          form: {
-            data: {
-              turbo_confirm: t("care_products.confirm_delete")
-            }
-          } do %>
-      <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.delete") %>
+    <% if care_product.stock_quantity.to_i.zero? %>
+      <%= button_to care_product_path(care_product),
+        method: :delete, class: "icon-button delete-button", aria: { label: t("common.delete") },
+        form: { data: { turbo_confirm: t("care_products.confirm_delete") } } do %>
+        <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.delete") %>
+      <% end %>
     <% end %>
   </div>
 </div>

@@ -93,6 +93,8 @@ class AnalyticsController < ApplicationController
     @total_income = summary.total_income
     @total_expenses = summary.total_expenses
     @balance = summary.balance
+
+    @care_products_stock_value = current_user.care_products.total_stock_value
   end
 
   private
@@ -151,7 +153,9 @@ class AnalyticsController < ApplicationController
       appointment_dates.minimum(:appointment_date),
       appointment_dates.maximum(:appointment_date),
       current_user.expenses.minimum(:spent_on),
-      current_user.expenses.maximum(:spent_on)
+      current_user.expenses.maximum(:spent_on),
+      current_user.care_product_sales.minimum(:sold_on),
+      current_user.care_product_sales.maximum(:sold_on)
     ].compact
 
     return [ Date.current, Date.current ] if dates.empty?

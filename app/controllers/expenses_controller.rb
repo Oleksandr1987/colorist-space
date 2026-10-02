@@ -42,6 +42,13 @@ class ExpensesController < ApplicationController
   end
 
   def expense_params
-    params.require(:expense).permit(:category, :note, :amount, :spent_on)
+    permitted = params.require(:expense).permit(:category, :note, :amount, :spent_on)
+
+    if permitted[:category].present? &&
+        !Expense::MANUAL_CATEGORIES.include?(permitted[:category])
+      permitted[:category] = nil
+    end
+
+    permitted
   end
 end

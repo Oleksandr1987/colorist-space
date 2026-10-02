@@ -1,4 +1,4 @@
-<%= turbo_stream_from "care_products" %>
+<%= turbo_stream_from current_user, "care_products" %>
 
 <div class="service-wrapper" data-controller="service">
   <div class="category-header care-products-header">
@@ -6,12 +6,21 @@
       <%= link_to services_path, class: "back" do %>
         <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
       <% end %>
+
       <span><%= t("services.pages.care_products") %></span>
     </div>
 
-    <%= link_to new_care_product_path, class: "formula-add-button" do %>
-      <%= image_tag "plus.png", width: 24, height: 24 %>
-    <% end %>
+    <div class="care-products-header-actions">
+      <%= link_to archived_care_products_path,
+        class: "care-products-archive-link",
+        aria: { label: t("care_products.archive.view") } do %>
+        <%= t("care_products.archive.view") %>
+      <% end %>
+
+      <%= link_to new_care_product_path, class: "formula-add-button" do %>
+        <%= image_tag "plus.png", width: 24, height: 24 %>
+      <% end %>
+    </div>
   </div>
 
   <div class="care-products-page-search">

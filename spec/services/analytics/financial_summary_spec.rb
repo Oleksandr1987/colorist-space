@@ -12,7 +12,14 @@ RSpec.describe Analytics::FinancialSummary do
   let(:from) { 1.month.ago.to_date }
   let(:to) { Date.current }
 
-  let(:care_products) { [ { "care_product_id" => 1, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ] }
+  let(:care_product) do
+      create(:care_product, user: user, brand: "Test", name: "Mask", category: "Mask",
+        purchase_price: 30, sale_price: 50, stock_quantity: 10)
+  end
+
+  let(:care_products) do
+    [ { "care_product_id" => care_product.id, "name" => "Mask", "price" => 50, "purchase_price" => 30, "qty" => 2 } ]
+  end
 
   let(:appointment) do
     create(:appointment, user: user, client: client,
@@ -32,10 +39,7 @@ RSpec.describe Analytics::FinancialSummary do
   end
 
   let(:formula_step) do
-    create(:formula_step,
-      service_note: service_note,
-      oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ]
-    )
+    create(:formula_step, service_note: service_note, oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ])
   end
 
   before do
@@ -60,9 +64,7 @@ RSpec.describe Analytics::FinancialSummary do
       other_client = create(:client, user: other_user)
       other_service = create(:service, user: other_user, service_type: "service", category: "haircut", subtype: "Other", price: 1_000)
 
-      create(:appointment,
-        user: other_user,
-        client: other_client,
+      create(:appointment, user: other_user, client: other_client,
         appointment_date: Date.current,
         appointment_time: "11:00",
         end_time: "11:30",
@@ -87,11 +89,41 @@ RSpec.describe Analytics::FinancialSummary do
 
       expect(summary.care_products_income).to eq(100)
     end
+
+    it "includes direct care product sales" do
+      create(:care_product_sale, user: user, care_product: care_product,
+              service_note: nil, quantity: 2, unit_price: 70, unit_cost: 30, sold_on: Date.current)
+
+      expect(summary.care_products_income).to eq(140)
+    end
+
+    it "excludes care product sales outside the period" do
+      create(:care_product_sale, user: user, care_product: care_product,
+              quantity: 2, unit_price: 70, unit_cost: 30, sold_on: 2.months.ago.to_date)
+
+      expect(summary.care_products_income).to eq(0)
+    end
+
+    it "excludes another user's care product sales" do
+      other_product = create(:care_product, user: other_user)
+
+      create(:care_product_sale, user: other_user, care_product: other_product,
+              quantity: 2, unit_price: 70, unit_cost: 30, sold_on: Date.current)
+
+      expect(summary.care_products_income).to eq(0)
+    end
   end
 
   describe "#care_products_cost" do
     it "uses historical purchase prices" do
       service_note
+
+      expect(summary.care_products_cost).to eq(60)
+    end
+
+    it "includes cost from direct care product sales" do
+      create(:care_product_sale, user: user, care_product: care_product,
+              service_note: nil,  quantity: 2, unit_price: 70, unit_cost: 30, sold_on: Date.current)
 
       expect(summary.care_products_cost).to eq(60)
     end
@@ -103,6 +135,13 @@ RSpec.describe Analytics::FinancialSummary do
       create(:expense, user: user, amount: 10, spent_on: Date.current)
 
       expect(summary.manual_expenses).to eq(50)
+    end
+
+    it "excludes care product purchase expenses" do
+      create(:expense, user: user, category: "rent", amount: 10_000, spent_on: Date.current)
+      create(:expense, user: user, category: "care_products", amount: 48_000, spent_on: Date.current)
+
+      expect(summary.manual_expenses).to eq(10_000)
     end
 
     it "excludes another user's expenses" do
@@ -128,6 +167,19 @@ RSpec.describe Analytics::FinancialSummary do
 
     it "calculates balance" do
       expect(summary.balance).to eq(290)
+    end
+  end
+
+  describe "care product purchase accounting" do
+    it "uses sold care product cost instead of care product purchase expenses" do
+      create(:expense, user: user, category: "rent", amount: 10_000, spent_on: Date.current)
+      create(:expense, user: user, category: "care_products", amount: 48_000, spent_on: Date.current)
+
+      service_note
+
+      expect(summary.manual_expenses).to eq(10_000)
+      expect(summary.care_products_cost).to eq(60)
+      expect(summary.total_expenses).to eq(10_060)
     end
   end
 end

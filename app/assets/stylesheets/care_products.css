@@ -430,6 +430,51 @@
   font-weight: 600;
 }
 
+.care-product-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.care-product-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: white;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.care-product-action-button.disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+
+.care-product-restock-summary {
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--surface-color, #f7f7f7);
+}
+
+.care-product-restock-summary strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.care-product-restock-summary > div {
+  margin-top: 4px;
+}
+
 
 /* NUMBER INPUT Chrome, Safari, Edge */
 input[type="number"]::-webkit-outer-spin-button,
