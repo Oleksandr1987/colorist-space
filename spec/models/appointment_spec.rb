@@ -600,11 +600,10 @@ RSpec.describe Appointment do
 
   describe "private validations and callbacks" do
     describe "#valid_date" do
-      it "is invalid when appointment_date is in the past" do
-        appointment = build(:appointment, user: user, client: client, appointment_date: Date.yesterday, main_service: nil)
+      it "allows historical appointments" do
+        appointment = build(:appointment, appointment_date: Date.yesterday)
 
-        expect(appointment).not_to be_valid
-        expect(appointment.errors[:appointment_date]).to include("can't be in the past")
+        expect(appointment).to be_valid
       end
     end
 

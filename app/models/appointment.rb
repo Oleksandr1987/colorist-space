@@ -10,7 +10,6 @@ class Appointment < ApplicationRecord
 
   validates :appointment_date, :appointment_time, presence: true
 
-  validate :valid_date
   validate :valid_end_time
   validate :no_time_conflicts
   validate :time_step_interval
@@ -264,14 +263,6 @@ class Appointment < ApplicationRecord
 
   def set_default_end_time
     self.end_time = appointment_time + 30.minutes
-  end
-
-  def valid_date
-    return unless appointment_date.present?
-
-    if new_record? && appointment_date < Date.today
-      errors.add(:appointment_date, "can't be in the past")
-    end
   end
 
   def valid_end_time
