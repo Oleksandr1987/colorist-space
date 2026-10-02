@@ -35,8 +35,13 @@ class CareProductsController < ApplicationController
         }
       end
     end
-  rescue ActiveRecord::RecordInvalid => e
-    @care_product = e.record.is_a?(CareProduct) ? e.record : current_user.care_products.build(create_care_product_params)
+  rescue ActiveRecord::RecordInvalid, ArgumentError => e
+    @care_product =
+      if e.is_a?(ActiveRecord::RecordInvalid) && e.record.is_a?(CareProduct)
+        e.record
+      else
+        current_user.care_products.build(create_care_product_params)
+      end
 
     @archived_duplicate = @care_product.archived_duplicate
 
@@ -46,7 +51,8 @@ class CareProductsController < ApplicationController
       end
 
       format.json do
-        render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
+        errors =  e.is_a?(ActiveRecord::RecordInvalid) ? e.record.errors.full_messages : [ e.message ]
+        render json: { errors: errors }, status: :unprocessable_content
       end
     end
   end
@@ -192,6 +198,8 @@ class CareProductsController < ApplicationController
     return Date.current if value.blank?
 
     Date.iso8601(value)
+  rescue Date::Error
+    nil
   end
 
   def parse_date(value)

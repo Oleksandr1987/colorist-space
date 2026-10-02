@@ -3,6 +3,8 @@ require "rails_helper"
 RSpec.describe CareProduct do
   subject(:care_product) { build(:care_product) }
 
+  let(:user) { create(:user) }
+
   it { is_expected.to belong_to(:user) }
 
   it { is_expected.to validate_presence_of(:name) }
@@ -54,6 +56,20 @@ RSpec.describe CareProduct do
 
         expect(described_class.deleted).to contain_exactly(deleted_product)
       end
+    end
+  end
+
+  describe "#active?" do
+    it "returns true for active product" do
+      expect(build(:care_product, archived_at: nil, deleted_at: nil)).to be_active
+    end
+
+    it "returns false for archived product" do
+      expect(build(:care_product, archived_at: Time.current, deleted_at: nil)).not_to be_active
+    end
+
+    it "returns false for deleted product" do
+      expect(build(:care_product, archived_at: nil, deleted_at: Time.current)).not_to be_active
     end
   end
 
@@ -172,8 +188,6 @@ RSpec.describe CareProduct do
   end
 
   describe ".total_stock_value" do
-    let(:user) { create(:user) }
-
     it "returns total purchase value of products in stock" do
       create(:care_product, user: user, name: "Shampoo", purchase_price: 800, stock_quantity: 10)
       create(:care_product, user: user, name: "Mask", purchase_price: 500, stock_quantity: 9)
@@ -183,8 +197,6 @@ RSpec.describe CareProduct do
   end
 
   describe "product identity" do
-    let(:user) { create(:user) }
-
     it "normalizes identity fields" do
       product =
         create(:care_product, user: user, brand: "  L'Oréal   Professionnel ", name: "  ШАМПУНЬ   Від випадіння ", category: "  Догляд ")
@@ -295,20 +307,67 @@ RSpec.describe CareProduct do
   end
 
   describe "broadcasts" do
-    it "broadcasts append on create" do
-      expect { create(:care_product) }.not_to raise_error
+    it "broadcasts append to user care products stream on create" do
+      product = build(:care_product, user: user)
+
+      allow(product).to receive(:broadcast_append_to)
+
+      product.save!
+
+      expect(product).to have_received(:broadcast_append_to).with(user, "care_products",
+        target: "care_products", partial: "care_products/care_product", locals: { care_product: product })
     end
 
-    it "broadcasts replace on update" do
-      product = create(:care_product)
+    it "broadcasts replace to user care products stream on update" do
+      product = create(:care_product, user: user)
 
-      expect { product.update!(name: "New Name") }.not_to raise_error
+      allow(product).to receive(:broadcast_replace_to)
+
+      product.update!(name: "New Name")
+
+      expect(product).to have_received(:broadcast_replace_to).with(user, "care_products",
+        target: "care_product_#{product.id}", partial: "care_products/care_product", locals: { care_product: product })
     end
 
-    it "broadcasts remove on destroy" do
-      product = create(:care_product)
+    it "broadcasts remove when product is archived" do
+      product = create(:care_product, user: user, stock_quantity: 0)
 
-      expect { product.destroy }.not_to raise_error
+      allow(product).to receive(:broadcast_remove_to)
+
+      product.archive!
+
+      expect(product).to have_received(:broadcast_remove_to).with(user, "care_products", target: "care_product_#{product.id}")
+    end
+
+    it "broadcasts remove when product is soft deleted" do
+      product = create(:care_product, user: user, stock_quantity: 0)
+
+      allow(product).to receive(:broadcast_remove_to)
+
+      product.soft_delete!
+
+      expect(product).to have_received(:broadcast_remove_to).with(user, "care_products", target: "care_product_#{product.id}")
+    end
+
+    it "broadcasts append when archived product is restored" do
+      product = create(:care_product, user: user, stock_quantity: 0, archived_at: 1.day.ago)
+
+      allow(product).to receive(:broadcast_append_to)
+
+      product.restore!
+
+      expect(product).to have_received(:broadcast_append_to).with(user, "care_products",
+        target: "care_products", partial: "care_products/care_product", locals: { care_product: product })
+    end
+
+    it "broadcasts remove to user care products stream on destroy" do
+      product = create(:care_product, user: user)
+
+      allow(product).to receive(:broadcast_remove_to)
+
+      product.destroy!
+
+      expect(product).to have_received(:broadcast_remove_to).with(user, "care_products", target: "care_product_#{product.id}")
     end
   end
 end

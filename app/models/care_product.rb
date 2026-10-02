@@ -35,7 +35,7 @@ class CareProduct < ApplicationRecord
   end
 
   def archive!
-  return false if deleted?
+    return false if deleted?
 
     if stock_quantity.to_i.positive?
       errors.add(:base, I18n.t("care_products.errors.cannot_archive_with_stock"))
@@ -49,6 +49,10 @@ class CareProduct < ApplicationRecord
     return false if deleted?
 
     update!(archived_at: nil)
+  end
+
+  def active?
+    !archived? && !deleted?
   end
 
   def incomplete?
@@ -129,8 +133,9 @@ class CareProduct < ApplicationRecord
   end
 
   def broadcast_create
-    broadcast_append_to(
-      "care_products",
+    return unless active?
+
+    broadcast_append_to(user, "care_products",
       target: "care_products",
       partial: "care_products/care_product",
       locals: { care_product: self }
@@ -138,15 +143,30 @@ class CareProduct < ApplicationRecord
   end
 
   def broadcast_update
-    broadcast_replace_to(
-      "care_products",
-      target: "care_product_#{id}",
-      partial: "care_products/care_product",
-      locals: { care_product: self }
-    )
+    if restored?
+      broadcast_append_to(user, "care_products",
+        target: "care_products",
+        partial: "care_products/care_product",
+        locals: { care_product: self }
+      )
+    elsif active?
+      broadcast_replace_to(user, "care_products",
+        target: "care_product_#{id}",
+        partial: "care_products/care_product",
+        locals: { care_product: self }
+      )
+    else
+      broadcast_remove_to(user, "care_products", target: "care_product_#{id}")
+    end
   end
 
   def broadcast_remove
-    broadcast_remove_to("care_products", target: "care_product_#{id}")
+    broadcast_remove_to(user, "care_products", target: "care_product_#{id}")
+  end
+
+  def restored?
+    archived_change = previous_changes["archived_at"]
+
+    archived_change.present? && archived_change.first.present? && archived_change.last.nil? && !deleted?
   end
 end

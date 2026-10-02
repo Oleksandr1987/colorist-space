@@ -84,5 +84,23 @@ RSpec.describe CareProducts::Create do
         expect { create_product.call }.to change(user.care_products, :count).by(1)
       end
     end
+
+    context "without purchase date" do
+      let(:purchased_on) { nil }
+
+      it "raises an error" do
+        expect { create_product.call }
+          .to raise_error(ArgumentError, I18n.t("care_products.errors.purchased_on_required"))
+      end
+    end
+
+    context "with future purchase date" do
+      let(:purchased_on) { Date.current + 1.day }
+
+      it "raises an error" do
+        expect { create_product.call }
+          .to raise_error(ArgumentError, I18n.t("care_products.errors.purchased_on_future"))
+      end
+    end
   end
 end

@@ -114,9 +114,10 @@ module CareProducts
     end
 
     def products
-      @products ||= Array(service_note.care_products).index_by do |item|
-        item["care_product_id"].to_s
-      end
+      @products ||=
+        Array(service_note.care_products)
+          .select { |item| item["qty"].to_i.positive? }
+          .index_by { |item| item["care_product_id"].to_s }
     end
 
     def sales_by_product_id

@@ -165,6 +165,40 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
       end
     end
 
+    context "when product quantity is zero" do
+      before do
+        service_note
+        service_note.update_column(:care_products,
+          [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 0 } ]
+        )
+      end
+
+      it "treats product as removed" do
+        expect { sync.call }.to change(service_note.care_product_sales, :count).from(1).to(0)
+      end
+
+      it "restores stock" do
+        expect { sync.call }.to change { care_product.reload.stock_quantity }.from(8).to(10)
+      end
+    end
+
+    context "when product quantity is negative" do
+      before do
+        service_note
+        service_note.update_column(:care_products,
+          [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => -1 } ]
+        )
+      end
+
+      it "treats product as removed" do
+        expect { sync.call }.to change(service_note.care_product_sales, :count).from(1).to(0)
+      end
+
+      it "restores stock" do
+        expect { sync.call }.to change { care_product.reload.stock_quantity }.from(8).to(10)
+      end
+    end
+
     context "when additional quantity exceeds available stock" do
       before do
         service_note

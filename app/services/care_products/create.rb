@@ -11,6 +11,8 @@ module CareProducts
     end
 
     def call
+      validate!
+
       CareProduct.transaction do
         care_product = user.care_products.create!(attributes)
         expense = create_expense!(care_product)
@@ -50,6 +52,11 @@ module CareProducts
 
     def expense_amount(care_product)
       (care_product.purchase_price.to_d * care_product.stock_quantity.to_i).to_i
+    end
+
+    def validate!
+      raise ArgumentError, I18n.t("care_products.errors.purchased_on_required") if purchased_on.blank?
+      raise ArgumentError, I18n.t("care_products.errors.purchased_on_future") if purchased_on > Date.current
     end
   end
 end

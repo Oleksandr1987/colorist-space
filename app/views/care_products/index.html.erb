@@ -1,4 +1,4 @@
-<%= turbo_stream_from "care_products" %>
+<%= turbo_stream_from current_user, "care_products" %>
 
 <div class="service-wrapper" data-controller="service">
   <div class="category-header care-products-header">

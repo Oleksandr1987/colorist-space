@@ -310,6 +310,24 @@ RSpec.describe "CareProducts" do
       expect(user.expenses.last.amount).to eq(2_000)
     end
 
+    it "returns unprocessable content for invalid purchase date" do
+      post care_products_path, params: {
+        care_product: product_params.merge(purchased_on: "invalid-date")
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(CareProduct.exists?(brand: "Londa", name: "Shampoo")).to be(false)
+    end
+
+    it "returns unprocessable content for future purchase date" do
+      post care_products_path, params: {
+        care_product: product_params.merge(purchased_on: 1.day.from_now.to_date.iso8601)
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(CareProduct.exists?(brand: "Londa", name: "Shampoo")).to be(false)
+    end
+
     context "when product already exists" do
       let(:duplicate_params) do
         { brand: "londa", name: "SHAMPOO", category: "shampoo",
