@@ -18,7 +18,7 @@ expense_templates = {
   month = Date.current << month_offset
 
   expense_templates.each_with_index do |(category, attrs), index|
-    day = [index + 1, month.end_of_month.day].min
+    day = [ index + 1, month.end_of_month.day ].min
     spent_on = month.change(day: day)
     spent_on = Date.current if spent_on > Date.current
 
