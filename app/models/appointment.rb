@@ -17,6 +17,7 @@ class Appointment < ApplicationRecord
 
   before_validation :set_default_end_time, if: -> { appointment_time.present? && end_time.blank? }
   after_update :sync_service_note_client, if: :saved_change_to_client_id?
+  after_update :sync_care_product_sale_dates, if: :saved_change_to_appointment_date?
   after_save :sync_service_note_notes
 
   scope :by_date, ->(date) { where(appointment_date: date) }
@@ -310,5 +311,14 @@ class Appointment < ApplicationRecord
     return if service_note.notes == notes
 
     service_note.update_column(:notes, notes)
+  end
+
+  def sync_care_product_sale_dates
+    return unless service_note.present?
+
+    service_note.care_product_sales.find_each do |sale|
+      sale.update!(sold_on: appointment_date)
+      sale.stock_movement&.update!(occurred_on: appointment_date)
+    end
   end
 end
