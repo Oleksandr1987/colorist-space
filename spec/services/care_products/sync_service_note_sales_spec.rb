@@ -254,10 +254,16 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
       end
 
       context "when quantity decreases" do
-        it "raises an error" do
+        before do
           service_note.care_products = [ { "care_product_id" => care_product.id.to_s, "qty" => 1, "price" => 100 } ]
+        end
 
-          expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.archived_product"))
+        it "updates sale quantity" do
+          expect { sync.call }.to change { service_note.care_product_sales.first.reload.quantity }.from(2).to(1)
+        end
+
+        it "restores stock" do
+          expect { sync.call }.to change { care_product.reload.stock_quantity }.from(8).to(9)
         end
       end
 
@@ -277,10 +283,16 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
         end
 
         context "when product is removed" do
-          it "raises an error" do
+          it "removes sale" do
             service_note.care_products = []
 
-            expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.archived_product"))
+            expect { sync.call }.to change(service_note.care_product_sales, :count).from(1).to(0)
+          end
+
+          it "restores stock" do
+            service_note.care_products = []
+
+            expect { sync.call }.to change { care_product.reload.stock_quantity }.from(8).to(10)
           end
         end
       end
@@ -301,18 +313,30 @@ RSpec.describe CareProducts::SyncServiceNoteSales do
       end
 
       context "when quantity decreases" do
-        it "raises an error" do
+        before do
           service_note.care_products = [ { "care_product_id" => care_product.id.to_s, "qty" => 1, "price" => 100 } ]
+        end
 
-          expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.deleted_product"))
+        it "updates sale quantity" do
+          expect { sync.call }.to change { service_note.care_product_sales.first.reload.quantity }.from(2).to(1)
+        end
+
+        it "restores stock" do
+          expect { sync.call }.to change { care_product.reload.stock_quantity }.from(8).to(9)
         end
       end
 
       context "when product is removed" do
-        it "raises an error" do
+        it "removes sale" do
           service_note.care_products = []
 
-          expect { sync.call }.to raise_error(ArgumentError, I18n.t("care_products.errors.deleted_product"))
+          expect { sync.call }.to change(service_note.care_product_sales, :count).from(1).to(0)
+        end
+
+        it "restores stock" do
+          service_note.care_products = []
+
+          expect { sync.call }.to change { care_product.reload.stock_quantity }.from(8).to(10)
         end
       end
     end

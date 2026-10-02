@@ -17,6 +17,7 @@ class ServiceNote < ApplicationRecord
 
   validates :appointment_id, uniqueness: true
   validate :care_products_stock_available
+  validate :care_products_are_active_for_stock_increase
 
   scope :for_client, ->(client_id) {
     where(client_id: client_id).order(created_at: :desc)
@@ -200,16 +201,36 @@ class ServiceNote < ApplicationRecord
     end
   end
 
-  def available_stock_for(product)
-    current_qty =
-      Array(attribute_in_database("care_products"))
-        .find do |item|
-          item["care_product_id"].to_s == product.id.to_s
-        end
-        &.dig("qty")
-        .to_i
+  def care_products_are_active_for_stock_increase
+    return unless care_products.is_a?(Array)
 
-    product.stock_quantity.to_i + current_qty
+    care_products.each do |item|
+      product = user.care_products.find_by(id: item["care_product_id"])
+
+      next unless product
+
+      requested_qty = item["qty"].to_i
+      previous_qty = previous_care_product_quantity(product)
+
+      next unless requested_qty > previous_qty
+
+      if product.deleted?
+        errors.add(:base, I18n.t("care_products.errors.deleted_product"))
+      elsif product.archived?
+        errors.add(:base, I18n.t("care_products.errors.archived_product"))
+      end
+    end
+  end
+
+  def previous_care_product_quantity(product)
+    Array(attribute_in_database("care_products"))
+      .find { |item| item["care_product_id"].to_s == product.id.to_s }
+      &.dig("qty")
+      .to_i
+  end
+
+  def available_stock_for(product)
+    product.stock_quantity.to_i + previous_care_product_quantity(product)
   end
 
   def reject_empty_haircut_step?(attrs)

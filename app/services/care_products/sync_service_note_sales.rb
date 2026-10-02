@@ -81,8 +81,6 @@ module CareProducts
       product = sale.care_product
 
       product.with_lock do
-        validate_product_status!(product, -sale.quantity)
-
         new_stock = product.stock_quantity.to_i + sale.quantity
 
         create_adjustment_movement(product, quantity: sale.quantity, unit_cost: sale.unit_cost, stock_after: new_stock)
@@ -128,7 +126,7 @@ module CareProducts
     end
 
     def validate_product_status!(product, quantity_diff)
-      return if quantity_diff.zero?
+      return unless quantity_diff.positive?
 
       raise ArgumentError, I18n.t("care_products.errors.deleted_product") if product.deleted?
       raise ArgumentError, I18n.t("care_products.errors.archived_product") if product.archived?

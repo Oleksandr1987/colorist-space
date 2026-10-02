@@ -512,6 +512,76 @@ RSpec.describe ServiceNote do
 
         expect(note.errors[:base]).to include("#{care_product.name}: only 10 left in stock")
       end
+
+      describe "#care_products_are_active_for_stock_increase" do
+        let(:care_product) { create(:care_product, user: user, purchase_price: 60, sale_price: 100, stock_quantity: 10) }
+        let(:care_products) { [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 2 } ] }
+        let(:service_note) { create(:service_note, user: user, client: client, appointment: appointment, care_products: care_products) }
+
+        context "when product is archived" do
+          before do
+            service_note
+            care_product.update!(archived_at: Time.current)
+          end
+
+          it "rejects quantity increase" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 3 } ]
+
+            expect(service_note).not_to be_valid
+            expect(service_note.errors[:base]).to include(I18n.t("care_products.errors.archived_product"))
+          end
+
+          it "allows quantity decrease" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 1 } ]
+
+            expect(service_note).to be_valid
+          end
+
+          it "allows product removal" do
+            service_note.care_products = []
+
+            expect(service_note).to be_valid
+          end
+
+          it "allows sale price change" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 120, "purchase_price" => 60, "qty" => 2 } ]
+
+            expect(service_note).to be_valid
+          end
+        end
+
+        context "when product is deleted" do
+          before do
+            service_note
+            care_product.update!(deleted_at: Time.current)
+          end
+
+          it "rejects quantity increase" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 3 } ]
+
+            expect(service_note).not_to be_valid
+            expect(service_note.errors[:base]).to include(I18n.t("care_products.errors.deleted_product"))
+          end
+
+          it "allows quantity decrease" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 1 } ]
+
+            expect(service_note).to be_valid
+          end
+
+          it "allows product removal" do
+            service_note.care_products = []
+
+            expect(service_note).to be_valid
+          end
+
+          it "allows sale price change" do
+            service_note.care_products = [ { "care_product_id" => care_product.id, "price" => 120, "purchase_price" => 60, "qty" => 2 } ]
+
+            expect(service_note).to be_valid
+          end
+        end
+      end
     end
 
     describe "#available_stock_for" do
