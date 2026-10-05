@@ -41,6 +41,14 @@ RSpec.describe FormulaProduct do
     end
   end
 
+  describe "price_per_unit" do
+    it "supports decimal values" do
+      formula_product = create(:formula_product, price_per_unit: 1.25)
+
+      expect(formula_product.reload.price_per_unit).to eq(BigDecimal("1.25"))
+    end
+  end
+
   describe ".ordered" do
     it "orders products by brand and name" do
       wella_9 = create(:formula_product, brand: "Wella", name: "9/0")
