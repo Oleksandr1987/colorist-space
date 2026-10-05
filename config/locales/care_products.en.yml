@@ -26,6 +26,7 @@ en:
       purchase_price: "Purchase price"
       sale_price: "Sale price"
       stock_quantity: "Stock quantity"
+      purchased_on: "Purchase date"
 
     modal:
       stock: "Stock"
