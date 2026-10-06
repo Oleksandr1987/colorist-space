@@ -6,7 +6,7 @@ class ClientPhone < ApplicationRecord
 
   before_validation :set_user
 
-  validates :phone, presence: true, uniqueness: { scope: :user_id }
+  validates :phone, presence: true, uniqueness: { scope: :user_id, message: :already_belongs_to_another_client }
 
   validate :phone_not_used_by_another_client
 
@@ -17,12 +17,15 @@ class ClientPhone < ApplicationRecord
   end
 
   def phone_not_used_by_another_client
-    return if phone.blank?
+    return if phone.blank? || user_id.blank?
 
-    if Client.where(user_id: user_id)
-            .where.not(id: client_id)
-            .exists?(phone: phone)
-      errors.add(:phone, :already_belongs_to_another_client)
-    end
+    duplicate = Client
+      .where(user_id: user_id)
+      .where.not(id: client_id)
+      .exists?(phone: phone)
+
+    return unless duplicate
+
+    errors.add(:phone, :already_belongs_to_another_client)
   end
 end

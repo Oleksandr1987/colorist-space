@@ -7,24 +7,33 @@ class Client < ApplicationRecord
   has_many :appointments, dependent: :destroy
   has_many :service_notes, dependent: :destroy
   has_many :client_phones, dependent: :destroy
+
   accepts_nested_attributes_for :client_phones, allow_destroy: true
 
   validates :first_name, presence: true
-  validates :phone, uniqueness: { scope: :user_id, message: "Client with this phone number already exists" }
+  validates :phone, uniqueness: { scope: :user_id, message: :client_already_exists }
 
   validate :birthday_must_be_valid
+  validate :full_name_must_be_unique
   validate :phone_not_used_in_client_phones
 
   before_save :ensure_primary_phone
 
   scope :alphabetical, -> { order("LOWER(first_name)") }
   scope :with_phones, -> { includes(:client_phones) }
+  scope :active, -> { where(archived_at: nil) }
+  scope :archived, -> { where.not(archived_at: nil) }
 
   scope :search_by_name, ->(query) {
     q = "%#{query.to_s.downcase}%"
     table = arel_table
 
     where(table[:first_name].lower.matches(q).or(table[:last_name].lower.matches(q)))
+  }
+
+  scope :with_name, ->(first_name, last_name) {
+    where("LOWER(TRIM(first_name)) = ?", first_name.to_s.strip.downcase)
+      .where("LOWER(TRIM(COALESCE(last_name, ''))) = ?", last_name.to_s.strip.downcase)
   }
 
   def self.resolve_for_appointment(user:, full_name:, phone:)
@@ -35,10 +44,31 @@ class Client < ApplicationRecord
 
     if normalized_phone.present?
       client = user.clients.find_by(phone: normalized_phone)
-      return client if client
+      return client.tap(&:restore!) if client
+
+      client = user.clients.joins(:client_phones).find_by(client_phones: { phone: normalized_phone })
+      return client.tap(&:restore!) if client
     end
 
+    client = user.clients.with_name(first_name, last_name).first
+    return client.tap(&:restore!) if client
+
     user.clients.create!(first_name: first_name, last_name: last_name.to_s, phone: normalized_phone)
+  end
+
+  def archive!
+    transaction do
+      appointments.future.destroy_all
+      update!(archived_at: Time.current)
+    end
+  end
+
+  def archived?
+    archived_at.present?
+  end
+
+  def restore!
+    update!(archived_at: nil) if archived?
   end
 
   def full_name
@@ -85,6 +115,14 @@ class Client < ApplicationRecord
     errors.add(:birthday, :invalid)
   end
 
+  def full_name_must_be_unique
+    return if first_name.blank? || user_id.blank?
+
+    duplicate = user.clients.with_name(first_name, last_name).where.not(id: id).exists?
+
+    errors.add(:first_name, :client_already_exists) if duplicate
+  end
+
   def ensure_primary_phone
     if phone.blank? && client_phones.any?
       self.phone = client_phones.first.phone
@@ -93,10 +131,15 @@ class Client < ApplicationRecord
   end
 
   def phone_not_used_in_client_phones
-    return if phone.blank?
+    return if phone.blank? || user_id.blank?
 
-    if ClientPhone.where(user_id: user_id) .where.not(client_id: id).exists?(phone: phone)
-      errors.add(:phone, "already exists as additional phone")
-    end
+    duplicate = ClientPhone
+      .where(user_id: user_id, phone: phone)
+      .where.not(client_id: id)
+      .exists?
+
+    return unless duplicate
+
+    errors.add(:phone, :client_already_exists)
   end
 end

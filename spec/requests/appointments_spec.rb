@@ -7,6 +7,7 @@ RSpec.describe "Appointments" do
   let(:user) { create(:user, :trial) }
   let(:client) { create(:client, user: user) }
   let(:service) { create(:service, user: user, service_type: "service") }
+  let(:appointment) { create(:appointment, user: user, client: client, main_service: service) }
 
   before do
     travel_to Time.zone.local(2026, 1, 15)
@@ -86,151 +87,6 @@ RSpec.describe "Appointments" do
     end
   end
 
-  describe "POST /appointments" do
-    it "creates appointment" do
-      params = {
-        appointment: {
-          appointment_date: Date.current + 1.day,
-          appointment_time: "10:00",
-          service_ids: [ service.id ],
-          client_name: client.full_name,
-          phone: client.phone
-        }
-      }
-
-      expect {
-        post appointments_path, params: params
-      }.to change(user.appointments, :count).by(1)
-
-      expect(response).to redirect_to(appointment_url(Appointment.last, locale: I18n.locale))
-    end
-
-    it "handles missing end_time during create" do
-      post appointments_path, params: {
-        appointment: {
-          appointment_date: Date.current + 1.day,
-          appointment_time: "10:00",
-          client_name: client.full_name,
-          phone: client.phone,
-          service_ids: [ service.id ]
-        }
-      }
-
-      expect(response).to redirect_to(appointment_url(Appointment.last, locale: I18n.locale))
-    end
-
-    it "returns bad request when appointment params missing" do
-      post appointments_path, params: {}
-
-      expect(response).to have_http_status(:bad_request)
-    end
-  end
-
-  describe "POST /appointments invalid" do
-    it "renders new when invalid" do
-      post appointments_path, params: {
-        appointment: {
-          appointment_date: "",
-          appointment_time: "",
-          client_name: "",
-          phone: ""
-        }
-      }
-
-      expect(response).to have_http_status(:unprocessable_content)
-    end
-  end
-
-  describe "PATCH /appointments/:id" do
-    it "updates appointment notes" do
-      appointment = create(:appointment, user: user, client: client, main_service: service)
-
-      patch appointment_path(appointment), params: {
-        appointment: { notes: "Updated", service_ids: [ service.id ], client_name: client.full_name, phone: client.phone }
-      }
-
-      expect(response).to redirect_to(appointment_url(appointment, locale: I18n.locale))
-      expect(appointment.reload.notes).to eq("Updated")
-    end
-
-    it "updates appointment without changing services" do
-      appointment = create(:appointment, user: user, client: client, main_service: service)
-      old_services = appointment.services.to_a
-
-      patch appointment_path(appointment), params: {
-        appointment: { notes: "Only notes updated", client_name: client.full_name, phone: client.phone }
-      }
-
-      expect(response).to redirect_to(appointment_url(appointment, locale: I18n.locale))
-      expect(appointment.reload.services).to match_array(old_services)
-    end
-
-    it "renders edit when update invalid" do
-      appointment = create(:appointment, user: user, client: client, main_service: service)
-
-      patch appointment_path(appointment), params: {
-        appointment: { appointment_date: "", client_name: "", phone: "" }
-      }
-
-      expect(response).to have_http_status(:unprocessable_content)
-    end
-
-    it "assigns a new client when the name matches but the phone is different" do
-      appointment = create(:appointment, user: user, client: client, main_service: service)
-
-      existing_client_id = client.id
-      existing_phone = client.phone
-
-      patch appointment_path(appointment), params: {
-        appointment: { client_name: client.full_name, phone: "+380930000099" }
-      }
-
-      expect(response).to redirect_to(appointment_url(appointment, locale: I18n.locale))
-
-      appointment.reload
-
-      expect(appointment.client_id).not_to eq(existing_client_id)
-      expect(appointment.client.full_name).to eq(client.full_name)
-      expect(appointment.client.phone).to eq("+380930000099")
-
-      expect(client.reload.phone).to eq(existing_phone)
-    end
-
-    it "removes all services when service_ids contains only a blank value" do
-      appointment = create(:appointment, user: user, client: client, main_service: service)
-
-      expect(appointment.services).to contain_exactly(service)
-
-      patch appointment_path(appointment), params: {
-        appointment: { client_name: client.full_name, phone: client.phone, service_ids: [ "" ] }
-      }
-
-      expect(response).to redirect_to(appointment_url(appointment, locale: I18n.locale))
-
-      appointment.reload
-
-      expect(appointment.services).to be_empty
-      expect(appointment.appointment_services_relations).to be_empty
-      expect(appointment.service_name).to be_blank
-    end
-  end
-
-  describe "DELETE /appointments/:id" do
-    it "destroys appointment" do
-      appointment = create(:appointment, user: user, client: client, main_service: service)
-
-      expect { delete appointment_path(appointment) }.to change(Appointment, :count).by(-1)
-    end
-
-    it "does not fail without appointment params" do
-      appointment = create(:appointment, user: user, client: client, main_service: service)
-
-      delete appointment_path(appointment)
-
-      expect(response).to redirect_to(calendar_appointments_path(locale: I18n.locale))
-    end
-  end
-
   describe "GET /appointments/calendar" do
     it "returns success" do
       create(:appointment, user: user, client: client, appointment_date: Date.current, main_service: service)
@@ -277,6 +133,124 @@ RSpec.describe "Appointments" do
       get free_slots_appointments_path, params: { date: 1.day.ago.to_date }
 
       expect(JSON.parse(response.body)).to eq([])
+    end
+  end
+
+  describe "POST /appointments" do
+    let(:params) do
+      { appointment: {
+          appointment_date: Date.current + 1.day,
+          appointment_time: "10:00",
+          service_ids: [ service.id ],
+          client_name: client.full_name,
+          phone: client.phone
+        }
+      }
+    end
+
+    it "creates appointment" do
+      expect {
+        post appointments_path, params: params
+      }.to change(user.appointments, :count).by(1)
+
+      expect(response).to redirect_to(appointment_url(Appointment.last, locale: I18n.locale))
+    end
+
+    it "handles missing end_time during create" do
+      post appointments_path, params: params
+
+      expect(response).to redirect_to(appointment_url(Appointment.last, locale: I18n.locale))
+    end
+
+    it "returns bad request when appointment params missing" do
+      post appointments_path, params: {}
+
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
+
+  describe "POST /appointments invalid" do
+    it "renders new when invalid" do
+      post appointments_path, params: {
+        appointment: { appointment_date: "", appointment_time: "", client_name: "", phone: "" }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+  end
+
+  describe "PATCH /appointments/:id" do
+    before { appointment }
+
+    it "updates appointment notes" do
+      patch appointment_path(appointment), params: {
+        appointment: { notes: "Updated", service_ids: [ service.id ], client_name: client.full_name, phone: client.phone }
+      }
+
+      expect(response).to redirect_to(appointment_url(appointment, locale: I18n.locale))
+      expect(appointment.reload.notes).to eq("Updated")
+    end
+
+    it "updates appointment without changing services" do
+      old_services = appointment.services.to_a
+
+      patch appointment_path(appointment), params: {
+        appointment: { notes: "Only notes updated", client_name: client.full_name, phone: client.phone }
+      }
+
+      expect(response).to redirect_to(appointment_url(appointment, locale: I18n.locale))
+      expect(appointment.reload.services).to match_array(old_services)
+    end
+
+    it "renders edit when update invalid" do
+      patch appointment_path(appointment), params: {
+        appointment: { appointment_date: "", client_name: "", phone: "" }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "keeps the existing client when the name matches but the phone is different" do
+      appointment
+      existing_phone = client.phone
+
+      expect {
+        patch appointment_path(appointment), params: { appointment: { client_name: client.full_name, phone: "+380930000099" } }
+      }.not_to change(Client, :count)
+
+      expect(response).to redirect_to(appointment_url(appointment, locale: I18n.locale))
+      expect(appointment.reload.client).to eq(client)
+      expect(client.reload.phone).to eq(existing_phone)
+    end
+
+    it "removes all services when service_ids contains only a blank value" do
+      expect(appointment.services).to contain_exactly(service)
+
+      patch appointment_path(appointment), params: {
+        appointment: { client_name: client.full_name, phone: client.phone, service_ids: [ "" ] }
+      }
+
+      expect(response).to redirect_to(appointment_url(appointment, locale: I18n.locale))
+
+      appointment.reload
+
+      expect(appointment.services).to be_empty
+      expect(appointment.appointment_services_relations).to be_empty
+      expect(appointment.service_name).to be_blank
+    end
+  end
+
+  describe "DELETE /appointments/:id" do
+    before { appointment }
+
+    it "destroys appointment" do
+      expect { delete appointment_path(appointment) }.to change(Appointment, :count).by(-1)
+    end
+
+    it "does not fail without appointment params" do
+      delete appointment_path(appointment)
+
+      expect(response).to redirect_to(calendar_appointments_path(locale: I18n.locale))
     end
   end
 end
