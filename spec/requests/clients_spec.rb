@@ -47,6 +47,15 @@ RSpec.describe "Clients" do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it "shows archived client for historical records" do
+      client.update!(archived_at: 1.day.ago)
+
+      get client_path(client)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(client.full_name)
+    end
   end
 
   describe "GET /clients/new" do
@@ -62,6 +71,14 @@ RSpec.describe "Clients" do
       get edit_client_path(client)
 
       expect(response).to have_http_status(:ok)
+    end
+
+    it "does not allow editing an archived client" do
+      client.update!(archived_at: 1.day.ago)
+
+      get edit_client_path(client)
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 
@@ -79,7 +96,9 @@ RSpec.describe "Clients" do
   end
 
   describe "POST /clients" do
-    let!(:archived_client) { create(:client, user: user, first_name: "Alex", last_name: "Smith", phone: "+380930000011", archived_at: 1.day.ago) }
+    let!(:archived_client) do
+      create(:client, user: user, first_name: "Alex", last_name: "Smith", phone: "+380930000011", archived_at: 1.day.ago)
+    end
 
     it "creates client" do
       params = { client: { first_name: "John", last_name: "Doe", phone: "+380930000999" } }

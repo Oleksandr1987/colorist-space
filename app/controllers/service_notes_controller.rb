@@ -1,8 +1,9 @@
 class ServiceNotesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_client
+  before_action :ensure_active_client!, except: %i[show]
   before_action :set_service_note,
-                only: %i[show edit update destroy delete_photo main_photo]
+              only: %i[show edit update destroy delete_photo main_photo]
 
   def show; end
 
@@ -124,6 +125,10 @@ class ServiceNotesController < ApplicationController
 
   def set_service_note
     @service_note = @client.service_notes.find(params[:id])
+  end
+
+  def ensure_active_client!
+    raise ActiveRecord::RecordNotFound if @client.archived?
   end
 
   def service_note_params

@@ -1,5 +1,6 @@
 uk:
   clients:
+    archived: "В архіві"
     title: "Клієнти"
     new: "Новий клієнт"
     create: "Створити клієнта"

@@ -1,6 +1,7 @@
 class ClientsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_client, only: %i[show edit update destroy delete_photo delete_all_photos]
+  before_action :set_client, only: %i[show]
+  before_action :set_active_client, only: %i[edit update destroy delete_photo delete_all_photos]
 
   auto_authorize :client, only: %i[show new create edit update destroy delete_photo delete_all_photos]
   after_action :verify_authorized, only: %i[show new create edit update destroy delete_photo delete_all_photos]
@@ -77,11 +78,11 @@ class ClientsController < ApplicationController
   end
 
   def make_primary
-    @client = current_user.clients.find(params[:id])
+    @client = current_user.clients.active.find(params[:id])
 
     @client.make_primary!(params[:phone])
 
-    @client = current_user.clients.includes(:client_phones).find(params[:id])
+    @client = current_user.clients.active.includes(:client_phones).find(params[:id])
 
     respond_to do |format|
       format.turbo_stream
@@ -91,6 +92,10 @@ class ClientsController < ApplicationController
   private
 
   def set_client
+    @client = current_user.clients.find(params[:id])
+  end
+
+  def set_active_client
     @client = current_user.clients.active.find(params[:id])
   end
 

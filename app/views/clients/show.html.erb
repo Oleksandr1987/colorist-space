@@ -1,6 +1,11 @@
 <div data-controller="client-profile photo" data-client-profile-id-value="<%= @client.id %>" class="client-profile-container">
   <!-- Header -->
   <div class="client-header">
+    <% if @client.archived? %>
+      <span class="client-archived-badge">
+        <%= t("clients.archived") %>
+      </span>
+    <% end %>
     <div class="client-top-bar">
       <%= link_to clients_path, class: "client-back-button" do %>
         <%= image_tag "back.png", width: 24, height: 24, class: "wiz-icon" %>

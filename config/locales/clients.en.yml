@@ -1,5 +1,6 @@
 en:
   clients:
+    archived: "Archived"
     title: "Clients"
     new: "New Client"
     create: "Create Client"

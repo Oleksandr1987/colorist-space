@@ -14,7 +14,7 @@
       <%= image_tag "back.png", class: "wiz-icon-close" %>
     </button>
 
-    <% if @service_note.photos.attached? %>
+    <% if @service_note.photos.attached? && !@client.archived? %>
       <button type="button"
         class="photo-main-btn"
         data-photo-target="mainButton"
@@ -34,7 +34,7 @@
 
     <% if @service_note.photos.attached? %>
       <%= image_tag optimized(@service_note.display_photo), class: "note-photo", data: { photo_target: "photo" } %>
-    <% else %>
+   <% elsif !@client.archived? %>
       <div class="note-no-photo">
         <%= link_to edit_client_service_note_path(@client, @service_note, step: "photos"), class: "add-photo-button" do %>
           <%= image_tag "camera.png", width: 28, height: 28 %>
@@ -65,19 +65,21 @@
       </div>
     </div>
 
-    <div class="note-actions-modern">
-      <%= link_to edit_client_service_note_path(@client, @service_note),
-          class: "note-action-button" do %>
-        <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24 %>
-      <% end %>
+    <% unless @client.archived? %>
+      <div class="note-actions-modern">
+        <%= link_to edit_client_service_note_path(@client, @service_note),
+            class: "note-action-button" do %>
+          <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24 %>
+        <% end %>
 
-      <%= button_to client_service_note_path(@client, @service_note),
-          method: :delete,
-          form: { data: {turbo_confirm: "Delete?"} },
-          class: "note-delete-form" do %>
-        <%= image_tag "delete.png", class: "wiz-icon", width: 24, height: 24 %>
-      <% end %>
-    </div>
+        <%= button_to client_service_note_path(@client, @service_note),
+            method: :delete,
+            form: { data: { turbo_confirm: "Delete?" } },
+            class: "note-delete-form" do %>
+          <%= image_tag "delete.png", class: "wiz-icon", width: 24, height: 24 %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
   <%

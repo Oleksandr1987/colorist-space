@@ -52,9 +52,14 @@
                   <%= image_tag "client.png", class: "wiz-icon", width: 16, height: 16 %>
                 <% end %>
 
-                <%= link_to(appointment.service_note.present? ? client_service_note_path(appointment.client, appointment.service_note) : new_client_service_note_path(appointment.client, appointment_id: appointment.id),
-                      class: "appointment-action-button", data: { turbo: false }) do %>
-                  <%= image_tag "notes.png", class: "wiz-icon", width: 16, height: 16 %>
+                <% if appointment.service_note.present? %>
+                  <%= link_to client_service_note_path(appointment.client, appointment.service_note), class: "appointment-action-button", data: { turbo: false } do %>
+                    <%= image_tag "notes.png", class: "wiz-icon", width: 16, height: 16 %>
+                  <% end %>
+                <% elsif !appointment.client.archived? %>
+                  <%= link_to new_client_service_note_path(appointment.client, appointment_id: appointment.id), class: "appointment-action-button", data: { turbo: false } do %>
+                    <%= image_tag "notes.png", class: "wiz-icon", width: 16, height: 16 %>
+                  <% end %>
                 <% end %>
 
                 <%= button_to appointment_path(appointment), method: :delete,
