@@ -16,6 +16,7 @@ en:
       created: "Client was created. Please add hair details."
       updated: "Client was successfully updated."
       deleted: "Client was successfully deleted."
+      restored: "Client was restored from the archive."
       photo_deleted: "Photo deleted."
       all_photos_deleted: "All photos deleted."
 

@@ -27,7 +27,12 @@ class ClientsController < ApplicationController
   def create
     @client = current_user.clients.build(client_params)
 
-    if @client.save
+    existing_client =
+      Client.find_existing(user: current_user, first_name: @client.first_name, last_name: @client.last_name, phone: @client.phone)
+
+    if existing_client&.archived?
+      restore_client(existing_client)
+    elsif @client.save
       redirect_to @client, notice: t("clients.messages.created")
     else
       render :new, status: :unprocessable_content
@@ -87,6 +92,19 @@ class ClientsController < ApplicationController
 
   def set_client
     @client = current_user.clients.active.find(params[:id])
+  end
+
+  def restore_client(client)
+    client.assign_attributes(client_params.except(:photos))
+    client.archived_at = nil
+    client.attach_photos(client_params[:photos])
+
+    if client.save
+      redirect_to client, notice: t("clients.messages.restored")
+    else
+      @client = client
+      render :new, status: :unprocessable_content
+    end
   end
 
   def client_params

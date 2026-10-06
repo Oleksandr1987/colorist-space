@@ -79,6 +79,8 @@ RSpec.describe "Clients" do
   end
 
   describe "POST /clients" do
+    let!(:archived_client) { create(:client, user: user, first_name: "Alex", last_name: "Smith", phone: "+380930000011", archived_at: 1.day.ago) }
+
     it "creates client" do
       params = { client: { first_name: "John", last_name: "Doe", phone: "+380930000999" } }
 
@@ -104,6 +106,28 @@ RSpec.describe "Clients" do
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include(I18n.t("activerecord.errors.models.client.attributes.phone.client_already_exists"))
       expect(existing_client.reload.phone).to eq("+380930000999")
+    end
+
+    it "restores archived client instead of creating a duplicate" do
+      expect {
+        post clients_path, params: { client: { first_name: "Alex", last_name: "Smith", phone: "+380930000011" } }
+      }.not_to change(Client, :count)
+
+      expect(response).to redirect_to(client_url(archived_client, locale: I18n.locale))
+      expect(archived_client.reload).not_to be_archived
+    end
+
+    it "restores archived client when the name matches but the phone is different" do
+      expect {
+        post clients_path, params: { client: { first_name: "Alex", last_name: "Smith", phone: "+380930000099" } }
+      }.not_to change(Client, :count)
+
+      expect(response).to redirect_to(client_url(archived_client, locale: I18n.locale))
+
+      archived_client.reload
+
+      expect(archived_client).not_to be_archived
+      expect(archived_client.phone).to eq("+380930000099")
     end
   end
 

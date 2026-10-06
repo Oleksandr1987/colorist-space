@@ -215,6 +215,35 @@ RSpec.describe Client do
         expect(result).to eq(existing_client)
       end
     end
+
+    context "when an archived client matches the primary phone" do
+      let(:full_name) { "Someone Else" }
+      let(:phone) { primary_phone }
+
+      before do
+        existing_client.update!(archived_at: 1.day.ago)
+      end
+
+      it "restores and returns the existing client" do
+        expect { result }.not_to change(described_class, :count)
+
+        expect(result).to eq(existing_client)
+        expect(existing_client.reload).not_to be_archived
+      end
+    end
+
+    context "when the matching client is archived" do
+      before do
+        existing_client.update!(archived_at: 1.day.ago)
+      end
+
+      it "restores and returns the existing client" do
+        expect { result }.not_to change(described_class, :count)
+
+        expect(result).to eq(existing_client)
+        expect(existing_client.reload).not_to be_archived
+      end
+    end
   end
 
   describe "#style_appointments" do

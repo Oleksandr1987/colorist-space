@@ -36,21 +36,28 @@ class Client < ApplicationRecord
       .where("LOWER(TRIM(COALESCE(last_name, ''))) = ?", last_name.to_s.strip.downcase)
   }
 
+  def self.find_existing(user:, first_name:, last_name:, phone:)
+    normalized_phone = PhoneValidator.normalize(phone)
+
+    if normalized_phone.present?
+      client = user.clients.find_by(phone: normalized_phone)
+      return client if client
+
+      client = user.clients.joins(:client_phones).find_by(client_phones: { phone: normalized_phone })
+      return client if client
+    end
+
+    user.clients.with_name(first_name, last_name).first
+  end
+
   def self.resolve_for_appointment(user:, full_name:, phone:)
     normalized_phone = PhoneValidator.normalize(phone)
     first_name, last_name = full_name.to_s.strip.split(/\s+/, 2)
 
     return nil if first_name.blank?
 
-    if normalized_phone.present?
-      client = user.clients.find_by(phone: normalized_phone)
-      return client.tap(&:restore!) if client
+    client = find_existing(user: user, first_name: first_name, last_name: last_name, phone: normalized_phone)
 
-      client = user.clients.joins(:client_phones).find_by(client_phones: { phone: normalized_phone })
-      return client.tap(&:restore!) if client
-    end
-
-    client = user.clients.with_name(first_name, last_name).first
     return client.tap(&:restore!) if client
 
     user.clients.create!(first_name: first_name, last_name: last_name.to_s, phone: normalized_phone)
