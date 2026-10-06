@@ -35,13 +35,8 @@ class AppointmentsController < ApplicationController
     @appointment.client_name = appointment_data[:client_name]
     @appointment.phone = appointment_data[:phone]
 
-    if appointment_data[:client_name].blank?
-      @appointment.errors.add(:client_name, :blank)
-    end
-
-    if appointment_data[:phone].blank?
-      @appointment.errors.add(:phone, :blank)
-    end
+    @appointment.errors.add(:client_name, :blank) if appointment_data[:client_name].blank?
+    @appointment.errors.add(:phone, :blank) if appointment_data[:phone].blank?
 
     if @appointment.errors.any?
       render :new, status: :unprocessable_content
@@ -72,8 +67,11 @@ class AppointmentsController < ApplicationController
   def update
     appointment_data = params.require(:appointment)
 
-    new_name  = appointment_data[:client_name].to_s.strip
+    new_name = appointment_data[:client_name].to_s.strip
     new_phone = PhoneValidator.normalize(appointment_data[:phone])
+
+    current_client = @appointment.client
+    current_name = current_client.full_name
 
     @appointment.client_name = new_name
     @appointment.phone = new_phone
@@ -86,30 +84,16 @@ class AppointmentsController < ApplicationController
       return
     end
 
-    current_name  = @appointment.client.full_name
-    current_phone = @appointment.client.phone
-
-    if new_name != current_name || new_phone != current_phone
-      @appointment.client = Client.resolve_for_appointment(
-        user: current_user,
-        full_name: new_name,
-        phone: new_phone
-      )
+    if new_name != current_name
+      @appointment.client = Client.resolve_for_appointment(user: current_user, full_name: new_name, phone: new_phone)
     end
 
-    service_ids =
-      if appointment_data.key?(:service_ids)
-        Array(appointment_data[:service_ids])
-          .compact_blank
-          .map(&:to_i)
-      end
+    service_ids = Array(appointment_data[:service_ids]).compact_blank.map(&:to_i) if appointment_data.key?(:service_ids)
 
     Appointment.transaction do
       @appointment.update!(appointment_params.except(:service_ids))
 
-      if service_ids
-        @appointment.sync_services_with_prices!(service_ids)
-      end
+      @appointment.sync_services_with_prices!(service_ids) if service_ids
     end
 
     redirect_to @appointment, notice: "Appointment was successfully updated."
@@ -130,10 +114,7 @@ class AppointmentsController < ApplicationController
       base_scope
         .search(params[:query])
         .for_year(params[:year])
-        .for_month(
-          params[:year].presence || Date.current.year,
-          params[:month]
-        )
+        .for_month(params[:year].presence || Date.current.year, params[:month])
         .for_categories(params[:categories])
         .for_services(params[:service_ids])
         .distinct
@@ -142,11 +123,7 @@ class AppointmentsController < ApplicationController
     @appointments_by_month = Appointment.grouped_by_month(@appointments)
 
     dashboard_scope =
-      base_scope
-        .search(params[:query])
-        .for_categories(params[:categories])
-        .for_services(params[:service_ids])
-        .distinct
+      base_scope.search(params[:query]).for_categories(params[:categories]).for_services(params[:service_ids]).distinct
 
     dashboard_year = params[:year].present? ? params[:year].to_i : Date.current.year
 
@@ -159,19 +136,13 @@ class AppointmentsController < ApplicationController
   end
 
   def calendar
-    @dates_with_appointments =
-      current_user.appointments
-                  .pluck(:appointment_date)
-                  .map { |d| d.to_date.to_s }
+    @dates_with_appointments = current_user.appointments.pluck(:appointment_date).map { |d| d.to_date.to_s }
   end
 
   def by_date
     date = params[:date].presence&.to_date || Date.today
 
-    @appointments = current_user.appointments
-      .includes(:client,  :service_note)
-      .by_date(date)
-      .order(:appointment_time)
+    @appointments = current_user.appointments.includes(:client,  :service_note).by_date(date).order(:appointment_time)
 
     render json: @appointments.map(&:as_calendar_json)
   end

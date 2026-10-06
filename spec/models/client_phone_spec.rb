@@ -44,9 +44,9 @@ RSpec.describe ClientPhone do
 
       expect(additional_phone).not_to be_valid
 
-      expect(
-        additional_phone.errors[:phone]
-      ).to include(I18n.t("errors.messages.already_belongs_to_another_client"))
+      expect(additional_phone.errors[:phone]).to include(
+        I18n.t("activerecord.errors.models.client_phone.attributes.phone.already_belongs_to_another_client")
+      )
     end
 
     it "is valid with correct phone format" do

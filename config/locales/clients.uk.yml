@@ -1,5 +1,6 @@
 uk:
   clients:
+    archived: "В архіві"
     title: "Клієнти"
     new: "Новий клієнт"
     create: "Створити клієнта"
@@ -11,7 +12,15 @@ uk:
     search_placeholder: "Пошук..."
     none_found: "Клієнтів не знайдено."
 
-    # Form fields
+    messages:
+      archived: "Клієнта переміщено в архів."
+      created: "Клієнта створено. Додайте інформацію про волосся."
+      updated: "Клієнта успішно оновлено."
+      deleted: "Клієнта успішно видалено."
+      restored: "Клієнта відновлено з архіву."
+      photo_deleted: "Фото видалено."
+      all_photos_deleted: "Усі фото видалено."
+
     form:
       first_name: "Ім’я"
       last_name: "Прізвище"
@@ -38,7 +47,6 @@ uk:
 
       add_photos: "Додати фото"
 
-    # Show page
     show:
       records_tab: "Записи"
       photos_tab: "Фото"
@@ -67,7 +75,6 @@ uk:
         scalp_condition: "Стан шкіри голови"
         note: "Нотатки"
 
-    # Hair params lookup
     hair:
       types:
         straight: "Пряме"
@@ -91,6 +98,21 @@ uk:
         dry: "Суха"
         oily: "Жирна"
         sensitive: "Чутлива"
+
+  activerecord:
+    errors:
+      models:
+        client:
+          attributes:
+            first_name:
+              client_already_exists: "Такий клієнт вже існує. Додайте номер до існуючого клієнта."
+            phone:
+              client_already_exists: "Такий клієнт вже існує. Додайте номер до існуючого клієнта."
+
+        client_phone:
+          attributes:
+            phone:
+              already_belongs_to_another_client: "Цей номер уже належить іншому клієнту."
 
   photos:
     main_photo: "Основне фото"

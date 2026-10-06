@@ -1,5 +1,6 @@
 en:
   clients:
+    archived: "Archived"
     title: "Clients"
     new: "New Client"
     create: "Create Client"
@@ -11,7 +12,15 @@ en:
     search_placeholder: "Search..."
     none_found: "No clients found."
 
-    # Form fields
+    messages:
+      archived: "Client was archived."
+      created: "Client was created. Please add hair details."
+      updated: "Client was successfully updated."
+      deleted: "Client was successfully deleted."
+      restored: "Client was restored from the archive."
+      photo_deleted: "Photo deleted."
+      all_photos_deleted: "All photos deleted."
+
     form:
       first_name: "First Name"
       last_name: "Last Name"
@@ -38,7 +47,6 @@ en:
 
       add_photos: "Add Photos"
 
-    # Show page
     show:
       records_tab: "Records"
       photos_tab: "Photos"
@@ -67,7 +75,6 @@ en:
         scalp_condition: "Scalp Condition"
         note: "Notes"
 
-    # Hair params lookup
     hair:
       types:
         straight: "Straight"
@@ -91,6 +98,21 @@ en:
         dry: "Dry"
         oily: "Oily"
         sensitive: "Sensitive"
+
+  activerecord:
+    errors:
+      models:
+        client:
+          attributes:
+            first_name:
+              client_already_exists: "This client already exists. Add the phone number to the existing client."
+            phone:
+              client_already_exists: "This client already exists. Add the phone number to the existing client."
+
+        client_phone:
+          attributes:
+            phone:
+              already_belongs_to_another_client: "This phone number already belongs to another client."
 
   photos:
     main_photo: "Main Photo"

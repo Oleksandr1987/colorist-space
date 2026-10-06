@@ -1,21 +1,17 @@
 class ClientsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_client, only: %i[show edit update destroy delete_photo delete_all_photos]
+  before_action :set_client, only: %i[show]
+  before_action :set_active_client, only: %i[edit update destroy delete_photo delete_all_photos]
 
   auto_authorize :client, only: %i[show new create edit update destroy delete_photo delete_all_photos]
   after_action :verify_authorized, only: %i[show new create edit update destroy delete_photo delete_all_photos]
 
   def index
-    @clients = current_user.clients
-      .with_phones
-      .alphabetical
+    @clients = current_user.clients.active.with_phones.alphabetical
   end
 
   def search
-    @clients = current_user.clients
-      .with_phones
-      .search_by_name(params[:query])
-      .alphabetical
+    @clients = current_user.clients.active.with_phones.search_by_name(params[:query]).alphabetical
 
     render :index
   end
@@ -30,25 +26,15 @@ class ClientsController < ApplicationController
   end
 
   def create
-    normalized_phone = PhoneValidator.normalize(client_params[:phone])
-
-    existing_client =
-      current_user.clients.find_by(phone: normalized_phone) ||
-      Client.joins(:client_phones)
-          .where(client_phones: { phone: normalized_phone })
-          .find_by(user_id: current_user.id)
-
-    if existing_client
-      redirect_to edit_client_path(existing_client),
-        alert: "Client with this phone already exists. You can update their info."
-      return
-    end
-
     @client = current_user.clients.build(client_params)
 
-    if @client.save
-      redirect_to edit_client_path(@client),
-        notice: "Client was created. Please add hair details."
+    existing_client =
+      Client.find_existing(user: current_user, first_name: @client.first_name, last_name: @client.last_name, phone: @client.phone)
+
+    if existing_client&.archived?
+      restore_client(existing_client)
+    elsif @client.save
+      redirect_to @client, notice: t("clients.messages.created")
     else
       render :new, status: :unprocessable_content
     end
@@ -61,52 +47,42 @@ class ClientsController < ApplicationController
     @client.attach_photos(client_params[:photos])
 
     if @client.update(client_params.except(:photos))
-      redirect_to @client, notice: "Client was successfully updated."
+      redirect_to @client, notice: t("clients.messages.updated")
     else
       render :edit, status: :unprocessable_content
     end
   end
 
   def destroy
-    @client.destroy
+    @client.archive!
 
-    redirect_to clients_path,
-      notice: "Client was successfully deleted."
+    redirect_to clients_path, notice: t("clients.messages.archived")
   end
 
   def autocomplete
-    clients = current_user.clients.search_by_name(params[:term])
+    clients = current_user.clients.active.search_by_name(params[:term])
 
-    render json: clients.select(
-      :id,
-      :first_name,
-      :last_name,
-      :phone
-    )
+    render json: clients.select(:id, :first_name, :last_name, :phone)
   end
 
   def delete_photo
     @client.delete_photo(params[:photo_id])
 
-    redirect_to @client,
-      notice: "Photo deleted."
+    redirect_to @client, notice: t("clients.messages.photo_deleted")
   end
 
   def delete_all_photos
     @client.delete_all_photos
 
-    redirect_to @client,
-      notice: "All photos deleted."
+    redirect_to @client, notice: t("clients.messages.all_photos_deleted")
   end
 
   def make_primary
-    @client = current_user.clients.find(params[:id])
+    @client = current_user.clients.active.find(params[:id])
 
     @client.make_primary!(params[:phone])
 
-    @client = current_user.clients
-                          .includes(:client_phones)
-                          .find(params[:id])
+    @client = current_user.clients.active.includes(:client_phones).find(params[:id])
 
     respond_to do |format|
       format.turbo_stream
@@ -117,6 +93,23 @@ class ClientsController < ApplicationController
 
   def set_client
     @client = current_user.clients.find(params[:id])
+  end
+
+  def set_active_client
+    @client = current_user.clients.active.find(params[:id])
+  end
+
+  def restore_client(client)
+    client.assign_attributes(client_params.except(:photos))
+    client.archived_at = nil
+    client.attach_photos(client_params[:photos])
+
+    if client.save
+      redirect_to client, notice: t("clients.messages.restored")
+    else
+      @client = client
+      render :new, status: :unprocessable_content
+    end
   end
 
   def client_params
@@ -132,7 +125,7 @@ class ClientsController < ApplicationController
       :scalp_condition,
       :note,
       photos: [],
-      client_phones_attributes: [ :id, :phone, :_destroy ]
+      client_phones_attributes: %i[id phone _destroy]
     )
   end
 end
