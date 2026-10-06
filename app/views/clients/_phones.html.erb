@@ -6,7 +6,7 @@
     <div class="phone-left">
       <a href="tel:<%= main_phone %>" class="phone-link full primary-phone">
         <span class="phone-number">
-          <%= main_phone %>
+          <%= client.decorate.formatted_phone %>
         </span>
         <!-- ACTIVE STAR -->
         <span class="phone-star active">
@@ -39,7 +39,7 @@
       <div class="phone-left">
         <a href="tel:<%= phone.phone %>" class="phone-link full">
           <span class="phone-number">
-            <%= phone.phone %>
+            <%= phone.decorate.formatted_phone %>
           </span>
         </a>
 

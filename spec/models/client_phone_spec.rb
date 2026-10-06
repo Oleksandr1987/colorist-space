@@ -46,7 +46,7 @@ RSpec.describe ClientPhone do
 
       expect(
         additional_phone.errors[:phone]
-      ).to include("already belongs to another client")
+      ).to include(I18n.t("errors.messages.already_belongs_to_another_client"))
     end
 
     it "is valid with correct phone format" do
@@ -56,16 +56,10 @@ RSpec.describe ClientPhone do
     end
 
     it "is invalid with incorrect phone format" do
-      client_phone = build(
-        :client_phone,
-        phone: "12345"
-      )
+      client_phone = build(:client_phone, phone: "12345")
 
       expect(client_phone).not_to be_valid
-
-      expect(client_phone.errors[:phone]).to include(
-        "must start with +380 and contain 9 digits after, e.g. +380123456789"
-      )
+      expect(client_phone.errors[:phone]).to include(I18n.t("errors.messages.invalid_phone"))
     end
   end
 

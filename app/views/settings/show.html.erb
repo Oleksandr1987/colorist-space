@@ -10,14 +10,17 @@
       <%= t("settings.account.title") %>
     </h2>
 
+    <% user = @user.decorate %>
+
     <div class="settings-info-list">
       <% %w[name email phone].each do |field| %>
         <div class="settings-info-row">
           <span class="settings-label">
             <%= t("settings.account.#{field}") %>
           </span>
+
           <span class="settings-value">
-            <%= @user.public_send(field).presence || "—" %>
+            <%= user.display_value(field).presence || "—" %>
           </span>
         </div>
       <% end %>

@@ -39,7 +39,9 @@
         <span class="required-asterisk">*</span>
       <% end %>
 
-      <%= f.telephone_field :phone, class: "login__input", autocomplete: "tel", data: { controller: "phone-mask" } %>
+      <div class="phone-input-wrapper">
+        <%= f.telephone_field :phone, class: "login__input", autocomplete: "tel", data: { controller: "phone-mask" } %>
+      </div>
 
       <% resource.errors.full_messages_for(:phone).each do |message| %>
         <div class="inline-error">
