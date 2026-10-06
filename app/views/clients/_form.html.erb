@@ -39,7 +39,12 @@
       <span class="required-asterisk">*</span>
     <% end %>
 
-    <%= f.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
+    <div class="phone-input-wrapper">
+      <%= f.telephone_field :phone,
+            class: "login__input",
+            autocomplete: "tel",
+            data: { controller: "phone-mask" } %>
+    </div>
 
     <% @client.errors.full_messages_for(:phone).each do |message| %>
       <div class="inline-error">
@@ -52,7 +57,9 @@
     <div data-phones-target="container">
       <%= f.fields_for :client_phones do |phone_form| %>
         <div class="phone-row">
-          <%= phone_form.telephone_field :phone, class: "login__input", data: { controller: "phone-mask" } %>
+          <div class="phone-input-wrapper">
+            <%= phone_form.telephone_field :phone, class: "login__input", autocomplete: "tel", data: { controller: "phone-mask" } %>
+          </div>
           <%= phone_form.hidden_field :_destroy %>
           <button type="button" class="remove-btn" data-action="phones#remove">
             <%= image_tag "close.png", class: "clear-icon" %>
@@ -64,15 +71,21 @@
     <!-- TEMPLATE -->
     <template data-phones-target="template">
       <div class="phone-row">
-        <input type="tel"
-              data-controller="phone-mask"
-              name="client[client_phones_attributes][NEW_RECORD][phone]"
-              class="login__input" />
+        <div class="phone-input-wrapper">
+          <input type="tel"
+                autocomplete="tel"
+                data-controller="phone-mask"
+                name="client[client_phones_attributes][NEW_RECORD][phone]"
+                class="login__input">
+        </div>
+
         <input type="hidden"
               name="client[client_phones_attributes][NEW_RECORD][_destroy]"
-              value="false" />
+              value="false">
 
-        <button type="button" class="remove-btn" data-action="phones#remove">
+        <button type="button"
+                class="remove-btn"
+                data-action="phones#remove">
           <%= image_tag "close.png", class: "clear-icon" %>
         </button>
       </div>

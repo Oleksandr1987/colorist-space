@@ -416,6 +416,62 @@ button:hover {
   cursor: pointer;
 }
 
+.phone-input-wrapper {
+  position: relative;
+}
+
+.phone-input-wrapper input {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  color: transparent;
+  caret-color: transparent;
+}
+
+.phone-mask-display {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  padding-right: 16px;
+  pointer-events: none;
+  font: inherit;
+  white-space: pre;
+}
+
+.phone-mask-entered {
+  color: #000;
+}
+
+.phone-mask-empty {
+  color: #999;
+}
+
+.phone-mask-caret {
+  display: inline-block;
+  width: 0;
+  color: #000;
+  font-weight: 400;
+  animation: phone-mask-caret-blink 1s step-end infinite;
+}
+
+@keyframes phone-mask-caret-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
 /* MOBILE LOGIN */
 @media (max-width: 480px) {
   .screen {

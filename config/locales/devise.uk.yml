@@ -53,6 +53,8 @@ uk:
       unlocked: "Ваш акаунт розблоковано. Будь ласка, увійдіть."
   errors:
     messages:
+      invalid_phone: "має містити коректний номер телефону"
+      already_belongs_to_another_client: "вже належить іншому клієнту"
       already_confirmed: "вже підтверджено, спробуйте увійти"
       confirmation_period_expired: "потрібно підтвердити протягом %{period}, запросіть нове посилання"
       expired: "прострочено, будь ласка, запросіть нове"

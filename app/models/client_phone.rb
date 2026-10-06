@@ -22,7 +22,7 @@ class ClientPhone < ApplicationRecord
     if Client.where(user_id: user_id)
             .where.not(id: client_id)
             .exists?(phone: phone)
-      errors.add(:phone, "already belongs to another client")
+      errors.add(:phone, :already_belongs_to_another_client)
     end
   end
 end

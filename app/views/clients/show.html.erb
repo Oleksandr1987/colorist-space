@@ -30,7 +30,7 @@
         <%= button_to client_path(@client), method: :delete,
                       form: {data: {turbo_confirm: t("clients.show.delete_client_confirm")}},
                       class: "client-delete-button" do %>
-          <%= image_tag "menu.png", width: 18, height: 18, class: "wiz-icon" %>
+          <%= image_tag "delete.png", width: 18, height: 18, class: "wiz-icon" %>
         <% end %>
       </div>
     </div>

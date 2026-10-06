@@ -24,12 +24,11 @@ export default class extends Controller {
 
   updateClientInfo(event) {
     const enteredName = event.target.value.trim().toLowerCase()
-    const phone = this.clients[enteredName]
+    const phone = this.clients[enteredName] || ""
 
-    if (phone) {
+    if (this.hasClientPhoneTarget) {
       this.clientPhoneTarget.value = phone
-    } else {
-      this.clientPhoneTarget.value = ""
+      this.clientPhoneTarget.dispatchEvent(new CustomEvent("phone-mask:change"))
     }
 
     this.toggleClearButton()
@@ -47,7 +46,12 @@ export default class extends Controller {
 
   clearClientField() {
     this.clientNameTarget.value = ""
-    this.clientPhoneTarget.value = ""
+
+    if (this.hasClientPhoneTarget) {
+      this.clientPhoneTarget.value = ""
+      this.clientPhoneTarget.dispatchEvent(new CustomEvent("phone-mask:change"))
+    }
+
     this.toggleClearButton()
 
     if (this.clientNameTarget.showPicker) {
