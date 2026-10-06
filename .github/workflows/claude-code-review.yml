@@ -3,60 +3,68 @@ name: Claude Code Review
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
-
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write
+      issues: write
       id-token: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Run Claude Code Review
         id: claude-review
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
-          plugins: 'code-review@claude-code-plugins'
-          prompt: |
-            Review pull request ${{ github.repository }}/pull/${{ github.event.pull_request.number }}.
 
-            This is an automated review triggered for the current PR HEAD commit:
-            ${{ github.event.pull_request.head.sha }}.
+          prompt: |
+            Perform a complete code review of pull request:
+            ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+
+            This workflow was triggered for the current PR HEAD:
+
+            BASE SHA:
+            ${{ github.event.pull_request.base.sha }}
+
+            HEAD SHA:
+            ${{ github.event.pull_request.head.sha }}
 
             IMPORTANT:
-            Always perform a fresh review of the current PR state, even if Claude has
-            already reviewed or commented on this pull request.
+            This is a new independent review run for the current HEAD commit.
 
-            Previous Claude comments must NOT cause the review to stop or be skipped.
-            They are historical context only. Review the code as it exists at the
-            current HEAD commit.
+            Always review the current PR state from BASE SHA through HEAD SHA.
 
-            Review the diff between the PR base branch and the current PR HEAD.
+            Do not skip the review because:
+            - Claude previously reviewed this PR
+            - Claude previously posted comments
+            - an earlier commit in this PR was reviewed
+            - some changed files were reviewed previously
 
-            Read and follow the repository's CLAUDE.md instructions.
+            Previous review comments are historical context only.
+
+            Review the complete diff:
+
+              ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
+
+            Do not review only the latest commit.
+
+            Read and follow all applicable CLAUDE.md instructions before
+            evaluating the changed code.
+
+            First inspect the complete PR diff and identify every changed file.
+            Then review all relevant changed files before posting findings.
 
             Focus on high-confidence, actionable issues introduced by this PR:
+
             - real bugs and regressions
             - CLAUDE.md violations
             - multi-user isolation and missing current_user scoping
@@ -72,6 +80,7 @@ jobs:
             - missing regression tests for bug fixes
 
             Do not report:
+
             - pre-existing issues unrelated to this PR
             - cosmetic or stylistic preferences
             - minor refactoring suggestions
@@ -79,31 +88,53 @@ jobs:
             - speculative problems without a concrete failure scenario
             - duplicate findings for the same root cause
 
-            For every potential issue, verify it against the actual code and surrounding
-            context before reporting it. Prefer a small number of high-confidence
-            findings over speculative feedback.
+            For every potential issue:
+            1. Verify it against the actual current code.
+            2. Read enough surrounding code to confirm the failure scenario.
+            3. Check whether the issue is already handled elsewhere.
+            4. Report it only when it is a high-confidence issue introduced by
+               this PR.
+
+            Do not stop after finding the first issue.
+
+            Continue reviewing the remaining changed files after every finding.
+
+            Complete the review of the entire PR diff before finishing.
 
             Do not launch background agents.
             Do not use run_in_background=true.
-            Complete the entire review in this invocation.
 
-            If you find issues, post one inline GitHub comment per unique issue using
-            mcp__github_inline_comment__create_inline_comment with confirmed=true.
+            If you find issues, post one inline GitHub comment per unique issue
+            using mcp__github_inline_comment__create_inline_comment with
+            confirmed=true.
 
-            Each inline comment should explain:
+            Each inline comment must explain:
             - what is wrong
-            - the concrete failure or regression it can cause
+            - the concrete failure or regression
             - how it should be fixed
 
-            If no issues are found, post a PR comment with:
+            If no issues are found, post a PR comment containing:
 
             ## Code review — ${{ github.event.pull_request.head.sha }}
 
-            No issues found. Checked for bugs, regressions, test coverage, and
-            CLAUDE.md compliance.
+            No issues found. Checked the complete PR diff for bugs,
+            regressions, test coverage, and CLAUDE.md compliance.
 
-            Do not finish without completing the review of the current HEAD commit.
+            Before finishing, verify that the reviewed HEAD SHA is exactly:
 
-          claude_args: '--allowedTools "Read,Glob,Grep,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(git diff:*),Bash(git log:*),Bash(git blame:*),mcp__github_inline_comment__create_inline_comment"'
+            ${{ github.event.pull_request.head.sha }}
+
+          claude_args: >-
+            --allowedTools
+            "Read,Glob,Grep,
+            Bash(gh pr view:*),
+            Bash(gh pr diff:*),
+            Bash(gh pr comment:*),
+            Bash(git diff:*),
+            Bash(git log:*),
+            Bash(git blame:*),
+            Bash(git status:*),
+            Bash(git rev-parse:*),
+            mcp__github_inline_comment__create_inline_comment"
 
           show_full_output: true
