@@ -1,6 +1,5 @@
 <div class="clients-page">
   <div data-controller="client-search" class="clients-container">
-
     <input type="text"
            data-client-search-target="input"
            data-action="input->client-search#search"
@@ -21,20 +20,28 @@
                        client.phone,
                        client.client_phones.map(&:phone)
                      ].flatten.compact.join(' ') %>">
-
-                  <%= link_to "#{client.first_name} #{client.last_name}", client_path(client), class: "client-link" %>
+                  <%= link_to "#{client.first_name} #{client.last_name}",
+                              client_path(client),
+                              class: "client-link" %>
                 </div>
               <% end %>
             </div>
           </div>
         <% end %>
+
+        <p class="clients-no-results hidden"
+           data-client-search-target="noResults">
+          <%= t("clients.none_found") %>
+        </p>
       <% else %>
-        <p><%= t("clients.none_found") %></p>
+        <p class="clients-no-results">
+          <%= t("clients.none_found") %>
+        </p>
       <% end %>
     </div>
 
     <%= link_to new_client_path, class: "floating-add-button" do %>
-        <%= image_tag "plus.png", width: 46, height: 46 %>
+      <%= image_tag "plus.png", width: 46, height: 46 %>
     <% end %>
   </div>
 </div>

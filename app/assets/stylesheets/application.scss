@@ -25,6 +25,7 @@
 @use "password";
 @use "subscription_integration";
 @use "care_product_sale";
+@use "client_form";
 
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
@@ -193,14 +194,18 @@ body {
   margin: 0 10px;
 }
 
+:root {
+  --bottom-nav-height: 60px;
+}
+
 /* ==== Bottom Navigation Bar ==== */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background: white;
+  height: var(--bottom-nav-height);
+  background: #fff;
   display: flex;
   justify-content: space-around;
   align-items: center;

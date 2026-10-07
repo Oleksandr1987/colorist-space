@@ -12,6 +12,7 @@ class Client < ApplicationRecord
 
   validates :first_name, presence: true
   validates :phone, uniqueness: { scope: :user_id, message: :client_already_exists }
+  validates :hair_damage_level, inclusion: { in: 1..5 }, allow_nil: true
 
   validate :birthday_must_be_valid
   validate :full_name_must_be_unique
@@ -117,7 +118,7 @@ class Client < ApplicationRecord
 
     month, day = birthday.split("-").map(&:to_i)
 
-    Date.new(2000, month, day)
+    Date.new(2001, month, day)
   rescue Date::Error, TypeError, ArgumentError
     errors.add(:birthday, :invalid)
   end

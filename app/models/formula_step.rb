@@ -1,4 +1,12 @@
 class FormulaStep < ApplicationRecord
+  SECTIONS = %w[
+    roots
+    midshaft
+    length
+    strands
+    all_over
+  ].freeze
+
   belongs_to :service_note, inverse_of: :formula_steps
   has_many :formula_ingredients, dependent: :destroy, inverse_of: :formula_step
 
@@ -6,7 +14,7 @@ class FormulaStep < ApplicationRecord
     allow_destroy: true,
     reject_if: proc { |attrs| attrs["shade"].blank? && attrs["amount"].blank? }
 
-  validates :section, presence: true
+  validates :section, presence: true, inclusion: { in: SECTIONS }
 
   before_validation :normalize_values
 

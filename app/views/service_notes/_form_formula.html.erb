@@ -1,10 +1,8 @@
-<% formula_sections = [:roots, :midshaft, :length, :strands, :all_over] %>
-
 <div class="formula-container"
      data-controller="formula"
      data-service-note-id="<%= @service_note.id %>"
      data-client-id="<%= @client.id %>"
-     data-formula-sections-value="<%= formula_sections.index_with { |section|
+     data-formula-sections-value="<%= FormulaStep::SECTIONS.index_with { |section|
        t("formula.sections.#{section}")
      }.to_json %>">
   <!-- STEP 1 -->
@@ -36,7 +34,7 @@
           <h5><%= t("formula.add_section") %></h5>
 
         <div class="sections-grid">
-          <% formula_sections.each do |section| %>
+          <% FormulaStep::SECTIONS.each do |section| %>
             <button type="button"
                     class="section-btn"
                     data-action="click->formula#createStep click->collapse#close click->collapse#stop"

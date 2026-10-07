@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "item", "group"]
+  static targets = ["input", "item", "group", "noResults"]
 
   search() {
     const query = this.inputTarget.value.trim().toLowerCase()
@@ -14,6 +14,7 @@ export default class extends Controller {
 
     const queryDigits = this.normalizePhone(query)
     const isSearchingByPhone = queryDigits.length > 0
+    let hasResults = false
 
     this.groupTargets.forEach((group) => {
       let hasVisibleItems = false
@@ -27,11 +28,18 @@ export default class extends Controller {
 
           item.style.display = isVisible ? "" : "none"
 
-          if (isVisible) hasVisibleItems = true
+          if (isVisible) {
+            hasVisibleItems = true
+            hasResults = true
+          }
         })
 
       group.style.display = hasVisibleItems ? "" : "none"
     })
+
+    if (this.hasNoResultsTarget) {
+      this.noResultsTarget.classList.toggle("hidden", hasResults)
+    }
   }
 
   reset() {
@@ -42,6 +50,10 @@ export default class extends Controller {
     this.groupTargets.forEach((group) => {
       group.style.display = ""
     })
+
+    if (this.hasNoResultsTarget) {
+      this.noResultsTarget.classList.add("hidden")
+    }
   }
 
   normalizePhone(value) {

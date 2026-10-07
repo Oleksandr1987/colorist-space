@@ -31,26 +31,31 @@ uk:
       select_birthday: "Оберіть день народження"
       note: "Нотатки"
 
-      hair_info_title: "Додаткова інформація про волосся"
-      hair_info: "Інформація про волосся"
+      hair_info_title: "Дані про волосся"
+      hair_info: "Дані про волосся"
       hair_type: "Тип волосся"
       hair_length: "Довжина волосся"
       hair_structure: "Структура волосся"
       hair_density: "Густота волосся"
+      hair_damage_level: "Ступінь пошкодження волосся"
       scalp_condition: "Стан шкіри голови"
 
       select_hair_type: "Оберіть тип волосся"
       select_hair_length: "Оберіть довжину волосся"
       select_hair_structure: "Оберіть структуру волосся"
       select_hair_density: "Оберіть густоту волосся"
+      select_hair_damage_level: "Оберіть ступінь пошкодження волосся"
       select_scalp_condition: "Оберіть стан шкіри голови"
 
       add_photos: "Додати фото"
+      add_phone: "Додати номер телефону"
 
     show:
       records_tab: "Записи"
       photos_tab: "Фото"
       info_tab: "Інформація"
+      future: "Майбутній"
+      no_records: "Записів ще немає"
 
       new_appointment: "Новий запис"
       edit_client: "Редагувати клієнта"
@@ -65,6 +70,15 @@ uk:
       delete_all_photos: "Видалити всі фото"
       delete_all_photos_confirm: "Видалити всі фото клієнта?"
 
+      no_hair_info: "Дані про волосся відсутні"
+      no_notes: "Нотаток немає"
+
+      add_hair_info: "Додати дані про волосся"
+      edit_hair_info: "Редагувати дані про волосся"
+
+      add_notes: "Додати нотатки"
+      edit_notes: "Редагувати нотатки"
+
       details:
         name: "Ім'я"
         phone: "Телефон"
@@ -72,6 +86,7 @@ uk:
         hair_length: "Довжина волосся"
         hair_structure: "Структура волосся"
         hair_density: "Густота волосся"
+        hair_damage_level: "Ступінь пошкодження волосся"
         scalp_condition: "Стан шкіри голови"
         note: "Нотатки"
 
@@ -93,6 +108,12 @@ uk:
         sparse: "Рідке"
         medium: "Середня"
         dense: "Густе"
+      damage_levels:
+        "1": "Здорове"
+        "2": "Сухе"
+        "3": "Пористе"
+        "4": "Ламке"
+        "5": "Зруйноване"
       scalp:
         normal: "Нормальна"
         dry: "Суха"
