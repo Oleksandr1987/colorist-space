@@ -1,19 +1,21 @@
   <div id="styles-tab" data-client-profile-target="tabContent" class="tab-content active">
 
     <% if appointments.any? %>
-      <% client.style_appointments.each do |appointment| %>
+      <% appointments.each do |appointment| %>
         <% service_note = appointment.service_note %>
 
-        <% target_path = service_note.present? ? client_service_note_path(@client, service_note) : new_client_service_note_path(@client, appointment_id: appointment.id) %>
+        <% target_path = service_note.present? ? client_service_note_path(client, service_note) : new_client_service_note_path(client, appointment_id: appointment.id) %>
         <div class="style-card">
           <%= link_to target_path, class: "style-photo-wrapper-link" do %>
             <div class="style-photo-wrapper">
               <% if service_note&.photos&.attached? %>
+                <% photos_count = service_note.photos.size %>
+
                 <%= image_tag thumb(service_note.display_photo), class: "style-photo" %>
 
-                <% if service_note.photos.count > 1 %>
+                <% if photos_count > 1 %>
                   <div class="style-photo-count">
-                    +<%= service_note.photos.count - 1 %>
+                    +<%= photos_count - 1 %>
                   </div>
                 <% end %>
               <% else %>
