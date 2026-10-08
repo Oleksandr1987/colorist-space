@@ -20,6 +20,7 @@ class CareProductStockMovement < ApplicationRecord
 
   belongs_to :user
   belongs_to :care_product
+  belongs_to :appointment, optional: true
   belongs_to :service_note, optional: true
   belongs_to :expense, optional: true
 
@@ -48,7 +49,7 @@ class CareProductStockMovement < ApplicationRecord
     when "purchase"
       "purchase"
     when "sale"
-      service_note_id.present? ? "service_note_sale" : "direct_sale"
+      appointment_id.present? ? "service_note_sale" : "direct_sale"
     when "adjustment"
       adjustment_reason
     end

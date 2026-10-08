@@ -17,20 +17,15 @@ module Analytics
     end
 
     def grouped_service_income
-      @grouped_service_income ||=
-        service_relations.joins(:service).group("services.category").sum("appointment_services_relations.price")
+      @grouped_service_income ||= service_relations.group(:service_category).sum(:price)
     end
 
     def service_income
       @service_income ||= service_relations.sum(:price)
     end
 
-    def service_notes
-      @service_notes ||= period_service_notes.select { |note| appointment_ids.include?(note.appointment_id) }
-    end
-
     def formula_income
-      @formula_income ||= service_notes.sum(&:formula_ingredients_total_price)
+      @formula_income ||= formula_charges.sum(:total)
     end
 
     def care_products_income
@@ -43,30 +38,33 @@ module Analytics
 
     def formula_color_options
       @formula_color_options ||=
-        period_service_notes
-          .flat_map(&:formula_steps)
-          .flat_map(&:formula_ingredients)
-          .filter_map do |ingredient|
-            next if ingredient.formula_product_id.blank?
-
+        period_formula_charges
+          .colors
+          .where.not(formula_product_id: nil)
+          .select(:formula_product_id, :brand, :product_name)
+          .distinct
+          .map do |charge|
             {
-              id: ingredient.formula_product_id,
-              brand: ingredient.brand,
-              label: formula_color_label(ingredient)
+              id: charge.formula_product_id,
+              brand: charge.brand,
+              label: [ charge.brand, charge.product_name ].compact_blank.join(" ")
             }
           end
-          .uniq { |option| option[:id] }
           .sort_by { |option| option[:label].downcase }
     end
 
     def oxidant_options
       @oxidant_options ||=
-        oxidant_product_ids
-          .map do |id|
+        period_formula_charges
+          .oxidants
+          .where.not(formula_product_id: nil)
+          .select(:formula_product_id, :brand, :product_name)
+          .distinct
+          .map do |charge|
             {
-              id: id,
-              brand: oxidant_products[id]&.brand,
-              label: oxidant_label(oxidant_products[id], id)
+              id: charge.formula_product_id,
+              brand: charge.brand,
+              label: [ charge.brand, charge.product_name ].compact_blank.join(" ")
             }
           end
           .sort_by { |option| option[:label].downcase }
@@ -94,8 +92,7 @@ module Analytics
       return AppointmentServicesRelation.none unless valid_category?(category)
 
       service_relations
-        .joins(:service)
-        .where(services: { category: category })
+        .where(service_category: category)
         .includes(:service, :appointment)
         .ordered_for_income
     end
@@ -108,44 +105,38 @@ module Analytics
 
     def formula_color_income
       @formula_color_income ||=
-        service_notes
-        .flat_map(&:formula_steps)
-        .flat_map(&:formula_ingredients)
-        .group_by(&:formula_product_id)
-        .filter_map do |product_id, ingredients|
-          next if product_id.blank?
+        formula_charges
+          .colors
+          .where.not(formula_product_id: nil)
+          .group_by(&:formula_product_id)
+          .map do |product_id, charges|
+            first = charges.first
 
-          {
-            id: product_id,
-            label: formula_color_label(ingredients.first),
-            amount: ingredients.sum(&:total_price)
-          }
-        end
-        .sort_by { |item| item[:label].downcase }
+            {
+              id: product_id,
+              label: [ first.brand, first.product_name ].compact_blank.join(" "),
+              amount: charges.sum(&:total)
+            }
+          end
+          .sort_by { |item| item[:label].downcase }
     end
 
     def oxidant_income
       @oxidant_income ||=
-        begin
-          products = oxidant_products
+        formula_charges
+          .oxidants
+          .where.not(formula_product_id: nil)
+          .group_by(&:formula_product_id)
+          .map do |product_id, charges|
+            first = charges.first
 
-          service_notes
-            .flat_map(&:formula_steps)
-            .flat_map(&:oxidant_data)
-            .group_by { |oxidant| oxidant["formula_product_id"].to_i }
-            .filter_map do |product_id, oxidants|
-              next if product_id.zero?
-
-              {
-                id: product_id,
-                label: oxidant_label(products[product_id], product_id),
-                amount: oxidants.sum do |oxidant|
-                  oxidant["amount"].to_f * oxidant["price"].to_f
-                end
-              }
-            end
-            .sort_by { |item| item[:label].downcase }
-        end
+            {
+              id: product_id,
+              label: [ first.brand, first.product_name ].compact_blank.join(" "),
+              amount: charges.sum(&:total)
+            }
+          end
+          .sort_by { |item| item[:label].downcase }
     end
 
     def care_product_income
@@ -261,17 +252,18 @@ module Analytics
     end
 
     def formula_filtered_appointment_ids
-      period_service_notes.select { |note| note_matches_formula_filter?(note) }.map(&:appointment_id)
+      period_formula_charges
+        .where(formula_product_id: formula_product_ids)
+        .distinct
+        .pluck(:appointment_id)
     end
 
     def care_product_filtered_appointment_ids
       period_care_product_sales
         .where(care_product_id: care_product_ids)
-        .where.not(service_note_id: nil)
-        .joins(:service_note)
-        .pluck("service_notes.appointment_id")
-        .compact
-        .uniq
+        .where.not(appointment_id: nil)
+        .distinct
+        .pluck(:appointment_id)
     end
 
     def care_product_sales
@@ -280,30 +272,15 @@ module Analytics
           scope = period_care_product_sales
 
           if service_filters? || formula_product_ids.present?
-            service_note_ids = ServiceNote.where(user: user, appointment_id: appointment_ids).select(:id)
-            scope = scope.where(service_note_id: service_note_ids)
+            scope = scope.where(appointment_id: appointment_ids)
           end
 
-          scope = scope.where(care_product_id: care_product_ids) if care_product_ids.present?
+          if care_product_ids.present?
+            scope = scope.where(care_product_id: care_product_ids)
+          end
 
           scope
         end
-    end
-
-    def note_matches_formula_filter?(note)
-      note.formula_steps.any? do |step|
-        ingredient_match =
-          step.formula_ingredients.any? do |ingredient|
-            formula_product_ids.include?(ingredient.formula_product_id)
-          end
-
-        oxidant_match =
-          step.oxidant_data.any? do |oxidant|
-            formula_product_ids.include?(oxidant["formula_product_id"].to_i)
-          end
-
-        ingredient_match || oxidant_match
-      end
     end
 
     def service_filters?
@@ -351,6 +328,19 @@ module Analytics
 
     def oxidant_products
       @oxidant_products ||= user.formula_products.where(id: oxidant_product_ids, category: "oxidant").index_by(&:id)
+    end
+
+    def formula_charges
+      @formula_charges ||=
+        begin
+          scope = period_formula_charges.where(appointment_id: appointment_ids)
+
+          if formula_product_ids.present?
+            scope = scope.where(formula_product_id: formula_product_ids)
+          end
+
+          scope
+        end
     end
   end
 end

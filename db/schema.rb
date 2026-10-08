@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_211452) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_093324) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -43,10 +43,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_211452) do
     t.integer "appointment_id", null: false
     t.datetime "created_at", null: false
     t.integer "price", null: false
+    t.string "service_category", null: false
     t.integer "service_id", null: false
+    t.string "service_name", null: false
     t.datetime "updated_at", null: false
     t.index ["appointment_id", "service_id"], name: "appt_serv_in", unique: true
     t.index ["appointment_id"], name: "index_appointment_services_relations_on_appointment_id"
+    t.index ["service_category"], name: "index_appointment_services_relations_on_service_category"
     t.index ["service_id"], name: "index_appointment_services_relations_on_service_id"
   end
 
@@ -65,6 +68,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_211452) do
   end
 
   create_table "care_product_sales", force: :cascade do |t|
+    t.integer "appointment_id"
     t.integer "care_product_id", null: false
     t.datetime "created_at", null: false
     t.integer "quantity", null: false
@@ -75,6 +79,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_211452) do
     t.decimal "unit_price", precision: 10, scale: 2, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.index ["appointment_id"], name: "index_care_product_sales_on_appointment_id"
     t.index ["care_product_id"], name: "index_care_product_sales_on_care_product_id"
     t.index ["service_note_id"], name: "index_care_product_sales_on_service_note_id"
     t.index ["sold_on"], name: "index_care_product_sales_on_sold_on"
@@ -84,6 +89,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_211452) do
 
   create_table "care_product_stock_movements", force: :cascade do |t|
     t.string "adjustment_reason"
+    t.integer "appointment_id"
     t.integer "care_product_id", null: false
     t.datetime "created_at", null: false
     t.integer "expense_id"
@@ -96,6 +102,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_211452) do
     t.decimal "unit_cost", precision: 10, scale: 2
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.index ["appointment_id"], name: "index_care_product_stock_movements_on_appointment_id"
     t.index ["care_product_id"], name: "index_care_product_stock_movements_on_care_product_id"
     t.index ["expense_id"], name: "index_care_product_stock_movements_on_expense_id"
     t.index ["movement_type"], name: "index_care_product_stock_movements_on_movement_type"
@@ -167,6 +174,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_211452) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_expenses_on_user_id"
+  end
+
+  create_table "formula_charges", force: :cascade do |t|
+    t.decimal "amount", precision: 12, scale: 3, null: false
+    t.integer "appointment_id", null: false
+    t.string "brand"
+    t.datetime "created_at", null: false
+    t.integer "formula_product_id"
+    t.string "kind", null: false
+    t.string "product_name", null: false
+    t.integer "service_note_id"
+    t.decimal "total", precision: 12, scale: 2, null: false
+    t.string "unit"
+    t.decimal "unit_price", precision: 12, scale: 4, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["appointment_id"], name: "index_formula_charges_on_appointment_id"
+    t.index ["formula_product_id"], name: "index_formula_charges_on_formula_product_id"
+    t.index ["kind"], name: "index_formula_charges_on_kind"
+    t.index ["service_note_id"], name: "index_formula_charges_on_service_note_id"
+    t.index ["user_id"], name: "index_formula_charges_on_user_id"
   end
 
   create_table "formula_ingredients", force: :cascade do |t|
@@ -361,10 +389,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_211452) do
   add_foreign_key "appointment_services_relations", "services"
   add_foreign_key "appointments", "clients"
   add_foreign_key "appointments", "users"
+  add_foreign_key "care_product_sales", "appointments"
   add_foreign_key "care_product_sales", "care_product_stock_movements", column: "stock_movement_id"
   add_foreign_key "care_product_sales", "care_products"
   add_foreign_key "care_product_sales", "service_notes"
   add_foreign_key "care_product_sales", "users"
+  add_foreign_key "care_product_stock_movements", "appointments"
   add_foreign_key "care_product_stock_movements", "care_products"
   add_foreign_key "care_product_stock_movements", "expenses"
   add_foreign_key "care_product_stock_movements", "service_notes"
@@ -374,6 +404,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_211452) do
   add_foreign_key "client_phones", "users"
   add_foreign_key "clients", "users"
   add_foreign_key "expenses", "users"
+  add_foreign_key "formula_charges", "appointments"
+  add_foreign_key "formula_charges", "formula_products", on_delete: :nullify
+  add_foreign_key "formula_charges", "service_notes", on_delete: :nullify
+  add_foreign_key "formula_charges", "users"
   add_foreign_key "formula_ingredients", "formula_steps"
   add_foreign_key "formula_products", "users"
   add_foreign_key "formula_steps", "service_notes"

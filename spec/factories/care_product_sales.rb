@@ -1,7 +1,13 @@
 FactoryBot.define do
   factory :care_product_sale do
     association :user
-    association :care_product
+
+    care_product do
+      association :care_product, user: user
+    end
+
+    appointment { nil }
+    service_note { nil }
 
     quantity { 1 }
     unit_price { 950 }
