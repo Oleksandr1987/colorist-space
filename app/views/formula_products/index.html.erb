@@ -114,15 +114,6 @@
           <%= link_to edit_formula_product_path(product), class: "icon-button", aria: { label: t("common.edit") } do %>
             <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.edit") %>
           <% end %>
-
-          <%= button_to formula_product_path(product),
-                method: :delete,
-                class: "icon-button delete-button",
-                aria: { label: t("common.delete") },
-                form: { data: { turbo_confirm: t("formula_products.actions.confirm_delete") } } do %>
-
-            <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.delete") %>
-          <% end %>
         </div>
       </div>
     <% end %>

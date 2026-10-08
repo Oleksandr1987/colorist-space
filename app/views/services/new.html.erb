@@ -1,1 +1,3 @@
-<%= render "form_page", service: @service, category: @service.category, title: t("services.pages.new_item", item: @translated_category) %>
+<% title = @service.category.present? ? t("services.pages.new_by_category.#{@service.category}", default: t("services.pages.new_category")) : t("services.pages.new_category") %>
+
+<%= render "form_page", service: @service, category: @service.category, title: title %>

@@ -45,40 +45,24 @@
   <% unless @care_product.deleted? %>
     <div class="care-product-details-actions">
       <% if @care_product.archived? %>
-        <%= button_to t("care_products.restore.action"),
-          restore_care_product_path(@care_product),
-          method: :patch,
-          class: "care-product-details-action" %>
+        <%= button_to t("care_products.restore.action"), restore_care_product_path(@care_product), method: :patch, class: "care-product-details-action" %>
 
-        <%= button_to t("common.delete"),
-          care_product_path(@care_product),
-          method: :delete,
+        <%= button_to t("common.delete"), care_product_path(@care_product), method: :delete,
           class: "care-product-details-action delete-button",
           form: { data: { turbo_confirm: t("care_products.confirm_delete") } } %>
       <% else %>
         <% if @care_product.stock_quantity.to_i.positive? %>
-          <%= link_to t("care_products.sale.action"),
-            new_care_product_sale_path(@care_product),
-            class: "care-product-details-action" %>
+          <%= link_to t("care_products.sale.action"), new_care_product_sale_path(@care_product), class: "care-product-details-action" %>
         <% end %>
 
-        <%= link_to t("care_products.restock.action"),
-          restock_care_product_path(@care_product),
-          class: "care-product-details-action" %>
+        <%= link_to t("care_products.restock.action"), restock_care_product_path(@care_product), class: "care-product-details-action" %>
 
-        <%= link_to t("care_products.adjustment.action"),
-          adjust_stock_care_product_path(@care_product),
-          class: "care-product-details-action" %>
+        <%= link_to t("care_products.adjustment.action"), adjust_stock_care_product_path(@care_product), class: "care-product-details-action" %>
 
         <% if @care_product.stock_quantity.to_i.zero? %>
-          <%= button_to t("care_products.archive.action"),
-            archive_care_product_path(@care_product),
-            method: :patch,
-            class: "care-product-details-action" %>
+          <%= button_to t("care_products.archive.action"), archive_care_product_path(@care_product), method: :patch, class: "care-product-details-action" %>
 
-          <%= button_to t("common.delete"),
-            care_product_path(@care_product),
-            method: :delete,
+          <%= button_to t("common.delete"), care_product_path(@care_product), method: :delete,
             class: "care-product-details-action delete-button",
             form: { data: { turbo_confirm: t("care_products.confirm_delete") } } %>
         <% end %>
@@ -160,9 +144,7 @@
                   </div>
                 <% end %>
 
-                <%= link_to t("care_products.history.open_record"),
-                  service_note_path(movement.service_note),
-                  class: "care-product-history-record-link" %>
+                <%= link_to t("care_products.history.open_record"), client_service_note_path(movement.service_note), class: "care-product-history-record-link" %>
               </div>
             <% end %>
 
