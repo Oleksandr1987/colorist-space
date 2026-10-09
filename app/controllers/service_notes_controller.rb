@@ -35,7 +35,12 @@ class ServiceNotesController < ApplicationController
       @service_note.service_ids = @service_note.appointment.service_ids
     end
 
-    if @service_note.save
+    if @service_note.valid?
+      ServiceNote.transaction do
+        @service_note.save!
+        Formulas::SyncCharges.new(service_note: @service_note).call
+      end
+
       attach_photos
 
       respond_to do |format|
@@ -68,9 +73,19 @@ class ServiceNotesController < ApplicationController
 
     care_products = params[:service_note].key?("care_products") ? parse_care_products : @service_note.care_products
 
-    if @service_note.update(
-      service_note_params.except(:photos, :service_ids, :care_products).merge(service_ids: service_ids, care_products: care_products)
-    )
+    attributes =
+      service_note_params
+        .except(:photos, :service_ids, :care_products)
+        .merge(service_ids: service_ids, care_products: care_products)
+
+    @service_note.assign_attributes(attributes)
+
+    if @service_note.valid?
+      ServiceNote.transaction do
+        @service_note.save!
+        Formulas::SyncCharges.new(service_note: @service_note).call
+      end
+
       attach_photos
 
       respond_to do |format|
@@ -89,8 +104,9 @@ class ServiceNotesController < ApplicationController
   end
 
   def destroy
-    @service_note.destroy
-    redirect_to client_path(@client), notice: "Service note deleted"
+    @service_note.destroy!
+
+    redirect_to(client_path(@client), notice: t("service_notes.messages.deleted"))
   end
 
   def main_photo

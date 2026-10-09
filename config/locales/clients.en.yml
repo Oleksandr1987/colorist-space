@@ -31,26 +31,31 @@ en:
       select_birthday: "Select Birthday"
       note: "Notes"
 
-      hair_info_title: "Optional Hair Information"
+      hair_info_title: "Hair Information"
       hair_info: "Hair Information"
       hair_type: "Hair Type"
       hair_length: "Hair Length"
       hair_structure: "Hair Structure"
       hair_density: "Hair Density"
+      hair_damage_level: "Hair damage level"
       scalp_condition: "Scalp Condition"
 
       select_hair_type: "Select Hair Type"
       select_hair_length: "Select Hair Length"
       select_hair_structure: "Select Hair Structure"
       select_hair_density: "Select Hair Density"
+      select_hair_damage_level: "Select hair damage level"
       select_scalp_condition: "Select Scalp Condition"
 
       add_photos: "Add Photos"
+      add_phone: "Add Phone Number"
 
     show:
       records_tab: "Records"
       photos_tab: "Photos"
       info_tab: "Info"
+      future: "Future"
+      no_records: "No appointments yet"
 
       new_appointment: "New Appointment"
       edit_client: "Edit Client"
@@ -65,6 +70,15 @@ en:
       delete_all_photos: "Delete All Photos"
       delete_all_photos_confirm: "Delete ALL photos?"
 
+      no_hair_info: "No hair information yet"
+      no_notes: "No notes yet"
+
+      add_hair_info: "Add hair information"
+      edit_hair_info: "Edit hair information"
+
+      add_notes: "Add notes"
+      edit_notes: "Edit notes"
+
       details:
         name: "Name"
         phone: "Phone"
@@ -72,6 +86,7 @@ en:
         hair_length: "Hair Length"
         hair_structure: "Hair Structure"
         hair_density: "Hair Density"
+        hair_damage_level: "Hair damage level"
         scalp_condition: "Scalp Condition"
         note: "Notes"
 
@@ -93,6 +108,12 @@ en:
         sparse: "Sparse"
         medium: "Medium"
         dense: "Dense"
+      damage_levels:
+        "1": "1 - Healthy"
+        "2": "2 - Dry"
+        "3": "3 - Porous"
+        "4": "4 - Brittle"
+        "5": "5 - Severely damaged"
       scalp:
         normal: "Normal"
         dry: "Dry"

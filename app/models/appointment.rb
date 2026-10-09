@@ -5,6 +5,9 @@ class Appointment < ApplicationRecord
   attr_accessor :client_name, :phone
 
   has_many :appointment_services_relations, inverse_of: :appointment, dependent: :destroy
+  has_many :formula_charges, dependent: :destroy
+  has_many :care_product_sales, dependent: :destroy
+  has_many :care_product_stock_movements, dependent: :nullify
   has_many :services, through: :appointment_services_relations
   has_one :service_note, dependent: :destroy
 

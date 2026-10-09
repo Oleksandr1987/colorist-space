@@ -19,7 +19,7 @@
       <h5>Add section</h5>
 
       <div class="sections-grid">
-        <% [:roots, :midshaft, :length, :strands, :all_over].each do |section| %>
+        <% FormulaStep::SECTIONS.each do |section| %>
           <button type="button"
                   class="section-btn"
                   data-action="click->formula#createStep click->collapse#stop"

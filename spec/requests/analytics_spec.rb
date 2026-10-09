@@ -153,8 +153,13 @@ RSpec.describe "Analytics" do
     end
 
     it "includes formula ingredient income" do
+      color_product = create(:formula_product, user: user, category: "color", brand: "Wella", name: "7/1", unit: "g")
+
       formula_step = create(:formula_step, service_note: service_note_b)
-      create(:formula_ingredient, formula_step: formula_step, amount: 10, price: 5)
+
+      create(:formula_ingredient, formula_step: formula_step, formula_product: color_product, amount: 10, price: 5)
+
+      Formulas::SyncCharges.new(service_note: service_note_b.reload).call
 
       get income_analytics_path, params: { from: from, to: to }
 
@@ -162,7 +167,12 @@ RSpec.describe "Analytics" do
     end
 
     it "includes oxidant income" do
-      create(:formula_step, service_note: service_note_b, oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ])
+      oxidant_product = create(:formula_product, :oxidant, user: user, brand: "Wella", name: "6%", unit: "ml")
+
+      create(:formula_step, service_note: service_note_b,
+        oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ])
+
+      Formulas::SyncCharges.new(service_note: service_note_b.reload).call
 
       get income_analytics_path, params: { from: from, to: to }
 
@@ -181,10 +191,19 @@ RSpec.describe "Analytics" do
     end
 
     it "calculates service, formula and care product income together" do
+      color_product = create(:formula_product, user: user, category: "color", brand: "Wella", name: "7/1", unit: "g")
+
+      oxidant_product = create(:formula_product, :oxidant, user: user, brand: "Wella", name: "6%", unit: "ml")
+
       service_note_b.update!(care_products: care_products)
+
       formula_step =
-        create(:formula_step, service_note: service_note_b, oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ])
-      create(:formula_ingredient, formula_step: formula_step, amount: 10, price: 5)
+        create(:formula_step, service_note: service_note_b,
+          oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ])
+
+      create(:formula_ingredient, formula_step: formula_step, formula_product: color_product, amount: 10, price: 5)
+
+      Formulas::SyncCharges.new(service_note: service_note_b.reload).call
 
       get income_analytics_path, params: { from: from, to: to }
 
@@ -308,12 +327,19 @@ RSpec.describe "Analytics" do
       note
     end
 
-    let(:formula_step) do
-      create(:formula_step, service_note: service_note, oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ])
-    end
+    let(:color_product) { create(:formula_product, user: user, category: "color", brand: "Wella", name: "7/1", unit: "g") }
+
+    let(:oxidant_product) { create(:formula_product, :oxidant, user: user, brand: "Wella", name: "6%", unit: "ml") }
 
     before do
-      create(:formula_ingredient, formula_step: formula_step, amount: 10, price: 5)
+      formula_step =
+        create(:formula_step, service_note: service_note,
+          oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ])
+
+      create(:formula_ingredient, formula_step: formula_step, formula_product: color_product, amount: 10, price: 5)
+
+      Formulas::SyncCharges.new(service_note: service_note.reload).call
+
       create(:expense, user: user, amount: 40, spent_on: Date.current)
     end
 

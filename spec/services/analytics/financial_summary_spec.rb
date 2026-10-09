@@ -38,10 +38,6 @@ RSpec.describe Analytics::FinancialSummary do
     note
   end
 
-  let(:formula_step) do
-    create(:formula_step, service_note: service_note, oxidant: [ { "formula_product_id" => 1, "amount" => 20, "price" => 2 } ])
-  end
-
   before do
     travel_to Time.zone.local(2026, 1, 15)
     appointment
@@ -76,8 +72,18 @@ RSpec.describe Analytics::FinancialSummary do
   end
 
   describe "#formula_income" do
+    let(:color_product) { create(:formula_product, user: user, category: "color", brand: "Wella", name: "7/1", unit: "g") }
+
+    let(:oxidant_product) { create(:formula_product, :oxidant, user: user, brand: "Wella", name: "6%", unit: "ml") }
+
     it "includes color and oxidant income" do
-      create(:formula_ingredient, formula_step: formula_step, amount: 10, price: 5)
+      step =
+        create(:formula_step, service_note: service_note,
+          oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ])
+
+      create(:formula_ingredient, formula_step: step, formula_product: color_product, amount: 10, price: 5)
+
+      Formulas::SyncCharges.new(service_note: service_note.reload).call
 
       expect(summary.formula_income).to eq(90)
     end
@@ -152,8 +158,17 @@ RSpec.describe Analytics::FinancialSummary do
   end
 
   describe "totals" do
+    let(:color_product) { create(:formula_product, user: user, category: "color", brand: "Wella", name: "7/1", unit: "g") }
+    let(:oxidant_product) { create(:formula_product, :oxidant, user: user, brand: "Wella", name: "6%", unit: "ml") }
+
     before do
-      create(:formula_ingredient, formula_step: formula_step, amount: 10, price: 5)
+      step = create(:formula_step, service_note: service_note,
+          oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ])
+
+      create(:formula_ingredient, formula_step: step, formula_product: color_product, amount: 10, price: 5)
+
+      Formulas::SyncCharges.new(service_note: service_note.reload).call
+
       create(:expense, user: user, amount: 40, spent_on: Date.current)
     end
 
@@ -180,6 +195,42 @@ RSpec.describe Analytics::FinancialSummary do
       expect(summary.manual_expenses).to eq(10_000)
       expect(summary.care_products_cost).to eq(60)
       expect(summary.total_expenses).to eq(10_060)
+    end
+  end
+
+  describe "historical income after service note deletion" do
+    let(:formula_product) { create(:formula_product, user: user, category: "color", brand: "Wella", name: "7/1", unit: "g") }
+
+    before do
+      step = create(:formula_step, service_note: service_note)
+
+      create(:formula_ingredient, formula_step: step, formula_product: formula_product, amount: 10, price: 5)
+
+      Formulas::SyncCharges.new(service_note: service_note.reload).call
+    end
+
+    it "preserves total income after deleting the service note" do
+      total_before = summary.total_income
+
+      service_note.destroy!
+
+      summary_after = described_class.new(user: user, from: from, to: to)
+
+      expect(summary_after.total_income).to eq(total_before)
+    end
+
+    it "preserves every historical income component after deleting the service note" do
+      service_income_before = summary.service_income
+      formula_income_before = summary.formula_income
+      care_products_income_before = summary.care_products_income
+
+      service_note.destroy!
+
+      summary_after = described_class.new(user: user, from: from, to: to)
+
+      expect(summary_after.service_income).to eq(service_income_before)
+      expect(summary_after.formula_income).to eq(formula_income_before)
+      expect(summary_after.care_products_income).to eq(care_products_income_before)
     end
   end
 end

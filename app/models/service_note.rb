@@ -5,6 +5,7 @@ class ServiceNote < ApplicationRecord
 
   has_many :service_note_services, dependent: :destroy
   has_many :services, through: :service_note_services
+  has_many :formula_charges, dependent: :nullify
   has_many :formula_steps, dependent: :destroy, inverse_of: :service_note
   has_many :haircut_steps, dependent: :destroy, inverse_of: :service_note
   has_many :care_product_stock_movements, dependent: :nullify
@@ -31,7 +32,6 @@ class ServiceNote < ApplicationRecord
 
   after_create :create_care_product_sales
   after_update :sync_care_product_sales, if: :saved_change_to_care_products?
-  before_destroy :cancel_care_product_sales, prepend: true
 
   def decorated_photos
     photos.map { |photo| PhotoDecorator.decorate(photo) }
@@ -173,10 +173,6 @@ class ServiceNote < ApplicationRecord
         service_note: self
       ).call
     end
-  end
-
-  def cancel_care_product_sales
-    CareProducts::CancelServiceNoteSales.new(service_note: self).call
   end
 
   def sync_care_product_sales

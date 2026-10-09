@@ -15,6 +15,9 @@ RSpec.describe ServiceNote do
     it { is_expected.to belong_to(:client) }
     it { is_expected.to belong_to(:appointment) }
     it { is_expected.to have_many(:formula_steps).dependent(:destroy) }
+    it { is_expected.to have_many(:formula_charges).dependent(:nullify) }
+    it { is_expected.to have_many(:care_product_sales).dependent(:nullify) }
+    it { is_expected.to have_many(:care_product_stock_movements).dependent(:nullify) }
   end
 
   describe "scope .for_client" do
@@ -468,29 +471,71 @@ RSpec.describe ServiceNote do
       end
     end
 
-    describe "care product sales cancellation" do
+    describe "historical financial records on destroy" do
       let(:care_product) { create(:care_product, user: user, purchase_price: 60, sale_price: 100, stock_quantity: 10) }
       let(:care_products) { [ { "care_product_id" => care_product.id, "price" => 100, "purchase_price" => 60, "qty" => 3 } ] }
-      let(:service_note) { create(:service_note, user: user, client: client, appointment: appointment, care_products: care_products) }
-
-      it "restores stock when service note is destroyed" do
-        service_note
-
-        expect { service_note.destroy! }.to change { care_product.reload.stock_quantity }.from(7).to(10)
+      let(:formula_product) { create(:formula_product, user: user, category: "color", brand: "Wella", name: "Koleston 7/1", unit: "g") }
+      let(:historical_service) { create(:service, user: user, category: "coloring", subtype: "Color", price: 200) }
+      let(:historical_appointment) { create(:appointment, user: user, client: client, main_service: historical_service) }
+      let(:service_note) do
+        create(:service_note, user: user, client: client, appointment: historical_appointment, care_products: care_products)
       end
 
-      it "removes care product sale when service note is destroyed" do
-        service_note
+      before do
+        step = create(:formula_step, service_note: service_note)
 
-        expect { service_note.destroy! }.to change(CareProductSale, :count).by(-1)
+        create(:formula_ingredient, formula_step: step, formula_product: formula_product, brand: "Wella", shade: "7/1", amount: 10, price: 5)
+
+        Formulas::SyncCharges.new(service_note: service_note.reload).call
       end
 
-      it "creates adjustment movement when service note is destroyed" do
+      it "preserves historical financial records when service note is destroyed" do
+        formula_charge_ids = service_note.formula_charges.ids
+        sale_ids = service_note.care_product_sales.ids
+        service_relation_ids = historical_appointment.appointment_services_relations.ids
+
+        service_note.destroy!
+
+        expect(FormulaCharge.where(id: formula_charge_ids).ids).to match_array(formula_charge_ids)
+        expect(CareProductSale.where(id: sale_ids).ids).to match_array(sale_ids)
+        expect(AppointmentServicesRelation.where(id: service_relation_ids).ids).to match_array(service_relation_ids)
+      end
+
+      it "does not restore care product stock when service note is destroyed" do
+        expect(care_product.reload.stock_quantity).to eq(7)
+        expect { service_note.destroy! }.not_to change { care_product.reload.stock_quantity }
+      end
+
+      it "does not create a cancellation stock movement when service note is destroyed" do
         service_note
 
-        expect { service_note.destroy! }.to change {
-          user.care_product_stock_movements.where(movement_type: "adjustment").count
-        }.by(1)
+        expect { service_note.destroy! }.not_to change {
+          user.care_product_stock_movements.where(movement_type: "adjustment", adjustment_reason: "service_note_cancel").count
+        }
+      end
+
+      it "detaches historical records from the deleted service note" do
+        charge = service_note.formula_charges.first
+        sale = service_note.care_product_sales.first
+        movement = sale.stock_movement
+
+        service_note.destroy!
+
+        expect(charge.reload.service_note_id).to be_nil
+        expect(sale.reload.service_note_id).to be_nil
+        expect(movement.reload.service_note_id).to be_nil
+      end
+
+      it "preserves appointment references on historical records" do
+        charge = service_note.formula_charges.first
+        sale = service_note.care_product_sales.first
+        movement = sale.stock_movement
+
+        service_note.destroy!
+
+        expect(charge.reload.appointment_id).to eq(historical_appointment.id)
+        expect(sale.reload.appointment_id).to eq(historical_appointment.id)
+        expect(movement.reload.appointment_id).to eq(historical_appointment.id)
       end
     end
 

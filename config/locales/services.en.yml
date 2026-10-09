@@ -75,7 +75,14 @@ en:
       service_management: "Service Management"
       categories: "Service Categories"
       new_service: "New Service"
-      new_item: "New %{item}"
+      new_category: "New Category"
+
+      new_by_category:
+        haircut: "New Haircut"
+        coloring: "New Coloring"
+        styling: "New Styling"
+        treatment: "New Treatment"
+
       back: "←"
       search: "Search..."
 

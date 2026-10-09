@@ -1,0 +1,212 @@
+/* ---------------- CLIENT PAGE LAYOUT ---------------- */
+html:has(.client-form),
+body:has(.client-form) {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body main:has(.client-form) {
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ---------------- CLIENT FORM CONTAINER ---------------- */
+.client-form-container {
+  width: 100%;
+  height: calc(100dvh - var(--bottom-nav-height));
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.client-form-wrapper {
+  width: 100%;
+  max-width: 520px;
+  height: 100%;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.client-form {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  background: #f5f3ff;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ---------------- HEADER ---------------- */
+.client-form-header {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 64px;
+  padding: 12px 16px;
+  background: #f5f3ff;
+  box-sizing: border-box;
+  z-index: 20;
+}
+
+.client-form-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.client-form-back {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.client-form-header-spacer {
+  width: 40px;
+  height: 40px;
+}
+
+/* ---------------- SCROLLABLE CONTENT ---------------- */
+.client-form-content {
+  /* flex: 1 1 0; */
+  min-height: 0;
+  padding: 8px 16px 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+
+/* ---------------- SAVE ---------------- */
+.client-form-actions {
+  flex: 0 0 auto;
+  padding:
+    10px
+    16px
+    calc(10px + env(safe-area-inset-bottom));
+  background: #f5f3ff;
+  border-top: 1px solid #e4e0ef;
+  box-sizing: border-box;
+  z-index: 30;
+}
+
+.client-form-save {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border: none;
+  border-radius: 12px;
+  background: #5424b5;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.client-form-save:hover {
+  background: #481e9f;
+}
+
+.client-form-save:active {
+  transform: scale(0.98);
+}
+
+/* ---------------- INLINE EDITORS ---------------- */
+.client-inline-editor-header {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  margin-bottom: 16px;
+}
+
+.client-inline-editor-close {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.client-inline-editor-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.client-inline-editor-spacer {
+  width: 40px;
+  height: 40px;
+}
+
+/* ---------------- NOTES ---------------- */
+.client-note-field {
+  margin-bottom: 0;
+}
+
+.client-note-input {
+  display: block;
+  min-height: 140px;
+  max-height: 40dvh;
+  resize: vertical;
+}
+
+/* ---------------- MOBILE ---------------- */
+@media (max-width: 600px) {
+  .client-form-wrapper {
+    max-width: none;
+  }
+
+  .client-form-header {
+    padding: 10px 14px;
+  }
+
+  .client-form-content {
+    padding: 8px 14px 24px;
+  }
+
+  .client-form-actions {
+    padding:
+      10px
+      14px
+      calc(10px + env(safe-area-inset-bottom));
+  }
+}

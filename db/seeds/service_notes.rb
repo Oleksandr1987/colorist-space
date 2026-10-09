@@ -61,7 +61,7 @@ note.services = services
     oxidant = oxidants[index % oxidants.size]
 
     formula_step = note.formula_steps.create!(
-      section: "main",
+      section: FormulaStep::SECTIONS[index % FormulaStep::SECTIONS.size],
       time: 35,
       oxidant: [
         {

@@ -10,9 +10,7 @@ RSpec.describe Analytics::IncomeSummary do
   let(:filters) { {} }
 
   def create_appointment(service:, time:)
-    create(:appointment,
-      user: user,
-      client: client,
+    create(:appointment, user: user, client: client,
       appointment_date: Date.current,
       appointment_time: time,
       end_time: (Time.zone.parse(time) + 30.minutes).strftime("%H:%M"),
@@ -26,6 +24,10 @@ RSpec.describe Analytics::IncomeSummary do
     note.services = [ service ]
     note.save!
     note
+  end
+
+  def sync_formula_charges(note)
+    Formulas::SyncCharges.new(service_note: note.reload).call
   end
 
   describe "formula product filtering" do
@@ -42,6 +44,9 @@ RSpec.describe Analytics::IncomeSummary do
         step = create(:formula_step, service_note: note)
 
         create(:formula_ingredient, formula_step: step, formula_product: color_product, amount: 10, price: 5)
+
+        sync_formula_charges(note)
+
         create_appointment(service: other_service, time: "11:00")
       end
 
@@ -60,12 +65,10 @@ RSpec.describe Analytics::IncomeSummary do
         appointment = create_appointment(service: service, time: "10:00")
         note = create_note(appointment: appointment, service: service)
 
-        create(:formula_step,
-          service_note: note,
-          oxidant: [
-            { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 }
-          ]
-        )
+        create(:formula_step, service_note: note,
+          oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ])
+
+        sync_formula_charges(note)
 
         create_appointment(service: other_service, time: "11:00")
       end
@@ -87,17 +90,9 @@ RSpec.describe Analytics::IncomeSummary do
     before do
       appointment = create_appointment(service: service, time: "10:00")
 
-      create_note(
-        appointment: appointment,
-        service: service,
+      create_note(appointment: appointment, service: service,
         care_products: [
-          {
-            "care_product_id" => care_product.id,
-            "name" => care_product.display_name,
-            "price" => 50,
-            "purchase_price" => 30,
-            "qty" => 2
-          }
+          { "care_product_id" => care_product.id, "name" => care_product.display_name, "price" => 50, "purchase_price" => 30, "qty" => 2 }
         ]
       )
 
@@ -124,39 +119,25 @@ RSpec.describe Analytics::IncomeSummary do
       matching_appointment = create_appointment(service: service, time: "10:00")
 
       matching_note =
-        create_note(
-          appointment: matching_appointment,
-          service: service,
+        create_note(appointment: matching_appointment, service: service,
           care_products: [
-            {
-              "care_product_id" => care_product.id,
-              "name" => care_product.display_name,
-              "price" => 50,
-              "purchase_price" => 30,
-              "qty" => 1
-            }
+            { "care_product_id" => care_product.id, "name" => care_product.display_name, "price" => 50, "purchase_price" => 30, "qty" => 1 }
           ]
         )
 
       matching_step = create(:formula_step, service_note: matching_note)
 
-      create(:formula_ingredient,
-        formula_step: matching_step,
-        formula_product: color_product,
-        amount: 10,
-        price: 5
-      )
+      create(:formula_ingredient, formula_step: matching_step, formula_product: color_product, amount: 10, price: 5)
+
+      sync_formula_charges(matching_note)
 
       other_appointment = create_appointment(service: service, time: "11:00")
       other_note = create_note(appointment: other_appointment, service: service)
       other_step = create(:formula_step, service_note: other_note)
 
-      create(:formula_ingredient,
-        formula_step: other_step,
-        formula_product: color_product,
-        amount: 10,
-        price: 5
-      )
+      create(:formula_ingredient, formula_step: other_step, formula_product: color_product, amount: 10, price: 5)
+
+      sync_formula_charges(other_note)
     end
 
     it "uses AND between different filter groups" do
@@ -169,37 +150,23 @@ RSpec.describe Analytics::IncomeSummary do
 
   describe "historical filter options" do
     let(:service) { create(:service, user: user, service_type: "service", category: "coloring", subtype: "Balayage", price: 100) }
-    let(:color_product) { create(:formula_product, user: user, category: "color") }
+    let(:color_product) { create(:formula_product, user: user, category: "color", brand: "Londa", name: "7/1") }
     let(:care_product) { create(:care_product, user: user) }
 
     before do
       appointment = create_appointment(service: service, time: "10:00")
 
       note =
-        create_note(
-          appointment: appointment,
-          service: service,
+        create_note(appointment: appointment, service: service,
           care_products: [
-            {
-              "care_product_id" => care_product.id,
-              "name" => "Londa Visible Repair Mask",
-              "price" => 300,
-              "purchase_price" => 180,
-              "qty" => 1
-            }
+            { "care_product_id" => care_product.id, "name" => "Londa Repair Mask", "price" => 300, "purchase_price" => 180, "qty" => 1 }
           ]
         )
 
       step = create(:formula_step, service_note: note)
 
-      create(:formula_ingredient,
-        formula_step: step,
-        formula_product: color_product,
-        brand: "Londa",
-        shade: "7/1",
-        amount: 10,
-        price: 5
-      )
+      create(:formula_ingredient, formula_step: step, formula_product: color_product, brand: "Londa", shade: "7/1", amount: 10, price: 5)
+      sync_formula_charges(note)
     end
 
     it "builds color options from historical ingredient snapshots" do
@@ -210,12 +177,7 @@ RSpec.describe Analytics::IncomeSummary do
 
     it "builds care product options from sales" do
       expect(summary.care_product_options).to contain_exactly(
-        {
-          id: care_product.id,
-          brand: care_product.brand,
-          category: care_product.category,
-          label: care_product.display_name
-        }
+        { id: care_product.id, brand: care_product.brand, category: care_product.category, label: care_product.display_name }
       )
     end
 
@@ -273,33 +235,17 @@ RSpec.describe Analytics::IncomeSummary do
       appointment = create_appointment(service: service, time: "10:00")
 
       note =
-        create_note(
-          appointment: appointment,
-          service: service,
+        create_note(appointment: appointment, service: service,
           care_products: [
-            {
-              "care_product_id" => care_product.id,
-              "name" => "Londa Visible Repair Mask",
-              "price" => 300,
-              "purchase_price" => 180,
-              "qty" => 2
-            }
+            { "care_product_id" => care_product.id, "name" => "Londa Repair Mask", "price" => 300, "purchase_price" => 180, "qty" => 2 }
           ]
         )
 
       step =
-        create(:formula_step, service_note: note,
-          oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ]
-        )
+        create(:formula_step, service_note: note, oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ])
 
-      create(:formula_ingredient,
-        formula_step: step,
-        formula_product: color_product,
-        brand: "Londa",
-        shade: "7/1",
-        amount: 10,
-        price: 5
-      )
+      create(:formula_ingredient, formula_step: step, formula_product: color_product, brand: "Londa", shade: "7/1", amount: 10, price: 5)
+      sync_formula_charges(note)
     end
 
     it "builds historical color income" do

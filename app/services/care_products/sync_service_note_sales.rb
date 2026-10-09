@@ -94,6 +94,7 @@ module CareProducts
     def create_adjustment_movement(product, quantity:, unit_cost:, stock_after:)
       service_note.user.care_product_stock_movements.create!(
         care_product: product,
+        appointment: service_note.appointment,
         service_note: service_note,
         movement_type: "adjustment",
         adjustment_reason: "service_note_sync",

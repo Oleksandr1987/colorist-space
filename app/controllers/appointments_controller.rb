@@ -103,8 +103,10 @@ class AppointmentsController < ApplicationController
   end
 
   def destroy
-    @appointment.destroy
-    redirect_to calendar_appointments_path, notice: "Appointment was successfully deleted."
+    Appointments::Destroy.new(appointment: @appointment).call
+
+    redirect_to calendar_appointments_path,
+      notice: "Appointment was successfully deleted."
   end
 
   def all
