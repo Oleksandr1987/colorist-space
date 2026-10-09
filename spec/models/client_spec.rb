@@ -51,6 +51,38 @@ RSpec.describe Client do
 
       expect(Appointment.exists?(future_appointment.id)).to be(false)
     end
+
+    context "when a future appointment has care product sales" do
+      let(:product) { create(:care_product, user: user, stock_quantity: 10) }
+      let(:service_note) { create(:service_note, user: user, client: client, appointment: future_appointment) }
+
+      let!(:sale) do
+        CareProducts::Sell.new(
+          user: user,
+          care_product: product,
+          quantity: 2,
+          unit_price: product.sale_price,
+          sold_on: Date.current,
+          service_note: service_note
+        ).call
+      end
+
+      it "restores stock when archiving the client" do
+        expect { client.archive! }.to change { product.reload.stock_quantity }.from(8).to(10)
+      end
+
+      it "removes sales associated with future appointments" do
+        client.archive!
+
+        expect(CareProductSale.exists?(sale.id)).to be(false)
+      end
+
+      it "creates a cancellation stock movement" do
+        client.archive!
+
+        expect(product.stock_movements.where(adjustment_reason: "appointment_cancel").sum(:quantity)).to eq(2)
+      end
+    end
   end
 
   describe ".alphabetical" do

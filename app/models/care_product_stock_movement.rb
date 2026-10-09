@@ -15,6 +15,7 @@ class CareProductStockMovement < ApplicationRecord
     data_correction
     service_note_sync
     service_note_cancel
+    appointment_cancel
     other
   ].freeze
 

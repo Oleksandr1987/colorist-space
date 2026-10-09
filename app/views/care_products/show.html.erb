@@ -126,25 +126,28 @@
               </div>
             <% end %>
 
-            <% if movement.service_note.present? %>
+            <% if movement.service_note.present? || movement.appointment.present? %>
+              <% record_appointment = movement.appointment || movement.service_note&.appointment %>
+              <% record_client = movement.service_note&.client || record_appointment&.client %>
+
               <div class="care-product-history-record">
-                <% if movement.service_note.client.present? %>
+                <% if record_client.present? %>
                   <div>
                     <%= t("care_products.history.client") %>:
-                    <strong><%= movement.service_note.client.full_name %></strong>
+                    <strong><%= record_client.full_name %></strong>
                   </div>
                 <% end %>
 
-                <% if movement.service_note.appointment.present? %>
+                <% if record_appointment.present? %>
                   <div>
                     <%= t("care_products.history.appointment") %>:
-                    <strong>
-                      <%= l(movement.service_note.appointment.appointment_date, format: :long) %>
-                    </strong>
+                    <strong><%= l(record_appointment.appointment_date, format: :long) %></strong>
                   </div>
                 <% end %>
 
-                <%= link_to t("care_products.history.open_record"), client_service_note_path(movement.service_note), class: "care-product-history-record-link" %>
+                <% if movement.service_note.present? && record_client.present? %>
+                  <%= link_to t("care_products.history.open_record"), client_service_note_path(record_client, movement.service_note), class: "care-product-history-record-link" %>
+                <% end %>
               </div>
             <% end %>
 

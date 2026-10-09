@@ -19,7 +19,7 @@
 
       <% if @style_appointments.any? %>
         <%= link_to calendar_appointments_path(client_id: @client.id), class: "button small new-appointment-button", data: { turbo: false } do %>
-          <%= t("clients.show.new_appointment") %>
+          <span> + </span>
         <% end %>
       <% end %>
     </div>

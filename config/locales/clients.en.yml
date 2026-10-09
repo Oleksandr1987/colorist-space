@@ -109,11 +109,11 @@ en:
         medium: "Medium"
         dense: "Dense"
       damage_levels:
-        "1": "Healthy"
-        "2": "Dry"
-        "3": "Porous"
-        "4": "Brittle"
-        "5": "Severely damaged"
+        "1": "1 - Healthy"
+        "2": "2 - Dry"
+        "3": "3 - Porous"
+        "4": "4 - Brittle"
+        "5": "5 - Severely damaged"
       scalp:
         normal: "Normal"
         dry: "Dry"

@@ -66,7 +66,10 @@ class Client < ApplicationRecord
 
   def archive!
     transaction do
-      appointments.future.destroy_all
+      appointments.future.find_each do |appointment|
+        Appointments::Destroy.new(appointment: appointment).call
+      end
+
       update!(archived_at: Time.current)
     end
   end
