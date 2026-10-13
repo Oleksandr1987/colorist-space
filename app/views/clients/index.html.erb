@@ -1,17 +1,54 @@
+
 <div class="clients-page">
   <div data-controller="client-search" class="clients-container">
 
-    <input type="text"
-           data-client-search-target="input"
-           data-action="input->client-search#search"
-           placeholder="<%= t("clients.search_placeholder") %>"
-           class="search-input compact">
+    <div class="clients-toolbar">
+      <div class="clients-search-wrapper">
+        <svg class="clients-search-icon"
+             width="18"
+             height="18"
+             viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             stroke-linecap="round"
+             stroke-linejoin="round"
+             aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+
+        <input type="search"
+               data-client-search-target="input"
+               data-action="input->client-search#search"
+               placeholder="<%= t("clients.search_placeholder") %>"
+               aria-label="<%= t("clients.search_placeholder") %>"
+               autocomplete="off"
+               class="search-input compact">
+      </div>
+
+      <%= link_to new_client_path,
+                  class: "client-add-button",
+                  aria: { label: t("clients.new") } do %>
+        <span aria-hidden="true">+</span>
+      <% end %>
+    </div>
+
+    <div class="clients-list-header">
+      <span class="clients-list-title">
+        <%= t("clients.index_title") %>
+      </span>
+
+      <span class="clients-list-count">
+        <%= t("clients.count", count: @clients.size, default: "#{@clients.size} клієнтів") %>
+      </span>
+    </div>
 
     <div class="client-list indexed">
       <% if @clients.present? %>
         <% @clients.group_by { |c| c.first_name[0].upcase }.sort.each do |letter, list| %>
-          <div class="client-group" data-client-search-target="group">
-            <div class="letter-index"><%= letter %></div>
+          <div class="client-group"
+               data-client-search-target="group">
 
             <div class="letter-names">
               <% list.each do |client| %>
@@ -22,19 +59,44 @@
                        client.client_phones.map(&:phone)
                      ].flatten.compact.join(' ') %>">
 
-                  <%= link_to "#{client.first_name} #{client.last_name}", client_path(client), class: "client-link" %>
+                  <%= link_to client_path(client), class: "client-link" do %>
+                    <span class="client-avatar" aria-hidden="true">
+                      <%= client.first_name.first.upcase %>
+                    </span>
+
+                    <span class="client-name">
+                      <%= client.first_name %>
+                      <%= client.last_name %>
+                    </span>
+
+                    <svg class="client-chevron"
+                         width="18"
+                         height="18"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         aria-hidden="true">
+                      <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                  <% end %>
                 </div>
               <% end %>
             </div>
           </div>
         <% end %>
+
+        <p class="clients-no-results hidden"
+           data-client-search-target="noResults">
+          <%= t("clients.none_found") %>
+        </p>
       <% else %>
-        <p><%= t("clients.none_found") %></p>
+        <p class="clients-no-results">
+          <%= t("clients.none_found") %>
+        </p>
       <% end %>
     </div>
-
-    <%= link_to new_client_path, class: "floating-add-button" do %>
-        <%= image_tag "plus.png", width: 46, height: 46 %>
-    <% end %>
   </div>
 </div>

@@ -1,30 +1,33 @@
-@use "forms";
-@use "calendar";
-@use "clients";
 @use "admin";
-@use "home";
-@use "errors";
+@use "analytics";
 @use "appointment";
 @use "appointment_form";
-@use "analytics";
-@use "photos";
-@use "services";
-@use "service_notes";
-@use "settings";
-@use "expenses";
-@use "datepicker";
-@use "wizard";
-@use "notes";
-@use "modal";
-@use "color";
-@use "developer";
-@use "haircut";
-@use "care_products";
-@use "formula_products";
 @use "birthday_picker";
-@use "password";
-@use "subscription_integration";
+@use "calendar";
 @use "care_product_sale";
+@use "care_products";
+@use "client_form";
+@use "clients";
+@use "color";
+@use "datepicker";
+@use "developer";
+@use "errors";
+@use "expenses";
+@use "forms";
+@use "formula_products";
+// @use "fullscreen";
+@use "haircut";
+@use "home";
+@use "modal";
+@use "notes";
+@use "password";
+@use "photos";
+@use "service_notes";
+@use "services";
+@use "settings";
+@use "subscription_integration";
+@use "wizard";
+
 
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
@@ -193,14 +196,18 @@ body {
   margin: 0 10px;
 }
 
+:root {
+  --bottom-nav-height: 60px;
+}
+
 /* ==== Bottom Navigation Bar ==== */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background: white;
+  height: var(--bottom-nav-height);
+  background: #fff;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -243,97 +250,91 @@ body {
   font-weight: bold;
 }
 
-/* ==== Vertical Menu ==== */
-.vertical-menu-wrapper {
-  position: relative;
-  max-width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding: 12px 16px 0;
-}
-
-.vertical-menu-toggle {
-  font-size: 24px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #7e3af2;
-  padding: 6px;
-  z-index: 1001;
-}
-
-.vertical-menu {
-  position: absolute;
-  top: 50px;
-  right: 12px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  z-index: 1000;
-  min-width: max-content;
-  max-width: 90vw;
-  white-space: nowrap;
-}
-
-.vertical-menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.vertical-menu li {
-  margin: 6px 0;
-}
-
-.vertical-menu a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  display: block;
-  padding: 6px 0;
-  transition: background 0.2s ease;
-}
-
-.vertical-menu a:hover {
-  background: #eeeaff;
-  color: #7e3af2;
-  border-radius: 6px;
-}
-
 .hidden {
   display: none;
 }
 
-@media (max-width: 768px) {
-  .vertical-menu {
-    top: 50px;
-    right: 12px;
-    left: auto;
-    max-width: 85vw;
-  }
+/* ==== Flash Notifications ==== */
+
+.flash-container {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: calc(100% - 32px);
+  max-width: 480px;
+
+  z-index: 10000;
+  pointer-events: none;
 }
 
 .flash {
+  box-sizing: border-box;
+  width: 100%;
   padding: 12px 16px;
-  margin: 12px 0;
-  border-radius: 6px;
-  font-weight: 500;
+  margin: 0 0 8px;
+
+  border-radius: 8px;
+  font-family: "Montserrat", sans-serif;
   font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  overflow-wrap: anywhere;
+
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+
+  &.flash-hide {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+  }
+
+  &.notice {
+    background-color: #e0f7fa;
+    color: #006064;
+  }
+
+  &.alert,
+  &.danger {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+
+  &.success {
+    background-color: #e8f5e9;
+    color: #228427;
+  }
 }
 
-.flash.notice {
-  background-color: #e0f7fa;
-  color: #006064;
+/* ==== Flash Mobile ==== */
+
+@media (max-width: 768px) {
+  .flash-container {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    width: calc(100% - 24px);
+  }
+
+  .flash {
+    padding: 12px 14px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
 }
 
-.flash.alert,
-.flash.danger {
-  background-color: #ffebee;
-  color: #c62828;
-}
-.flash.success {
-  background-color: #e8f5e9;
-  color: #228427;
+/* ==== Accessibility ==== */
+
+@media (prefers-reduced-motion: reduce) {
+  .flash {
+    transition: none;
+  }
 }

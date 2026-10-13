@@ -8,6 +8,11 @@ en:
     back: "Back to Appointments"
     nothing_selected: "Nothing selected"
 
+    dashboard:
+      total: "Total %{count}"
+      year: "%{count} in %{year}"
+      month: "%{count} in %{month}"
+
     form:
       client_name: "Client Name"
       client_name_placeholder: "Enter or select client name"
@@ -31,10 +36,12 @@ en:
         title: "Select main services"
         search: "Search service"
         apply: "Apply"
+
       preparation:
         title: "Select preparations"
         search: "Search preparation"
         apply: "Apply"
+
       care_product:
         title: "Select care products"
         search: "Search care product"
@@ -46,6 +53,7 @@ en:
       header: "Appointments & Available Slots"
       today: "Today"
       available_slots: "Available Slots"
+
       days:
         sun: "Sun"
         mon: "Mon"
@@ -76,22 +84,39 @@ en:
       delete: "Delete"
       new_appointment: "New Appointment"
       calendar: "Calendar"
+
       records:
         one: "%{count} record"
         other: "%{count} records"
 
     history:
       title: "Past Appointments"
+      empty: "No appointments found"
+
       records:
         one: "%{count} record"
         other: "%{count} records"
+
     filters:
+      title: "Filters"
       years: "Years"
       services: "Services"
       categories: "Categories"
 
+    actions:
+      client: "Open client"
+      service_note: "Open service note"
+      delete: "Delete appointment"
+
     slots:
       no_free_slots: "No available times"
+
+  services:
+    categories:
+      coloring: "Coloring"
+      haircut: "Haircuts"
+      styling: "Styling"
+      treatment: "Treatment"
 
   common:
     save: "Save"
@@ -100,4 +125,6 @@ en:
     back: "Back"
     apply: "Apply"
     search: "Search"
+    clear: "Clear"
+    all: "All"
     are_you_sure: "Are you sure?"

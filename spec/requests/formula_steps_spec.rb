@@ -16,11 +16,7 @@ RSpec.describe "FormulaSteps" do
     it "creates a formula step" do
       expect do
         post client_service_note_formula_steps_path(client, service_note), params: {
-          formula_step: {
-            section: "roots",
-            oxidant: "6%",
-            time: 30
-          }
+          formula_step: { section: "roots", oxidant: "6%", time: 30 }
         }
       end.to change(FormulaStep, :count).by(1)
 
@@ -30,9 +26,7 @@ RSpec.describe "FormulaSteps" do
     it "renders show when formula step invalid" do
       expect do
         post client_service_note_formula_steps_path(client, service_note), params: {
-          formula_step: {
-            section: nil
-          }
+          formula_step: { section: nil }
         }
       end.not_to change(FormulaStep, :count)
 
@@ -42,42 +36,19 @@ RSpec.describe "FormulaSteps" do
 
   describe "PATCH /formula_steps/:id" do
     it "updates the formula step" do
-      oxidant_data = {
-        service_id: 1,
-        ratio: "1:2",
-        amount: 30
-      }
+      oxidant_data = { service_id: 1, ratio: "1:2", amount: 30 }
 
       patch client_service_note_formula_step_path(client, service_note, formula_step), params: {
-        formula_step: {
-          oxidant: oxidant_data.to_json
-        }
+        formula_step: { oxidant: oxidant_data.to_json }
       }
 
-      expect(response).to redirect_to(
-        client_service_note_path(client, service_note, locale: I18n.locale)
-      )
-
-      expect(formula_step.reload.oxidant_data).to eq(
-        [
-          {
-          "service_id" => 1,
-          "ratio" => "1:2",
-          "amount" => 30
-          }
-        ]
-      )
+      expect(response).to redirect_to(client_service_note_path(client, service_note, locale: I18n.locale))
+      expect(formula_step.reload.oxidant_data).to eq([ { "service_id" => 1, "ratio" => "1:2", "amount" => 30 } ])
     end
 
     it "renders show when update invalid" do
-      patch client_service_note_formula_step_path(
-        client,
-        service_note,
-        formula_step
-      ), params: {
-        formula_step: {
-          section: nil
-        }
+      patch client_service_note_formula_step_path(client, service_note, formula_step), params: {
+        formula_step: { section: nil }
       }
 
       expect(response).to have_http_status(:unprocessable_content)
@@ -112,7 +83,7 @@ RSpec.describe "FormulaSteps" do
 
       patch clear_time_client_service_note_formula_step_path(client, service_note, formula_step)
 
-      expect(formula_step.reload.time).to be_nil
+      expect(formula_step.reload.time).to eq(0)
     end
   end
 end

@@ -1,0 +1,163 @@
+<%
+  hair_info_present =
+    client.hair_type.present? ||
+    client.hair_length.present? ||
+    client.hair_structure.present? ||
+    client.hair_density.present? ||
+    client.hair_damage_level.present? ||
+    client.scalp_condition.present?
+%>
+
+<div id="info-tab" data-client-profile-target="tabContent" class="tab-content">
+
+  <div class="client-info">
+    <!-- PHONE -->
+    <div class="client-info-phone">
+      <p class="client-info-phone-title">
+        <strong>
+          <%= t("clients.show.details.phone") %>:
+        </strong>
+      </p>
+
+      <%= turbo_frame_tag "client_phones" do %>
+        <%= render "phones", client: client %>
+      <% end %>
+    </div>
+
+    <!-- HAIR INFO -->
+    <section class="client-info-section">
+      <div class="client-info-section-header">
+        <h2 class="client-info-section-title">
+          <%= t("clients.form.hair_info") %>
+        </h2>
+
+        <% if hair_info_present %>
+          <%= link_to edit_client_path(client, anchor: "hair-info"), class: "client-info-edit-button", aria: { label: t("clients.show.edit_hair_info") } do %>
+            <%= image_tag "pencil.png", class: "client-info-edit-icon", alt: "" %>
+          <% end %>
+        <% else %>
+          <%= link_to edit_client_path(client, anchor: "hair-info"), class: "client-info-add-button", aria: { label: t("clients.show.add_hair_info") } do %>
+            <%= image_tag "plus.png", class: "client-info-add-icon", alt: "" %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <% if hair_info_present %>
+        <div class="client-info-section-content">
+          <% if client.hair_type.present? %>
+            <div class="client-info-row">
+              <span class="client-info-label">
+                <%= t("clients.show.details.hair_type") %>:
+              </span>
+
+              <span class="client-info-value">
+                <%= t("clients.hair.types.#{client.hair_type.downcase}") %>
+              </span>
+            </div>
+          <% end %>
+
+          <% if client.hair_length.present? %>
+            <div class="client-info-row">
+              <span class="client-info-label">
+                <%= t("clients.show.details.hair_length") %>:
+              </span>
+
+              <span class="client-info-value">
+                <%= t("clients.hair.lengths.#{client.hair_length.downcase}") %>
+              </span>
+            </div>
+          <% end %>
+
+          <% if client.hair_structure.present? %>
+            <div class="client-info-row">
+              <span class="client-info-label">
+                <%= t("clients.show.details.hair_structure") %>:
+              </span>
+
+              <span class="client-info-value">
+                <%= t("clients.hair.structures.#{client.hair_structure.downcase}") %>
+              </span>
+            </div>
+          <% end %>
+
+          <% if client.hair_density.present? %>
+            <div class="client-info-row">
+              <span class="client-info-label">
+                <%= t("clients.show.details.hair_density") %>:
+              </span>
+
+              <span class="client-info-value">
+                <%= t("clients.hair.density.#{client.hair_density.downcase}") %>
+              </span>
+            </div>
+          <% end %>
+
+          <% if client.hair_damage_level.present? %>
+            <div class="client-info-row">
+              <span class="client-info-label">
+                <%= t("clients.show.details.hair_damage_level") %>:
+              </span>
+
+              <span class="client-info-value">
+                <%= t("clients.hair.damage_levels.#{client.hair_damage_level}") %>
+              </span>
+            </div>
+          <% end %>
+
+          <% if client.scalp_condition.present? %>
+            <div class="client-info-row">
+              <span class="client-info-label">
+                <%= t("clients.show.details.scalp_condition") %>:
+              </span>
+
+              <span class="client-info-value">
+                <%= t("clients.hair.scalp.#{client.scalp_condition.downcase}") %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="client-info-empty">
+          <%= image_tag "sad.png", class: "client-info-empty-icon", alt: "" %>
+
+          <p class="client-info-empty-text">
+            <%= t("clients.show.no_hair_info") %>
+          </p>
+        </div>
+      <% end %>
+    </section>
+
+    <!-- NOTES -->
+    <section class="client-info-section">
+      <div class="client-info-section-header">
+        <h2 class="client-info-section-title">
+          <%= t("clients.show.details.note") %>
+        </h2>
+
+        <% if client.note.present? %>
+          <%= link_to edit_client_path(client, anchor: "notes"), class: "client-info-edit-button", aria: { label: t("clients.show.edit_notes") } do %>
+            <%= image_tag "pencil.png", class: "client-info-edit-icon", alt: "" %>
+          <% end %>
+        <% else %>
+          <%= link_to edit_client_path(client, anchor: "notes"), class: "client-info-add-button", aria: { label: t("clients.show.add_notes") } do %>
+            <%= image_tag "plus.png", class: "client-info-add-icon", alt: "" %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <% if client.note.present? %>
+        <div class="client-note">
+          <%= simple_format(client.note) %>
+        </div>
+      <% else %>
+        <div class="client-info-empty">
+          <%= image_tag "sad.png", class: "client-info-empty-icon", alt: "" %>
+
+          <p class="client-info-empty-text">
+            <%= t("clients.show.no_notes") %>
+          </p>
+        </div>
+      <% end %>
+    </section>
+  </div>
+</div>

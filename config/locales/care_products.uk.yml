@@ -117,6 +117,7 @@ uk:
         data_correction: "Виправлення даних"
         service_note_sync: "Коригування продажу"
         service_note_cancel: "Скасування продажу"
+        appointment_cancel: "Скасування запису"
         other: "Інше"
 
     archive:

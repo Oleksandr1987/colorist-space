@@ -1,27 +1,33 @@
 <div class="inline-editor" data-controller="inline-editor">
-  <!-- COLLAPSED -->
   <div class="collapse-section" data-inline-editor-target="collapsed">
     <button type="button" class="collapse-toggle" data-action="inline-editor#open">
       <span>
         <%= t("clients.form.note") %>
       </span>
+
       <%= image_tag "plus.png", class: "add-icon" %>
     </button>
   </div>
-  <!-- EXPANDED -->
+
   <div class="inline-editor-panel hidden" data-inline-editor-target="expanded">
-    <div class="wizard-top">
-      <button type="button" data-action="inline-editor#close">
+    <div class="client-inline-editor-header">
+      <button type="button" class="client-inline-editor-close" data-action="inline-editor#close">
         <%= image_tag "close.png", class: "wiz-icon-close" %>
       </button>
-      <h3>
+
+      <h3 class="client-inline-editor-title">
         <%= t("clients.form.note") %>
       </h3>
-      <button type="submit" class="appointment-save-button"><%= t("common.save").upcase %></button>
+
+      <div class="client-inline-editor-spacer"></div>
     </div>
 
-    <div class="login__field">
-      <%= f.text_area :note, class: "login__input", rows: 5, maxlength: 500, placeholder: t("clients.form.note") %>
+    <div class="login__field client-note-field">
+      <%= f.text_area :note,
+            class: "login__input client-note-input",
+            rows: 5,
+            maxlength: 500,
+            placeholder: t("clients.form.note") %>
     </div>
   </div>
 </div>

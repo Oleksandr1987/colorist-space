@@ -1,0 +1,65 @@
+  <div id="styles-tab" data-client-profile-target="tabContent" class="tab-content active">
+
+    <% if appointments.any? %>
+      <% appointments.each do |appointment| %>
+        <% service_note = appointment.service_note %>
+
+        <% target_path = service_note.present? ? client_service_note_path(client, service_note) : new_client_service_note_path(client, appointment_id: appointment.id) %>
+        <div class="style-card">
+          <%= link_to target_path, class: "style-photo-wrapper-link" do %>
+            <div class="style-photo-wrapper">
+              <% if service_note&.photos&.attached? %>
+                <% photos_count = service_note.photos.size %>
+
+                <%= image_tag thumb(service_note.display_photo), class: "style-photo" %>
+
+                <% if photos_count > 1 %>
+                  <div class="style-photo-count">
+                    +<%= photos_count - 1 %>
+                  </div>
+                <% end %>
+              <% else %>
+                <div class="style-no-photo">
+                  <% if service_note.present? %>
+                    <%= link_to edit_client_service_note_path(client, service_note, step: "photos"), class: "add-photo-button" do %>
+                      <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
+                    <% end %>
+                  <% else %>
+                    <%= link_to new_client_service_note_path(client, appointment_id: appointment.id), class: "add-photo-button" do %>
+                      <%= image_tag "logo_full_transpr.png", class: "logo-img" %>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <div class="style-info-overlay">
+                <div class="style-date">
+                  <%= l(appointment.appointment_date, format: :day_month) %>
+
+                  <% if appointment.appointment_date > Date.current %>
+                    <span class="future-badge">
+                      <%= t("clients.show.future") %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="client-records-empty">
+        <div class="client-records-empty-message">
+          <%= image_tag "sad.png", class: "client-records-empty-icon", alt: "" %>
+
+          <p class="client-records-empty-text">
+            <%= t("clients.show.no_records") %>
+          </p>
+        </div>
+
+        <%= link_to calendar_appointments_path(client_id: client.id), class: "client-records-empty-button", data: { turbo: false } do %>
+          <%= t("clients.show.new_appointment") %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>

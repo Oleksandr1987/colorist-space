@@ -3,10 +3,6 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  // -----------------------
-  // Dashboard
-  // -----------------------
-
   showAllYears() {
     const url = new URL(window.location)
 
@@ -37,10 +33,6 @@ export default class extends Controller {
     window.location = url
   }
 
-  // -----------------------
-  // Multi-select filters
-  // -----------------------
-
   toggleFilter(event) {
     const button = event.currentTarget
     const param = button.dataset.param
@@ -48,15 +40,22 @@ export default class extends Controller {
     const value = button.dataset.value
     const url = new URL(window.location)
 
-    const values = [...url.searchParams.getAll(queryParam), ...url.searchParams.getAll(param)]
+    const values = [
+      ...url.searchParams.getAll(queryParam),
+      ...url.searchParams.getAll(param)
+    ]
 
     url.searchParams.delete(param)
     url.searchParams.delete(queryParam)
 
     if (values.includes(value)) {
-      values.filter(v => v !== value).forEach(v => url.searchParams.append(queryParam, v))
+      values
+        .filter(item => item !== value)
+        .forEach(item => url.searchParams.append(queryParam, item))
     } else {
-      values.concat(value).forEach(v => url.searchParams.append(queryParam, v))
+      values
+        .concat(value)
+        .forEach(item => url.searchParams.append(queryParam, item))
     }
 
     if (param === "categories") {

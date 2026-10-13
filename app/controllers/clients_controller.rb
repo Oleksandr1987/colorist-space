@@ -17,8 +17,7 @@ class ClientsController < ApplicationController
   end
 
   def show
-    @past_appointments = @client.appointments.past.order(appointment_date: :desc)
-    @future_appointments = @client.appointments.future.order(:appointment_date)
+    @style_appointments = @client.style_appointments
   end
 
   def new
@@ -123,6 +122,7 @@ class ClientsController < ApplicationController
       :hair_structure,
       :hair_density,
       :scalp_condition,
+      :hair_damage_level,
       :note,
       photos: [],
       client_phones_attributes: %i[id phone _destroy]

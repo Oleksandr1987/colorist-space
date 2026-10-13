@@ -87,6 +87,7 @@ export default class extends Controller {
 
     this.digits = digits
     this.render()
+    this.notifyChange()
   }
 
   handleExternalChange() {
@@ -112,6 +113,7 @@ export default class extends Controller {
 
     this.digits += digits
     this.render()
+    this.notifyChange()
   }
 
   deleteLastDigit() {
@@ -121,6 +123,7 @@ export default class extends Controller {
 
     this.digits = this.digits.slice(0, -1)
     this.render()
+    this.notifyChange()
   }
 
   createDisplay() {
@@ -217,5 +220,9 @@ export default class extends Controller {
 
       this.element.setSelectionRange(position, position)
     })
+  }
+
+  notifyChange() {
+    this.element.dispatchEvent(new Event("input", { bubbles: true }))
   }
 }

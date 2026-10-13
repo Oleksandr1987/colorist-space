@@ -3,6 +3,7 @@
 class CareProductSale < ApplicationRecord
   belongs_to :user
   belongs_to :care_product
+  belongs_to :appointment, optional: true
   belongs_to :service_note, optional: true
   belongs_to :stock_movement, class_name: "CareProductStockMovement", optional: true
 

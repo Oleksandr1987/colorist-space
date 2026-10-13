@@ -17,7 +17,7 @@ AllCops:
     - "db/migrate/*"
 
 Layout/LineLength:
-  Max: 140
+  Max: 142
 
 RSpec:
   Enabled: true

@@ -1,4 +1,12 @@
 class FormulaStep < ApplicationRecord
+  SECTIONS = %w[
+    roots
+    midshaft
+    length
+    strands
+    all_over
+  ].freeze
+
   belongs_to :service_note, inverse_of: :formula_steps
   has_many :formula_ingredients, dependent: :destroy, inverse_of: :formula_step
 
@@ -6,10 +14,12 @@ class FormulaStep < ApplicationRecord
     allow_destroy: true,
     reject_if: proc { |attrs| attrs["shade"].blank? && attrs["amount"].blank? }
 
-  validates :section, presence: true
+  validates :section, presence: true, inclusion: { in: SECTIONS }
+  validates :time, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   before_validation :normalize_values
 
+  attribute :time, :integer, default: 0
   attribute :oxidant, :json, default: []
 
   def clear_oxidant!
@@ -17,7 +27,7 @@ class FormulaStep < ApplicationRecord
   end
 
   def clear_time!
-    update!(time: nil)
+    update!(time: 0)
   end
 
   def oxidant_product
@@ -97,6 +107,6 @@ class FormulaStep < ApplicationRecord
     end
 
     self.oxidant = nil if oxidant.blank?
-    self.time = nil if time.blank?
+    self.time = 0 if time.nil?
   end
 end

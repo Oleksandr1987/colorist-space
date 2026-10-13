@@ -47,6 +47,20 @@ module Analytics
         end
     end
 
+    def period_formula_charges
+      @period_formula_charges ||=
+        begin
+          scope = user.formula_charges
+
+          if period?
+            scope =
+              scope.joins(:appointment).where(appointments: { appointment_date: from..to })
+          end
+
+          scope
+        end
+    end
+
     def period?
       from.present? && to.present?
     end
