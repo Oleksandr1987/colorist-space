@@ -1,6 +1,5 @@
-// app/javascript/controllers/wizard_controller.js
+
 import { Controller } from "@hotwired/stimulus"
-import { Turbo } from "@hotwired/turbo-rails"
 
 export default class extends Controller {
   static targets = [
@@ -11,10 +10,7 @@ export default class extends Controller {
     "nextLabel",
     "nextIcon",
     "saveIcon",
-    "prevButton",
-    "unsavedModal",
-    "unsavedTitle",
-    "unsavedMessage"
+    "prevButton"
   ]
 
   static values = {
@@ -26,16 +22,10 @@ export default class extends Controller {
     photosTitle: String,
     notesTitle: String,
     nextLabel: String,
-    saveLabel: String,
-    unsavedTitle: String,
-    unsavedMessage: String,
-    discardLabel: String,
-    cancelLabel: String
+    saveLabel: String
   }
 
   connect() {
-    console.log("Wizard controller connected")
-
     const steps = {
       services: 0,
       haircut: 1,
@@ -49,81 +39,57 @@ export default class extends Controller {
     this.steps = this.stepTargets
     this.nav = this.element.querySelectorAll(".wiz-item")
 
-    this.isDirty = false
-    this.pendingNavigationUrl = null
+    this.onTouchStart = this.handleTouchStart.bind(this)
+    this.onTouchEnd = this.handleTouchEnd.bind(this)
 
-    this.markDirty = this.markDirty.bind(this)
-    this.handleBottomNavigation = this.handleBottomNavigation.bind(this)
-
-    this.element.addEventListener("input", this.markDirty)
-    this.element.addEventListener("change", this.markDirty)
-
-    window.addEventListener("formula:changed", this.markDirty)
-    window.addEventListener("services:changed", this.markDirty)
-    window.addEventListener("wizard:changed", this.markDirty)
-
-    document.addEventListener("click", this.handleBottomNavigation)
-
-    this.element.querySelector("form")?.addEventListener("submit", () => {
-      this.isDirty = false
-    })
+    this.containerTarget.addEventListener("touchstart", this.onTouchStart, { passive: true })
+    this.containerTarget.addEventListener("touchend", this.onTouchEnd, { passive: true })
 
     this.update()
     this.updateNextButton()
     this.updateButtons()
-    this.initSwipe()
   }
 
   disconnect() {
-    this.element.removeEventListener("input", this.markDirty)
-    this.element.removeEventListener("change", this.markDirty)
-
-    window.removeEventListener("formula:changed", this.markDirty)
-    window.removeEventListener("services:changed", this.markDirty)
-    window.removeEventListener("wizard:changed", this.markDirty)
-
-    document.removeEventListener("click", this.handleBottomNavigation)
+    this.containerTarget.removeEventListener("touchstart", this.onTouchStart)
+    this.containerTarget.removeEventListener("touchend", this.onTouchEnd)
   }
 
-  // ---------------- NAV CLICK ----------------
   go(event) {
-    this.current = parseInt(event.currentTarget.dataset.step)
+    const step = Number.parseInt(event.currentTarget.dataset.step, 10)
+    if (!Number.isInteger(step) || step < 0 || step >= this.steps.length) return
 
+    this.current = step
+    this.refresh()
+  }
+
+  next() {
+    if (this.current >= this.steps.length - 1) return
+
+    this.current++
+    this.refresh()
+  }
+
+  prev() {
+    if (this.current <= 0) return
+
+    this.current--
+    this.refresh()
+  }
+
+  refresh() {
     this.update()
     this.updateNextButton()
     this.updateButtons()
   }
 
-  // ---------------- NEXT ----------------
-  next() {
-    if (this.current < this.steps.length - 1) {
-      this.current++
-
-      this.update()
-      this.updateNextButton()
-      this.updateButtons()
-    }
-  }
-
-  // ---------------- PREV ----------------
-  prev() {
-    if (this.current > 0) {
-      this.current--
-
-      this.update()
-      this.updateNextButton()
-      this.updateButtons()
-    }
-  }
-
-  // ---------------- UPDATE UI ----------------
   update() {
-    this.steps.forEach((el, i) => {
-      el.classList.toggle("active", i === this.current)
+    this.steps.forEach((element, index) => {
+      element.classList.toggle("active", index === this.current)
     })
 
-    this.nav.forEach((el, i) => {
-      el.classList.toggle("active", i === this.current)
+    this.nav.forEach((element, index) => {
+      element.classList.toggle("active", index === this.current)
     })
 
     const titles = [
@@ -138,132 +104,34 @@ export default class extends Controller {
     this.titleTarget.textContent = titles[this.current]
   }
 
-  // ---------------- SWIPE ----------------
-  initSwipe() {
-    let startX = 0
-
-    this.containerTarget.addEventListener("touchstart", event => {
-      startX = event.changedTouches[0].screenX
-    })
-
-    this.containerTarget.addEventListener("touchend", event => {
-      const diff = event.changedTouches[0].screenX - startX
-
-      if (Math.abs(diff) > 50) {
-        diff > 0 ? this.prev() : this.next()
-      }
-    })
-  }
-
-  // ---------------- NEXT BUTTON ----------------
   updateNextButton() {
     const isLast = this.current === this.steps.length - 1
-    if (isLast) {
-      this.nextLabelTarget.textContent = this.saveLabelValue.toUpperCase()
-      this.nextButtonTarget.type = "submit"
 
-      this.nextIconTarget.style.display = "none"
-      this.saveIconTarget.style.display = "inline-block"
-    } else {
-      this.nextLabelTarget.textContent = this.nextLabelValue
-      this.nextButtonTarget.type = "button"
+    this.nextLabelTarget.textContent = isLast ? this.saveLabelValue.toUpperCase() : this.nextLabelValue
+    this.nextButtonTarget.type = isLast ? "submit" : "button"
 
-      this.nextIconTarget.style.display = "inline-block"
-      this.saveIconTarget.style.display = "none"
-    }
+    this.nextIconTarget.style.display = isLast ? "none" : "inline-block"
+    this.saveIconTarget.style.display = isLast ? "inline-block" : "none"
   }
 
-  // ---------------- BACK BUTTON ----------------
   updateButtons() {
     if (!this.hasPrevButtonTarget) return
 
-    if (this.current === 0) {
-      this.prevButtonTarget.style.visibility = "hidden"
-    } else {
-      this.prevButtonTarget.style.visibility = "visible"
-    }
+    this.prevButtonTarget.style.visibility = this.current === 0 ? "hidden" : "visible"
   }
 
-  // ---------------- CLOSE WIZARD ----------------
-  close() {
-    if (!this.isDirty) {
-      history.back()
-      return
-    }
-
-    this.pendingNavigationUrl = null
-    this.openUnsavedModal()
+  handleTouchStart(event) {
+    this.startX = event.changedTouches[0].screenX
   }
 
-  // ---------------- BOTTOM NAVIGATION ----------------
-  handleBottomNavigation(event) {
-    const link = event.target.closest(".bottom-nav .nav-item")
+  handleTouchEnd(event) {
+    if (this.startX === undefined) return
 
-    if (!link) return
-    if (!this.isDirty) return
+    const diff = event.changedTouches[0].screenX - this.startX
+    this.startX = undefined
 
-    event.preventDefault()
+    if (Math.abs(diff) <= 50) return
 
-    this.pendingNavigationUrl = link.href
-    this.openUnsavedModal()
-  }
-
-  // ---------------- UNSAVED MODAL ----------------
-  openUnsavedModal() {
-    if (this.hasUnsavedTitleTarget) {
-      this.unsavedTitleTarget.textContent = this.unsavedTitleValue
-    }
-
-    if (this.hasUnsavedMessageTarget) {
-      this.unsavedMessageTarget.textContent = this.unsavedMessageValue
-    }
-
-    this.unsavedModalTarget.classList.remove("hidden")
-  }
-
-  cancelClose() {
-    this.pendingNavigationUrl = null
-    this.unsavedModalTarget.classList.add("hidden")
-  }
-
-  discardChanges() {
-    this.isDirty = false
-
-    if (this.pendingNavigationUrl) {
-      window.location.href = this.pendingNavigationUrl
-      return
-    }
-
-    history.back()
-  }
-
-  saveAndClose() {
-    const form = this.element.querySelector("form")
-    if (!form) return
-
-    this.isDirty = false
-    this.unsavedModalTarget.classList.add("hidden")
-
-    form.requestSubmit()
-  }
-
-  submitEnd(event) {
-    if (!event.detail.success) {
-      this.isDirty = true
-      return
-    }
-
-    if (!this.pendingNavigationUrl) return
-
-    const url = this.pendingNavigationUrl
-
-    this.pendingNavigationUrl = null
-
-    Turbo.visit(url)
-  }
-
-  // ---------------- DIRTY ----------------
-  markDirty() {
-    this.isDirty = true
+    diff > 0 ? this.prev() : this.next()
   }
 }

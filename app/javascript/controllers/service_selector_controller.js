@@ -57,7 +57,7 @@ export default class extends Controller {
       this.boundRemove
     )
 
-    this.updateSelected()
+    this.updateSelected(false)
   }
 
   disconnect() {
@@ -127,7 +127,7 @@ export default class extends Controller {
     this.updateSelected()
   }
 
-  updateSelected() {
+  updateSelected(notify = true) {
     if (!this.hasHiddenInputTarget) return
 
     const container = this.hiddenInputTarget.parentElement
@@ -192,13 +192,11 @@ export default class extends Controller {
         </div>
       `).join("")
 
-    window.dispatchEvent(
-      new CustomEvent("service-selector:changed", {
-        detail: {
-          services: this.selected
-        }
-      })
-    )
+    if (notify) {
+      window.dispatchEvent(new CustomEvent("service-selector:changed", {
+        detail: { services: this.selected }
+      }))
+    }
   }
 
   remove(id) {

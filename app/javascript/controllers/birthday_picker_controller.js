@@ -44,10 +44,17 @@ export default class extends Controller {
     this.clearTimers()
     this.syncSelectionFromWheels()
 
-    this.hiddenTarget.value = `${this.selectedMonth}-${this.selectedDay}`
+    const previousValue = this.hiddenTarget.value
+    const newValue = `${this.selectedMonth}-${this.selectedDay}`
+
+    this.hiddenTarget.value = newValue
 
     this.updateDisplay()
     this.modalTarget.classList.add("hidden")
+
+    if (previousValue !== newValue) {
+      this.hiddenTarget.dispatchEvent(new Event("change", { bubbles: true }))
+    }
   }
 
   restoreSelection() {

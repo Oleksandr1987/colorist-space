@@ -92,16 +92,10 @@ export default class extends Controller {
 
     if (!wrapper) return
 
-    const content = wrapper.querySelector(
-      "[data-collapse-target='content']"
-    )
+    const content = wrapper.querySelector("[data-collapse-target='content']")
 
     content?.classList.add("hidden")
     wrapper.classList.remove("open")
-
-    window.dispatchEvent(
-      new CustomEvent("wizard:changed")
-    )
   }
 
   closeZonePicker() {
