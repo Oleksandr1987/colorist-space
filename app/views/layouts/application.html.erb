@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <%= favicon_link_tag 'favicon.png' %>
+    <%= favicon_link_tag "favicon.png" %>
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -20,27 +20,34 @@
     <% unless Rails.env.test? %>
       <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <% end %>
+
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
+    <!-- Flash notifications -->
+    <div class="flash-container">
+      <% flash.each do |type, message| %>
+        <% next if controller_name == "sessions" &&
+                  action_name == "new" &&
+                  type.to_sym == :alert %>
+
+        <div class="flash <%= type %>"
+             data-controller="flash"
+             data-flash-duration-value="2500"
+             role="<%= type.to_s.in?(%w[alert danger]) ? 'alert' : 'status' %>">
+          <%= message %>
+        </div>
+      <% end %>
+    </div>
 
     <main>
-      <% flash.each do |type, message| %>
-          <% next if controller_name == "sessions" &&
-                    action_name == "new" &&
-                    type.to_sym == :alert %>
-
-          <div class="flash <%= type %>">
-            <%= message.html_safe %>
-          </div>
-      <% end %>
-
       <%= yield %>
     </main>
 
-    <%= render 'shared/navigation' if user_signed_in? %>
+    <%= render "shared/navigation" if user_signed_in? %>
 
+    <!-- Fullscreen photo viewer -->
     <div data-controller="photo"
          class="fullscreen hidden"
          data-photo-target="modal">
@@ -53,9 +60,9 @@
            alt="">
 
       <button class="fullscreen-close"
-              data-action="click->photo#close"><%= image_tag "close.png",
-                      class: "clear-icon" %></button>
+              data-action="click->photo#close">
+        <%= image_tag "close.png", class: "clear-icon" %>
+      </button>
     </div>
-
   </body>
 </html>

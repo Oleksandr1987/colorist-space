@@ -5,33 +5,26 @@ export default class extends Controller {
   static targets = ["display", "hidden", "modal", "days", "months"]
 
   connect() {
-    this.selectedDay = "01"
-    this.selectedMonth = "01"
-
+    this.itemHeight = 44
     this.dayTimer = null
     this.monthTimer = null
-    this.itemHeight = 44
 
-    if (this.hiddenTarget.value) {
-      const [month, day] = this.hiddenTarget.value.split("-")
-
-      this.selectedMonth = month
-      this.selectedDay = day
-    }
-
+    this.restoreSelection()
     this.renderDays()
     this.updateDisplay()
   }
 
   disconnect() {
-    clearTimeout(this.dayTimer)
-    clearTimeout(this.monthTimer)
+    this.clearTimers()
   }
 
   open() {
-    this.modalTarget.classList.remove("hidden")
+    if (!this.modalTarget.classList.contains("hidden")) return
 
+    this.restoreSelection()
     this.renderDays()
+
+    this.modalTarget.classList.remove("hidden")
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -42,18 +35,42 @@ export default class extends Controller {
   }
 
   close() {
+    this.clearTimers()
+    this.restoreSelection()
     this.modalTarget.classList.add("hidden")
   }
 
-  stop(event) {
-    event.stopPropagation()
-  }
-
   save() {
+    this.clearTimers()
+    this.syncSelectionFromWheels()
+
     this.hiddenTarget.value = `${this.selectedMonth}-${this.selectedDay}`
 
     this.updateDisplay()
-    this.close()
+    this.modalTarget.classList.add("hidden")
+  }
+
+  restoreSelection() {
+    const value = this.hiddenTarget.value
+    const parts = value.split("-")
+
+    if (parts.length === 3) {
+      this.selectedMonth = parts[1]
+      this.selectedDay = parts[2]
+    } else if (parts.length === 2) {
+      this.selectedMonth = parts[0]
+      this.selectedDay = parts[1]
+    } else {
+      this.selectedMonth = "01"
+      this.selectedDay = "01"
+    }
+
+    this.adjustDayForMonth()
+  }
+
+  clearTimers() {
+    clearTimeout(this.dayTimer)
+    clearTimeout(this.monthTimer)
   }
 
   scrollDay() {
@@ -61,7 +78,6 @@ export default class extends Controller {
 
     this.dayTimer = setTimeout(() => {
       const item = this.nearestItem(this.daysTarget)
-
       if (!item) return
 
       this.selectedDay = item.dataset.day
@@ -76,7 +92,6 @@ export default class extends Controller {
 
     this.monthTimer = setTimeout(() => {
       const item = this.nearestItem(this.monthsTarget)
-
       if (!item) return
 
       const previousMonth = this.selectedMonth
@@ -131,7 +146,6 @@ export default class extends Controller {
   daysInSelectedMonth() {
     const month = Number(this.selectedMonth)
     if (month === 2) return 28
-
     if ([4, 6, 9, 11].includes(month)) return 30
 
     return 31
@@ -148,7 +162,6 @@ export default class extends Controller {
 
   nearestItem(container) {
     const items = container.querySelectorAll(".birthday-wheel-item")
-
     if (!items.length) return null
 
     const center = container.scrollTop + container.clientHeight / 2
@@ -191,6 +204,30 @@ export default class extends Controller {
 
   scrollToItem(container, item) {
     container.scrollTop = item.offsetTop - (container.clientHeight - item.offsetHeight) / 2
+  }
+
+  syncSelectionFromWheels() {
+    const month = this.nearestItem(this.monthsTarget)
+
+    if (month) {
+      this.selectedMonth = month.dataset.month
+    }
+
+    this.adjustDayForMonth()
+
+    if (this.daysTarget.querySelectorAll(".birthday-wheel-item").length !==
+        this.daysInSelectedMonth()) {
+      this.renderDays()
+      return
+    }
+
+    const day = this.nearestItem(this.daysTarget)
+
+    if (day) {
+      this.selectedDay = day.dataset.day
+    }
+
+    this.adjustDayForMonth()
   }
 
   highlightSelected() {

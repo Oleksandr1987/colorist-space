@@ -1,3 +1,60 @@
+/* ==== Inline Birthday Picker ==== */
+.birthday-picker-inline {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 12px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.birthday-picker-inline.hidden {
+  display: none;
+}
+
+/* ==== Picker Header ==== */
+.birthday-picker-top {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(90px, 1fr);
+  gap: 24px;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.birthday-picker-top button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.birthday-picker-cancel {
+  color: #666;
+}
+
+.birthday-picker-save {
+  color: #7c3aed;
+}
+
+.birthday-picker-top button:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+/* ==== Picker Grid ==== */
 .birthday-picker {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(90px, 1fr);
@@ -15,6 +72,7 @@
   overflow: hidden;
 }
 
+/* ==== Scroll Wheel ==== */
 .birthday-wheel {
   position: relative;
   z-index: 2;
@@ -42,24 +100,24 @@
 }
 
 .birthday-wheel-item {
-  width: 100%;
-  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 44px;
   box-sizing: border-box;
   overflow: hidden;
   white-space: nowrap;
   text-align: center;
   scroll-snap-align: center;
-  opacity: .35;
+  opacity: 0.35;
   font-size: 17px;
   line-height: 44px;
   user-select: none;
   -webkit-user-select: none;
   transition:
-    opacity .15s ease,
-    color .15s ease;
+    opacity 0.15s ease,
+    color 0.15s ease;
 }
 
 .birthday-wheel-item.active {
@@ -85,31 +143,16 @@
   font-size: 18px;
 }
 
-.birthday-picker-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.birthday-picker-top span {
-  font-size: 2rem;
-  font-weight: 700;
-}
-
-.birthday-picker-top button {
-  padding: 0;
-  border: 0;
-  background: none;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
+/* ==== Mobile ==== */
 @media (max-width: 600px) {
+  .birthday-picker-inline {
+    padding: 12px;
+    margin-top: 10px;
+  }
+
   .birthday-picker {
     grid-template-columns: minmax(0, 2fr) minmax(80px, 1fr);
-    gap: 20px;
+    gap: 16px;
   }
 
   .birthday-picker,
@@ -117,5 +160,20 @@
   .birthday-wheel {
     max-width: 100%;
     min-width: 0;
+  }
+
+  .birthday-picker-top {
+    grid-template-columns: minmax(0, 2fr) minmax(80px, 1fr);
+    gap: 16px;
+  }
+
+  .birthday-picker-top button {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .birthday-wheel-item {
+    transition: none;
   }
 }

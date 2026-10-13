@@ -300,8 +300,7 @@ class Appointment < ApplicationRecord
   end
 
   def sync_service_note_notes
-    return unless service_note.present?
-
+    return unless service_note&.persisted?
     return if service_note.notes == notes
 
     service_note.update_column(:notes, notes)

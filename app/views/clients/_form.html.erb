@@ -96,11 +96,11 @@
       <%= f.label :birthday, t("clients.form.birthday") %>
 
       <input type="text"
-             readonly
-             class="login__input"
-             placeholder="<%= t("clients.form.select_birthday") %>"
-             data-action="click->birthday-picker#open"
-             data-birthday-picker-target="display">
+            readonly
+            class="login__input"
+            placeholder="<%= t("clients.form.select_birthday") %>"
+            data-action="click->birthday-picker#open"
+            data-birthday-picker-target="display">
 
       <%= f.hidden_field :birthday, data: { birthday_picker_target: "hidden" } %>
 
@@ -110,46 +110,52 @@
         </div>
       <% end %>
 
-      <div class="care-products-modal hidden" data-birthday-picker-target="modal" data-action="click->birthday-picker#close">
-        <div class="care-products-modal-content" data-action="click->birthday-picker#stop">
-          <div class="wizard-top birthday-picker-top">
-            <button type="button" data-action="click->birthday-picker#close">
-              <%= image_tag "close.png", class: "wiz-icon-close" %>
-            </button>
+      <!-- Inline birthday picker -->
+      <div class="birthday-picker-inline hidden"
+          data-birthday-picker-target="modal">
 
-            <button type="button" data-action="click->birthday-picker#save">
-              <%= t("common.save").upcase %>
-            </button>
+        <div class="birthday-picker-top">
+          <button type="button"
+                  class="birthday-picker-cancel"
+                  data-action="click->birthday-picker#close">
+            <%= t("common.cancel") %>
+          </button>
+
+          <button type="button"
+                  class="birthday-picker-save"
+                  data-action="click->birthday-picker#save">
+            <%= t("common.save").upcase %>
+          </button>
+        </div>
+
+        <div class="birthday-picker">
+          <div class="birthday-picker-column birthday-picker-month">
+            <div class="birthday-wheel"
+                data-birthday-picker-target="months"
+                data-action="scroll->birthday-picker#scrollMonth">
+
+              <div class="birthday-wheel-spacer"></div>
+
+              <% I18n.t("date.month_names").drop(1).each_with_index do |month, index| %>
+                <div class="birthday-wheel-item"
+                    data-month="<%= format("%02d", index + 1) %>">
+                  <%= month %>
+                </div>
+              <% end %>
+
+              <div class="birthday-wheel-spacer"></div>
+            </div>
+
+            <div class="birthday-wheel-selection"></div>
           </div>
 
-          <div class="birthday-picker">
-            <div class="birthday-picker-column birthday-picker-month">
-              <div class="birthday-wheel"
-                  data-birthday-picker-target="months"
-                  data-action="scroll->birthday-picker#scrollMonth">
-                <div class="birthday-wheel-spacer"></div>
-
-                <% I18n.t("date.month_names").drop(1).each_with_index do |month, index| %>
-                  <div class="birthday-wheel-item"
-                      data-month="<%= "%02d" % (index + 1) %>">
-                    <%= month %>
-                  </div>
-                <% end %>
-
-                <div class="birthday-wheel-spacer"></div>
-              </div>
-
-              <div class="birthday-wheel-selection"></div>
+          <div class="birthday-picker-column birthday-picker-day">
+            <div class="birthday-wheel"
+                data-birthday-picker-target="days"
+                data-action="scroll->birthday-picker#scrollDay">
             </div>
 
-            <div class="birthday-picker-column birthday-picker-day">
-              <div class="birthday-wheel"
-                  data-birthday-picker-target="days"
-                  data-action="scroll->birthday-picker#scrollDay">
-              </div>
-
-              <div class="birthday-wheel-selection"></div>
-            </div>
+            <div class="birthday-wheel-selection"></div>
           </div>
         </div>
       </div>

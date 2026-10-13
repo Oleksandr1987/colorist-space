@@ -11,6 +11,12 @@ uk:
     add_new: "+ Додати"
     search_placeholder: "Пошук..."
     none_found: "Клієнтів не знайдено."
+    index_title: "КЛІЄНТИ"
+    count:
+      one: "%{count} клієнт"
+      few: "%{count} клієнти"
+      many: "%{count} клієнтів"
+      other: "%{count} клієнта"
 
     messages:
       archived: "Клієнта переміщено в архів."

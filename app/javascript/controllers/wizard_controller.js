@@ -86,7 +86,6 @@ export default class extends Controller {
   }
 
   // ---------------- NAV CLICK ----------------
-
   go(event) {
     this.current = parseInt(event.currentTarget.dataset.step)
 
@@ -96,7 +95,6 @@ export default class extends Controller {
   }
 
   // ---------------- NEXT ----------------
-
   next() {
     if (this.current < this.steps.length - 1) {
       this.current++
@@ -108,7 +106,6 @@ export default class extends Controller {
   }
 
   // ---------------- PREV ----------------
-
   prev() {
     if (this.current > 0) {
       this.current--
@@ -120,7 +117,6 @@ export default class extends Controller {
   }
 
   // ---------------- UPDATE UI ----------------
-
   update() {
     this.steps.forEach((el, i) => {
       el.classList.toggle("active", i === this.current)
@@ -143,7 +139,6 @@ export default class extends Controller {
   }
 
   // ---------------- SWIPE ----------------
-
   initSwipe() {
     let startX = 0
 
@@ -161,10 +156,8 @@ export default class extends Controller {
   }
 
   // ---------------- NEXT BUTTON ----------------
-
   updateNextButton() {
     const isLast = this.current === this.steps.length - 1
-
     if (isLast) {
       this.nextLabelTarget.textContent = this.saveLabelValue.toUpperCase()
       this.nextButtonTarget.type = "submit"
@@ -181,7 +174,6 @@ export default class extends Controller {
   }
 
   // ---------------- BACK BUTTON ----------------
-
   updateButtons() {
     if (!this.hasPrevButtonTarget) return
 
@@ -193,7 +185,6 @@ export default class extends Controller {
   }
 
   // ---------------- CLOSE WIZARD ----------------
-
   close() {
     if (!this.isDirty) {
       history.back()
@@ -205,7 +196,6 @@ export default class extends Controller {
   }
 
   // ---------------- BOTTOM NAVIGATION ----------------
-
   handleBottomNavigation(event) {
     const link = event.target.closest(".bottom-nav .nav-item")
 
@@ -219,7 +209,6 @@ export default class extends Controller {
   }
 
   // ---------------- UNSAVED MODAL ----------------
-
   openUnsavedModal() {
     if (this.hasUnsavedTitleTarget) {
       this.unsavedTitleTarget.textContent = this.unsavedTitleValue
@@ -250,7 +239,6 @@ export default class extends Controller {
 
   saveAndClose() {
     const form = this.element.querySelector("form")
-
     if (!form) return
 
     this.isDirty = false
@@ -275,7 +263,6 @@ export default class extends Controller {
   }
 
   // ---------------- DIRTY ----------------
-
   markDirty() {
     this.isDirty = true
   }

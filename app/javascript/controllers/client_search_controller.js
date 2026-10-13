@@ -1,34 +1,53 @@
 // app/javascript/controllers/client_search_controller.js
 import { Controller } from "@hotwired/stimulus"
 
+const EN_LAYOUT = "qwertyuiop[]asdfghjkl;'zxcvbnm,."
+const UK_LAYOUT = "йцукенгшщзхїфівапролджєячсмитьбю"
+
 export default class extends Controller {
   static targets = ["input", "item", "group", "noResults"]
 
-  search() {
-    const query = this.inputTarget.value.trim().toLowerCase()
+  connect() {
+    this.search()
+  }
 
-    if (query === "") {
+  search() {
+    const query = this.normalizeText(this.inputTarget.value)
+    const words = query.split(/\s+/).filter(Boolean)
+
+    if (words.length === 0) {
       this.reset()
       return
     }
 
-    const queryDigits = this.normalizePhone(query)
-    const isSearchingByPhone = queryDigits.length > 0
+    const alternativeWords = words.map((word) => this.switchLayout(word))
+
     let hasResults = false
 
     this.groupTargets.forEach((group) => {
       let hasVisibleItems = false
 
-      group
-        .querySelectorAll("[data-client-search-target='item']")
+      group.querySelectorAll( "[data-client-search-target='item']")
         .forEach((item) => {
-          const name = item.querySelector(".client-link").textContent.toLowerCase()
+          const name = this.normalizeText(item.querySelector(".client-link")?.textContent || "")
           const phoneDigits = this.normalizePhone(item.dataset.phone || "")
-          const isVisible = isSearchingByPhone ? phoneDigits.includes(queryDigits) : name.includes(query)
+          const matchesWord = (word) => {
+            if (name.includes(word)) return true
 
-          item.style.display = isVisible ? "" : "none"
+            const digits = this.normalizePhone(word)
 
-          if (isVisible) {
+            if (digits && phoneDigits.includes(digits)) {
+              return true
+            }
+
+            return false
+          }
+
+          const matches = words.every((word, index) => matchesWord(word) || matchesWord(alternativeWords[index]))
+
+          item.style.display = matches ? "" : "none"
+
+          if (matches) {
             hasVisibleItems = true
             hasResults = true
           }
@@ -56,7 +75,34 @@ export default class extends Controller {
     }
   }
 
+  normalizeText(value) {
+    return value
+      .toLocaleLowerCase()
+      .normalize("NFC")
+      .replace(/['’ʼ`´]/g, "'")
+      .replace(/\s+/g, " ")
+      .trim()
+  }
+
   normalizePhone(value) {
     return value.replace(/\D/g, "")
+  }
+
+  switchLayout(value) {
+    return [...value].map((char) => {
+      const enIndex = EN_LAYOUT.indexOf(char)
+
+      if (enIndex !== -1) {
+        return UK_LAYOUT[enIndex]
+      }
+
+      const ukIndex = UK_LAYOUT.indexOf(char)
+
+      if (ukIndex !== -1) {
+        return EN_LAYOUT[ukIndex]
+      }
+
+      return char
+    }).join("")
   }
 }

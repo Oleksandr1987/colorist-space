@@ -11,6 +11,10 @@ en:
     add_new: "+ Add New"
     search_placeholder: "Search..."
     none_found: "No clients found."
+    index_title: "CLIENTS"
+    count:
+      one: "%{count} client"
+      other: "%{count} clients"
 
     messages:
       archived: "Client was archived."
