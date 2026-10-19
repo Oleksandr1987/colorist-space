@@ -115,6 +115,16 @@ RSpec.describe "Clients" do
       expect(response).to have_http_status(:unprocessable_content)
     end
 
+    it "does not create a duplicate of an active client with reversed name parts" do
+      archived_client.update!(archived_at: nil)
+
+      params = { client: { first_name: "Smith Alex", last_name: "", phone: "+380930000099" } }
+
+      expect { post clients_path, params: params }.not_to change(Client, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(archived_client.reload.phone).to eq("+380930000011")
+    end
+
     it "renders new when client with same phone already exists" do
       existing_client = create(:client, user: user, phone: "+380930000999")
 
@@ -147,6 +157,57 @@ RSpec.describe "Clients" do
 
       expect(archived_client).not_to be_archived
       expect(archived_client.phone).to eq("+380930000099")
+    end
+
+    context "when an archived client has the same normalized name" do
+      it "restores an archived client when name parts are reversed" do
+        params = { client: { first_name: "Smith Alex", last_name: "", phone: "+380930000099" } }
+
+        expect { post clients_path, params: params }.not_to change(Client, :count)
+        expect(response).to redirect_to(client_url(archived_client, locale: I18n.locale))
+
+        archived_client.reload
+
+        expect(archived_client).not_to be_archived
+        expect(archived_client.first_name).to eq("Smith Alex")
+        expect(archived_client.last_name).to eq("")
+        expect(archived_client.phone).to eq("+380930000099")
+        expect(archived_client.normalized_name).to eq("alex smith")
+      end
+
+      it "restores an archived client when the full name is entered in one field" do
+        params = { client: { first_name: "Alex Smith", last_name: "", phone: "+380930000099" } }
+
+        expect { post clients_path, params: params }.not_to change(Client, :count)
+        expect(response).to redirect_to(client_url(archived_client, locale: I18n.locale))
+
+        archived_client.reload
+
+        expect(archived_client).not_to be_archived
+        expect(archived_client.normalized_name).to eq("alex smith")
+      end
+
+      it "restores an archived client regardless of name case" do
+        params = { client: { first_name: "ALEX", last_name: "SMITH", phone: "+380930000099" } }
+
+        expect { post clients_path, params: params }.not_to change(Client, :count)
+        expect(response).to redirect_to(client_url(archived_client, locale: I18n.locale))
+
+        archived_client.reload
+
+        expect(archived_client).not_to be_archived
+        expect(archived_client.normalized_name).to eq("alex smith")
+      end
+    end
+
+    it "shows a validation error when the normalized full name already exists" do
+      archived_client.update!(archived_at: nil)
+
+      params = { client: { first_name: "smith alex", last_name: "", phone: "+380930000099" } }
+
+      expect { post clients_path, params: params }.not_to change(Client, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include(I18n.t("activerecord.errors.models.client.attributes.first_name.client_already_exists"))
     end
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_093324) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_122021) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -154,6 +154,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_093324) do
     t.string "hair_structure"
     t.string "hair_type"
     t.string "last_name"
+    t.string "normalized_name", null: false
     t.text "note"
     t.string "phone", null: false
     t.string "scalp_condition"
@@ -161,6 +162,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_093324) do
     t.integer "user_id", null: false
     t.index "user_id, LOWER(TRIM(first_name)), LOWER(TRIM(COALESCE(last_name, '')))", name: "index_clients_on_unique_name", unique: true
     t.index ["archived_at"], name: "index_clients_on_archived_at"
+    t.index ["user_id", "normalized_name"], name: "index_clients_on_user_id_and_normalized_name", unique: true
     t.index ["user_id", "phone"], name: "index_clients_on_user_id_and_phone", unique: true
     t.index ["user_id"], name: "index_clients_on_user_id"
   end

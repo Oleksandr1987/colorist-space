@@ -150,7 +150,7 @@
               data-param="categories"
               data-value="<%= category %>"
               data-action="click->appointments-filter#toggleFilter">
-              <%= t("services.categories.#{category}") %>
+              <%= Service.category_label(category) %>
             </button>
           <% end %>
         </div>

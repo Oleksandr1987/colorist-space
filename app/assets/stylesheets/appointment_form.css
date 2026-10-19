@@ -210,6 +210,44 @@ textarea.form-input {
   cursor: default;
 }
 
+/* Appointment time fields */
+.appointment-container .appointment-time-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.appointment-container .appointment-time-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.appointment-container .appointment-time-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+}
+
+.appointment-container .appointment-time-label .required-asterisk {
+  margin-left: 0;
+  flex-shrink: 0;
+}
+
+.appointment-container .appointment-time-field .form-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.appointment-container .appointment-time-field .inline-error {
+  margin-top: 5px;
+}
+
 @media (max-width: 480px) {
   .form-input,
   textarea.form-input {

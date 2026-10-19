@@ -335,9 +335,29 @@ main:has(.client-profile-container) {
 }
 
 .new-appointment-button {
-  position: static;
-  flex-shrink: 0;
-  white-space: nowrap;
+  flex: 0 0 46px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background: #7026e9;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 400;
+  text-decoration: none;
+  transition: background-color .2s ease, transform .2s ease;
+}
+
+.new-appointment-button:hover {
+  background: #481e9f;
+}
+
+.new-appointment-button span {
+  display: block;
+  line-height: 1;
 }
 
 .client-header-action-spacer {

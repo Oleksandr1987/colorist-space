@@ -98,4 +98,34 @@ RSpec.describe Service do
       expect(described_class.normalize_category("totally-unknown")).to eq("totally-unknown")
     end
   end
+
+  describe ".category_label" do
+    it "translates default categories" do
+      I18n.with_locale(:uk) do
+        expect(described_class.category_label("haircut")).to eq(I18n.t("services.categories.haircut"))
+        expect(described_class.category_label("coloring")).to eq(I18n.t("services.categories.coloring"))
+      end
+    end
+
+    it "preserves custom categories" do
+      I18n.with_locale(:en) do
+        expect(described_class.category_label("Манікюр")).to eq("Манікюр")
+        expect(described_class.category_label("Категорія послуг 2")).to eq("Категорія послуг 2")
+      end
+    end
+  end
+
+  describe ".subtypes_for_user" do
+    let(:user) { create(:user) }
+    let(:other_user) { create(:user) }
+
+    it "groups unique subtypes by category for the given user" do
+      create(:service, user: user, category: "Манікюр", subtype: "Гельлак")
+      create(:service, user: user, category: "Манікюр", subtype: "Класичний манікюр")
+      create(:service, user: other_user, category: "Манікюр", subtype: "Гельлак")
+      create(:service, user: other_user, category: "Манікюр", subtype: "Чужа послуга")
+
+      expect(described_class.subtypes_for_user(user)).to eq("Манікюр" => [ "Гельлак", "Класичний манікюр" ])
+    end
+  end
 end

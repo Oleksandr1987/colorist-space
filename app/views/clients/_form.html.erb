@@ -1,4 +1,9 @@
-<div data-controller="unsaved-changes" data-unsaved-changes-back-url-value="<%= @client.new_record? ? clients_path : client_path(@client) %>">
+<div class="client-form-unsaved"
+     data-controller="unsaved-changes<%= ' client-duplicates' if @client.new_record? %>"
+     data-unsaved-changes-back-url-value="<%= @client.new_record? ? clients_path : client_path(@client) %>"
+     <% if @client.new_record? %>
+       data-client-duplicates-url-value="<%= duplicates_clients_path %>"
+     <% end %>>
   <%= form_with model: @client, local: true, html: { multipart: true, class: "client-form", data: { unsaved_changes_target: "form" } } do |f| %>
 
     <header class="client-form-header">
@@ -23,11 +28,27 @@
           <span class="required-asterisk">*</span>
         <% end %>
 
-        <%= f.text_field :first_name, class: "login__input" %>
+        <%= f.text_field :first_name, class: "login__input", autocomplete: "off",
+            data: (@client.new_record? ? { client_duplicates_target: "input", action: "input->client-duplicates#search" } : {}) %>
 
-        <% @client.errors.full_messages_for(:first_name).each do |message| %>
-          <div class="inline-error">
-            <%= message %>
+        <% @client.errors.where(:first_name).each do |error| %>
+          <div class="inline-error" role="alert">
+            <%= error.message %>
+          </div>
+        <% end %>
+
+        <% if @client.new_record? %>
+          <div class="client-duplicates hidden" data-client-duplicates-target="results">
+            <div class="client-duplicates-title">
+              <%= t("clients.duplicates.possible_match") %>
+            </div>
+
+            <div data-client-duplicates-target="list"></div>
+
+            <button type="button" class="client-duplicates-show-all hidden" data-show-all data-action="click->client-duplicates#showAll">
+              <%= t("clients.duplicates.show_all") %>
+              (<span data-client-duplicates-target="count">0</span>)
+            </button>
           </div>
         <% end %>
       </div>
@@ -47,9 +68,9 @@
           <%= f.telephone_field :phone, class: "login__input", autocomplete: "tel", data: { controller: "phone-mask" } %>
         </div>
 
-        <% @client.errors.full_messages_for(:phone).each do |message| %>
-          <div class="inline-error">
-            <%= message %>
+        <% @client.errors.where(:phone).each do |error| %>
+          <div class="inline-error" role="alert">
+            <%= error.message %>
           </div>
         <% end %>
       </div>
@@ -108,9 +129,9 @@
 
         <%= f.hidden_field :birthday, data: { birthday_picker_target: "hidden" } %>
 
-        <% @client.errors.full_messages_for(:birthday).each do |message| %>
-          <div class="inline-error">
-            <%= message %>
+        <% @client.errors.where(:birthday).each do |error| %>
+          <div class="inline-error" role="alert">
+            <%= error.message %>
           </div>
         <% end %>
 
@@ -180,4 +201,33 @@
   <% end %>
 
   <%= render "shared/modals/unsaved_changes" %>
+
+  <% if @client.new_record? %>
+    <div class="client-duplicates-modal hidden" data-client-duplicates-target="modal">
+      <div class="client-duplicates-backdrop"
+          data-action="click->client-duplicates#closeModal"></div>
+
+      <div class="client-duplicates-modal-card"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="client-duplicates-modal-title">
+
+        <div class="client-duplicates-modal-header">
+          <h3 id="client-duplicates-modal-title">
+            <%= t("clients.duplicates.all_matches") %>
+          </h3>
+
+          <button type="button"
+                  class="client-duplicates-modal-close"
+                  data-action="click->client-duplicates#closeModal"
+                  aria-label="<%= t('common.close') %>">
+            ×
+          </button>
+        </div>
+
+        <div class="client-duplicates-modal-list"
+            data-client-duplicates-target="modalList"></div>
+      </div>
+    </div>
+  <% end %>
 </div>

@@ -15,9 +15,11 @@ class Client < ApplicationRecord
   validates :hair_damage_level, inclusion: { in: 1..5 }, allow_nil: true
 
   validate :birthday_must_be_valid
-  validate :full_name_must_be_unique
+  validate :normalized_name_must_be_unique
   validate :phone_not_used_in_client_phones
+  validates :normalized_name, presence: true
 
+  before_validation :set_normalized_name
   before_save :ensure_primary_phone
 
   scope :alphabetical, -> { order("LOWER(first_name)") }
@@ -32,36 +34,57 @@ class Client < ApplicationRecord
     where(table[:first_name].lower.matches(q).or(table[:last_name].lower.matches(q)))
   }
 
+  scope :matching_name_parts, ->(query) {
+    words = query.to_s.downcase.strip.split(/\s+/)
+
+    words.reduce(all) do |relation, word|
+      escaped = sanitize_sql_like(word)
+      pattern = "%#{escaped}%"
+
+      relation.where("LOWER(first_name) LIKE :pattern OR LOWER(COALESCE(last_name, '')) LIKE :pattern", pattern: pattern)
+    end
+  }
+
   scope :with_name, ->(first_name, last_name) {
     where("LOWER(TRIM(first_name)) = ?", first_name.to_s.strip.downcase)
       .where("LOWER(TRIM(COALESCE(last_name, ''))) = ?", last_name.to_s.strip.downcase)
   }
 
-  def self.find_existing(user:, first_name:, last_name:, phone:)
-    normalized_phone = PhoneValidator.normalize(phone)
+  class << self
+    def find_existing(user:, first_name:, last_name:, phone:)
+      normalized_phone = PhoneValidator.normalize(phone)
 
-    if normalized_phone.present?
-      client = user.clients.find_by(phone: normalized_phone)
-      return client if client
+      if normalized_phone.present?
+        client = user.clients.find_by(phone: normalized_phone)
+        return client if client
 
-      client = user.clients.joins(:client_phones).find_by(client_phones: { phone: normalized_phone })
-      return client if client
+        client = user.clients.joins(:client_phones).find_by(client_phones: { phone: normalized_phone })
+        return client if client
+      end
+
+      normalized_name = normalized_full_name(first_name, last_name)
+
+      return nil if normalized_name.blank?
+
+      user.clients.find_by(normalized_name: normalized_name)
     end
 
-    user.clients.with_name(first_name, last_name).first
-  end
+    def resolve_for_appointment(user:, full_name:, phone:)
+      normalized_phone = PhoneValidator.normalize(phone)
+      first_name, last_name = full_name.to_s.strip.split(/\s+/, 2)
 
-  def self.resolve_for_appointment(user:, full_name:, phone:)
-    normalized_phone = PhoneValidator.normalize(phone)
-    first_name, last_name = full_name.to_s.strip.split(/\s+/, 2)
+      return nil if first_name.blank?
 
-    return nil if first_name.blank?
+      client = find_existing(user: user, first_name: first_name, last_name: last_name, phone: normalized_phone)
 
-    client = find_existing(user: user, first_name: first_name, last_name: last_name, phone: normalized_phone)
+      return client.tap(&:restore!) if client
 
-    return client.tap(&:restore!) if client
+      user.clients.create!(first_name: first_name, last_name: last_name.to_s, phone: normalized_phone)
+    end
 
-    user.clients.create!(first_name: first_name, last_name: last_name.to_s, phone: normalized_phone)
+    def normalized_full_name(first_name, last_name)
+      "#{first_name} #{last_name}".strip.downcase.split.sort.join(" ")
+    end
   end
 
   def archive!
@@ -126,12 +149,16 @@ class Client < ApplicationRecord
     errors.add(:birthday, :invalid)
   end
 
-  def full_name_must_be_unique
-    return if first_name.blank? || user_id.blank?
+  def normalized_name_must_be_unique
+    return if normalized_name.blank? || user_id.blank?
 
-    duplicate = user.clients.with_name(first_name, last_name).where.not(id: id).exists?
+    duplicate = user.clients.where(normalized_name: normalized_name).where.not(id: id).exists?
 
     errors.add(:first_name, :client_already_exists) if duplicate
+  end
+
+  def set_normalized_name
+    self.normalized_name = self.class.normalized_full_name(first_name, last_name)
   end
 
   def ensure_primary_phone
@@ -144,10 +171,7 @@ class Client < ApplicationRecord
   def phone_not_used_in_client_phones
     return if phone.blank? || user_id.blank?
 
-    duplicate = ClientPhone
-      .where(user_id: user_id, phone: phone)
-      .where.not(client_id: id)
-      .exists?
+    duplicate = ClientPhone.where(user_id: user_id, phone: phone).where.not(client_id: id).exists?
 
     return unless duplicate
 

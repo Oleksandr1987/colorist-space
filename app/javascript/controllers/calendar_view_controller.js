@@ -18,7 +18,6 @@ export default class extends Controller {
     this.selectedDate = new Date()
     this.renderCalendar()
     this.loadAppointments(this.selectedDate)
-    this.scrollToToday()
     this.startAutoRefresh()
     this.startLiveSlotUpdates()
   }
@@ -395,13 +394,6 @@ export default class extends Controller {
     }
 
     window.location.href = url.toString()
-  }
-
-  scrollToToday() {
-    setTimeout(() => {
-      const todayEl = this.element.querySelector(".day.today")
-      if (todayEl) todayEl.scrollIntoView({ behavior: "smooth", block: "center" })
-    }, 300)
   }
 
   isSameDate(d1, d2) {

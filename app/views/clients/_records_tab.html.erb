@@ -56,10 +56,6 @@
             <%= t("clients.show.no_records") %>
           </p>
         </div>
-
-        <%= link_to calendar_appointments_path(client_id: client.id), class: "client-records-empty-button", data: { turbo: false } do %>
-          <%= t("clients.show.new_appointment") %>
-        <% end %>
       </div>
     <% end %>
   </div>

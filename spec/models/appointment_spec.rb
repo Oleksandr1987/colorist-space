@@ -611,22 +611,25 @@ RSpec.describe Appointment do
       it "is invalid when end_time equals appointment_time" do
         time = Time.zone.parse("10:00")
 
-        appointment = build(:appointment, user: user, client: client, appointment_time: time, end_time: time, main_service: nil)
+        appointment = build(:appointment, user: user, client: client,
+          appointment_time: time,
+          end_time: time,
+          main_service: nil)
 
         expect(appointment).not_to be_valid
-        expect(appointment.errors[:end_time]).to include("must be later than start time")
+        expect(appointment.errors.details[:end_time]).to include(error: :invalid)
       end
     end
 
     describe "#time_step_interval" do
       it "is invalid when appointment_time is not divisible by 5 minutes" do
         appointment = build(:appointment, user: user, client: client,
-                            appointment_time: Time.zone.parse("10:03"),
-                            end_time: Time.zone.parse("10:33"),
-                            main_service: nil)
+          appointment_time: Time.zone.parse("10:03"),
+          end_time: Time.zone.parse("10:33"),
+          main_service: nil)
 
         expect(appointment).not_to be_valid
-        expect(appointment.errors[:appointment_time]).to include("must be in 5-minute intervals")
+        expect(appointment.errors.details[:appointment_time]).to include(error: :invalid_interval)
       end
     end
   end

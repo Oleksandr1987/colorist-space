@@ -54,6 +54,11 @@ en:
       add_photos: "Add Photos"
       add_phone: "Add Phone Number"
 
+    duplicates:
+      possible_match: "This client may already exist"
+      show_all: "Show all"
+      all_matches: "Matching clients"
+
     show:
       records_tab: "Records"
       photos_tab: "Photos"
@@ -130,9 +135,9 @@ en:
         client:
           attributes:
             first_name:
-              client_already_exists: "This client already exists. Add the phone number to the existing client."
+              client_already_exists: "A client with this name already exists."
             phone:
-              client_already_exists: "This client already exists. Add the phone number to the existing client."
+              client_already_exists: "This phone number is already in use."
 
         client_phone:
           attributes:

@@ -1,3 +1,4 @@
+
 uk:
   appointments:
     title: "Записи"
@@ -31,6 +32,8 @@ uk:
       save: "Зберегти"
       slots: "Вільний час"
 
+      end_time_error: "Час завершення має бути пізніше часу початку"
+
     modals:
       service:
         title: "Оберіть основні послуги"
@@ -46,6 +49,11 @@ uk:
         title: "Оберіть засоби догляду"
         search: "Пошук засобу"
         apply: "Застосувати"
+
+    messages:
+      created: "Запис успішно створено."
+      updated: "Запис успішно оновлено."
+      deleted: "Запис видалено."
 
     calendar_view:
       available: "Доступно"
@@ -130,3 +138,23 @@ uk:
     clear: "Очистити"
     all: "Все"
     are_you_sure: "Ви впевнені?"
+
+  activerecord:
+    errors:
+      models:
+        appointment:
+          attributes:
+            client_name:
+              blank: "Вкажіть ім'я клієнта"
+            phone:
+              blank: "Вкажіть номер телефону"
+            appointment_date:
+              blank: "Оберіть дату"
+            appointment_time:
+              blank: "Вкажіть час початку"
+              time_conflict: "Цей час уже зайнятий"
+              invalid_interval: "Оберіть час із кроком 5 хвилин"
+            end_time:
+              blank: "Вкажіть час завершення"
+              invalid: "Час завершення має бути пізніше часу початку"
+              invalid_interval: "Оберіть час із кроком 5 хвилин"

@@ -1,3 +1,4 @@
+
 en:
   appointments:
     title: "Appointments"
@@ -31,6 +32,8 @@ en:
       save: "Save"
       slots: "Available Time"
 
+      end_time_error: "End time must be later than start time"
+
     modals:
       service:
         title: "Select main services"
@@ -46,6 +49,11 @@ en:
         title: "Select care products"
         search: "Search care product"
         apply: "Apply"
+
+    messages:
+      created: "Appointment created successfully."
+      updated: "Appointment updated successfully."
+      deleted: "Appointment deleted."
 
     calendar_view:
       available: "Available"
@@ -72,7 +80,7 @@ en:
     show:
       title: "Appointment Details"
       client: "Client"
-      service: "Services"
+      service: "Service"
       date: "Date"
       time: "Time"
       notes: "Notes"
@@ -128,3 +136,23 @@ en:
     clear: "Clear"
     all: "All"
     are_you_sure: "Are you sure?"
+
+  activerecord:
+    errors:
+      models:
+        appointment:
+          attributes:
+            client_name:
+              blank: "Enter the client's name"
+            phone:
+              blank: "Enter a phone number"
+            appointment_date:
+              blank: "Select a date"
+            appointment_time:
+              blank: "Select a start time"
+              time_conflict: "This time slot is already taken"
+              invalid_interval: "Select a time in 5-minute intervals"
+            end_time:
+              blank: "Enter an end time"
+              invalid: "End time must be later than start time"
+              invalid_interval: "Select a time in 5-minute intervals"

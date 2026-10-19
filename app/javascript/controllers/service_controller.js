@@ -6,6 +6,7 @@ export default class extends Controller {
   static values = {
     categories: Object,
     subtypes: Object,
+    existingSubtypes: Object,
     addLabel: String,
     saveLabel: String,
     formulaFilters: Boolean,
@@ -108,21 +109,23 @@ export default class extends Controller {
   updateSubtypeOptions() {
     if (!this.hasCategorySelectTarget) return
 
-    const input = this.categorySelectTarget.value.trim()
-    const key = this.normalizeCategory(input)
     const datalist = this.element.querySelector("#subtypes")
-
     if (!datalist) return
 
-    datalist.innerHTML = ""
+    const category = this.categorySelectTarget.value.trim()
+    const key = this.normalizeCategory(category)
 
-    if (!key) return
+    const defaultSubtypes = key ? (this.subtypesValue[key] || []) : []
 
-    const values = this.subtypesValue[key] || []
+    const existingSubtypes = this.existingSubtypesValue[key || category] || []
 
-    values.forEach(type => {
+    const subtypes = [...new Set([...defaultSubtypes, ...existingSubtypes])]
+
+    datalist.replaceChildren()
+
+    subtypes.forEach(subtype => {
       const option = document.createElement("option")
-      option.value = type
+      option.value = subtype
       datalist.appendChild(option)
     })
   }
@@ -132,9 +135,7 @@ export default class extends Controller {
     event.preventDefault()
 
     this.formulaCategory = event.currentTarget.dataset.formulaCategory
-
     this.updateFormulaAddButton()
-
     this.selectedFormulaBrands = []
     this.selectedFormulaConcentrations = []
 

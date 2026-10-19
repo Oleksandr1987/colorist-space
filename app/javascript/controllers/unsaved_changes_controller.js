@@ -7,18 +7,19 @@ export default class extends Controller {
 
   static values = {
     streamSave: { type: Boolean, default: false },
-    backUrl: String
+    backUrl: String,
+    initialDirty: { type: Boolean, default: false }
   }
 
   connect() {
     this.initialState = this.formState()
-    this.isDirty = false
+    this.isDirty = this.initialDirtyValue
     this.isSubmitting = false
     this.isLeaving = false
     this.pendingUrl = null
     this.pendingHistory = false
     this.saveBeforeLeaving = false
-    this.externalDirty = false
+    this.externalDirty = this.initialDirtyValue
 
     this.onChange = this.handleChange.bind(this)
     this.onNavigation = this.handleNavigation.bind(this)
@@ -89,6 +90,8 @@ export default class extends Controller {
   }
 
   shouldBlock() {
+    this.handleChange()
+
     return this.isDirty && !this.isSubmitting && !this.isLeaving
   }
 
@@ -99,11 +102,15 @@ export default class extends Controller {
     const link = event.target.closest("a[href]")
     if (!link || link.hasAttribute("download") || link.target === "_blank") return
     if (link.dataset.turboMethod || link.dataset.turboConfirm) return
-    if (link.dataset.unsavedChangesIgnore === "true") return
 
     const url = new URL(link.href, window.location.href)
     if (!["http:", "https:"].includes(url.protocol) || url.origin !== window.location.origin) return
     if (url.href === window.location.href) return
+
+    if (link.dataset.unsavedChangesIgnore === "true") {
+      this.isLeaving = true
+      return
+    }
 
     event.preventDefault()
     event.stopPropagation()

@@ -58,6 +58,30 @@ class ClientsController < ApplicationController
     redirect_to clients_path, notice: t("clients.messages.archived")
   end
 
+  def duplicates
+    term = params[:term].to_s.strip
+
+    if term.length < 2
+      return render json: { clients: [], total_count: 0 }
+    end
+
+    scope = current_user.clients.active.matching_name_parts(params[:term])
+
+    clients = scope.alphabetical.limit(50).select(:id, :first_name, :last_name, :phone)
+
+    render json: {
+      clients: clients.map do |client|
+        {
+          id: client.id,
+          name: client.full_name,
+          phone: client.phone,
+          url: client_path(client)
+        }
+      end,
+      total_count: scope.count
+    }
+  end
+
   def autocomplete
     clients = current_user.clients.active.search_by_name(params[:term])
 

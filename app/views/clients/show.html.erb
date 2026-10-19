@@ -17,11 +17,11 @@
         <%= @client.full_name %>
       </h1>
 
-      <% if @style_appointments.any? %>
-        <%= link_to calendar_appointments_path(client_id: @client.id), class: "button small new-appointment-button", data: { turbo: false } do %>
-          <span> + </span>
-        <% end %>
+      <% unless @client.archived? %>
+      <%= link_to calendar_appointments_path(client_id: @client.id), class: "new-appointment-button", data: { turbo: false }, aria: { label: t("clients.show.new_appointment") } do %>
+        <span aria-hidden="true">+</span>
       <% end %>
+    <% end %>
     </div>
 
     <div class="client-header-details">

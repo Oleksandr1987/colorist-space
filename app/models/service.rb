@@ -69,6 +69,23 @@ class Service < ApplicationRecord
         I18n.t("services.categories.#{key}").casecmp?(category)
       end || category
     end
+
+    def category_label(category)
+      return category if category.blank?
+      return category unless CATEGORIES.include?(category)
+
+      I18n.t("services.categories.#{category}")
+    end
+
+    def subtypes_for_user(user)
+      for_user(user)
+        .appointment_services
+        .with_category
+        .where.not(subtype: [ nil, "" ])
+        .pluck(:category, :subtype)
+        .group_by(&:first)
+        .transform_values { |items| items.map(&:last).uniq.sort }
+    end
   end
 
   private
