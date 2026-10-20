@@ -1,3 +1,4 @@
 uk:
-  messages:
-   deleted: "Дані про запис видалено"
+  service_notes:
+    messages:
+      deleted: "Дані про запис видалено"

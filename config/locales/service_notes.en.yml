@@ -1,4 +1,5 @@
 en:
-  messages:
-   deleted: "Service note deleted"
+  service_notes:
+    messages:
+      deleted: "Service note deleted"
 

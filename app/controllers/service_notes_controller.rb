@@ -104,9 +104,14 @@ class ServiceNotesController < ApplicationController
   end
 
   def destroy
-    @service_note.destroy!
+    ServiceNote.transaction do
+      CareProducts::CancelServiceNoteSales.new(service_note: @service_note).call
 
-    redirect_to(client_path(@client), notice: t("service_notes.messages.deleted"))
+      @service_note.destroy!
+    end
+
+    redirect_to client_path(@client),
+      notice: t("service_notes.messages.deleted")
   end
 
   def main_photo
