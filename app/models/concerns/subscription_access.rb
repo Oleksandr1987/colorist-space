@@ -33,7 +33,11 @@ module SubscriptionAccess
   private
 
   def initialize_subscription
-    create_subscription!(source: "wayforpay", plan: "trial", status: "trialing",
-      trial_ends_at: created_at + 7.days)
+    create_subscription!(
+      source: "wayforpay",
+      plan: "trial",
+      status: "trialing",
+      trial_ends_at: created_at + 168.hours
+    )
   end
 end

@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe User do
+  include ActiveSupport::Testing::TimeHelpers
+
   describe "associations" do
     it { is_expected.to have_many(:clients).dependent(:destroy) }
     it { is_expected.to have_many(:appointments).dependent(:destroy) }
@@ -37,9 +39,7 @@ RSpec.describe User do
   end
 
   describe ".find_for_database_authentication" do
-    let!(:user) do
-      FactoryBot.create(:user, email: "test@example.com", phone: "+380501234567")
-    end
+    let!(:user) { FactoryBot.create(:user, email: "test@example.com", phone: "+380501234567") }
 
     it "finds user by email (case insensitive)" do
       result = described_class.find_for_database_authentication(login: "TEST@EXAMPLE.COM")
@@ -73,17 +73,13 @@ RSpec.describe User do
 
   describe ".from_omniauth" do
     let(:auth) do
-      OmniAuth::AuthHash.new(
-        provider: "google_oauth2",
-        uid: "123456",
+      OmniAuth::AuthHash.new(provider: "google_oauth2", uid: "123456",
         info: { email: "oauth@example.com", name: "OAuth User", phone: "+380991112233" }
       )
     end
 
     context "when user with email exists" do
-      let!(:existing_user) do
-        FactoryBot.create(:user, email: "oauth@example.com", tos_agreement: true)
-      end
+      let!(:existing_user) { FactoryBot.create(:user, email: "oauth@example.com", tos_agreement: true) }
 
       it "returns existing user" do
         user = described_class.from_omniauth(auth)
@@ -154,20 +150,18 @@ RSpec.describe User do
   end
 
   describe "#trial_days_left" do
-    subject(:user) do
-      FactoryBot.create(:user, created_at: 2.days.ago)
-    end
-
     it "returns remaining trial days" do
-      expect(user.trial_days_left).to eq(5)
+      travel_to Time.zone.local(2026, 10, 20, 12, 0, 0) do
+        user = create(:user, created_at: 2.days.ago)
+
+        expect(user.trial_days_left).to eq(5)
+      end
     end
 
     context "when trial already expired" do
-      subject(:user) do
-        FactoryBot.create(:user, created_at: 20.days.ago)
-      end
-
       it "returns 0" do
+        user = create(:user, created_at: 20.days.ago)
+
         expect(user.trial_days_left).to eq(0)
       end
     end
