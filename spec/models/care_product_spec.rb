@@ -59,6 +59,21 @@ RSpec.describe CareProduct do
     end
   end
 
+  describe ".categories_for_user" do
+    let(:user) { create(:user) }
+    let(:other_user) { create(:user) }
+
+    it "includes default and custom categories of the current user" do
+      create(:care_product, user: user, category: "TEST")
+      create(:care_product, user: other_user, category: "OTHER")
+
+      categories = described_class.categories_for_user(user)
+
+      expect(categories).to include(*described_class::CATEGORIES, "TEST")
+      expect(categories).not_to include("OTHER")
+    end
+  end
+
   describe "#active?" do
     it "returns true for active product" do
       expect(build(:care_product, archived_at: nil, deleted_at: nil)).to be_active

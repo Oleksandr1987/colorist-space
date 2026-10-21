@@ -34,7 +34,7 @@ RSpec.describe CareProducts::CancelServiceNoteSales do
       expect(movement.adjustment_reason).to eq("service_note_cancel")
       expect(movement.quantity).to eq(3)
       expect(movement.unit_cost).to eq(60)
-      expect(movement.occurred_on).to eq(appointment.appointment_date)
+      expect(movement.occurred_on).to eq(Date.current)
       expect(movement.stock_after).to eq(care_product.reload.stock_quantity)
     end
 
@@ -115,9 +115,7 @@ RSpec.describe CareProducts::CancelServiceNoteSales do
 
         stock_movements = service_note.user.care_product_stock_movements
 
-        allow(stock_movements)
-          .to receive(:create!)
-          .and_raise(ActiveRecord::RecordInvalid)
+        allow(stock_movements).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
       end
 
       it "raises an error" do

@@ -15,7 +15,10 @@
 
       <% if care_product.category.present? %>
         <div class="service-category">
-          <%= t("care_products.categories.#{care_product.category}", default: care_product.category) %>
+          <%= t(
+                "care_products.categories.#{care_product.category}",
+                default: care_product.category
+              ) %>
         </div>
       <% end %>
 
@@ -41,28 +44,38 @@
 
     <div class="care-product-actions">
       <% if care_product.stock_quantity.to_i.positive? %>
-        <%= link_to new_care_product_sale_path(care_product), class: "care-product-action-button" do %>
+        <%= link_to new_care_product_sale_path(care_product),
+                    class: "care-product-action-button" do %>
           <%= t("care_products.sale.action") %>
         <% end %>
       <% else %>
-        <span class="care-product-action-button disabled" aria-disabled="true">
-          <%= t("care_products.sale.action") %>
-        </span>
+        <%= button_to archive_care_product_path(care_product),
+                      method: :patch,
+                      class: "care-product-action-button" do %>
+          <%= t("care_products.archive.action") %>
+        <% end %>
       <% end %>
 
-      <%= link_to restock_care_product_path(care_product), class: "care-product-action-button" do %>
+      <%= link_to restock_care_product_path(care_product),
+                  class: "care-product-action-button" do %>
         <%= t("care_products.restock.action") %>
       <% end %>
 
-      <%= link_to adjust_stock_care_product_path(care_product), class: "care-product-action-button" do %>
+      <%= link_to adjust_stock_care_product_path(care_product),
+                  class: "care-product-action-button" do %>
         <%= t("care_products.adjustment.action") %>
       <% end %>
 
       <% if care_product.stock_quantity.to_i.zero? %>
-        <%= button_to archive_care_product_path(care_product),
-          method: :patch,
-          class: "care-product-action-button" do %>
-          <%= t("care_products.archive.action") %>
+        <%= button_to care_product_path(care_product),
+                      method: :delete,
+                      class: "care-product-action-button care-product-delete-button",
+                      form: {
+                        data: {
+                          turbo_confirm: t("care_products.confirm_delete")
+                        }
+                      } do %>
+          <%= t("common.delete") %>
         <% end %>
       <% end %>
     </div>
@@ -75,16 +88,14 @@
   </div>
 
   <div class="service-actions">
-    <%= link_to edit_care_product_path(care_product), class: "icon-button", aria: { label: t("common.edit") } do %>
-      <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.edit") %>
-    <% end %>
-
-    <% if care_product.stock_quantity.to_i.zero? %>
-      <%= button_to care_product_path(care_product),
-        method: :delete, class: "icon-button delete-button", aria: { label: t("common.delete") },
-        form: { data: { turbo_confirm: t("care_products.confirm_delete") } } do %>
-        <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.delete") %>
-      <% end %>
+    <%= link_to edit_care_product_path(care_product),
+                class: "icon-button",
+                aria: { label: t("common.edit") } do %>
+      <%= image_tag "pencil.png",
+                    class: "wiz-icon",
+                    width: 16,
+                    height: 16,
+                    alt: t("common.edit") %>
     <% end %>
   </div>
 </div>

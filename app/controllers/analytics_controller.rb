@@ -49,7 +49,6 @@ class AnalyticsController < ApplicationController
       )
 
     @grouped_income = summary.grouped_service_income
-    @income_service_notes = summary.service_notes
 
     @formula_income = summary.formula_income
     @care_products_income = summary.care_products_income

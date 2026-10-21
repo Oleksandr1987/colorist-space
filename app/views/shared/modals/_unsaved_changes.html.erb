@@ -1,0 +1,23 @@
+
+<div class="unsaved-modal hidden" data-unsaved-changes-target="modal">
+  <div class="unsaved-modal-backdrop"></div>
+
+  <div class="unsaved-modal-card" role="dialog" aria-modal="true" aria-labelledby="unsaved-changes-title">
+    <h3 id="unsaved-changes-title"><%= t("common.unsaved_changes_title") %></h3>
+    <p><%= t("common.unsaved_changes_message") %></p>
+
+    <div class="unsaved-modal-actions">
+      <button type="button" class="button secondary" data-action="click->unsaved-changes#cancel">
+        <%= t("common.cancel") %>
+      </button>
+
+      <button type="button" class="button danger" data-action="click->unsaved-changes#discard">
+        <%= t("common.discard") %>
+      </button>
+
+      <button type="button" class="button primary" data-action="click->unsaved-changes#save">
+        <%= t("common.save") %>
+      </button>
+    </div>
+  </div>
+</div>

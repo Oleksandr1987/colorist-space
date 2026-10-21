@@ -1,3 +1,4 @@
+
 uk:
   appointments:
     title: "Записи"
@@ -7,6 +8,11 @@ uk:
     calendar: "Календар"
     back: "Назад до записів"
     nothing_selected: "Нічого не вибрано"
+
+    dashboard:
+      total: "Усього %{count}"
+      year: "%{count} у %{year}"
+      month: "%{count} у %{month}"
 
     form:
       client_name: "Ім'я клієнта"
@@ -26,19 +32,28 @@ uk:
       save: "Зберегти"
       slots: "Вільний час"
 
+      end_time_error: "Час завершення має бути пізніше часу початку"
+
     modals:
       service:
         title: "Оберіть основні послуги"
         search: "Пошук послуги"
         apply: "Застосувати"
+
       preparation:
         title: "Оберіть препарати"
         search: "Пошук препарату"
         apply: "Застосувати"
+
       care_product:
         title: "Оберіть засоби догляду"
         search: "Пошук засобу"
         apply: "Застосувати"
+
+    messages:
+      created: "Запис успішно створено."
+      updated: "Запис успішно оновлено."
+      deleted: "Запис видалено."
 
     calendar_view:
       available: "Доступно"
@@ -46,6 +61,7 @@ uk:
       header: "Записи та доступні слоти"
       today: "Сьогодні"
       available_slots: "Вільні слоти"
+
       days:
         sun: "Нд"
         mon: "Пн"
@@ -74,24 +90,43 @@ uk:
     index:
       new_appointment: "Новий запис"
       calendar: "Календар"
+
       records:
         one: "%{count} запис"
         few: "%{count} записи"
         many: "%{count} записів"
+        other: "%{count} запису"
 
     history:
       title: "Минулі записи"
+      empty: "Записів не знайдено"
+
       records:
         one: "%{count} запис"
         few: "%{count} записи"
         many: "%{count} записів"
+        other: "%{count} запису"
+
     filters:
+      title: "Фільтри"
       years: "Роки"
       services: "Сервіси"
       categories: "Категорії"
 
+    actions:
+      client: "Відкрити клієнта"
+      service_note: "Відкрити запис про послугу"
+      delete: "Видалити запис"
+
     slots:
       no_free_slots: "Немає вільного часу"
+
+  services:
+    categories:
+      coloring: "Фарбування"
+      haircut: "Стрижки"
+      styling: "Укладки"
+      treatment: "Догляд"
 
   common:
     save: "Зберегти"
@@ -100,4 +135,26 @@ uk:
     back: "Назад"
     apply: "Застосувати"
     search: "Пошук"
+    clear: "Очистити"
+    all: "Все"
     are_you_sure: "Ви впевнені?"
+
+  activerecord:
+    errors:
+      models:
+        appointment:
+          attributes:
+            client_name:
+              blank: "Вкажіть ім'я клієнта"
+            phone:
+              blank: "Вкажіть номер телефону"
+            appointment_date:
+              blank: "Оберіть дату"
+            appointment_time:
+              blank: "Вкажіть час початку"
+              time_conflict: "Цей час уже зайнятий"
+              invalid_interval: "Оберіть час із кроком 5 хвилин"
+            end_time:
+              blank: "Вкажіть час завершення"
+              invalid: "Час завершення має бути пізніше часу початку"
+              invalid_interval: "Оберіть час із кроком 5 хвилин"

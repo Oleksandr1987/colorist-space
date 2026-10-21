@@ -51,6 +51,38 @@ RSpec.describe Client do
 
       expect(Appointment.exists?(future_appointment.id)).to be(false)
     end
+
+    context "when a future appointment has care product sales" do
+      let(:product) { create(:care_product, user: user, stock_quantity: 10) }
+      let(:service_note) { create(:service_note, user: user, client: client, appointment: future_appointment) }
+
+      let!(:sale) do
+        CareProducts::Sell.new(
+          user: user,
+          care_product: product,
+          quantity: 2,
+          unit_price: product.sale_price,
+          sold_on: Date.current,
+          service_note: service_note
+        ).call
+      end
+
+      it "restores stock when archiving the client" do
+        expect { client.archive! }.to change { product.reload.stock_quantity }.from(8).to(10)
+      end
+
+      it "removes sales associated with future appointments" do
+        client.archive!
+
+        expect(CareProductSale.exists?(sale.id)).to be(false)
+      end
+
+      it "creates a cancellation stock movement" do
+        client.archive!
+
+        expect(product.stock_movements.where(adjustment_reason: "appointment_cancel").sum(:quantity)).to eq(2)
+      end
+    end
   end
 
   describe ".alphabetical" do
@@ -141,6 +173,46 @@ RSpec.describe Client do
 
     it "returns empty array when no photos" do
       expect(client.decorated_photos).to eq([])
+    end
+  end
+
+  describe ".find_existing" do
+    let(:user) { create(:user) }
+
+    let!(:client) do
+      create(:client, user: user, first_name: "Amelia", last_name: "Demo", archived_at: 1.day.ago)
+    end
+
+    it "finds an archived client by normalized full name" do
+      result = described_class.find_existing(user: user, first_name: "Demo Amelia", last_name: "", phone: "+380333333333")
+
+      expect(result).to eq(client)
+    end
+
+    it "finds an archived client regardless of case" do
+      result = described_class.find_existing(user: user, first_name: "AMELIA DEMO", last_name: "", phone: "+380333333333")
+
+      expect(result).to eq(client)
+    end
+  end
+
+  describe ".normalized_full_name" do
+    it "normalizes case and whitespace" do
+      result = described_class.normalized_full_name("  AMELIA  ", " Demo ")
+
+      expect(result).to eq("amelia demo")
+    end
+
+    it "normalizes names entered in one field" do
+      result = described_class.normalized_full_name("Amelia Demo", "")
+
+      expect(result).to eq("amelia demo")
+    end
+
+    it "ignores the order of name parts" do
+      result = described_class.normalized_full_name("Demo Amelia", "")
+
+      expect(result).to eq("amelia demo")
     end
   end
 

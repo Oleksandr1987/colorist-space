@@ -22,7 +22,6 @@ export default class extends Controller {
   disconnect() {
     this.element.removeEventListener("input", this.handleAmountInput)
     window.removeEventListener("formula:firstStepFilled", this.showAddStepHandler)
-    window.removeEventListener("service-note:saved", this.savedHandler)
   }
 
   // ---------------- COLOR SUM ----------------
@@ -103,6 +102,8 @@ export default class extends Controller {
     }
 
     this.updateStepNumbers()
+    window.dispatchEvent(new CustomEvent("formula:changed"))
+
     this.containerTarget.classList.remove("hidden")
   }
 
@@ -155,6 +156,7 @@ export default class extends Controller {
         empty.classList.remove("hidden")
       }
     }
+    window.dispatchEvent(new CustomEvent("formula:changed"))
   }
 
   openColorModal(event) {
@@ -180,6 +182,7 @@ export default class extends Controller {
     list.insertAdjacentHTML("beforeend", html)
 
     this.dispatchColorAmount(card)
+    window.dispatchEvent(new CustomEvent("formula:changed"))
    }
 
   removeColor(event) {

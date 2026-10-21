@@ -1,5 +1,7 @@
 <% service_prices = @appointment.appointment_services_relations.pluck(:service_id, :price).to_h %>
-<div class="appointment-container">
+<div class="appointment-container" data-controller="unsaved-changes"
+                                   data-unsaved-changes-back-url-value="<%= calendar_appointments_path %>"
+                                   data-unsaved-changes-initial-dirty-value="<%= @appointment.errors.any? %>">
   <%= form_with model: @appointment, local: true,
       data: {
         controller: "calendar appointment service-selector",
@@ -10,13 +12,14 @@
         service_selector_checkbox_name_value: "appointment[modal_dummy][]",
         service_selector_placeholder_class_value: "add-service-placeholder",
         service_selector_close_icon_value: asset_path("close.png"),
-        service_selector_prices_value: service_prices.to_json
+        service_selector_prices_value: service_prices.to_json,
+        unsaved_changes_target: "form"
       } do |f| %>
     <div class="appointment-header">
       <div class="appointment-header-left">
-        <%= link_to calendar_appointments_path, class: "back-link inline" do %>
-          <%= image_tag "back.png", class: "wiz-icon", width: 24,height: 24 %>
-        <% end %>
+        <button type="button" class="back-link inline" aria-label="<%= t('wizard.back') %>" data-action="click->unsaved-changes#close">
+          <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
+        </button>
         <h2>
           <%= @appointment.new_record? ? t("appointments.new") : t("appointments.edit") %>
         </h2>
@@ -33,7 +36,7 @@
         <span class="required-asterisk">*</span>
       </label>
       <%= text_field_tag "appointment[client_name]",
-        @appointment.client&.full_name || "",
+        @appointment.client_name,
         class: "form-input client-name-input",
         placeholder: t("appointments.form.client_name_placeholder"),
         data: {"calendar-target": "clientName",
@@ -42,9 +45,9 @@
         list: "client-list",
         autocomplete: "off" %>
 
-      <% @appointment.errors.full_messages_for(:client_name).each do |message| %>
-        <div class="inline-error">
-          <%= message %>
+      <% @appointment.errors.where(:client_name).each do |error| %>
+        <div class="inline-error" role="alert">
+          <%= error.message %>
         </div>
       <% end %>
 
@@ -67,7 +70,7 @@
 
      <div class="phone-input-wrapper">
       <%= telephone_field_tag "appointment[phone]",
-            @appointment.client&.phone || "",
+            @appointment.phone.presence || @appointment.client&.phone,
             class: "form-input",
             autocomplete: "tel",
             data: {
@@ -76,9 +79,9 @@
             } %>
     </div>
 
-      <% @appointment.errors.full_messages_for(:phone).each do |message| %>
-        <div class="inline-error">
-          <%= message %>
+      <% @appointment.errors.where(:phone).each do |error| %>
+        <div class="inline-error" role="alert">
+          <%= error.message %>
         </div>
       <% end %>
     </div>
@@ -100,49 +103,57 @@
             min: Date.current.strftime("%Y-%m-%d")
           } %>
 
-      <% @appointment.errors.full_messages_for(:appointment_date).each do |message| %>
-        <div class="inline-error">
-          <%= message %>
+      <% @appointment.errors.where(:appointment_date).each do |error| %>
+        <div class="inline-error" role="alert">
+          <%= error.message %>
         </div>
       <% end %>
     </div>
     <!-- Start / End Time -->
-    <div class="form-section double">
-      <div>
-        <%= f.label :appointment_time, t("appointments.form.start_time") %>
-        <span class="required-asterisk">*</span>
+    <div class="form-section double appointment-time-fields">
+      <div class="appointment-time-field">
+        <%= f.label :appointment_time, class: "appointment-time-label" do %>
+          <%= t("appointments.form.start_time") %>
+          <span class="required-asterisk">*</span>
+        <% end %>
+
         <%= f.time_field :appointment_time, step: 300, class: "form-input",
           data: {
             appointment_target: "appointmentTime",
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
 
-        <% @appointment.errors.full_messages_for(:appointment_time).each do |message| %>
-          <div class="inline-error">
-            <%= message %>
+        <% @appointment.errors.where(:appointment_time).each do |error| %>
+          <div class="inline-error" role="alert">
+            <%= error.message %>
           </div>
         <% end %>
       </div>
 
-      <div>
-        <%= f.label :end_time, t("appointments.form.end_time") %>
-        <span class="required-asterisk">*</span>
+      <div class="appointment-time-field">
+        <%= f.label :end_time, class: "appointment-time-label" do %>
+          <%= t("appointments.form.end_time") %>
+          <span class="required-asterisk">*</span>
+        <% end %>
+
         <%= f.time_field :end_time, step: 300, class: "form-input",
           data: {
             appointment_target: "endTime",
             action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
           } %>
 
-        <% @appointment.errors.full_messages_for(:end_time).each do |message| %>
-          <div class="inline-error">
-            <%= message %>
+        <% @appointment.errors.where(:end_time).each do |error| %>
+          <div class="inline-error" role="alert">
+            <%= error.message %>
           </div>
         <% end %>
+
         <div data-appointment-target="timeError" class="inline-error hidden">
-          <%= t("appointments.form.end_time_error", default: "Час завершення має бути пізніше часу початку") %>
+          <%= t("appointments.form.end_time_error") %>
         </div>
       </div>
     </div>
+
     <div class="appointment-slots" data-appointment-target="slots">
       <div class="appointment-slots-title">
         <%= t("appointments.form.slots") %>
@@ -166,4 +177,6 @@
     <!-- Modals -->
     <%= render("shared/modals/service_selector", checkbox_name: "appointment[modal_dummy][]") %>
   <% end %>
+
+  <%= render "shared/modals/unsaved_changes" %>
 </div>

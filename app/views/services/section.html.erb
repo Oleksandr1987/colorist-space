@@ -9,10 +9,9 @@
       <h2><%= @translated_category %></h2>
     </div>
 
-    <%= link_to new_service_path(service_type: "service", category: @category),
-        class: "service-header-icon",
-        aria: { label: t("services.pages.new_item", item: @translated_category) } do %>
-      <%= image_tag "plus.png", class: "wiz-icon", width: 24, height: 24 %>
+    <%= link_to new_service_path(service_type: "service", category: @category), class: "service-header-icon",
+                aria: {label: t("services.pages.new_by_category.#{@category}", default: t("services.pages.new_service")) } do %>
+      <%= image_tag "plus.png", class: "wiz-icon", width: 24, height: 24, alt: "" %>
     <% end %>
   </div>
 
@@ -20,7 +19,7 @@
   <div class="service-section-search">
     <input type="search"
            class="form-input"
-           placeholder="<%= t('services.menu.search_placeholder') %>"
+           placeholder="<%= t("services.menu.search_placeholder") %>"
            autocomplete="off"
            data-service-target="search"
            data-action="input->service#filter">

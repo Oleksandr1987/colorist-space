@@ -149,17 +149,19 @@ RSpec.describe "Appointments" do
     end
 
     it "creates appointment" do
-      expect {
-        post appointments_path, params: params
-      }.to change(user.appointments, :count).by(1)
+      expect { post appointments_path, params: params }.to change(user.appointments, :count).by(1)
 
       expect(response).to redirect_to(appointment_url(Appointment.last, locale: I18n.locale))
     end
 
-    it "handles missing end_time during create" do
-      post appointments_path, params: params
+    it "sets default end_time when missing during create" do
+      expect { post appointments_path, params: params }.to change(user.appointments, :count).by(1)
 
-      expect(response).to redirect_to(appointment_url(Appointment.last, locale: I18n.locale))
+      created_appointment = user.appointments.order(:id).last
+
+      expect(created_appointment.appointment_time.strftime("%H:%M")).to eq("10:00")
+      expect(created_appointment.end_time.strftime("%H:%M")).to eq("10:30")
+      expect(response).to redirect_to(appointment_url(created_appointment, locale: I18n.locale))
     end
 
     it "returns bad request when appointment params missing" do

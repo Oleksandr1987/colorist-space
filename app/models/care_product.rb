@@ -30,6 +30,22 @@ class CareProduct < ApplicationRecord
   scope :archived, -> { where.not(archived_at: nil).where(deleted_at: nil) }
   scope :deleted, -> { where.not(deleted_at: nil) }
 
+  def self.categories_for_user(user)
+    custom_categories = user.care_products
+      .active
+      .where.not(category: [ nil, "" ])
+      .distinct
+      .pluck(:category)
+
+    (CATEGORIES + custom_categories).uniq.sort
+  end
+
+def self.category_label(category)
+  return category unless CATEGORIES.include?(category)
+
+  I18n.t("care_products.categories.#{category}", default: category)
+end
+
   def archived?
     archived_at.present?
   end

@@ -31,12 +31,18 @@ class AppointmentsController < ApplicationController
     appointment_data = params.require(:appointment)
 
     @appointment = current_user.appointments.build(appointment_params.except(:service_ids))
+    @appointment.client_name = appointment_data[:client_name].to_s.strip
 
-    @appointment.client_name = appointment_data[:client_name]
-    @appointment.phone = appointment_data[:phone]
+    raw_phone = appointment_data[:phone].to_s
+    @appointment.phone = PhoneValidator.normalize(raw_phone)
 
-    @appointment.errors.add(:client_name, :blank) if appointment_data[:client_name].blank?
-    @appointment.errors.add(:phone, :blank) if appointment_data[:phone].blank?
+    @appointment.errors.add(:client_name, :blank) if @appointment.client_name.blank?
+
+    if raw_phone.gsub(/\D/, "").length <= 3
+      @appointment.errors.add(:phone, :blank)
+    end
+
+    @appointment.errors.add(:appointment_time, :blank) if @appointment.appointment_time.blank?
 
     if @appointment.errors.any?
       render :new, status: :unprocessable_content
@@ -45,20 +51,25 @@ class AppointmentsController < ApplicationController
 
     service_ids = Array(appointment_data[:service_ids]).compact_blank.map(&:to_i)
 
-    @appointment.client = Client.resolve_for_appointment(
-      user: current_user,
-      full_name: appointment_data[:client_name],
-      phone: appointment_data[:phone]
-    )
-
     Appointment.transaction do
+      @appointment.client = Client.resolve_for_appointment(
+        user: current_user,
+        full_name: @appointment.client_name,
+        phone: @appointment.phone
+      )
+
       @appointment.save!
       @appointment.sync_services_with_prices!(service_ids)
     end
 
-    redirect_to @appointment
+    redirect_to @appointment, notice: t("appointments.messages.created")
+  rescue ActiveRecord::RecordInvalid => error
+    if error.record == @appointment
+      @appointment.errors.add(:base, error.message) if @appointment.errors.empty?
+    else
+      @appointment.errors.add(:phone, :invalid_phone)
+    end
 
-  rescue ActiveRecord::RecordInvalid
     render :new, status: :unprocessable_content
   end
 
@@ -96,15 +107,16 @@ class AppointmentsController < ApplicationController
       @appointment.sync_services_with_prices!(service_ids) if service_ids
     end
 
-    redirect_to @appointment, notice: "Appointment was successfully updated."
+    redirect_to @appointment, notice: t("appointments.messages.updated")
 
   rescue ActiveRecord::RecordInvalid
     render :edit, status: :unprocessable_content
   end
 
   def destroy
-    @appointment.destroy
-    redirect_to calendar_appointments_path, notice: "Appointment was successfully deleted."
+    Appointments::Destroy.new(appointment: @appointment).call
+
+    redirect_to calendar_appointments_path, notice: t("appointments.messages.deleted")
   end
 
   def all

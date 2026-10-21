@@ -1,7 +1,7 @@
 <% service_prices = @appointment.appointment_services_relations.pluck(:service_id, :price).to_h %>
 
 <div class="wizard-screen"
-     data-controller="wizard service-selector"
+     data-controller="wizard service-selector unsaved-changes"
      data-service-selector-prices-value="<%= service_prices.to_json %>"
      data-service-selector-input-name-value="service_note[service_ids][]"
      data-service-selector-checkbox-name-value="service_note[modal_dummy][]"
@@ -20,15 +20,9 @@
      data-wizard-next-label-value="<%= t('wizard.next') %>"
      data-wizard-save-label-value="<%= t('common.save') %>"
 
-     data-wizard-unsaved-title-value="<%= t('common.unsaved_changes_title') %>"
-     data-wizard-unsaved-message-value="<%= t('common.unsaved_changes_message') %>"
-     data-wizard-discard-label-value="<%= t('common.discard') %>"
-     data-wizard-cancel-label-value="<%= t('common.cancel') %>">
-  <%= form_with(
-      model: [@client, @service_note],
-      html: { multipart: true },
-      data: { action: "turbo:submit-end->wizard#submitEnd" }
-    ) do |f| %>
+     data-unsaved-changes-stream-save-value="true"
+     data-unsaved-changes-back-url-value="<%= client_path(@client) %>">
+  <%= form_with(model: [@client, @service_note], html: { multipart: true }, data: { unsaved_changes_target: "form" }) do |f| %>
 
     <% if @service_note.errors.any? %>
       <div class="form-errors">
@@ -43,7 +37,7 @@
     <%= hidden_field_tag :appointment_id, params[:appointment_id] %>
     <!-- TOP BAR -->
     <div class="wizard-top">
-      <button type="button" data-action="click->wizard#close">
+      <button type="button" data-action="click->unsaved-changes#close">
         <%= image_tag "close.png", class: "wiz-icon-close" %>
       </button>
       <span data-wizard-target="title"><%= t("wizard.services") %></span>
@@ -127,26 +121,5 @@
     <%= render "service_notes/care_products_modal" %>
   <% end %>
 
-  <div class="unsaved-modal hidden" data-wizard-target="unsavedModal">
-    <div class="unsaved-modal-backdrop"></div>
-
-    <div class="unsaved-modal-card">
-      <h3 data-wizard-target="unsavedTitle"></h3>
-      <p data-wizard-target="unsavedMessage"></p>
-
-      <div class="unsaved-modal-actions">
-        <button type="button" class="button secondary" data-action="click->wizard#cancelClose">
-          <%= t("common.cancel") %>
-        </button>
-
-        <button type="button" class="button danger" data-action="click->wizard#discardChanges">
-          <%= t("common.discard") %>
-        </button>
-
-        <button type="button" class="button primary" data-action="click->wizard#saveAndClose">
-          <%= t("common.save") %>
-        </button>
-      </div>
-    </div>
-  </div>
+  <%= render "shared/modals/unsaved_changes" %>
 </div>

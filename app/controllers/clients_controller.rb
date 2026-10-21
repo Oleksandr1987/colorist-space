@@ -17,8 +17,7 @@ class ClientsController < ApplicationController
   end
 
   def show
-    @past_appointments = @client.appointments.past.order(appointment_date: :desc)
-    @future_appointments = @client.appointments.future.order(:appointment_date)
+    @style_appointments = @client.style_appointments
   end
 
   def new
@@ -57,6 +56,30 @@ class ClientsController < ApplicationController
     @client.archive!
 
     redirect_to clients_path, notice: t("clients.messages.archived")
+  end
+
+  def duplicates
+    term = params[:term].to_s.strip
+
+    if term.length < 2
+      return render json: { clients: [], total_count: 0 }
+    end
+
+    scope = current_user.clients.active.matching_name_parts(params[:term])
+
+    clients = scope.alphabetical.limit(50).select(:id, :first_name, :last_name, :phone)
+
+    render json: {
+      clients: clients.map do |client|
+        {
+          id: client.id,
+          name: client.full_name,
+          phone: client.phone,
+          url: client_path(client)
+        }
+      end,
+      total_count: scope.count
+    }
   end
 
   def autocomplete
@@ -123,6 +146,7 @@ class ClientsController < ApplicationController
       :hair_structure,
       :hair_density,
       :scalp_condition,
+      :hair_damage_level,
       :note,
       photos: [],
       client_phones_attributes: %i[id phone _destroy]

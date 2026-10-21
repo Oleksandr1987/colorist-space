@@ -75,7 +75,14 @@ uk:
       service_management: "Керування послугами"
       categories: "Категорії послуг"
       new_service: "Нова послуга"
-      new_item: "Новий %{item}"
+      new_category: "Нова категорія"
+
+      new_by_category:
+        haircut: "Нова стрижка"
+        coloring: "Нове фарбування"
+        styling: "Нове укладання"
+        treatment: "Нове лікування"
+
       back: "←"
       search: "Пошук..."
 

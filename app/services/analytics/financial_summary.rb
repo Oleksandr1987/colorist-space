@@ -5,7 +5,7 @@ module Analytics
     end
 
     def formula_income
-      @formula_income ||= period_service_notes.sum(&:formula_ingredients_total_price)
+      @formula_income ||= period_formula_charges.sum(:total)
     end
 
     def care_products_income

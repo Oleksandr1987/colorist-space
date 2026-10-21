@@ -148,10 +148,22 @@
       <!-- TIME -->
       <div class="formula-block">
         <div class="block-title">
-          <span><%= image_tag "time.png", class: "wiz-icon", width: 24, height: 24 %> <%= t("formula.time") %></span>
+          <span>
+            <%= image_tag "time.png", class: "wiz-icon", width: 24, height: 24 %>
+            <%= t("formula.time") %>
+          </span>
+
           <div class="time-input">
-            <%= step_form.text_field :time, inputmode: "numeric", pattern: "[0-9]*", class: "input-line", placeholder: "" %>
-            <span class="time-unit"><%= t("formula.minutes") %></span>
+            <%= step_form.text_field :time,
+                value: step_form.object.time.to_i.zero? ? nil : step_form.object.time,
+                inputmode: "numeric",
+                pattern: "[0-9]*",
+                class: "input-line",
+                placeholder: "0" %>
+
+            <span class="time-unit">
+              <%= t("formula.minutes") %>
+            </span>
           </div>
         </div>
       </div>

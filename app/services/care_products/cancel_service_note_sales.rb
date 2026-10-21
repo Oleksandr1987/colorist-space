@@ -10,7 +10,7 @@ module CareProducts
 
     def call
       CareProduct.transaction do
-        service_note.care_product_sales.find_each do |sale|
+        service_note.care_product_sales.order(:care_product_id, :id).each do |sale|
           cancel_sale(sale)
         end
       end
@@ -32,7 +32,7 @@ module CareProducts
           quantity: sale.quantity,
           unit_cost: sale.unit_cost,
           stock_after: new_stock,
-          occurred_on: service_note.appointment_date
+          occurred_on: Date.current
         )
 
         product.update!(stock_quantity: new_stock)

@@ -24,6 +24,7 @@ module CareProducts
 
           sale = user.care_product_sales.create!(
             care_product: care_product,
+            appointment: service_note&.appointment,
             service_note: service_note,
             quantity: quantity,
             unit_price: unit_price,
@@ -33,6 +34,7 @@ module CareProducts
 
           movement = user.care_product_stock_movements.create!(
             care_product: care_product,
+            appointment: service_note&.appointment,
             service_note: service_note,
             movement_type: "sale",
             quantity: -quantity,

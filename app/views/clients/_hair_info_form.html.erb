@@ -1,23 +1,26 @@
 <div class="inline-editor" data-controller="inline-editor">
-  <!-- COLLAPSED -->
   <div class="collapse-section" data-inline-editor-target="collapsed">
     <button type="button" class="collapse-toggle" data-action="inline-editor#open">
       <span>
         <%= t("clients.form.hair_info_title") %>
       </span>
+
       <%= image_tag "plus.png", class: "add-icon" %>
     </button>
   </div>
-  <!-- EXPANDED -->
+
   <div class="inline-editor-panel hidden" data-inline-editor-target="expanded">
-    <div class="wizard-top">
-      <button type="button" data-action="inline-editor#close">
+
+    <div class="client-inline-editor-header">
+      <button type="button" class="client-inline-editor-close" data-action="inline-editor#close">
         <%= image_tag "close.png", class: "wiz-icon-close" %>
       </button>
-      <h3>
+
+      <h3 class="client-inline-editor-title">
         <%= t("clients.form.hair_info_title") %>
       </h3>
-      <button type="submit" class="appointment-save-button"><%= t("common.save").upcase %></button>
+
+      <div class="client-inline-editor-spacer"></div>
     </div>
 
     <div class="login__field">
@@ -70,6 +73,21 @@
           [t("clients.hair.density.dense"), "Dense"]
         ],
         { include_blank: t("clients.form.select_hair_density") },
+        class: "login__input" %>
+    </div>
+
+    <div class="login__field">
+      <%= f.label :hair_damage_level, t("clients.form.hair_damage_level") %>
+
+      <%= f.select :hair_damage_level,
+        [
+          [t("clients.hair.damage_levels.1"), 1],
+          [t("clients.hair.damage_levels.2"), 2],
+          [t("clients.hair.damage_levels.3"), 3],
+          [t("clients.hair.damage_levels.4"), 4],
+          [t("clients.hair.damage_levels.5"), 5]
+        ],
+        { include_blank: t("clients.form.select_hair_damage_level") },
         class: "login__input" %>
     </div>
 

@@ -5,14 +5,20 @@ class Appointment < ApplicationRecord
   attr_accessor :client_name, :phone
 
   has_many :appointment_services_relations, inverse_of: :appointment, dependent: :destroy
+  has_many :formula_charges, dependent: :destroy
+  has_many :care_product_sales, dependent: :destroy
+  has_many :care_product_stock_movements, dependent: :nullify
   has_many :services, through: :appointment_services_relations
   has_one :service_note, dependent: :destroy
-
-  validates :appointment_date, :appointment_time, presence: true
 
   validate :valid_end_time
   validate :no_time_conflicts
   validate :time_step_interval
+
+  validates :client, presence: true
+  validates :appointment_date, :appointment_time, presence: true
+  validates :end_time, presence: true
+
 
   before_validation :set_default_end_time, if: -> { appointment_time.present? && end_time.blank? }
   after_update :sync_service_note_client, if: :saved_change_to_client_id?
@@ -231,7 +237,7 @@ class Appointment < ApplicationRecord
   end
 
   def client_name
-    client&.full_name
+    @client_name.presence || client&.full_name
   end
 
   def sync_services_with_prices!(service_ids)
@@ -268,7 +274,7 @@ class Appointment < ApplicationRecord
   def valid_end_time
     return if appointment_time.blank? || end_time.blank?
     if end_time <= appointment_time
-      errors.add(:end_time, "must be later than start time")
+      errors.add(:end_time, :invalid)
     end
   end
 
@@ -280,12 +286,15 @@ class Appointment < ApplicationRecord
       .where.not(id: id)
       .where("appointment_time < ? AND end_time > ?", end_time, appointment_time)
 
-    errors.add(:appointment_time, "This time slot is already taken by another appointment.") if conflicts.exists?
+    errors.add(:appointment_time, :time_conflict) if conflicts.exists?
   end
 
   def time_step_interval
-    [ appointment_time, end_time ].compact.each do |time|
-      errors.add(:appointment_time, "must be in 5-minute intervals") unless time.min % 5 == 0
+    %i[appointment_time end_time].each do |attribute|
+      time = public_send(attribute)
+      next if time.blank? || time.min % 5 == 0
+
+      errors.add(attribute, :invalid_interval)
     end
   end
 
@@ -297,8 +306,7 @@ class Appointment < ApplicationRecord
   end
 
   def sync_service_note_notes
-    return unless service_note.present?
-
+    return unless service_note&.persisted?
     return if service_note.notes == notes
 
     service_note.update_column(:notes, notes)

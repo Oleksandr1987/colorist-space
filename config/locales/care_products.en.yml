@@ -117,6 +117,7 @@ en:
         data_correction: "Data correction"
         service_note_sync: "Sale adjustment"
         service_note_cancel: "Sale cancellation"
+        appointment_cancel: "Appointment cancel"
         other: "Other"
 
     archive:

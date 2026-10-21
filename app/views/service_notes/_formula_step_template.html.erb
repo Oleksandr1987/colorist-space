@@ -132,15 +132,24 @@
         <!-- TIME -->
         <div class="formula-block">
           <div class="block-title">
-            <span> <%= image_tag "time.png", class: "wiz-icon", width: 24, height: 24 %> <%= t("formula.time") %></span>
-          </div>
+            <span>
+              <%= image_tag "time.png", class: "wiz-icon", width: 24, height: 24 %>
+              <%= t("formula.time") %>
+            </span>
 
-          <input type="text"
-                inputmode="numeric"
-                pattern="[0-9]*"
-                name="service_note[formula_steps_attributes][NEW_RECORD][time]"
-                class="input-line"
-                value="0" />
+            <div class="time-input">
+              <input type="text"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    name="service_note[formula_steps_attributes][NEW_RECORD][time]"
+                    class="input-line"
+                    placeholder="0">
+
+              <span class="time-unit">
+                <%= t("formula.minutes") %>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -34,9 +34,9 @@
         <%= t("common.all") %>
       </button>
 
-      <% CareProduct::CATEGORIES.each do |category| %>
-        <button type="button" class="filter-button" data-category="<%= category %>" data-action="click->care-products-modal#filterCategory">
-          <%= category %>
+      <% CareProduct.categories_for_user(current_user).each do |category| %>
+        <button type="button" class="filter-button" data-category="<%= category.downcase %>" data-action="click->care-products-modal#filterCategory">
+          <%= CareProduct.category_label(category) %>
         </button>
       <% end %>
     </div>
