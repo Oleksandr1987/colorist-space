@@ -30,9 +30,7 @@ export default class extends Controller {
 
     window.dispatchEvent(
       new CustomEvent("developer:products-ready", {
-        detail: {
-          products: Object.fromEntries(this.productLookup)
-        }
+        detail: {products: Object.fromEntries(this.productLookup)}
       })
     )
   }
@@ -239,9 +237,7 @@ export default class extends Controller {
     this.manualOverride = false
     this.element
       .querySelectorAll(".dev-ratio button[data-ratio]")
-      .forEach(button => {
-        button.classList.remove("active")
-      })
+      .forEach(button => { button.classList.remove("active") })
 
     event.currentTarget.classList.add("active")
 
@@ -281,9 +277,7 @@ export default class extends Controller {
     this.manualOverride = false
     this.element
       .querySelectorAll(".dev-ratio button[data-ratio]")
-      .forEach(button => {
-        button.classList.remove("active")
-      })
+      .forEach(button => { button.classList.remove("active") })
 
     this.calculateAmount()
     this.enableSave()
@@ -340,8 +334,7 @@ export default class extends Controller {
       this.showCustomRatio({ focus: false })
 
       if (this.hasCustomInputTarget) {
-        this.customInputTarget.value =
-          ratio.split(":")[1] || ""
+        this.customInputTarget.value = ratio.split(":")[1] || ""
       }
     }
   }
@@ -351,9 +344,7 @@ export default class extends Controller {
     if (!this.hasAmountInputTarget) return 0
 
     if (this.manualOverride) {
-      return parseFloat(
-        this.amountInputTarget.value || 0
-      )
+      return parseFloat(this.amountInputTarget.value || 0)
     }
 
     if (!this.selectedRatio) {

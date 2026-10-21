@@ -191,8 +191,7 @@ export default class extends Controller {
 
   snapToItem(container, item) {
     container.scrollTo({
-      top: item.offsetTop - (container.clientHeight - item.offsetHeight) / 2,
-      behavior: "smooth"
+      top: item.offsetTop - (container.clientHeight - item.offsetHeight) / 2, behavior: "smooth"
     })
   }
 
@@ -215,7 +214,6 @@ export default class extends Controller {
 
   syncSelectionFromWheels() {
     const month = this.nearestItem(this.monthsTarget)
-
     if (month) {
       this.selectedMonth = month.dataset.month
     }
@@ -240,22 +238,17 @@ export default class extends Controller {
   highlightSelected() {
     this.monthsTarget
       .querySelectorAll(".birthday-wheel-item")
-      .forEach((item) => {
-        item.classList.toggle("active", item.dataset.month === this.selectedMonth)
-      })
+      .forEach((item) => { item.classList.toggle("active", item.dataset.month === this.selectedMonth) })
 
     this.daysTarget
       .querySelectorAll(".birthday-wheel-item")
-      .forEach((item) => {
-        item.classList.toggle("active", item.dataset.day === this.selectedDay)
-      })
+      .forEach((item) => { item.classList.toggle("active", item.dataset.day === this.selectedDay) })
   }
 
   updateDisplay() {
     const month = this.monthsTarget.querySelector(`[data-month="${this.selectedMonth}"]`)
     if (!month) return
 
-    this.displayTarget.value =
-      `${Number(this.selectedDay)} ${month.textContent.trim()}`
+    this.displayTarget.value = `${Number(this.selectedDay)} ${month.textContent.trim()}`
   }
 }

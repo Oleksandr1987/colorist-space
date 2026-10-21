@@ -5,6 +5,9 @@ import "litepicker"
 export default class extends Controller {
   connect() {
     const input = this.element
+
+    input.removeAttribute("data-unsaved-ready-datepicker")
+
     const form = input.closest("form")
     const originalName = input.getAttribute("name")
     const displayValue = input.value.trim()
@@ -40,7 +43,7 @@ export default class extends Controller {
         minYear: 2020,
         maxYear: new Date().getFullYear(),
         months: true,
-        years: true,
+        years: true
       },
 
       minDate: this.getMinDate(input),
@@ -56,11 +59,15 @@ export default class extends Controller {
 
           input.dispatchEvent(new CustomEvent("datepicker:selected", { bubbles: true }))
         })
-      },
+      }
     })
+
+    input.setAttribute("data-unsaved-ready-datepicker", "")
+    input.dispatchEvent(new CustomEvent("unsaved-changes:ready", { bubbles: true, detail: { controller: "datepicker" } }))
   }
 
   disconnect() {
+    this.element.removeAttribute("data-unsaved-ready-datepicker")
     this.picker?.destroy()
   }
 

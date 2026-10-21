@@ -62,7 +62,6 @@ export default class extends Controller {
     event?.preventDefault()
 
     this.modalTarget.classList.add("hidden")
-
     this.products = []
     this.sourceController = null
   }

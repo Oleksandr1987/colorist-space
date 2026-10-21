@@ -31,7 +31,6 @@ export default class extends Controller {
         this.openStep(existingStep)
 
         existingStep.scrollIntoView({behavior: "smooth", block: "center"})
-
         return
       }
 
@@ -43,7 +42,6 @@ export default class extends Controller {
       this.updateNumbers()
 
       window.dispatchEvent(new CustomEvent("wizard:changed"))
-
       return
     }
 
@@ -108,13 +106,9 @@ export default class extends Controller {
   }
 
   findStepByZone(zone) {
-    return Array.from(
-      this.containerTarget.querySelectorAll(".formula-step-wrapper")
-    ).find(wrapper => {
-      const zoneInput = wrapper.querySelector(
-        "input[name*='[zone]']"
-      )
-
+    return Array.from(this.containerTarget.querySelectorAll(".formula-step-wrapper"))
+    .find(wrapper => {
+      const zoneInput = wrapper.querySelector("input[name*='[zone]']")
       return zoneInput?.value === zone
     })
   }
@@ -137,13 +131,9 @@ export default class extends Controller {
 
     this.updateNumbers()
 
-    const activeSteps = Array.from(
-      this.containerTarget.querySelectorAll(
-        ".formula-step-wrapper"
-      )
-    ).filter(step => {
+    const activeSteps = Array.from(this.containerTarget.querySelectorAll(".formula-step-wrapper"))
+    .filter(step => {
       const destroy = step.querySelector(".destroy-field")
-
       return destroy?.value !== "1"
     })
 
@@ -155,13 +145,9 @@ export default class extends Controller {
   }
 
   updateNumbers() {
-    const activeSteps = Array.from(
-      this.containerTarget.querySelectorAll(
-        ".formula-step-wrapper"
-      )
-    ).filter(step => {
+    const activeSteps = Array.from(this.containerTarget.querySelectorAll(".formula-step-wrapper"))
+    .filter(step => {
       const destroyInput = step.querySelector(".destroy-field")
-
       return destroyInput?.value !== "1"
     })
 
@@ -173,26 +159,21 @@ export default class extends Controller {
       }
     })
 
-    this.element.querySelectorAll(
-      ".haircut-zones-grid .section-btn"
-    ).forEach(button => {
+    this.element.querySelectorAll(".haircut-zones-grid .section-btn")
+    .forEach(button => {
       button.classList.remove("occupied")
       button.removeAttribute("data-step-number")
       button.removeAttribute("data-step-label")
     })
 
     activeSteps.forEach((step, index) => {
-      const zoneInput = step.querySelector(
-        "input[name*='[zone]']"
-      )
-
+      const zoneInput = step.querySelector("input[name*='[zone]']")
       const zone = zoneInput?.value
 
       if (!zone) return
 
-      this.element.querySelectorAll(
-        ".haircut-zones-grid .section-btn"
-      ).forEach(button => {
+      this.element.querySelectorAll(".haircut-zones-grid .section-btn")
+      .forEach(button => {
         if (button.dataset.zone !== zone) return
 
         button.classList.add("occupied")
@@ -209,8 +190,7 @@ export default class extends Controller {
 		const zone = btn.dataset.zone
 		const wrapper = btn.closest(".formula-card")
 
-		wrapper.querySelectorAll(".zone-chip")
-			.forEach(el => el.classList.remove("active"))
+		wrapper.querySelectorAll(".zone-chip").forEach(el => el.classList.remove("active"))
 
 		btn.classList.add("active")
 
@@ -233,10 +213,8 @@ export default class extends Controller {
 		}
 
 		const html = `
-			<div class="formula-step-wrapper empty-haircut-step"
-					data-controller="collapse">
-				<div class="formula-step-header"
-						data-action="click->collapse#toggle">
+			<div class="formula-step-wrapper empty-haircut-step" data-controller="collapse">
+				<div class="formula-step-header" data-action="click->collapse#toggle">
 					<span>${this.stepLabelValue} 1</span>
 
 					<svg class="chevron"
@@ -245,14 +223,11 @@ export default class extends Controller {
 							fill="none"
 							stroke="currentColor"
 							stroke-width="2">
-
 						<path d="m6 9 6 6 6-6"/>
-
 					</svg>
 				</div>
 
-				<div class="formula-step-content"
-						data-collapse-target="content">
+				<div class="formula-step-content" data-collapse-target="content">
 					<div class="sections-wrapper">
 						<h5>${this.selectZoneValue}</h5>
 						<div class="haircut-zones-grid">
@@ -269,10 +244,7 @@ export default class extends Controller {
 	zoneButtons() {
     return Object.entries(this.zonesValue).map(([zone, label]) => {
       return `
-        <button type="button"
-                class="section-btn"
-                data-action="click->haircut#createStep"
-                data-zone="${zone}">
+        <button type="button" class="section-btn" data-action="click->haircut#createStep" data-zone="${zone}">
           ${label}
         </button>
       `
