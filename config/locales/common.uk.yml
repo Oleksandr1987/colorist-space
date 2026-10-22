@@ -8,9 +8,9 @@ uk:
     cancel: "Скасувати"
     close: "Закрити"
     search: "Пошук"
-    discard: "Відхилити"
-    unsaved_changes_title: "Незбережені зміни"
-    unsaved_changes_message: "У вас є незбережені зміни. Зберегти їх перед виходом?"
+    discard: "Не зберігати"
+    unsaved_changes_message: "Внесені зміни не було збережено."
+    continue_editing: "Продовжити"
     all: "Все"
     ok: "Гаразд"
 

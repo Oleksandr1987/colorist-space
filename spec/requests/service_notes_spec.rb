@@ -58,26 +58,18 @@ RSpec.describe "ServiceNotes" do
       service = create(:service, user: user)
 
       expect do
-        post client_service_notes_path(client), params: {
-          appointment_id: appointment.id,
+        post client_service_notes_path(client), params: { appointment_id: appointment.id,
           service_note: { service_type: "coloring", notes: "Test", service_ids: [ service.id ] }
         }
       end.to change(ServiceNote, :count).by(1)
 
-      expect(response).to redirect_to(
-        edit_client_service_note_path(
-          ServiceNote.last.client,
-          ServiceNote.last,
-          locale: I18n.locale
-        )
-      )
+      expect(response).to redirect_to(edit_client_service_note_path(ServiceNote.last.client, ServiceNote.last, locale: I18n.locale))
     end
 
     it "creates service note with explicit service_ids" do
       service = create(:service, user: user)
 
-      post client_service_notes_path(client), params: {
-        appointment_id: appointment.id,
+      post client_service_notes_path(client), params: { appointment_id: appointment.id,
         service_note: { service_type: "coloring", notes: "With services", service_ids: [ service.id, service.id ] }
       }
 
@@ -89,8 +81,7 @@ RSpec.describe "ServiceNotes" do
 
       appointment.sync_services_with_prices!([ service.id ])
 
-      post client_service_notes_path(client), params: {
-        appointment_id: appointment.id,
+      post client_service_notes_path(client), params: { appointment_id: appointment.id,
         service_note: { service_type: "coloring", notes: "Copied" }
       }
 
@@ -99,8 +90,7 @@ RSpec.describe "ServiceNotes" do
 
     it "creates service note without services" do
       expect do
-        post client_service_notes_path(client), params: {
-          appointment_id: appointment.id,
+        post client_service_notes_path(client), params: { appointment_id: appointment.id,
           service_note: { service_type: "coloring", notes: "Without services" }
         }
       end.to change(ServiceNote, :count).by(1)
@@ -114,8 +104,7 @@ RSpec.describe "ServiceNotes" do
     it "creates service note with blank care_products" do
       service = create(:service, user: user)
 
-      post client_service_notes_path(client), params: {
-        appointment_id: appointment.id,
+      post client_service_notes_path(client), params: { appointment_id: appointment.id,
         service_note: { service_type: "coloring", service_ids: [ service.id ], care_products: "" }
       }
 
@@ -125,11 +114,8 @@ RSpec.describe "ServiceNotes" do
     it "parses care_products json and snapshots purchase price on create" do
       service = create(:service, user: user)
 
-      post client_service_notes_path(client), params: {
-        appointment_id: appointment.id,
-        service_note: {
-          service_type: "coloring",
-          service_ids: [ service.id ],
+      post client_service_notes_path(client), params: { appointment_id: appointment.id,
+        service_note: { service_type: "coloring", service_ids: [ service.id ],
           care_products: [ { care_product_id: care_product.id, name: "Mask", price: 100, qty: 2 } ].to_json
         }
       }
@@ -142,12 +128,23 @@ RSpec.describe "ServiceNotes" do
     it "handles invalid care_products json" do
       service = create(:service, user: user)
 
-      post client_service_notes_path(client), params: {
-        appointment_id: appointment.id,
+      post client_service_notes_path(client), params: { appointment_id: appointment.id,
         service_note: { service_type: "coloring", service_ids: [ service.id ], care_products: "{invalid-json" }
       }
 
       expect(ServiceNote.last.care_products).to eq([])
+    end
+
+    it "renders new when care product quantity exceeds stock" do
+      expect {
+        post client_service_notes_path(client), params: { appointment_id: appointment.id,
+          service_note: { service_type: "coloring", notes: "Invalid service note",
+            care_products: [ { care_product_id: care_product.id, name: "Mask", price: 100, qty: 21 } ].to_json
+          }
+        }
+      }.not_to change(ServiceNote, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
@@ -182,9 +179,7 @@ RSpec.describe "ServiceNotes" do
 
     it "updates care_products from json" do
       patch client_service_note_path(client, service_note),
-      params: {
-        service_note: { care_products: [ { care_product_id: care_product.id, name: "Shampoo", price: 50, qty: 3 } ].to_json }
-      }
+        params: { service_note: { care_products: [ { care_product_id: care_product.id, name: "Shampoo", price: 50, qty: 3 } ].to_json } }
 
       expect(service_note.reload.care_products).to eq(
         [ { "care_product_id" => care_product.id, "name" => "Shampoo", "price" => 50.0, "purchase_price" => 60.0, "qty" => 3 } ]
@@ -193,22 +188,29 @@ RSpec.describe "ServiceNotes" do
 
     it "preserves historical purchase price when care product catalog price changes" do
       service_note.update!(
-        care_products: [
-          { "care_product_id" => care_product.id, "name" => "Mask", "price" => 100.0, "purchase_price" => 60.0, "qty" => 2 }
-        ]
+        care_products: [ { "care_product_id" => care_product.id, "name" => "Mask", "price" => 100.0, "purchase_price" => 60.0, "qty" => 2 } ]
       )
 
       care_product.update!(purchase_price: 80)
 
       patch client_service_note_path(client, service_note),
-      params: {
-        service_note: { care_products: [ { care_product_id: care_product.id, name: "Mask", price: 100, qty: 3 } ].to_json }
-      }
+        params: { service_note: { care_products: [ { care_product_id: care_product.id, name: "Mask", price: 100, qty: 3 } ].to_json } }
 
       item = service_note.reload.care_products.first
 
       expect(item["purchase_price"]).to eq(60.0)
       expect(item["qty"]).to eq(3)
+    end
+
+    it "renders edit when care product quantity exceeds stock" do
+      original_care_products = service_note.care_products.deep_dup
+
+      patch client_service_note_path(client, service_note), params: {
+        service_note: { care_products: [ { care_product_id: care_product.id, name: "Mask", price: 100, qty: 21 } ].to_json }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(service_note.reload.care_products).to eq(original_care_products)
     end
   end
 
@@ -222,6 +224,28 @@ RSpec.describe "ServiceNotes" do
     end
   end
 
+  describe "PATCH /main_photo" do
+    it "sets the selected photo as the main photo" do
+      service_note.photos.attach(io: StringIO.new("fake"), filename: "main.jpg", content_type: "image/jpeg")
+
+      photo = service_note.photos.attachments.first
+
+      patch main_photo_client_service_note_path(client, service_note, photo_id: photo.id), as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body).to eq("main_photo_id" => photo.id)
+      expect(service_note.reload.main_photo_id).to eq(photo.id)
+    end
+
+    it "returns not found when the photo does not exist" do
+      patch main_photo_client_service_note_path(client, service_note, photo_id: 999_999), as: :json
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.parsed_body).to eq("error" => "Photo not found")
+      expect(service_note.reload.main_photo_id).to be_nil
+    end
+  end
+
   describe "delete_photo" do
      it "returns ok after deleting photo" do
       service_note.photos.attach(io: StringIO.new("fake"), filename: "test.jpg", content_type: "image/jpeg")
@@ -231,6 +255,31 @@ RSpec.describe "ServiceNotes" do
       delete delete_photo_client_service_note_path(client, service_note, photo_id: photo.id)
 
       expect(response).to have_http_status(:ok)
+    end
+
+
+    it "clears main_photo_id when deleting the main photo" do
+      service_note.photos.attach(io: StringIO.new("fake"), filename: "main.jpg", content_type: "image/jpeg")
+
+      photo = service_note.photos.attachments.first
+      service_note.update!(main_photo_id: photo.id)
+
+      delete delete_photo_client_service_note_path(client, service_note, photo_id: photo.id)
+
+      expect(response).to have_http_status(:ok)
+      expect(service_note.reload.main_photo_id).to be_nil
+      expect(ActiveStorage::Attachment.exists?(photo.id)).to be(false)
+    end
+  end
+
+  describe "archived client" do
+    it "rejects access to editing service notes" do
+      service_note
+      client.update!(archived_at: Time.current)
+
+      get edit_client_service_note_path(client, service_note)
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 

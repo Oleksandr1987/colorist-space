@@ -43,6 +43,20 @@ RSpec.describe AppointmentServicesRelation do
       expect(relation.service_name).to eq("Balayage")
       expect(relation.service_category).to eq("coloring")
     end
+
+    it "preserves explicitly provided price" do
+      custom_price = 750
+      relation = described_class.create!(appointment: appointment, service: service, price: custom_price)
+
+      expect(relation.reload.price).to eq(custom_price)
+    end
+
+    it "does not snapshot attributes when service is missing" do
+      relation = described_class.new(appointment: appointment, service: nil)
+
+      expect(relation).not_to be_valid
+      expect(relation.errors[:service]).to be_present
+    end
   end
 
   describe "scope .for_user" do
@@ -107,6 +121,52 @@ RSpec.describe AppointmentServicesRelation do
 
     it "returns all relations when categories are blank" do
       expect(described_class.for_categories([])).to contain_exactly(coloring_relation, haircut_relation)
+    end
+  end
+
+  describe "scope .for_services" do
+    let(:user) { create(:user) }
+    let(:client) { create(:client, user: user) }
+    let(:coloring_service) { create(:service, user: user, category: "coloring") }
+    let(:haircut_service) { create(:service, user: user, category: "haircut") }
+
+    let!(:coloring_relation) do
+      appointment = create(:appointment, user: user, client: client,
+        main_service: coloring_service,
+        appointment_time: Time.zone.parse("10:00"),
+        end_time: Time.zone.parse("10:30"))
+
+      appointment.appointment_services_relations.first
+    end
+
+    let!(:haircut_relation) do
+      appointment = create(:appointment, user: user, client: client,
+        main_service: haircut_service,
+        appointment_time: Time.zone.parse("11:00"),
+        end_time: Time.zone.parse("11:30"))
+
+      appointment.appointment_services_relations.first
+    end
+
+    it "filters relations by service IDs" do
+      expect(described_class.for_services([ coloring_service.id ])).to contain_exactly(coloring_relation)
+    end
+
+    it "accepts service IDs as strings" do
+      expect(described_class.for_services([ coloring_service.id.to_s ])).to contain_exactly(coloring_relation)
+    end
+
+    it "filters by multiple service IDs" do
+      expect(described_class.for_services([ coloring_service.id, haircut_service.id ]))
+        .to contain_exactly(coloring_relation, haircut_relation)
+    end
+
+    it "returns all relations when service IDs are empty" do
+      expect(described_class.for_services([])).to contain_exactly(coloring_relation, haircut_relation)
+    end
+
+    it "ignores blank service IDs" do
+      expect(described_class.for_services([ "", nil, coloring_service.id ])).to contain_exactly(coloring_relation)
     end
   end
 end
