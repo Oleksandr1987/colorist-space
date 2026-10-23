@@ -77,8 +77,7 @@ export default class extends Controller {
     }
 
     this.monthLabelTarget.textContent = this.currentDate.toLocaleDateString(this.t.locale, {
-      year: "numeric",
-      month: "long"
+      year: "numeric", month: "long"
     })
 
     this.calendarDaysTarget.innerHTML = html
@@ -152,9 +151,7 @@ export default class extends Controller {
     const requests = [fetch(`/appointments/by_date?date=${formatted}`).then(r => r.json())]
 
     if (!isPast) {
-      requests.push(
-        fetch(`/appointments/free_slots?date=${formatted}`).then(r => r.json())
-      )
+      requests.push(fetch(`/appointments/free_slots?date=${formatted}`).then(r => r.json()))
     }
 
     Promise.all(requests).then(([appointments, slots = []]) => {
@@ -185,8 +182,7 @@ export default class extends Controller {
               }
 
               return {
-                start: this.formatTime(start),
-                end: this.formatTime(end)
+                start: this.formatTime(start), end: this.formatTime(end)
               }
             })
             .filter(Boolean)
@@ -375,8 +371,7 @@ export default class extends Controller {
 
   formatTime(date) {
     return date.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit"
+      hour: "2-digit", minute: "2-digit"
     })
   }
 

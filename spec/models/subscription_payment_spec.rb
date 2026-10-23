@@ -56,4 +56,34 @@ RSpec.describe SubscriptionPayment do
     expect(subscription.destroy).to be(false)
     expect(subscription.reload).to be_persisted
   end
+
+  describe "#period_is_ordered" do
+    let(:period_start) { Time.current }
+
+    it "allows missing period dates" do
+      payment = described_class.new(attributes.merge(period_start: nil, period_end: nil))
+
+      expect(payment).to be_valid
+    end
+
+    it "allows period end after period start" do
+      payment = described_class.new(attributes.merge(period_start: period_start, period_end: period_start + 1.month))
+
+      expect(payment).to be_valid
+    end
+
+    it "rejects period end equal to period start" do
+      payment = described_class.new(attributes.merge(period_start: period_start, period_end: period_start))
+
+      expect(payment).not_to be_valid
+      expect(payment.errors[:period_end]).to be_present
+    end
+
+    it "rejects period end before period start" do
+      payment = described_class.new(attributes.merge(period_start: period_start, period_end: period_start - 1.day))
+
+      expect(payment).not_to be_valid
+      expect(payment.errors[:period_end]).to be_present
+    end
+  end
 end

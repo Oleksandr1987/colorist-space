@@ -14,12 +14,14 @@ export default class extends Controller {
   connect() {
     this.initialState = this.formState()
     this.isDirty = this.initialDirtyValue
+    this.externalDirty = this.initialDirtyValue
+    this.isInitializing = true
+    this.hasUserChanged = false
     this.isSubmitting = false
     this.isLeaving = false
     this.pendingUrl = null
     this.pendingHistory = false
     this.saveBeforeLeaving = false
-    this.externalDirty = this.initialDirtyValue
 
     this.onChange = this.handleChange.bind(this)
     this.onNavigation = this.handleNavigation.bind(this)
@@ -28,6 +30,7 @@ export default class extends Controller {
     this.onSubmitStart = this.submitStart.bind(this)
     this.onSubmitEnd = this.submitEnd.bind(this)
     this.onExternalChange = this.markDirty.bind(this)
+    this.onDependencyReady = this.dependencyReady.bind(this)
 
     this.element.addEventListener("input", this.onChange)
     this.element.addEventListener("change", this.onChange)
@@ -35,10 +38,11 @@ export default class extends Controller {
     this.externalEvents = ["formula:changed", "services:changed", "wizard:changed"]
 
     if (this.element.classList.contains("wizard-screen")) {
-      this.externalEvents.forEach(name => window.addEventListener(name, this.onExternalChange))
+      this.externalEvents.forEach(name => {window.addEventListener(name, this.onExternalChange)})
     }
 
     this.element.addEventListener("unsaved-changes:changed", this.onExternalChange)
+    this.element.addEventListener("unsaved-changes:ready", this.onDependencyReady)
 
     document.addEventListener("click", this.onNavigation)
     document.addEventListener("turbo:before-visit", this.onBeforeVisit)
@@ -46,6 +50,14 @@ export default class extends Controller {
 
     this.formTarget.addEventListener("turbo:submit-start", this.onSubmitStart)
     this.formTarget.addEventListener("turbo:submit-end", this.onSubmitEnd)
+
+    this.dependencies = [
+      {identifier: "phone-mask", readyAttribute: "data-unsaved-ready-phone-mask"},
+      {identifier: "service-selector", readyAttribute: "data-unsaved-ready-service-selector"},
+      {identifier: "datepicker", readyAttribute: "data-unsaved-ready-datepicker"}
+    ]
+
+    this.finishInitialization()
   }
 
   disconnect() {
@@ -53,10 +65,11 @@ export default class extends Controller {
     this.element.removeEventListener("change", this.onChange)
 
     if (this.element.classList.contains("wizard-screen")) {
-      this.externalEvents.forEach(name => window.removeEventListener(name, this.onExternalChange))
+      this.externalEvents.forEach(name => {window.removeEventListener(name, this.onExternalChange)})
     }
 
     this.element.removeEventListener("unsaved-changes:changed", this.onExternalChange)
+    this.element.removeEventListener("unsaved-changes:ready", this.onDependencyReady)
 
     document.removeEventListener("click", this.onNavigation)
     document.removeEventListener("turbo:before-visit", this.onBeforeVisit)
@@ -66,21 +79,90 @@ export default class extends Controller {
     this.formTarget.removeEventListener("turbo:submit-end", this.onSubmitEnd)
   }
 
+  dependencyReady(event) {
+    if (!this.isInitializing) return
+
+    const { controller } = event.detail || {}
+
+    if (!this.dependencies.some(
+      dependency => dependency.identifier === controller
+    )) {
+      return
+    }
+
+    this.finishInitialization()
+  }
+
+  finishInitialization() {
+    if (!this.isInitializing) return
+
+    const allReady = this.dependencies.every(dependency => {
+      const elements = Array.from(this.formTarget.querySelectorAll(`[data-controller~="${dependency.identifier}"]`))
+
+      if (
+        this.formTarget.matches(`[data-controller~="${dependency.identifier}"]`)
+      ) {
+        elements.push(this.formTarget)
+      }
+
+      return elements.every(element => element.hasAttribute(dependency.readyAttribute))
+    })
+
+    if (!allReady) return
+
+    if (!this.hasUserChanged && !this.externalDirty) {
+      this.initialState = this.formState()
+      this.isDirty = this.initialDirtyValue
+    }
+
+    this.isInitializing = false
+    this.handleChange()
+  }
+
   formState() {
     const entries = Array.from(new FormData(this.formTarget).entries())
-      .filter(([name]) => name !== "authenticity_token")
-      .map(([name, value]) => {
-        if (value instanceof File) {
-          return [name, value.name, value.size, value.lastModified]
+      .filter(([name, value]) => {
+        if (name === "authenticity_token") return false
+
+        if (value instanceof File && !value.name && value.size === 0) {
+          return false
         }
 
-        return [name, value]
+        if (name.endsWith("[service_ids][]") && value === "") {
+          return false
+        }
+
+        return true
       })
+      .map(([name, value]) => {
+        if (value instanceof File) {
+          return [name, `file:${value.name}:${value.size}:${value.lastModified}`]
+        }
+
+        return [name, String(value)]
+      })
+
+    entries.sort(([nameA, valueA], [nameB, valueB]) => {
+      const nameComparison = nameA.localeCompare(nameB)
+
+      return nameComparison || valueA.localeCompare(valueB)
+    })
 
     return JSON.stringify(entries)
   }
 
-  handleChange() {
+  handleChange(event) {
+    if (event?.isTrusted) {
+      this.hasUserChanged = true
+    }
+
+    if (this.isInitializing) {
+      if (this.hasUserChanged) {
+        this.isDirty = true
+      }
+      return
+    }
+
     this.isDirty = this.externalDirty || this.formState() !== this.initialState
   }
 

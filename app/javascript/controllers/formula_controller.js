@@ -108,9 +108,8 @@ export default class extends Controller {
   }
 
   updateStepNumbers() {
-    const steps = Array.from(
-      this.containerTarget.querySelectorAll(".formula-step-wrapper")
-    ).filter(wrapper => {
+    const steps = Array.from(this.containerTarget.querySelectorAll(".formula-step-wrapper"))
+    .filter(wrapper => {
       const card = wrapper.querySelector(".formula-card")
       const destroyInput = card?.querySelector(".destroy-field")
 

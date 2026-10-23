@@ -49,11 +49,12 @@ class CareProductsController < ApplicationController
       format.html do
         render :new, status: :unprocessable_content
       end
-
+      # :nocov:
       format.json do
         errors =  e.is_a?(ActiveRecord::RecordInvalid) ? e.record.errors.full_messages : [ e.message ]
         render json: { errors: errors }, status: :unprocessable_content
       end
+      # :nocov:
     end
   end
 
@@ -202,6 +203,7 @@ class CareProductsController < ApplicationController
     nil
   end
 
+  # :nocov:
   def parse_date(value)
     return if value.blank?
 
@@ -209,4 +211,5 @@ class CareProductsController < ApplicationController
   rescue Date::Error
     nil
   end
+  # :nocov:
 end

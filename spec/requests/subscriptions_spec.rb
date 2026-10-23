@@ -153,4 +153,133 @@ RSpec.describe "Subscriptions" do
     post monthly_subscription_path
     expect(response).to have_http_status(:forbidden)
   end
+
+  describe "POST /subscriptions/cancel" do
+    it "cancels the subscription and redirects with a notice" do
+      sign_in user
+
+      subscription_id = user.subscription.id
+
+      allow(Subscriptions::Manage).to receive(:call)
+
+      delete cancel_subscription_path
+
+      expect(Subscriptions::Manage).to have_received(:call).once do |subscription, action|
+        expect(subscription.id).to eq(subscription_id)
+        expect(action).to eq("cancel")
+      end
+
+      expect(response).to have_http_status(:see_other)
+      expect(response).to redirect_to(settings_subscription_path(locale: I18n.locale))
+      expect(flash[:notice]).to eq(I18n.t("subscription.cancelled"))
+    end
+  end
+
+  describe "POST /subscriptions/change_plan" do
+    it "changes the subscription plan and redirects with a notice" do
+      sign_in user
+
+      subscription_id = user.subscription.id
+
+      allow(Subscriptions::Manage).to receive(:call)
+
+      patch change_plan_subscription_path, params: { plan: "yearly" }
+
+      expect(Subscriptions::Manage).to have_received(:call).once do |subscription, action, options|
+        expect(subscription.id).to eq(subscription_id)
+        expect(action).to eq("change")
+        expect(options).to eq(plan: "yearly")
+      end
+
+      expect(response).to have_http_status(:see_other)
+      expect(response).to redirect_to(settings_subscription_path(locale: I18n.locale))
+      expect(flash[:notice]).to eq(I18n.t("subscription.plan_changed"))
+    end
+  end
+
+  describe "POST /subscriptions/sync" do
+    it "reconciles the subscription and redirects with a notice" do
+      sign_in user
+
+      subscription_id = user.subscription.id
+
+      allow(Subscriptions::Reconcile).to receive(:call)
+
+      post sync_subscription_path
+
+      expect(Subscriptions::Reconcile).to have_received(:call).once do |subscription|
+        expect(subscription.id).to eq(subscription_id)
+      end
+
+      expect(response).to have_http_status(:see_other)
+      expect(response).to redirect_to(settings_subscription_path(locale: I18n.locale))
+      expect(flash[:notice]).to eq(I18n.t("subscription.synced"))
+    end
+  end
+
+  describe "checkout with a processed payment" do
+    it "redirects without rendering the checkout form" do
+      sign_in user
+
+      payment = instance_double(SubscriptionPayment, processed?: true)
+
+      allow(Subscriptions::Checkout).to receive(:call).with(user, "monthly").and_return(payment)
+
+      post monthly_subscription_path
+
+      expect(Subscriptions::Checkout).to have_received(:call).with(user, "monthly").once
+      expect(response).to have_http_status(:see_other)
+      expect(response).to redirect_to(settings_subscription_path(locale: I18n.locale))
+      expect(flash[:notice]).to eq(I18n.t("subscription.synced"))
+    end
+  end
+
+  describe "billing errors" do
+    it "handles Wayforpay::Error and redirects with an alert" do
+      sign_in user
+
+      allow(Subscriptions::Checkout).to receive(:call).and_raise(Wayforpay::Error, "Payment provider unavailable")
+      allow(Rails.logger).to receive(:warn)
+
+      post monthly_subscription_path
+
+      expect(Subscriptions::Checkout).to have_received(:call).with(user, "monthly").once
+      expect(Rails.logger).to have_received(:warn).with("WayForPay user=#{user.id}: Payment provider unavailable")
+      expect(response).to have_http_status(:see_other)
+      expect(response).to redirect_to(settings_subscription_path(locale: I18n.locale))
+      expect(flash[:alert]).to eq(I18n.t("subscription.operation_failed"))
+    end
+  end
+
+
+  describe "subscription authorization" do
+    it "allows an authorized user to checkout" do
+      sign_in user
+
+      post monthly_subscription_path
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "prevents unauthenticated users from cancelling" do
+      allow(Subscriptions::Manage).to receive(:call)
+
+      delete cancel_subscription_path
+
+      expect(response).to have_http_status(:redirect)
+      expect(Subscriptions::Manage).not_to have_received(:call)
+    end
+
+    it "prevents superadmins from cancelling subscriptions" do
+      admin = create(:user, :superadmin)
+      sign_in admin
+
+      allow(Subscriptions::Manage).to receive(:call)
+
+      delete cancel_subscription_path
+
+      expect(response).to have_http_status(:forbidden)
+      expect(Subscriptions::Manage).not_to have_received(:call)
+    end
+  end
 end

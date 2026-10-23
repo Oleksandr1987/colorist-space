@@ -95,6 +95,63 @@ RSpec.describe "Clients" do
     end
   end
 
+  describe "GET /clients/duplicates" do
+    it "returns empty results when search term is shorter than two characters" do
+      get duplicates_clients_path, params: { term: " A " }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body).to eq("clients" => [], "total_count" => 0)
+    end
+
+    it "returns matching active clients with their details" do
+      matching_client = create(:client, user: user, first_name: "Alex", last_name: "Smith")
+
+      get duplicates_clients_path, params: { term: "Alex" }
+
+      json = response.parsed_body
+
+      expect(response).to have_http_status(:ok)
+      expect(json["total_count"]).to eq(1)
+      expect(json["clients"]).to include(
+        "id" => matching_client.id,
+        "name" => matching_client.full_name,
+        "phone" => matching_client.phone,
+        "url" => client_path(matching_client, locale: I18n.locale)
+      )
+    end
+
+    it "does not include archived clients" do
+      create(:client, user: user, first_name: "Alex", last_name: "Smith", archived_at: 1.day.ago)
+
+      get duplicates_clients_path, params: { term: "Alex" }
+
+      expect(response.parsed_body).to eq("clients" => [], "total_count" => 0)
+    end
+
+    it "does not include clients belonging to another user" do
+      other_user = create(:user)
+
+      create(:client, user: other_user, first_name: "Alex", last_name: "Smith")
+
+      get duplicates_clients_path, params: { term: "Alex" }
+
+      expect(response.parsed_body["total_count"]).to eq(0)
+    end
+
+    it "limits results to 50 clients while returning the total count" do
+      51.times do |index|
+        create(:client, user: user, first_name: "Alex", last_name: "Client#{index}")
+      end
+
+      get duplicates_clients_path, params: { term: "Alex" }
+
+      json = response.parsed_body
+
+      expect(json["clients"].size).to eq(50)
+      expect(json["total_count"]).to eq(51)
+    end
+  end
+
   describe "POST /clients" do
     let!(:archived_client) do
       create(:client, user: user, first_name: "Alex", last_name: "Smith", phone: "+380930000011", archived_at: 1.day.ago)
@@ -157,6 +214,17 @@ RSpec.describe "Clients" do
 
       expect(archived_client).not_to be_archived
       expect(archived_client.phone).to eq("+380930000099")
+    end
+
+    it "renders new when restoring an archived client fails validation" do
+      create(:client, user: user, first_name: "Another", last_name: "Client", phone: "+380930000099")
+
+      params = { client: { first_name: "Alex", last_name: "Smith", phone: "+380930000099" } }
+
+      post clients_path, params: params
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(archived_client.reload).to be_archived
     end
 
     context "when an archived client has the same normalized name" do
@@ -241,10 +309,7 @@ RSpec.describe "Clients" do
     let!(:future_appointment) { create(:appointment, user: user, client: client, appointment_date: 1.day.from_now) }
 
     it "archives client, preserves history and removes future appointments" do
-      expect {
-        delete client_path(client)
-      }.not_to change(Client, :count)
-
+      expect { delete client_path(client) }.not_to change(Client, :count)
       expect(response).to redirect_to(clients_url(locale: I18n.locale))
       expect(client.reload).to be_archived
       expect(Appointment.exists?(past_appointment.id)).to be(true)

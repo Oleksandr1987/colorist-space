@@ -2,6 +2,8 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
+    this.element.removeAttribute("data-unsaved-ready-phone-mask")
+
     this.maxDigits = 9
     this.digits = this.extractNationalDigits(this.element.value)
 
@@ -24,9 +26,18 @@ export default class extends Controller {
 
     this.createDisplay()
     this.render()
+
+    this.element.setAttribute("data-unsaved-ready-phone-mask", "")
+
+    this.element.dispatchEvent(
+      new CustomEvent("unsaved-changes:ready", {
+        bubbles: true, detail: { controller: "phone-mask" }
+      })
+    )
   }
 
   disconnect() {
+    this.element.removeAttribute("data-unsaved-ready-phone-mask")
     this.element.removeEventListener("beforeinput", this.handleBeforeInput)
     this.element.removeEventListener("paste", this.handlePaste)
     this.element.removeEventListener("focus", this.handleFocus)
@@ -164,10 +175,7 @@ export default class extends Controller {
     const digits = this.digits.padEnd(this.maxDigits, "_").split("")
     const focused = document.activeElement === this.element
     const cursorPosition = this.digits.length
-
-    const parts = [
-      '<span class="phone-mask-entered">+380 (</span>'
-    ]
+    const parts = ['<span class="phone-mask-entered">+380 (</span>']
 
     for (let index = 0; index < this.maxDigits; index++) {
       if (focused && index === cursorPosition) {

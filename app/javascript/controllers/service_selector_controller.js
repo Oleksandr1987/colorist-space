@@ -2,13 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = [
-    "list",
-    "selected",
-    "hiddenInput",
-    "selectedContent",
-    "placeholder"
-  ]
+  static targets = ["list", "selected", "hiddenInput", "selectedContent", "placeholder"]
 
   static values = {
     inputName: String,
@@ -19,19 +13,15 @@ export default class extends Controller {
   }
 
   connect() {
+    this.element.removeAttribute("data-unsaved-ready-service-selector")
     this.selected = []
 
     if (this.hasHiddenInputTarget && this.hiddenInputTarget.value) {
-      const existingIds = this.hiddenInputTarget.value
-        .split(",")
-        .map(id => parseInt(id))
-        .filter(Boolean)
+      const existingIds = this.hiddenInputTarget.value.split(",").map(id => parseInt(id)).filter(Boolean)
 
       document
-        .querySelectorAll(
-          `input[type="checkbox"][name="${this.checkboxNameValue}"]`
-        )
-        .forEach((checkbox) => {
+        .querySelectorAll(`input[type="checkbox"][name="${this.checkboxNameValue}"]`)
+        .forEach(checkbox => {
           const id = parseInt(checkbox.value)
 
           if (existingIds.includes(id)) {
@@ -52,19 +42,20 @@ export default class extends Controller {
 
     this.boundRemove = this.removeById.bind(this)
 
-    window.addEventListener(
-      "service-selector:remove",
-      this.boundRemove
-    )
+    window.addEventListener("service-selector:remove", this.boundRemove)
 
     this.updateSelected(false)
+    this.element.setAttribute("data-unsaved-ready-service-selector", "")
+    this.element.dispatchEvent(
+      new CustomEvent("unsaved-changes:ready", {
+        bubbles: true, detail: { controller: "service-selector" }
+      })
+    )
   }
 
   disconnect() {
-    window.removeEventListener(
-      "service-selector:remove",
-      this.boundRemove
-    )
+    this.element.removeAttribute("data-unsaved-ready-service-selector")
+    window.removeEventListener("service-selector:remove", this.boundRemove)
   }
 
   open(event) {
@@ -72,9 +63,7 @@ export default class extends Controller {
 
     this.closeAll()
 
-    const modal = document.querySelector(
-      `.wizard-modal[data-type="${type}"]`
-    )
+    const modal = document.querySelector(`.wizard-modal[data-type="${type}"]`)
 
     modal?.classList.remove("hidden")
   }
@@ -100,10 +89,7 @@ export default class extends Controller {
     modal
       .querySelectorAll(".wizard-check-row")
       .forEach(row => {
-        row.classList.toggle(
-          "hidden",
-          !row.textContent.toLowerCase().includes(query)
-        )
+        row.classList.toggle("hidden", !row.textContent.toLowerCase().includes(query))
       })
   }
 
@@ -120,8 +106,7 @@ export default class extends Controller {
         serviceType: input.dataset.serviceType
       })
     } else {
-      this.selected =
-        this.selected.filter(item => item.id !== id)
+      this.selected = this.selected.filter(item => item.id !== id)
     }
 
     this.updateSelected()
@@ -165,29 +150,13 @@ export default class extends Controller {
     this.selectedContentTarget.innerHTML =
       this.selected.map(service => `
         <div class="selected-service-row">
-          <button
-            type="button"
-            class="selected-service-name"
-            data-action="click->service-selector#open"
-            data-type="service">
-
+          <button type="button" class="selected-service-name" data-action="click->service-selector#open" data-type="service">
             ${service.subtype || service.name}
             (${service.price} ₴)
-
           </button>
 
-          <button
-            type="button"
-            class="selected-service-remove"
-            data-id="${service.id}"
-            data-action="click->service-selector#removeService">
-
-            <img
-              src="${this.closeIconValue}"
-              class="wiz-icon"
-              width="18"
-              height="18">
-
+          <button type="button" class="selected-service-remove" data-id="${service.id}" data-action="click->service-selector#removeService">
+            <img src="${this.closeIconValue}" class="wiz-icon" width="18" height="18">
           </button>
         </div>
       `).join("")
@@ -200,9 +169,7 @@ export default class extends Controller {
   }
 
   remove(id) {
-    const checkbox = document.querySelector(
-      `input[type="checkbox"][name="${this.checkboxNameValue}"][value="${id}"]`
-    )
+    const checkbox = document.querySelector(`input[type="checkbox"][name="${this.checkboxNameValue}"][value="${id}"]`)
     if (checkbox) {
       checkbox.checked = false
     }
@@ -224,19 +191,14 @@ export default class extends Controller {
     const category = event.currentTarget.dataset.category
     const modal = event.currentTarget.closest(".wizard-modal")
 
-    modal
-      .querySelectorAll(".filter-chip")
-      .forEach(chip => chip.classList.remove("active"))
+    modal.querySelectorAll(".filter-chip").forEach(chip => chip.classList.remove("active"))
 
     event.currentTarget.classList.add("active")
 
     modal
       .querySelectorAll(".wizard-check-row")
       .forEach(row => {
-        const visible =
-          category === "all" ||
-          row.dataset.category === category
-
+        const visible = category === "all" || row.dataset.category === category
         row.classList.toggle("hidden", !visible)
       })
   }
