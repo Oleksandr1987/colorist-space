@@ -34,6 +34,13 @@ en:
 
       end_time_error: "End time must be later than start time"
 
+    working_hours:
+      title: "Appointment outside working hours"
+      day_off: "The selected day is not a working day. Would you like to continue?"
+      outside_hours: "The appointment is outside working hours (%{hours}). Would you like to continue?"
+      confirm: "Continue"
+      error: "Unable to check working hours. Please try again."
+
     modals:
       service:
         title: "Select main services"
@@ -95,6 +102,8 @@ en:
 
       records:
         one: "%{count} record"
+        few: "%{count} records"
+        many: "%{count} records"
         other: "%{count} records"
 
     history:
@@ -103,6 +112,8 @@ en:
 
       records:
         one: "%{count} record"
+        few: "%{count} records"
+        many: "%{count} records"
         other: "%{count} records"
 
     filters:

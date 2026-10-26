@@ -115,6 +115,159 @@ RSpec.describe "Appointments" do
     end
   end
 
+  describe "GET /appointments/check_working_hours" do
+    let(:date) { Date.new(2026, 1, 19) }
+    let(:path) { check_working_hours_appointments_path }
+    let(:json) { response.parsed_body }
+
+    context "when the date is a working day" do
+      before do
+        create(:slot_rule, user: user, weekdays: %w[monday], start_time: "09:00", end_time: "18:00")
+      end
+
+      it "returns working intervals when times are missing" do
+        get path, params: { date: date.iso8601 }
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to eq("status" => "ok", "intervals" => [ { "start" => "09:00", "end" => "18:00" } ])
+      end
+
+      it "returns ok when appointment is within working hours" do
+        get path, params: { date: date.iso8601, start_time: "10:00", end_time: "11:00" }
+
+        expect(response).to have_http_status(:ok)
+        expect(json["status"]).to eq("ok")
+      end
+
+      it "returns outside_hours when appointment starts before working hours" do
+        get path, params: { date: date.iso8601, start_time: "08:00", end_time: "10:00" }
+
+        expect(response).to have_http_status(:ok)
+        expect(json["status"]).to eq("outside_hours")
+        expect(json["intervals"]).to eq([ { "start" => "09:00", "end" => "18:00" } ])
+      end
+
+      it "returns outside_hours when appointment ends after working hours" do
+        get path, params: { date: date.iso8601, start_time: "17:00", end_time: "19:00" }
+
+        expect(response).to have_http_status(:ok)
+        expect(json["status"]).to eq("outside_hours")
+      end
+
+      it "returns invalid_time when end time equals start time" do
+        get path, params: { date: date.iso8601, start_time: "10:00", end_time: "10:00" }
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to eq("status" => "invalid_time")
+      end
+
+      it "returns invalid_time when end time is earlier than start time" do
+        get path, params: { date: date.iso8601, start_time: "12:00", end_time: "11:00" }
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to eq("status" => "invalid_time")
+      end
+    end
+
+    context "when the date is a day off" do
+      before do
+        create(:slot_rule, user: user, weekdays: %w[tuesday], start_time: "09:00", end_time: "18:00")
+      end
+
+      it "returns day_off" do
+        get path, params: { date: date.iso8601 }
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to eq("status" => "day_off")
+      end
+    end
+
+    context "when the user has no slot rules" do
+      it "returns day_off" do
+        get path, params: { date: date.iso8601 }
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to eq("status" => "day_off")
+      end
+    end
+
+    context "when slot rules belong to another user" do
+      before do
+        create(:slot_rule, weekdays: %w[monday], start_time: "09:00", end_time: "18:00")
+      end
+
+      it "does not expose another user's working hours" do
+        get path, params: { date: date.iso8601 }
+
+        expect(response).to have_http_status(:ok)
+        expect(json).to eq("status" => "day_off")
+      end
+    end
+
+    context "when working intervals have a gap" do
+      before do
+        create(:slot_rule, user: user, weekdays: %w[monday], start_time: "09:00", end_time: "12:00")
+        create(:slot_rule, user: user, weekdays: %w[monday], start_time: "13:00", end_time: "18:00")
+      end
+
+      it "returns separate intervals" do
+        get path, params: { date: date.iso8601 }
+
+        expect(response).to have_http_status(:ok)
+        expect(json["intervals"]).to eq([
+          { "start" => "09:00", "end" => "12:00" },
+          { "start" => "13:00", "end" => "18:00" }
+        ])
+      end
+
+      it "returns outside_hours when appointment crosses the gap" do
+        get path, params: { date: date.iso8601, start_time: "11:00", end_time: "14:00" }
+
+        expect(response).to have_http_status(:ok)
+        expect(json["status"]).to eq("outside_hours")
+      end
+    end
+
+    context "when date is invalid" do
+      it "returns unprocessable_content for an invalid date" do
+        get path, params: { date: "invalid-date" }
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(json).to eq("status" => "invalid_date")
+      end
+
+      it "returns unprocessable_content when date is missing" do
+        get path
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(json).to eq("status" => "invalid_date")
+      end
+
+      it "returns unprocessable_content for a nonexistent date" do
+        get path, params: { date: "2026-02-30" }
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(json).to eq("status" => "invalid_date")
+      end
+    end
+
+    context "when passing parameters to the service" do
+      it "passes the authenticated user, date and times" do
+        checker = instance_double(Appointments::WorkingHoursCheck, call: { status: "ok", intervals: [] })
+
+        allow(Appointments::WorkingHoursCheck).to receive(:new).and_return(checker)
+
+        get path, params: { date: date.iso8601, start_time: "10:00", end_time: "11:00" }
+
+        expect(Appointments::WorkingHoursCheck).to have_received(:new).with(
+          user: user, date: date, start_time: "10:00", end_time: "11:00"
+        )
+        expect(checker).to have_received(:call)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+
   describe "GET /appointments/free_slots" do
     it "returns json slots" do
       allow(Appointment).to receive(:available_time_ranges).and_return([

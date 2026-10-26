@@ -117,23 +117,29 @@ export default class extends Controller {
   selectDate(event) {
     const dateStr = event.currentTarget.dataset.date
 
-    this.selectedDate = new Date(dateStr + "T00:00:00")
+    this.selectedDate = new Date(`${dateStr}T00:00:00`)
     this.renderCalendar()
     this.loadAppointments(this.selectedDate)
   }
 
   openNewAppointment(event) {
+    event.preventDefault()
+
     const url = new URL(event.currentTarget.href)
+    const date = this.formatDate(this.selectedDate)
+
+    url.searchParams.set("date", date)
 
     if (this.clientIdValue) {
       url.searchParams.set("client_id", this.clientIdValue)
     }
 
-    if (this.selectedDate) {
-      url.searchParams.set("date", this.formatDate(this.selectedDate))
-    }
-
-    event.currentTarget.href = url.toString()
+    this.workingHours.check({
+      date,
+      onConfirm: () => {
+        window.location.assign(url.toString())
+      }
+    })
   }
 
   loadAppointments(date) {
@@ -490,5 +496,9 @@ export default class extends Controller {
     } else {
       window.location.href = `/clients/${clientId}/service_notes/new?appointment_id=${appointmentId}`
     }
+  }
+
+  get workingHours() {
+    return this.application.getControllerForElementAndIdentifier(this.element, "working-hours")
   }
 }
