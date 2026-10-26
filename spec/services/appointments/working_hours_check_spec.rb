@@ -192,5 +192,20 @@ RSpec.describe Appointments::WorkingHoursCheck do
         expect(result).to eq(status: "day_off")
       end
     end
+
+  context "when time parameters are malformed" do
+    before { create(:slot_rule, user: user, weekdays: %w[monday], start_time: "09:00", end_time: "18:00") }
+
+    [ [ "abc", "11:00" ], [ "10:00", "invalid" ], [ [ "10:00" ], "11:00" ], [ "25:00", "11:00" ], [ "10:00", "12:99" ] ].each do |from, to|
+      context "with start_time #{from.inspect} and end_time #{to.inspect}" do
+        let(:start_time) { from }
+        let(:end_time) { to }
+
+        it "returns invalid_time" do
+          expect(result).to eq(status: "invalid_time")
+        end
+      end
+    end
+  end
   end
 end

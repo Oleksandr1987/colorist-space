@@ -266,6 +266,24 @@ RSpec.describe "Appointments" do
         expect(response).to have_http_status(:ok)
       end
     end
+
+  context "when time parameters are malformed" do
+    before { create(:slot_rule, user: user, weekdays: %w[monday], start_time: "09:00", end_time: "18:00") }
+
+    it "returns invalid_time for an unparseable string" do
+      get path, params: { date: date.iso8601, start_time: "abc", end_time: "11:00" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json).to eq("status" => "invalid_time")
+    end
+
+    it "returns invalid_time for an array parameter" do
+      get path, params: { date: date.iso8601, start_time: [ "10:00" ], end_time: "11:00" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json).to eq("status" => "invalid_time")
+    end
+  end
   end
 
   describe "GET /appointments/free_slots" do

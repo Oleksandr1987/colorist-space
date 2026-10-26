@@ -16,12 +16,13 @@ module Appointments
 
       intervals = merge_intervals(rules)
 
+      return { status: "invalid_time" } if intervals.nil?
       return { status: "ok", intervals: intervals } if start_time.blank? || end_time.blank?
 
       from = minutes(start_time)
       to = minutes(end_time)
 
-      return { status: "invalid_time" } if to <= from
+      return { status: "invalid_time" } if from.nil? || to.nil? || to <= from
 
       covered = intervals.any? do |interval|
         from >= minutes(interval[:start]) &&
@@ -39,13 +40,30 @@ module Appointments
     attr_reader :user, :date, :start_time, :end_time
 
     def minutes(value)
-      time = value.is_a?(String) ? Time.zone.parse(value) : value.in_time_zone
+      time = case value
+      when String
+        return nil unless value.match?(/\A(?:[01]\d|2[0-3]):[0-5]\d\z/)
+
+        Time.zone.parse(value)
+      when Time, DateTime, ActiveSupport::TimeWithZone
+        value.in_time_zone
+      end
+
+      return nil unless time
+
       time.hour * 60 + time.min
+    rescue ArgumentError, TypeError
+      nil
     end
 
     def merge_intervals(rules)
       ranges = rules.map do |rule|
-        [ minutes(rule.start_time), minutes(rule.end_time) ]
+        from = minutes(rule.start_time)
+        to = minutes(rule.end_time)
+
+        return nil if from.nil? || to.nil? || to <= from
+
+        [ from, to ]
       end.sort_by(&:first)
 
       merged = ranges.each_with_object([]) do |range, result|

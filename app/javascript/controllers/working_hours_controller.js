@@ -1,4 +1,4 @@
-
+// app/javascript/controllers/working_hours_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -19,8 +19,6 @@ export default class extends Controller {
     this.previous = this.snapshot()
     this.submitting = false
     this.approvedSubmit = false
-    this.submitter = null
-
     this.onSubmit = this.beforeSubmit.bind(this)
 
     if (this.modeValue === "form") {
@@ -47,9 +45,7 @@ export default class extends Controller {
   normalizeDate(value) {
     const match = value?.match(/^(\d{2})\.(\d{2})\.(\d{4})$/)
 
-    return match
-      ? `${match[3]}-${match[2]}-${match[1]}`
-      : value
+    return match ? `${match[3]}-${match[2]}-${match[1]}` : value
   }
 
   keyFor(date, start = null, end = null) {
@@ -178,17 +174,11 @@ export default class extends Controller {
   checkTime() {
     if (this.pending) return
 
-    if (
-      !this.hasDateTarget ||
-      !this.hasStartTimeTarget ||
-      !this.hasEndTimeTarget
-    ) return
+    if (!this.hasDateTarget || !this.hasStartTimeTarget || !this.hasEndTimeTarget) return
 
     const current = this.snapshot()
 
-    if (!current.start || !current.end || current.end <= current.start) {
-      return
-    }
+    if (!current.date || !current.start || !current.end || current.end <= current.start) return
 
     const previous = this.previous
 
@@ -212,7 +202,7 @@ export default class extends Controller {
     })
   }
 
-  async beforeSubmit(event) {
+  beforeSubmit(event) {
     if (this.modeValue !== "form") return
 
     if (this.approvedSubmit) {
@@ -220,32 +210,47 @@ export default class extends Controller {
       return
     }
 
-    event.preventDefault()
-    event.stopImmediatePropagation()
-
-    if (this.pending || this.submitting) return
-    if (!this.element.reportValidity()) return
+    if (this.pending || this.submitting) {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      return
+    }
 
     const current = this.snapshot()
 
-    if (!current.date || !current.start || !current.end) return
-    if (current.end <= current.start) return
+    if (!current.date || !current.start || !current.end || current.end <= current.start) return
 
-    this.submitter = event.submitter
+    if (!this.element.reportValidity()) return
+
+    event.preventDefault()
+    event.stopImmediatePropagation()
+
+    const submitter = event.submitter
+    const key = this.keyFor(this.normalizeDate(current.date), current.start, current.end)
+
     this.submitting = true
 
-    await this.check({
+    const continueSubmit = () => {
+      this.submitting = false
+
+      const latest = this.snapshot()
+      const latestKey = this.keyFor(this.normalizeDate(latest.date), latest.start, latest.end)
+
+      if (latestKey !== key) return
+
+      this.previous = latest
+      this.approvedSubmit = true
+
+      const button = submitter?.isConnected ? submitter : undefined
+
+      this.element.requestSubmit(button)
+    }
+
+    this.check({
       date: this.normalizeDate(current.date),
       start: current.start,
       end: current.end,
-
-      onConfirm: () => {
-        this.previous = current
-        this.submitting = false
-        this.approvedSubmit = true
-        this.element.requestSubmit(this.submitter?.isConnected ? this.submitter : undefined)
-      },
-
+      onConfirm: continueSubmit,
       onCancel: () => {
         this.submitting = false
       }
