@@ -36,8 +36,14 @@ uk:
       edit_title: "Редагувати"
       brand: "Бренд"
       unit: "Одиниця вимірювання"
-      price_per_unit: "Ціна за одиницю"
+      price_per_unit: "Ціна за одиницю (₴)"
       concentration: "Концентрація"
+
+    filters:
+      title: "Фільтр за брендом"
+
+    confirm_delete: "Видалити цей інгредієнт?"
+    empty: "Інгредієнтів поки немає"
 
     units:
       gram: "Грам"

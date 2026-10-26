@@ -42,8 +42,7 @@
         data: {"calendar-target": "clientName",
           action: "input->calendar#updateClientInfo keyup->calendar#toggleClearButton focus->calendar#toggleClearButton"
         },
-        list: "client-list",
-        autocomplete: "off" %>
+        list: "client-list", autocomplete: "off" %>
 
       <% @appointment.errors.where(:client_name).each do |error| %>
         <div class="inline-error" role="alert">
@@ -70,13 +69,8 @@
 
      <div class="phone-input-wrapper">
       <%= telephone_field_tag "appointment[phone]",
-            @appointment.phone.presence || @appointment.client&.phone,
-            class: "form-input",
-            autocomplete: "tel",
-            data: {
-              controller: "phone-mask",
-              "calendar-target": "clientPhone"
-            } %>
+            @appointment.phone.presence || @appointment.client&.phone, class: "form-input", autocomplete: "tel",
+            data: { controller: "phone-mask", "calendar-target": "clientPhone" } %>
     </div>
 
       <% @appointment.errors.where(:phone).each do |error| %>
