@@ -1,14 +1,11 @@
-<%= form_with(
-      model: formula_product,
-      id: "formula-product-form",
-      data: formula_product.oxidant? ? { controller: "oxidant-product" } : {}
+<%= form_with(model: formula_product,id: "formula-product-form",
+      data: {controller: [("oxidant-product" if formula_product.oxidant?),"formula-unit"].compact.join(" ")}
     ) do |f| %>
 
   <%= f.hidden_field :category %>
 
   <div class="form-section">
     <%= f.label :brand, t("formula_products.form.brand") %>
-
     <%= f.text_field :brand, class: "form-input", required: true %>
   </div>
 
@@ -52,22 +49,37 @@
         </div>
       </div>
 
-      <%= f.hidden_field :name,
-            data: { oxidant_product_target: "name" } %>
+      <%= f.hidden_field :name, data: { oxidant_product_target: "name" } %>
     </div>
   <% end %>
 
   <div class="form-section">
     <%= f.label :unit, t("formula_products.form.unit") %>
 
-    <%= f.select :unit,
-          [ [t("formula_products.units.gram"), "g"], [t("formula_products.units.milliliter"), "ml"] ],
-          {}, class: "form-input", required: true %>
+    <div class="formula-unit-selector" role="group" aria-label="<%= t("formula_products.form.unit") %>">
+
+      <button type="button"
+              class="formula-unit-button <%= 'active' if formula_product.unit == 'g' %>"
+              data-formula-unit-target="button"
+              data-value="g"
+              data-action="click->formula-unit#select">
+        g
+      </button>
+
+      <button type="button"
+              class="formula-unit-button <%= 'active' if formula_product.unit == 'ml' %>"
+              data-formula-unit-target="button"
+              data-value="ml"
+              data-action="click->formula-unit#select">
+        ml
+      </button>
+    </div>
+
+    <%= f.hidden_field :unit, data: { formula_unit_target: "input" } %>
   </div>
 
   <div class="form-section">
     <%= f.label :price_per_unit, t("formula_products.form.price_per_unit") %>
-
     <%= f.number_field :price_per_unit, class: "form-input", step: :any, min: 0, required: true, inputmode: "decimal" %>
   </div>
 <% end %>

@@ -47,23 +47,6 @@
   object-fit: contain;
 }
 
-.appointment-details-confirm {
-  margin-top: 32px;
-  display: flex;
-  justify-content: center;
-}
-
-.appointment-ok-button {
-  width: 100%;
-  max-width: 280px;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-weight: 700;
-}
-
 .button.small-button {
   padding: 0.5rem 1rem;
   font-size: 0.95rem;

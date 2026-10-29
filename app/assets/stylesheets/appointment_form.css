@@ -128,18 +128,69 @@ textarea.form-input {
 
 /* --- Appointment Details --- */
 .appointment-details {
-  max-width: 500px;
-  margin: 2rem auto;
-  padding: 1.2rem;
-  background: #f9f9ff;
-  border-radius: 10px;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 22px 20px;
+  border-radius: 12px;
+  background: #faf9ff;
+  box-sizing: border-box;
 }
 
-.appointment-details p {
-  margin-bottom: 0.8rem;
-  line-height: 1.5;
+.appointment-details-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+.appointment-details-info p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: #222;
+}
+
+.appointment-details-info strong {
+  font-weight: 700;
+}
+
+/* --- Appointment Notes --- */
+.appointment-details-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.appointment-details-notes-label {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #222;
+}
+
+.appointment-details-notes-text {
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px solid #eeebf5;
+  border-radius: 9px;
+
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #444;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+/* --- Appointment Details Actions --- */
 .appointment-details .actions {
   margin-top: 1.2rem;
   display: flex;
@@ -171,25 +222,60 @@ textarea.form-input {
   color: white;
 }
 
+/* --- Appointment OK Button --- */
+.appointment-details-confirm {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.appointment-ok-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+  max-width: 100%;
+  min-height: 42px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  box-sizing: border-box;
+  background: #5424b5;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.appointment-ok-button:hover {
+  background: #481e9f;
+}
+
+.appointment-ok-button:active {
+  transform: scale(0.98);
+}
+
+.appointment-ok-button:focus-visible {
+  outline: 2px solid #5424b5;
+  outline-offset: 3px;
+}
+
+/* --- Appointment Save Button --- */
 .appointment-save-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   min-height: 38px;
   padding: 0 18px;
-
   border: none;
   border-radius: 10px;
-
   background: #5424b5;
   color: #fff;
-
   font-family: inherit;
   font-size: 14px;
   font-weight: 700;
   line-height: 1;
-
   cursor: pointer;
   transition:
     background-color 0.2s ease,
@@ -210,7 +296,7 @@ textarea.form-input {
   cursor: default;
 }
 
-/* Appointment time fields */
+/* --- Appointment Time Fields --- */
 .appointment-container .appointment-time-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -238,16 +324,70 @@ textarea.form-input {
   flex-shrink: 0;
 }
 
-.appointment-container .appointment-time-field .form-input {
+/* --- Appointment Time Inputs: iOS / Android --- */
+.appointment-container .appointment-time-field input[type="time"] {
+  display: block;
   width: 100%;
   min-width: 0;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
+  padding: 0 12px;
+  margin: 0;
   box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #222;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* iOS Safari: native time editor */
+.appointment-container .appointment-time-field input[type="time"]::-webkit-date-and-time-value {
+  min-height: 0;
+  height: auto;
+  line-height: normal;
+  text-align: left;
+}
+
+.appointment-container .appointment-time-field input[type="time"]::-webkit-datetime-edit {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  line-height: normal;
 }
 
 .appointment-container .appointment-time-field .inline-error {
   margin-top: 5px;
 }
 
+/* --- Mobile: Appointment Details --- */
+@media (max-width: 600px) {
+  .appointment-details {
+    padding: 18px 16px;
+    border-radius: 12px;
+  }
+
+  .appointment-details-info {
+    gap: 10px;
+  }
+
+  .appointment-details-confirm {
+    margin-top: 20px;
+  }
+
+  .appointment-ok-button {
+    width: 160px;
+    min-height: 42px;
+  }
+}
+
+/* --- Mobile: Appointment Forms --- */
 @media (max-width: 480px) {
   .form-input,
   textarea.form-input {
@@ -255,7 +395,7 @@ textarea.form-input {
     max-width: 100%;
     box-sizing: border-box;
     height: 42px;
-    font-size: 1rem;
+    font-size: 16px;
   }
 
   textarea.form-input {
@@ -270,6 +410,7 @@ textarea.form-input {
 
   .form-section.double > div {
     flex: 1;
+    min-width: 0;
   }
 
   .form-section label {

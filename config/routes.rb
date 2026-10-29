@@ -41,6 +41,7 @@ Rails.application.routes.draw do
       get :calendar
       get :by_date
       get :free_slots
+      get :check_working_hours
     end
   end
 

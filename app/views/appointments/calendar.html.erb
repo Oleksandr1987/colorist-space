@@ -1,5 +1,5 @@
 <div
-  data-controller="calendar-view"
+  data-controller="calendar-view working-hours"
   data-calendar-view-client-id-value="<%= params[:client_id] || @client&.id %>"
   data-calendar-view-dates-with-appointments-value="<%= @dates_with_appointments.to_json%>"
   data-calendar-view-client-icon-value="<%= asset_path('client.png') %>"
@@ -21,6 +21,11 @@
     "delete_confirm": "<%= t('appointments.confirm.delete') %>",
     "locale": "<%= I18n.locale %>"
   }'
+  data-working-hours-mode-value="calendar"
+  data-working-hours-url-value="<%= check_working_hours_appointments_path %>"
+  data-working-hours-day-off-message-value="<%= t('appointments.working_hours.day_off') %>"
+  data-working-hours-outside-hours-message-value="<%= t('appointments.working_hours.outside_hours') %>"
+  data-working-hours-error-message-value="<%= t('appointments.working_hours.error') %>"
   class="calendar-wrapper"
 >
 
@@ -57,4 +62,6 @@
     <h4><%= t("appointments.calendar_view.header") %></h4>
     <div data-calendar-view-target="timeline" class="timeline"></div>
   </div>
+
+  <%= render "shared/modals/working_hours" %>
 </div>

@@ -4,7 +4,8 @@ class AppointmentsController < ApplicationController
   before_action :normalize_time_params, only: %i[create update]
 
   auto_authorize :appointment, only: %i[new create edit update destroy show]
-  after_action :verify_authorized, except: %i[all calendar by_date free_slots]
+
+  after_action :verify_authorized, except: %i[all calendar by_date free_slots check_working_hours]
 
   def new
     @appointment = current_user.appointments.build
@@ -103,12 +104,10 @@ class AppointmentsController < ApplicationController
 
     Appointment.transaction do
       @appointment.update!(appointment_params.except(:service_ids))
-
       @appointment.sync_services_with_prices!(service_ids) if service_ids
     end
 
     redirect_to @appointment, notice: t("appointments.messages.updated")
-
   rescue ActiveRecord::RecordInvalid
     render :edit, status: :unprocessable_content
   end
@@ -138,7 +137,6 @@ class AppointmentsController < ApplicationController
       base_scope.search(params[:query]).for_categories(params[:categories]).for_services(params[:service_ids]).distinct
 
     dashboard_year = params[:year].present? ? params[:year].to_i : Date.current.year
-
     dashboard_month = params[:month].present? ? params[:month].to_i : Date.current.month
 
     @stats = Appointment.statistics(dashboard_scope, year: dashboard_year, month: dashboard_month)
@@ -151,10 +149,25 @@ class AppointmentsController < ApplicationController
     @dates_with_appointments = current_user.appointments.pluck(:appointment_date).map { |d| d.to_date.to_s }
   end
 
+  def check_working_hours
+    date = Date.iso8601(params.require(:date))
+
+    result = Appointments::WorkingHoursCheck.new(
+      user: current_user,
+      date: date,
+      start_time: params[:start_time],
+      end_time: params[:end_time]
+    ).call
+
+    render json: result
+  rescue ArgumentError, ActionController::ParameterMissing
+    render json: { status: "invalid_date" }, status: :unprocessable_content
+  end
+
   def by_date
     date = params[:date].presence&.to_date || Date.today
 
-    @appointments = current_user.appointments.includes(:client,  :service_note).by_date(date).order(:appointment_time)
+    @appointments = current_user.appointments.includes(:client, :service_note).by_date(date).order(:appointment_time)
 
     render json: @appointments.map(&:as_calendar_json)
   end

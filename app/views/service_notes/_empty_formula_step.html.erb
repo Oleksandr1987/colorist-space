@@ -1,7 +1,7 @@
 <div class="formula-step-wrapper empty-step" data-controller="collapse">
   <!-- HEADER -->
   <div class="formula-step-header" data-action="click->collapse#toggle">
-    <span>STEP 1</span>
+    <span><%= t("formula.step") %> 1</span>
 
     <svg class="chevron"
          xmlns="http://www.w3.org/2000/svg"
@@ -16,18 +16,9 @@
   <!-- CONTENT -->
   <div class="formula-step-content" data-collapse-target="content">
     <div class="sections-wrapper">
-      <h5>Add section</h5>
+      <h5><%= t("formula.add_section") %></h5>
 
-      <div class="sections-grid">
-        <% FormulaStep::SECTIONS.each do |section| %>
-          <button type="button"
-                  class="section-btn"
-                  data-action="click->formula#createStep click->collapse#stop"
-                  data-section="<%= section %>">
-            <%= t("formula.sections.#{section}") %>
-          </button>
-        <% end %>
-      </div>
+      <%= render "service_notes/formula_section_picker", close_on_select: false %>
     </div>
   </div>
 </div>

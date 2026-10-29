@@ -1,10 +1,14 @@
 <% service_prices = @appointment.appointment_services_relations.pluck(:service_id, :price).to_h %>
-<div class="appointment-container" data-controller="unsaved-changes"
-                                   data-unsaved-changes-back-url-value="<%= calendar_appointments_path %>"
-                                   data-unsaved-changes-initial-dirty-value="<%= @appointment.errors.any? %>">
+
+<div class="appointment-container"
+     data-controller="unsaved-changes"
+     data-unsaved-changes-back-url-value="<%= calendar_appointments_path %>"
+     data-unsaved-changes-initial-dirty-value="<%= @appointment.errors.any? %>">
+
   <%= form_with model: @appointment, local: true,
       data: {
-        controller: "calendar appointment service-selector",
+        controller: "calendar appointment service-selector working-hours",
+        action: "appointment:slot-selected->working-hours#checkTime",
         appointment_nothing_selected_value: t("appointments.nothing_selected"),
         appointment_free_slots_url_value: free_slots_appointments_path,
         appointment_no_free_slots_value: t("appointments.slots.no_free_slots"),
@@ -13,6 +17,11 @@
         service_selector_placeholder_class_value: "add-service-placeholder",
         service_selector_close_icon_value: asset_path("close.png"),
         service_selector_prices_value: service_prices.to_json,
+        working_hours_url_value: check_working_hours_appointments_path,
+        working_hours_mode_value: "form",
+        working_hours_day_off_message_value: t("appointments.working_hours.day_off"),
+        working_hours_outside_hours_message_value: t("appointments.working_hours.outside_hours"),
+        working_hours_error_message_value: t("appointments.working_hours.error"),
         unsaved_changes_target: "form"
       } do |f| %>
     <div class="appointment-header">
@@ -42,8 +51,7 @@
         data: {"calendar-target": "clientName",
           action: "input->calendar#updateClientInfo keyup->calendar#toggleClearButton focus->calendar#toggleClearButton"
         },
-        list: "client-list",
-        autocomplete: "off" %>
+        list: "client-list", autocomplete: "off" %>
 
       <% @appointment.errors.where(:client_name).each do |error| %>
         <div class="inline-error" role="alert">
@@ -68,16 +76,11 @@
         <span class="required-asterisk">*</span>
       </label>
 
-     <div class="phone-input-wrapper">
-      <%= telephone_field_tag "appointment[phone]",
-            @appointment.phone.presence || @appointment.client&.phone,
-            class: "form-input",
-            autocomplete: "tel",
-            data: {
-              controller: "phone-mask",
-              "calendar-target": "clientPhone"
-            } %>
-    </div>
+      <div class="phone-input-wrapper">
+        <%= telephone_field_tag "appointment[phone]",
+            @appointment.phone.presence || @appointment.client&.phone, class: "form-input", autocomplete: "tel", inputmode: "numeric",
+          data: { controller: "phone-mask", "calendar-target": "clientPhone" } %>
+      </div>
 
       <% @appointment.errors.where(:phone).each do |error| %>
         <div class="inline-error" role="alert">
@@ -99,7 +102,8 @@
             controller: "datepicker",
             datepicker_target: "input",
             appointment_target: "date",
-            action: "datepicker:selected->appointment#loadSlots",
+            working_hours_target: "date",
+            action: "datepicker:selected->appointment#loadSlots datepicker:selected->working-hours#checkDate",
             min: Date.current.strftime("%Y-%m-%d")
           } %>
 
@@ -120,7 +124,14 @@
         <%= f.time_field :appointment_time, step: 300, class: "form-input",
           data: {
             appointment_target: "appointmentTime",
-            action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
+            working_hours_target: "startTime",
+            action: [
+              "blur->appointment#roundToNearestFive",
+              "change->appointment#roundToNearestFive",
+              "input->appointment#validateTimes",
+              "change->appointment#validateTimes",
+              "change->working-hours#checkTime"
+            ].join(" ")
           } %>
 
         <% @appointment.errors.where(:appointment_time).each do |error| %>
@@ -139,7 +150,14 @@
         <%= f.time_field :end_time, step: 300, class: "form-input",
           data: {
             appointment_target: "endTime",
-            action: "blur->appointment#roundToNearestFive input->appointment#validateTimes change->appointment#validateTimes"
+            working_hours_target: "endTime",
+            action: [
+              "blur->appointment#roundToNearestFive",
+              "change->appointment#roundToNearestFive",
+              "input->appointment#validateTimes",
+              "change->appointment#validateTimes",
+              "change->working-hours#checkTime"
+            ].join(" ")
           } %>
 
         <% @appointment.errors.where(:end_time).each do |error| %>
@@ -153,14 +171,14 @@
         </div>
       </div>
     </div>
-
+    <!-- Available Slots -->
     <div class="appointment-slots" data-appointment-target="slots">
       <div class="appointment-slots-title">
         <%= t("appointments.form.slots") %>
       </div>
 
       <div class="appointment-slots-list"
-          data-appointment-target="slotsList">
+           data-appointment-target="slotsList">
       </div>
     </div>
     <!-- Main Services -->
@@ -176,6 +194,7 @@
     </div>
     <!-- Modals -->
     <%= render("shared/modals/service_selector", checkbox_name: "appointment[modal_dummy][]") %>
+    <%= render "shared/modals/working_hours" %>
   <% end %>
 
   <%= render "shared/modals/unsaved_changes" %>

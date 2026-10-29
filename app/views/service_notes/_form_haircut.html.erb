@@ -115,20 +115,15 @@
     <div class="add-step-content hidden" data-collapse-target="content">
       <h5><%= t("haircut.select_zone") %></h5>
 
-      <div class="haircut-zones-grid">
-        <% HaircutStep::ZONES.each do |zone| %>
-          <button type="button"
-                  class="section-btn"
-                  data-action="click->haircut#createStep click->collapse#close click->collapse#stop"
-                  data-zone="<%= zone %>">
-            <%= t("haircut.zones.#{zone.parameterize(separator: '_')}") %>
-          </button>
-        <% end %>
-      </div>
+      <%= render "service_notes/haircut_zone_picker", close_on_select: true %>
     </div>
   </div>
 
   <%= render "service_notes/empty_haircut_step" if @service_note.haircut_steps.empty? %>
   <%= render "service_notes/haircut_step_template" %>
   <%= render "service_notes/picker_modal" %>
+
+  <template data-haircut-target="emptyTemplate">
+    <%= render "service_notes/empty_haircut_step" %>
+  </template>
 </div>

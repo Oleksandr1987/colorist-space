@@ -1,3 +1,4 @@
+// app/javascript/controllers/phone_mask_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -11,18 +12,24 @@ export default class extends Controller {
     this.element.autocomplete = "tel"
 
     this.handleBeforeInput = this.handleBeforeInput.bind(this)
+    this.handleInput = this.handleInput.bind(this)
     this.handlePaste = this.handlePaste.bind(this)
     this.handleFocus = this.handleFocus.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.handleExternalChange = this.handleExternalChange.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
+    this.handlePageShow = this.handlePageShow.bind(this)
 
     this.element.addEventListener("beforeinput", this.handleBeforeInput)
+    this.element.addEventListener("input", this.handleInput)
+    this.element.addEventListener("change", this.handleInput)
     this.element.addEventListener("paste", this.handlePaste)
     this.element.addEventListener("focus", this.handleFocus)
     this.element.addEventListener("click", this.handleClick)
     this.element.addEventListener("phone-mask:change", this.handleExternalChange)
     this.element.addEventListener("blur", this.handleBlur)
+
+    window.addEventListener("pageshow", this.handlePageShow)
 
     this.createDisplay()
     this.render()
@@ -38,18 +45,23 @@ export default class extends Controller {
 
   disconnect() {
     this.element.removeAttribute("data-unsaved-ready-phone-mask")
+
     this.element.removeEventListener("beforeinput", this.handleBeforeInput)
+    this.element.removeEventListener("input", this.handleInput)
+    this.element.removeEventListener("change", this.handleInput)
     this.element.removeEventListener("paste", this.handlePaste)
     this.element.removeEventListener("focus", this.handleFocus)
     this.element.removeEventListener("click", this.handleClick)
     this.element.removeEventListener("phone-mask:change", this.handleExternalChange)
     this.element.removeEventListener("blur", this.handleBlur)
 
+    window.removeEventListener("pageshow", this.handlePageShow)
+
     this.displayElement?.remove()
   }
 
   handleFocus() {
-    this.render()
+    this.syncFromInput()
     this.moveCursorToEnd()
   }
 
@@ -58,6 +70,8 @@ export default class extends Controller {
   }
 
   handleBeforeInput(event) {
+    if (event.isComposing || !event.cancelable) return
+
     if (
       event.inputType === "deleteContentBackward" ||
       event.inputType === "deleteContentForward"
@@ -67,23 +81,29 @@ export default class extends Controller {
       return
     }
 
-    if (event.inputType === "insertFromPaste") {
+    if (event.inputType === "insertFromPaste") return
+    if (
+      event.inputType === "insertReplacementText" ||
+      event.inputType === "insertFromAutoFill"
+    ) {
       return
     }
 
-    if (event.inputType !== "insertText") {
-      return
-    }
-
-    event.preventDefault()
+    if (event.inputType !== "insertText") return
 
     const value = event.data || ""
 
     if (!/^\d+$/.test(value)) {
+      event.preventDefault()
       return
     }
 
+    event.preventDefault()
     this.insertDigits(value)
+  }
+
+  handleInput() {
+    this.syncFromInput()
   }
 
   handlePaste(event) {
@@ -92,9 +112,7 @@ export default class extends Controller {
     const pastedValue = event.clipboardData?.getData("text") || ""
     const digits = this.extractNationalDigits(pastedValue)
 
-    if (digits.length !== this.maxDigits) {
-      return
-    }
+    if (digits.length !== this.maxDigits) return
 
     this.digits = digits
     this.render()
@@ -102,25 +120,36 @@ export default class extends Controller {
   }
 
   handleExternalChange() {
-    this.digits = this.extractNationalDigits(this.element.value)
-    this.render()
+    this.syncFromInput()
   }
 
   handleBlur() {
+    this.syncFromInput()
+  }
+
+  handlePageShow() {
+    this.syncFromInput()
+  }
+
+  syncFromInput() {
+    const value = this.element.value
+
+    if (value === this.normalizedValue()) {
+      this.render()
+      return
+    }
+
+    this.digits = this.extractNationalDigits(value)
     this.render()
   }
 
   insertDigits(value) {
-    if (this.digits.length >= this.maxDigits) {
-      return
-    }
+    if (this.digits.length >= this.maxDigits) return
 
     const available = this.maxDigits - this.digits.length
     const digits = value.replace(/\D/g, "").slice(0, available)
 
-    if (!digits) {
-      return
-    }
+    if (!digits) return
 
     this.digits += digits
     this.render()
@@ -128,9 +157,7 @@ export default class extends Controller {
   }
 
   deleteLastDigit() {
-    if (this.digits.length === 0) {
-      return
-    }
+    if (this.digits.length === 0) return
 
     this.digits = this.digits.slice(0, -1)
     this.render()
@@ -140,9 +167,7 @@ export default class extends Controller {
   createDisplay() {
     const wrapper = this.element.closest(".phone-input-wrapper")
 
-    if (!wrapper) {
-      return
-    }
+    if (!wrapper) return
 
     wrapper.querySelector(".phone-mask-display")?.remove()
 
@@ -164,9 +189,7 @@ export default class extends Controller {
   }
 
   normalizedValue() {
-    if (this.digits.length === 0) {
-      return "+380"
-    }
+    if (this.digits.length === 0) return "+380"
 
     return `+380${this.digits}`
   }
@@ -207,7 +230,7 @@ export default class extends Controller {
   }
 
   extractNationalDigits(value) {
-    let digits = value.toString().replace(/\D/g, "")
+    let digits = String(value || "").replace(/\D/g, "")
 
     if (digits.startsWith("380")) {
       digits = digits.slice(3)
@@ -220,12 +243,9 @@ export default class extends Controller {
 
   moveCursorToEnd() {
     requestAnimationFrame(() => {
-      if (document.activeElement !== this.element) {
-        return
-      }
+      if (document.activeElement !== this.element) return
 
       const position = this.element.value.length
-
       this.element.setSelectionRange(position, position)
     })
   }

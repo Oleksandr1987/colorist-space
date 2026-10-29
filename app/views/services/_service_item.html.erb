@@ -13,9 +13,7 @@
     <% end %>
 
     <%= button_to service_path(service), method: :delete, class: "icon-button delete-button",
-        form: {
-          data: { turbo_confirm: t("services.list.confirm_delete") }
-        } do %>
+        form: { data: { turbo_confirm: t("services.list.confirm_delete") } } do %>
       <%= image_tag "delete.png", class: "wiz-icon", width: 24, height: 24 %>
     <% end %>
   </div>

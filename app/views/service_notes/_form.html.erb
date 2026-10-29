@@ -40,9 +40,26 @@
       <button type="button" data-action="click->unsaved-changes#close">
         <%= image_tag "close.png", class: "wiz-icon-close" %>
       </button>
-      <span data-wizard-target="title"><%= t("wizard.services") %></span>
-      <button type="submit" class="appointment-save-button"><%= t("common.save").upcase %></button>
+
+      <span class="wizard-top-title" data-wizard-target="title">
+        <%= t("wizard.services") %>
+      </span>
+
+      <button type="submit" class="appointment-save-button">
+        <%= t("common.save").upcase %>
+      </button>
       <div id="save_status"></div>
+    </div>
+    <div class="wizard-top-info">
+      <span class="wizard-top-client">
+        <%= @client.full_name %>
+      </span>
+
+      <% if @appointment&.appointment_date.present? %>
+        <span class="wizard-top-date">
+          <%= l(@appointment.appointment_date, format: "%d.%m.%Y") %>
+        </span>
+      <% end %>
     </div>
     <!-- NAV -->
     <div class="wizard-nav">

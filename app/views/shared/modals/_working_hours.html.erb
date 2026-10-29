@@ -1,0 +1,27 @@
+<div class="unsaved-modal hidden" data-working-hours-target="modal">
+
+  <div class="unsaved-modal-backdrop"></div>
+
+  <div class="unsaved-modal-card" role="dialog" aria-modal="true" aria-labelledby="working-hours-message">
+    <div class="unsaved-modal-heading">
+      <div class="unsaved-modal-icon" aria-hidden="true">
+        <%= image_tag "alert.png", alt: "" %>
+      </div>
+
+      <p id="working-hours-message"
+         data-working-hours-target="message"></p>
+    </div>
+
+    <div class="unsaved-modal-actions">
+      <button type="button" class="unsaved-save" data-action="click->working-hours#confirm">
+        <%= t("appointments.working_hours.confirm") %>
+      </button>
+
+      <div class="unsaved-secondary-actions">
+        <button type="button" class="unsaved-continue" data-action="click->working-hours#cancel">
+          <%= t("common.cancel") %>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

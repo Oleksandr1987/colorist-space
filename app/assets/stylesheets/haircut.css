@@ -21,21 +21,22 @@
   text-transform: uppercase;
 }
 
-.haircut-zones-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+.haircut-zones-grid .section-button.occupied {
+  opacity: 0.65;
 }
 
-.haircut-zones-grid .section-btn.occupied {
-  background: #eee9f2;
-  color: #777;
-  border: 1px solid #b8a7c2;
+.haircut-zones-grid .section-button.occupied .section-button-image {
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.08);
 }
 
-.haircut-zones-grid .section-btn.occupied::after {
-  content: " · " attr(data-step-label) " " attr(data-step-number);
-  font-size: 0.75em;
+.haircut-zones-grid .section-button.occupied .section-button-label {
+  color: #5b21b6;
+}
+
+.haircut-zones-grid .section-button.occupied::after {
+  content: attr(data-step-label) " " attr(data-step-number);
+  font-size: 11px;
   font-weight: 600;
   color: #7c3aed;
 }
