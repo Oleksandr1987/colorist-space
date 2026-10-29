@@ -324,10 +324,42 @@ textarea.form-input {
   flex-shrink: 0;
 }
 
-.appointment-container .appointment-time-field .form-input {
+/* --- Appointment Time Inputs: iOS / Android --- */
+.appointment-container .appointment-time-field input[type="time"] {
+  display: block;
   width: 100%;
   min-width: 0;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
+  padding: 0 12px;
+  margin: 0;
   box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #222;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* iOS Safari: native time editor */
+.appointment-container .appointment-time-field input[type="time"]::-webkit-date-and-time-value {
+  min-height: 0;
+  height: auto;
+  line-height: normal;
+  text-align: left;
+}
+
+.appointment-container .appointment-time-field input[type="time"]::-webkit-datetime-edit {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  line-height: normal;
 }
 
 .appointment-container .appointment-time-field .inline-error {

@@ -1,0 +1,29 @@
+<% zone_images = {
+  "lower_occipital" => "lower_occ.png",
+  "upper_occipital" => "upper_occ.png",
+  "temporal" => "temporal.png",
+  "fringe" => "fringe.png",
+  "crown" => "crown.png",
+  "all_over" => "whole.png"
+} %>
+
+<div class="sections-grid haircut-zones-grid">
+  <% HaircutStep::ZONES.each do |zone| %>
+    <% key = zone.parameterize(separator: "_") %>
+
+    <button type="button"
+            class="section-button"
+            data-action="click->haircut#createStep <%= close_on_select ? 'click->collapse#close ' : '' %>click->collapse#stop"
+            data-zone="<%= zone %>"
+            aria-label="<%= t("haircut.zones.#{key}") %>">
+
+      <span class="section-button-image">
+        <%= image_tag zone_images.fetch(key), alt: "", width: 96, height: 96, loading: "lazy" %>
+      </span>
+
+      <span class="section-button-label">
+        <%= t("haircut.zones.#{key}") %>
+      </span>
+    </button>
+  <% end %>
+</div>

@@ -1,0 +1,18 @@
+<div class="sections-grid">
+  <% FormulaStep::SECTIONS.each do |section| %>
+    <button type="button"
+            class="section-button"
+            data-action="click->formula#createStep <%= close_on_select ? 'click->collapse#close ' : '' %>click->collapse#stop"
+            data-section="<%= section %>"
+            aria-label="<%= t("formula.sections.#{section}") %>">
+
+      <span class="section-button-image">
+        <%= image_tag "#{section}.png", alt: "", width: 96, height: 96, loading: "lazy" %>
+      </span>
+
+      <span class="section-button-label">
+        <%= t("formula.sections.#{section}") %>
+      </span>
+    </button>
+  <% end %>
+</div>

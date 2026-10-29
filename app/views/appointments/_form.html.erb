@@ -78,7 +78,7 @@
 
       <div class="phone-input-wrapper">
         <%= telephone_field_tag "appointment[phone]",
-            @appointment.phone.presence || @appointment.client&.phone, class: "form-input", autocomplete: "tel",
+            @appointment.phone.presence || @appointment.client&.phone, class: "form-input", autocomplete: "tel", inputmode: "numeric",
           data: { controller: "phone-mask", "calendar-target": "clientPhone" } %>
       </div>
 

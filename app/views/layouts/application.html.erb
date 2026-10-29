@@ -29,14 +29,27 @@
     <div class="flash-container">
       <% flash.each do |type, message| %>
         <% next if controller_name == "sessions" &&
-                  action_name == "new" &&
-                  type.to_sym == :alert %>
+                    action_name == "new" &&
+                    type.to_sym == :alert %>
+
+        <% error_flash = type.to_s.in?(%w[alert error danger]) %>
 
         <div class="flash <%= type %>"
-             data-controller="flash"
-             data-flash-duration-value="2500"
-             role="<%= type.to_s.in?(%w[alert danger]) ? 'alert' : 'status' %>">
-          <%= message %>
+            data-controller="flash"
+            data-flash-duration-value="2500"
+            data-flash-auto-dismiss-value="<%= !error_flash %>"
+            role="<%= error_flash ? 'alert' : 'status' %>">
+
+          <span class="flash-message">
+            <%= message %>
+          </span>
+
+          <button type="button"
+                  class="flash-close"
+                  data-action="click->flash#dismiss"
+                  aria-label="<%= t('common.close') %>">
+            &times;
+          </button>
         </div>
       <% end %>
     </div>
