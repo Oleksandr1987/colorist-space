@@ -266,7 +266,7 @@ textarea.form-input {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
+  min-height: 32px;
   padding: 0 18px;
   border: none;
   border-radius: 10px;
@@ -366,6 +366,196 @@ textarea.form-input {
   margin-top: 5px;
 }
 
+/* ===== CLIENT NAME AUTOCOMPLETE ===== */
+.client-input-wrapper {
+  position: relative;
+}
+
+.client-name-field {
+  position: relative;
+}
+
+.client-name-input {
+  width: 100%;
+  padding-right: 82px !important;
+  font-size: 16px;
+}
+
+.client-name-clear,
+.client-name-open {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.client-name-clear {
+  right: 44px;
+  width: 36px;
+}
+
+.client-name-open {
+  right: 0;
+  width: 44px;
+  color: #777;
+}
+
+.client-name-clear img {
+  width: 16px;
+  height: 16px;
+}
+
+.client-name-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 260px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.client-name-suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.client-name-suggestion:last-child {
+  border-bottom: 0;
+}
+
+.client-name-suggestion-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  text-align: left;
+}
+
+.client-name-suggestion-content strong,
+.client-name-suggestion-content small {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.client-name-suggestion-content strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+}
+
+.client-name-suggestion-content small {
+  font-size: 12px;
+  color: #777;
+}
+
+.client-name-suggestion:active {
+  background: #f4effb;
+}
+
+.client-name-suggestions.hidden,
+.client-name-clear.hidden {
+  display: none;
+}
+
+/* Modal */
+.client-selector-modal .wizard-modal-content {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.client-selector-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0 16px 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Client row */
+.client-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-bottom: 1px solid #e8e8e8;
+  background: transparent;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.client-selector-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #e9dff7;
+  color: #5424b5;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.client-selector-row-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 4px;
+}
+
+.client-selector-row-name {
+  color: #222;
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.client-selector-row-phone {
+  color: #777;
+  font-size: 13px;
+}
+
+.client-selector-empty {
+  padding: 24px 12px;
+  color: #888;
+  font-size: 14px;
+  text-align: center;
+}
+
+.client-selector-modal .hidden {
+  display: none;
+}
+
 /* --- Mobile: Appointment Details --- */
 @media (max-width: 600px) {
   .appointment-details {
@@ -385,7 +575,57 @@ textarea.form-input {
     width: 160px;
     min-height: 42px;
   }
+
+  .client-selector-list {
+    padding: 0 14px 24px;
+  }
 }
+
+
+/* ===== APPOINTMENT FORM SPACING ===== */
+.appointment-container .appointment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.appointment-container .appointment-form > .appointment-header,
+.appointment-container .appointment-form > .client-input-wrapper,
+.appointment-container .appointment-form > .form-section,
+.appointment-container .appointment-form > .appointment-slots {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.appointment-container .appointment-form .client-input-wrapper > label,
+.appointment-container .appointment-form .form-section > label,
+.appointment-container .appointment-form .appointment-time-label,
+.appointment-container .appointment-form .appointment-services-field > label {
+  display: block;
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+.appointment-container .appointment-form .appointment-time-label {
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+}
+
+.appointment-container .appointment-form .appointment-slots-title {
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+.appointment-container .appointment-form .appointment-slots.hidden {
+  display: none;
+}
+
+.appointment-container .appointment-form > .wizard-modal,
+.appointment-container .appointment-form > .wizard-modal.hidden {
+  margin: 0;
+}
+
 
 /* --- Mobile: Appointment Forms --- */
 @media (max-width: 480px) {

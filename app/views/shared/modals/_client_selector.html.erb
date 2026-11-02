@@ -1,0 +1,63 @@
+<div class="wizard-modal client-selector-modal hidden"
+     data-client-selector-target="modal"
+     role="dialog"
+     aria-modal="true"
+     aria-label="<%= t('appointments.form.client_name') %>"
+     aria-hidden="true">
+
+  <div class="wizard-modal-content">
+    <div class="appointment-header modal-header">
+      <div class="appointment-header-left">
+        <button type="button"
+                class="back-link inline"
+                aria-label="<%= t('wizard.back') %>"
+                data-action="click->client-selector#close">
+          <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
+        </button>
+
+        <h2><%= t("clients.title") %></h2>
+      </div>
+    </div>
+
+    <div class="wizard-modal-search">
+      <input type="search"
+             class="form-input"
+             autocomplete="off"
+             placeholder="<%= t('clients.search_placeholder') %>"
+             data-client-selector-target="search"
+             data-action="input->client-selector#filterModal">
+    </div>
+
+    <div class="wizard-modal-list client-selector-list">
+      <% current_user.clients.active.alphabetical.with_phones.each do |client| %>
+        <button type="button"
+                class="client-selector-row"
+                data-client-selector-target="row"
+                data-action="click->client-selector#selectModalClient"
+                data-client-id="<%= client.id %>"
+                data-name="<%= client.full_name %>"
+                data-phone="<%= client.phone %>"
+                data-search-phones="<%= ([client.phone] + client.client_phones.map(&:phone)).compact.join(' ') %>">
+
+          <span class="client-selector-avatar">
+            <%= client.first_name.first.upcase %>
+          </span>
+
+          <span class="client-selector-row-content">
+            <span class="client-selector-row-name">
+              <%= client.full_name %>
+            </span>
+
+            <span class="client-selector-row-phone">
+              <%= client.phone %>
+            </span>
+          </span>
+        </button>
+      <% end %>
+
+      <div class="client-selector-empty hidden" data-client-selector-target="empty">
+        <%= t("clients.none_found") %>
+      </div>
+    </div>
+  </div>
+</div>

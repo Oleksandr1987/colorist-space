@@ -5,9 +5,9 @@
      data-unsaved-changes-back-url-value="<%= calendar_appointments_path %>"
      data-unsaved-changes-initial-dirty-value="<%= @appointment.errors.any? %>">
 
-  <%= form_with model: @appointment, local: true,
+  <%= form_with model: @appointment, local: true, html: { class: "appointment-form" },
       data: {
-        controller: "calendar appointment service-selector working-hours",
+        controller: "client-selector appointment service-selector working-hours",
         action: "appointment:slot-selected->working-hours#checkTime",
         appointment_nothing_selected_value: t("appointments.nothing_selected"),
         appointment_free_slots_url_value: free_slots_appointments_path,
@@ -40,34 +40,77 @@
     </div>
     <!-- Client Name -->
     <div class="client-input-wrapper">
-      <label>
+      <label for="appointment_client_name">
         <%= t("appointments.form.client_name") %>
         <span class="required-asterisk">*</span>
       </label>
-      <%= text_field_tag "appointment[client_name]",
-        @appointment.client_name,
-        class: "form-input client-name-input",
-        placeholder: t("appointments.form.client_name_placeholder"),
-        data: {"calendar-target": "clientName",
-          action: "input->calendar#updateClientInfo keyup->calendar#toggleClearButton focus->calendar#toggleClearButton"
-        },
-        list: "client-list", autocomplete: "off" %>
+
+      <div class="client-name-field">
+        <%= text_field_tag "appointment[client_name]",
+            @appointment.client_name.presence || @appointment.client&.full_name,
+            id: "appointment_client_name",
+            class: "form-input client-name-input",
+            placeholder: t("appointments.form.client_name_placeholder"),
+            autocomplete: "off",
+            data: {
+              client_selector_target: "name",
+              action: "input->client-selector#input focus->client-selector#focus"
+            } %>
+
+        <%= hidden_field_tag "appointment[client_id]",
+            params[:appointment]&.key?(:client_id) ? params[:appointment][:client_id] : @appointment.client_id,
+            data: { client_selector_target: "clientId" } %>
+
+        <button type="button"
+                class="client-name-clear hidden"
+                aria-label="<%= t('appointments.form.clear_client_name') %>"
+                data-client-selector-target="clearButton"
+                data-action="click->client-selector#clear">
+          <%= image_tag "close.png", width: 18, height: 18 %>
+        </button>
+
+        <button type="button"
+                class="client-name-open"
+                aria-label="<%= t('appointments.form.select_client') %>"
+                data-action="click->client-selector#open">
+          <svg width="20" height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </button>
+
+        <!-- Live suggestions -->
+        <div class="client-name-suggestions hidden" data-client-selector-target="suggestions">
+          <% current_user.clients.active.alphabetical.each do |client| %>
+            <button type="button"
+                    class="client-name-suggestion"
+                    data-client-selector-target="suggestion"
+                    data-action="click->client-selector#selectSuggestion"
+                    data-client-id="<%= client.id %>"
+                    data-name="<%= client.full_name %>"
+                    data-phone="<%= client.phone %>">
+
+              <span class="client-selector-avatar">
+                <%= client.first_name.first.upcase %>
+              </span>
+
+              <span class="client-name-suggestion-content">
+                <strong><%= client.full_name %></strong>
+                <small><%= client.phone %></small>
+              </span>
+            </button>
+          <% end %>
+        </div>
+      </div>
 
       <% @appointment.errors.where(:client_name).each do |error| %>
         <div class="inline-error" role="alert">
           <%= error.message %>
         </div>
       <% end %>
-
-      <button type="button" class="clear-client-btn hidden" data-calendar-target="clearButton" data-action="click->calendar#clearClientField">
-        <%= image_tag "close.png", class: "clear-icon" %>
-      </button>
-
-      <datalist id="client-list" data-calendar-target="clientList">
-        <% current_user.clients.each do |client| %>
-          <option value="<%= client.full_name %>" data-phone="<%= client.phone %>">
-        <% end %>
-      </datalist>
     </div>
     <!-- Phone -->
     <div class="form-section">
@@ -79,7 +122,7 @@
       <div class="phone-input-wrapper">
         <%= telephone_field_tag "appointment[phone]",
             @appointment.phone.presence || @appointment.client&.phone, class: "form-input", autocomplete: "tel", inputmode: "numeric",
-          data: { controller: "phone-mask", "calendar-target": "clientPhone" } %>
+          data: { controller: "phone-mask", client_selector_target: "phone" } %>
       </div>
 
       <% @appointment.errors.where(:phone).each do |error| %>
@@ -171,6 +214,11 @@
         </div>
       </div>
     </div>
+    <!-- Main Services -->
+    <%= render "shared/service_selector",
+      label: t("appointments.form.services"),
+      selected_ids: @appointment.service_ids,
+      selected_names: @appointment.services.map(&:name).join(", ") %>
     <!-- Available Slots -->
     <div class="appointment-slots" data-appointment-target="slots">
       <div class="appointment-slots-title">
@@ -181,11 +229,6 @@
            data-appointment-target="slotsList">
       </div>
     </div>
-    <!-- Main Services -->
-    <%= render "shared/service_selector",
-      label: t("appointments.form.services"),
-      selected_ids: @appointment.service_ids,
-      selected_names: @appointment.services.map(&:name).join(", ") %>
     <!-- Notes -->
     <div class="form-section">
       <%= f.label :notes, t("appointments.form.notes") %>
@@ -195,6 +238,7 @@
     <!-- Modals -->
     <%= render("shared/modals/service_selector", checkbox_name: "appointment[modal_dummy][]") %>
     <%= render "shared/modals/working_hours" %>
+    <%= render "shared/modals/client_selector" %>
   <% end %>
 
   <%= render "shared/modals/unsaved_changes" %>
