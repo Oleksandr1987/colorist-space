@@ -4,7 +4,8 @@ class AppointmentsController < ApplicationController
   before_action :normalize_time_params, only: %i[create update]
 
   auto_authorize :appointment, only: %i[new create edit update destroy show]
-  after_action :verify_authorized, except: %i[all calendar by_date free_slots]
+
+  after_action :verify_authorized, except: %i[all calendar by_date free_slots check_working_hours]
 
   def new
     @appointment = current_user.appointments.build
@@ -31,18 +32,8 @@ class AppointmentsController < ApplicationController
     appointment_data = params.require(:appointment)
 
     @appointment = current_user.appointments.build(appointment_params.except(:service_ids))
-    @appointment.client_name = appointment_data[:client_name].to_s.strip
 
-    raw_phone = appointment_data[:phone].to_s
-    @appointment.phone = PhoneValidator.normalize(raw_phone)
-
-    @appointment.errors.add(:client_name, :blank) if @appointment.client_name.blank?
-
-    if raw_phone.gsub(/\D/, "").length <= 3
-      @appointment.errors.add(:phone, :blank)
-    end
-
-    @appointment.errors.add(:appointment_time, :blank) if @appointment.appointment_time.blank?
+    assign_client_fields(appointment_data)
 
     if @appointment.errors.any?
       render :new, status: :unprocessable_content
@@ -52,24 +43,14 @@ class AppointmentsController < ApplicationController
     service_ids = Array(appointment_data[:service_ids]).compact_blank.map(&:to_i)
 
     Appointment.transaction do
-      @appointment.client = Client.resolve_for_appointment(
-        user: current_user,
-        full_name: @appointment.client_name,
-        phone: @appointment.phone
-      )
-
+      @appointment.client = resolve_appointment_client!(appointment_data)
       @appointment.save!
       @appointment.sync_services_with_prices!(service_ids)
     end
 
     redirect_to @appointment, notice: t("appointments.messages.created")
   rescue ActiveRecord::RecordInvalid => error
-    if error.record == @appointment
-      @appointment.errors.add(:base, error.message) if @appointment.errors.empty?
-    else
-      @appointment.errors.add(:phone, :invalid_phone)
-    end
-
+    handle_client_error(error)
     render :new, status: :unprocessable_content
   end
 
@@ -78,38 +59,26 @@ class AppointmentsController < ApplicationController
   def update
     appointment_data = params.require(:appointment)
 
-    new_name = appointment_data[:client_name].to_s.strip
-    new_phone = PhoneValidator.normalize(appointment_data[:phone])
+    @appointment.assign_attributes(appointment_params.except(:service_ids))
 
-    current_client = @appointment.client
-    current_name = current_client.full_name
-
-    @appointment.client_name = new_name
-    @appointment.phone = new_phone
-
-    @appointment.errors.add(:client_name, :blank) if new_name.blank?
-    @appointment.errors.add(:phone, :blank) if new_phone.blank?
+    assign_client_fields(appointment_data)
 
     if @appointment.errors.any?
       render :edit, status: :unprocessable_content
       return
     end
 
-    if new_name != current_name
-      @appointment.client = Client.resolve_for_appointment(user: current_user, full_name: new_name, phone: new_phone)
-    end
-
     service_ids = Array(appointment_data[:service_ids]).compact_blank.map(&:to_i) if appointment_data.key?(:service_ids)
 
     Appointment.transaction do
-      @appointment.update!(appointment_params.except(:service_ids))
-
+      @appointment.client = resolve_appointment_client!(appointment_data)
+      @appointment.save!
       @appointment.sync_services_with_prices!(service_ids) if service_ids
     end
 
     redirect_to @appointment, notice: t("appointments.messages.updated")
-
-  rescue ActiveRecord::RecordInvalid
+  rescue ActiveRecord::RecordInvalid => error
+    handle_client_error(error)
     render :edit, status: :unprocessable_content
   end
 
@@ -138,7 +107,6 @@ class AppointmentsController < ApplicationController
       base_scope.search(params[:query]).for_categories(params[:categories]).for_services(params[:service_ids]).distinct
 
     dashboard_year = params[:year].present? ? params[:year].to_i : Date.current.year
-
     dashboard_month = params[:month].present? ? params[:month].to_i : Date.current.month
 
     @stats = Appointment.statistics(dashboard_scope, year: dashboard_year, month: dashboard_month)
@@ -151,10 +119,25 @@ class AppointmentsController < ApplicationController
     @dates_with_appointments = current_user.appointments.pluck(:appointment_date).map { |d| d.to_date.to_s }
   end
 
+  def check_working_hours
+    date = Date.iso8601(params.require(:date))
+
+    result = Appointments::WorkingHoursCheck.new(
+      user: current_user,
+      date: date,
+      start_time: params[:start_time],
+      end_time: params[:end_time]
+    ).call
+
+    render json: result
+  rescue ArgumentError, ActionController::ParameterMissing
+    render json: { status: "invalid_date" }, status: :unprocessable_content
+  end
+
   def by_date
     date = params[:date].presence&.to_date || Date.today
 
-    @appointments = current_user.appointments.includes(:client,  :service_note).by_date(date).order(:appointment_time)
+    @appointments = current_user.appointments.includes(:client, :service_note).by_date(date).order(:appointment_time)
 
     render json: @appointments.map(&:as_calendar_json)
   end
@@ -187,6 +170,84 @@ class AppointmentsController < ApplicationController
       next unless params[:appointment][field]
 
       params[:appointment][field] = Time.zone.parse(params[:appointment][field])
+    end
+  end
+
+  def assign_client_fields(data)
+    @appointment.client_name = data[:client_name].to_s.strip
+    @appointment.phone = PhoneValidator.normalize(data[:phone])
+
+    if @appointment.client_name.blank?
+      @appointment.errors.add(:client_name, :blank)
+    end
+
+    raw_digits = data[:phone].to_s.gsub(/\D/, "")
+
+    if raw_digits.length <= 3
+      @appointment.errors.add(:phone, :blank)
+    end
+  end
+
+  def resolve_appointment_client!(data)
+    client_id = data[:client_id].presence
+
+    if client_id
+      client = current_user.clients.find_by(id: client_id)
+
+      unless client
+        @appointment.errors.add(:client_name, :invalid)
+        raise ActiveRecord::RecordInvalid, @appointment
+      end
+
+      @appointment.client_name = client.full_name
+      return client
+    end
+
+    first_name, last_name =
+      @appointment.client_name.split(/\s+/, 2)
+
+    normalized_phone = @appointment.phone
+    phone_owner = current_user.clients.find_by(phone: normalized_phone)
+
+    phone_owner ||= current_user.clients
+      .joins(:client_phones)
+      .find_by(client_phones: { phone: normalized_phone })
+
+    if phone_owner
+      requested_name = Client.normalized_full_name(first_name, last_name)
+
+      if phone_owner.normalized_name != requested_name
+        @appointment.errors.add(:phone, :taken)
+        raise ActiveRecord::RecordInvalid, @appointment
+      end
+
+      phone_owner.restore! if phone_owner.archived?
+      return phone_owner
+    end
+
+    normalized_name = Client.normalized_full_name(first_name, last_name)
+    existing_client = current_user.clients.find_by(normalized_name: normalized_name)
+
+    if existing_client
+      existing_client.restore! if existing_client.archived?
+      return existing_client
+    end
+
+    current_user.clients.create!(first_name: first_name, last_name: last_name.to_s, phone: normalized_phone)
+  end
+
+  def handle_client_error(error)
+    return if error.record == @appointment
+
+    if error.record.is_a?(Client)
+      error.record.errors.each do |client_error|
+        attribute = client_error.attribute == :phone ? :phone : :client_name
+        @appointment.errors.add(attribute, client_error.message)
+      end
+    end
+
+    if @appointment.errors.empty?
+      @appointment.errors.add(:base, error.message)
     end
   end
 

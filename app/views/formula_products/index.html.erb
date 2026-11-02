@@ -1,4 +1,4 @@
-<div class="service-wrapper"
+<div class="service-wrapper formula-products-page"
      data-controller="service"
      data-service-formula-filters-value="true"
      data-service-formula-category-value="<%= @formula_category %>"
@@ -14,95 +14,93 @@
       <span><%= t("services.pages.formula_ingredients") %></span>
     </div>
 
-    <%= link_to new_formula_product_path(category: "color"), class: "formula-add-button", data: { service_target: "formulaAddButton" } do %>
-      <%= image_tag "plus.png", width: 24, height: 24 %>
+    <%= link_to new_formula_product_path(category: @formula_category),
+          class: "formula-add-button",
+          data: { service_target: "formulaAddButton" } do %>
+      <%= image_tag "plus.png", width: 24, height: 24, alt: "" %>
     <% end %>
   </div>
 
-  <div class="care-products-page-search">
-    <input type="text"
-           placeholder="<%= t("formula_products.menu.search_placeholder") %>"
-           class="formula-search-input"
-           data-service-target="search"
-           data-action="input->service#filterFormulaProducts">
-  </div>
+  <%# CATEGORY TABS %>
+  <div class="formula-category-tabs">
+    <div class="formula-category-buttons">
+      <button type="button"
+              class="filter-button <%= 'active' if @formula_category == 'color' %>"
+              data-formula-category="color"
+              data-action="click->service#selectFormulaCategory">
+        <%= t("formula_products.tabs.colors") %>
+      </button>
 
-  <%# COLOR / OXIDANT %>
-  <div class="care-products-filters">
+      <button type="button"
+              class="filter-button <%= 'active' if @formula_category == 'oxidant' %>"
+              data-formula-category="oxidant"
+              data-action="click->service#selectFormulaCategory">
+        <%= t("formula_products.tabs.oxidants") %>
+      </button>
+    </div>
+
     <button type="button"
-            class="filter-button <%= 'active' if @formula_category == 'color' %>"
-            data-formula-category="color"
-            data-action="click->service#selectFormulaCategory">
-      <%= t("formula_products.tabs.colors") %>
-    </button>
-
-    <button type="button"
-            class="filter-button <%= 'active' if @formula_category == 'oxidant' %>"
-            data-formula-category="oxidant"
-            data-action="click->service#selectFormulaCategory">
-      <%= t("formula_products.tabs.oxidants") %>
+            class="formula-filter-toggle"
+            data-service-target="toggleButton"
+            data-action="click->service#toggleFormulaFilters"
+            aria-label="<%= t('formula_products.filters.title') %>"
+            aria-expanded="false">
+      <%= image_tag "filter.png", width: 20, height: 20, alt: "" %>
     </button>
   </div>
 
-  <%# COLOR BRANDS %>
-  <div data-service-target="colorFilters" class="<%= 'hidden' unless @formula_category == 'color' %>">
-    <% if @color_brands.any? %>
-      <div class="care-products-filters">
-        <% @color_brands.each do |brand| %>
-          <button type="button" class="filter-button" data-brand="<%= brand.downcase %>" data-action="click->service#filterFormulaBrand">
-            <%= brand %>
-          </button>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
+  <%# BRAND FILTERS - HIDDEN BY DEFAULT %>
+  <div class="formula-brand-filters hidden"
+       data-service-target="formulaBrandFilters">
 
-  <%# OXIDANT FILTERS %>
-  <div data-service-target="oxidantFilters" class="<%= 'hidden' unless @formula_category == 'oxidant' %>">
-    <%# Oxidant brands %>
-    <% if @oxidant_brands.any? %>
-      <div class="care-products-filters">
-        <% @oxidant_brands.each do |brand| %>
-          <button type="button" class="filter-button" data-brand="<%= brand.downcase %>" data-action="click->service#filterFormulaBrand">
-            <%= brand %>
-          </button>
-        <% end %>
-      </div>
-    <% end %>
+    <div data-service-target="colorFilters"
+         class="<%= 'hidden' unless @formula_category == 'color' %>">
+      <% if @color_brands.any? %>
+        <div class="care-products-filters">
+          <% @color_brands.each do |brand| %>
+            <button type="button"
+                    class="filter-button"
+                    data-brand="<%= brand.downcase %>"
+                    data-action="click->service#filterFormulaBrand">
+              <%= brand %>
+            </button>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
 
-    <%# Oxidant concentrations: 1.9%, 3%, 20 vol, 30 vol, etc. %>
-    <% if @oxidant_concentrations.any? %>
-      <div class="care-products-filters">
-        <% @oxidant_concentrations.each do |concentration| %>
-          <button type="button" class="filter-button" data-concentration="<%= concentration.downcase %>" data-action="click->service#filterFormulaConcentration">
-            <%= concentration %>
-          </button>
-        <% end %>
-      </div>
-    <% end %>
+    <div data-service-target="oxidantFilters"
+         class="<%= 'hidden' unless @formula_category == 'oxidant' %>">
+      <% if @oxidant_brands.any? %>
+        <div class="care-products-filters">
+          <% @oxidant_brands.each do |brand| %>
+            <button type="button"
+                    class="filter-button"
+                    data-brand="<%= brand.downcase %>"
+                    data-action="click->service#filterFormulaBrand">
+              <%= brand %>
+            </button>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
   </div>
 
   <%# PRODUCTS %>
-  <div class="service-list scrollable-service-list" data-service-target="list">
+  <div class="service-list scrollable-service-list"
+       data-service-target="list">
+
     <% @formula_products.each do |product| %>
       <div id="<%= dom_id(product) %>"
-           class="service-item"
+           class="service-item formula-product-item"
            data-name="<%= "#{product.brand} #{product.name}".downcase %>"
            data-category="<%= product.category.to_s.downcase %>"
-           data-brand="<%= product.brand.to_s.downcase %>"
-           data-concentration="<%= product.concentration.to_s.downcase %>">
+           data-brand="<%= product.brand.to_s.downcase %>">
 
         <div class="service-info">
           <div class="service-name">
             <strong><%= product.brand %></strong>
-
-            <% if product.name.present? %>
-              <%= product.name %>
-            <% end %>
-          </div>
-
-          <div class="service-category">
-            <%= t("formula_products.tabs.#{product.category == 'color' ? 'colors' : 'oxidants'}") %>
+            <%= product.name if product.name.present? %>
           </div>
 
           <div class="service-price">
@@ -110,11 +108,39 @@
           </div>
         </div>
 
-        <div class="service-actions">
-          <%= link_to edit_formula_product_path(product), class: "icon-button", aria: { label: t("common.edit") } do %>
-            <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16, alt: t("common.edit") %>
+        <div class="service-actions formula-product-actions">
+          <%= link_to edit_formula_product_path(product),
+                class: "icon-button",
+                aria: { label: t("common.edit") } do %>
+            <%= image_tag "pencil.png",
+                  class: "wiz-icon",
+                  width: 20,
+                  height: 20,
+                  alt: "" %>
+          <% end %>
+
+          <%= button_to formula_product_path(product),
+                method: :delete,
+                class: "icon-button delete-button",
+                form: {
+                  data: {
+                    turbo_confirm: t("formula_products.confirm_delete")
+                  }
+                },
+                aria: { label: t("formula_products.actions.delete") } do %>
+            <%= image_tag "delete.png",
+                  class: "wiz-icon",
+                  width: 20,
+                  height: 20,
+                  alt: "" %>
           <% end %>
         </div>
+      </div>
+    <% end %>
+
+    <% if @formula_products.empty? %>
+      <div class="formula-products-empty">
+        <%= t("formula_products.empty") %>
       </div>
     <% end %>
   </div>

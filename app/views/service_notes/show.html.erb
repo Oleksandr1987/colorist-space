@@ -38,7 +38,7 @@
       <div class="note-no-photo">
         <%= link_to edit_client_service_note_path(@client, @service_note, step: "photos"), class: "add-photo-button" do %>
           <%= image_tag "camera.png", width: 28, height: 28 %>
-          <span>ADD PHOTO</span>
+          <span><%= t("clients.form.add_photos") %></span>
         <% end %>
       </div>
     <% end %>
@@ -130,7 +130,7 @@
             <div data-controller="collapse" class="note-step">
               <div class="note-step-pill" data-action="click->collapse#toggle">
                 <span>
-                  STEP <%= index + 1 %>
+                  <%= t("haircut.step") %> <%= index + 1 %>
                 </span>
 
                 <svg class="chevron"
@@ -179,7 +179,7 @@
             <div data-controller="collapse" class="note-step">
               <div class="note-step-pill" data-action="click->collapse#toggle">
                 <span>
-                  STEP <%= index + 1 %>
+                  <%= t("formula.step") %> <%= index + 1 %>
                 </span>
 
                 <svg class="chevron"

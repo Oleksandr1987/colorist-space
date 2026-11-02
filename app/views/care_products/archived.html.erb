@@ -1,9 +1,7 @@
 <div class="care-products-page">
   <header class="care-products-header">
-    <%= link_to care_products_path,
-      class: "care-products-back",
-      aria: { label: t("common.back", default: "Back") } do %>
-      ‹
+    <%= link_to care_products_path, class: "care-products-back", aria: { label: t("common.back", default: "Back") } do %>
+      <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
     <% end %>
 
     <h1><%= t("care_products.archive.title") %></h1>

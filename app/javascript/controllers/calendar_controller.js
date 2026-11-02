@@ -5,8 +5,6 @@ export default class extends Controller {
   static targets = ["clientName", "clientPhone", "clientList", "clearButton"]
 
   connect() {
-    console.log("✅ CalendarController connected")
-
     this.clients = {}
     if (this.hasClientListTarget) {
       Array.from(this.clientListTarget.options).forEach(option => {
@@ -16,19 +14,40 @@ export default class extends Controller {
       })
     }
 
+    this.selectedClientName = null
+
     if (this.hasClientNameTarget) {
-      this.updateClientInfo({ target: this.clientNameTarget })
+      const name = this.clientNameTarget.value.trim().toLowerCase()
+
+      if (Object.hasOwn(this.clients, name)) {
+        this.selectedClientName = name
+      }
+
       this.toggleClearButton()
     }
   }
 
   updateClientInfo(event) {
     const enteredName = event.target.value.trim().toLowerCase()
-    const phone = this.clients[enteredName] || ""
+    const hasClient = Object.hasOwn(this.clients, enteredName)
 
-    if (this.hasClientPhoneTarget) {
-      this.clientPhoneTarget.value = phone
-      this.clientPhoneTarget.dispatchEvent(new CustomEvent("phone-mask:change"))
+    if (hasClient) {
+      const phone = this.clients[enteredName]
+
+      if (this.hasClientPhoneTarget) {
+        this.clientPhoneTarget.value = phone
+        this.clientPhoneTarget.dispatchEvent(new CustomEvent("phone-mask:change"))
+      }
+
+      this.selectedClientName = enteredName
+    } else {
+
+      if (this.selectedClientName && this.hasClientPhoneTarget) {
+        this.clientPhoneTarget.value = ""
+        this.clientPhoneTarget.dispatchEvent(new CustomEvent("phone-mask:change"))
+      }
+
+      this.selectedClientName = null
     }
 
     this.toggleClearButton()
@@ -37,15 +56,14 @@ export default class extends Controller {
   toggleClearButton() {
     if (!this.hasClearButtonTarget) return
 
-    if (this.clientNameTarget.value.trim() === "") {
-      this.clearButtonTarget.classList.add("hidden")
-    } else {
-      this.clearButtonTarget.classList.remove("hidden")
-    }
+    const empty = this.clientNameTarget.value.trim() === ""
+
+    this.clearButtonTarget.classList.toggle("hidden", empty)
   }
 
   clearClientField() {
     this.clientNameTarget.value = ""
+    this.selectedClientName = null
 
     if (this.hasClientPhoneTarget) {
       this.clientPhoneTarget.value = ""
@@ -57,7 +75,7 @@ export default class extends Controller {
     if (this.clientNameTarget.showPicker) {
       this.clientNameTarget.showPicker()
     } else {
-      this.clientNameTarget.dispatchEvent(new Event("input"))
+      this.clientNameTarget.dispatchEvent( new Event("input", { bubbles: true }))
     }
   }
 }

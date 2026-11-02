@@ -473,13 +473,14 @@ export default class extends Controller {
     const from = this.formatDate(input.dataset.from)
     const to = this.formatDate(input.dataset.to)
 
+    this.updateToMinDate(input.dataset.from)
+
     this.fromTarget.value = from
     this.toTarget.value = to
 
     this.fromDisplayTarget.value = from
     this.toDisplayTarget.value = to
 
-    this.updateToMinDate(input.dataset.from)
     this.updatePeriodChips(input)
   }
 

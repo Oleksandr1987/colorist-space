@@ -12,51 +12,54 @@
       <%= image_tag "pencil.png", class: "appointment-header-action-icon" %>
     <% end %>
 
-    <%= button_to appointment_path(@appointment),
-                  method: :delete,
-                  form: {
-                    class: "appointment-header-action-form",
-                    data: { turbo_confirm: t("appointments.confirm.delete") }
-                  },
+    <%= button_to appointment_path(@appointment), method: :delete,
+                  form: { class: "appointment-header-action-form", data: { turbo_confirm: t("appointments.confirm.delete") }},
                   class: "appointment-header-action appointment-header-action-delete",
-                  title: t("common.delete"),
-                  aria: { label: t("common.delete") } do %>
+                  title: t("common.delete"), aria: { label: t("common.delete") } do %>
       <%= image_tag "delete.png", class: "appointment-header-action-icon" %>
     <% end %>
   </div>
 </div>
 
+
 <div class="appointment-details">
-  <p>
-    <%= t("appointments.show.client") %>:
-    <strong><%= @appointment.client.full_name %></strong>
-  </p>
+  <div class="appointment-details-info">
+    <p>
+      <%= t("appointments.show.client") %>:
+      <strong><%= @appointment.client.full_name %></strong>
+    </p>
 
-  <p>
-    <%= t("appointments.show.service") %>:
-    <strong><%= @appointment.service_name %></strong>
-  </p>
+    <% if @appointment.service_name.present? %>
+      <p>
+        <%= t("appointments.show.service") %>:
+        <strong><%= @appointment.service_name %></strong>
+      </p>
+    <% end %>
 
-  <p>
-    <%= t("appointments.show.date") %>:
-    <strong><%= l(@appointment.appointment_date, format: :long) %></strong>
-  </p>
+    <p>
+      <%= t("appointments.show.date") %>:
+      <strong><%= l(@appointment.appointment_date, format: :long) %></strong>
+    </p>
 
-  <p>
-    <%= t("appointments.show.time") %>:
-    <strong>
-      <%= @appointment.appointment_time.strftime("%H:%M") %>
-      <% if @appointment.end_time.present? %>
-        – <%= @appointment.end_time.strftime("%H:%M") %>
-      <% end %>
-    </strong>
-  </p>
+    <p>
+      <%= t("appointments.show.time") %>:
+      <strong>
+        <%= @appointment.appointment_time.strftime("%H:%M") %>
+        <% if @appointment.end_time.present? %>
+          – <%= @appointment.end_time.strftime("%H:%M") %>
+        <% end %>
+      </strong>
+    </p>
+  </div>
 
   <% if @appointment.notes.present? %>
-    <p>
-      <%= t("appointments.show.notes") %>:
-      <strong><%= @appointment.notes %></strong>
-    </p>
+    <div class="appointment-details-notes">
+      <div class="appointment-details-notes-label">
+        <%= t("appointments.show.notes") %>:
+      </div>
+
+      <div class="appointment-details-notes-text"><%= @appointment.notes %></div>
+    </div>
   <% end %>
 
   <div class="appointment-details-confirm">

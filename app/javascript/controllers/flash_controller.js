@@ -3,10 +3,13 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static values = {
-    duration: { type: Number, default: 2500 }
+    duration: { type: Number, default: 2500 },
+    autoDismiss: { type: Boolean, default: true }
   }
 
   connect() {
+    if (!this.autoDismissValue) return
+
     this.timeout = setTimeout(() => {
       this.dismiss()
     }, this.durationValue)
@@ -19,6 +22,9 @@ export default class extends Controller {
 
   dismiss() {
     if (!this.element.isConnected) return
+    if (this.element.classList.contains("flash-hide")) return
+
+    clearTimeout(this.timeout)
 
     this.element.classList.add("flash-hide")
 
@@ -27,4 +33,3 @@ export default class extends Controller {
     }, 300)
   }
 }
-

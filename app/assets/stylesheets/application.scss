@@ -255,26 +255,27 @@ body {
 }
 
 /* ==== Flash Notifications ==== */
-
 .flash-container {
   position: fixed;
   top: calc(16px + env(safe-area-inset-top, 0px));
   left: 50%;
   transform: translateX(-50%);
-
   width: calc(100% - 32px);
   max-width: 480px;
-
   z-index: 10000;
   pointer-events: none;
 }
 
 .flash {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   box-sizing: border-box;
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 40px 12px 16px;
   margin: 0 0 8px;
-
   border-radius: 8px;
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
@@ -282,13 +283,10 @@ body {
   line-height: 1.5;
   text-align: center;
   overflow-wrap: anywhere;
-
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
-
   transition:
     opacity 0.3s ease,
     transform 0.3s ease;
@@ -305,7 +303,8 @@ body {
   }
 
   &.alert,
-  &.danger {
+  &.danger,
+  &.error {
     background-color: #ffebee;
     color: #c62828;
   }
@@ -316,8 +315,48 @@ body {
   }
 }
 
-/* ==== Flash Mobile ==== */
+/* ==== Flash Message ==== */
+.flash-message {
+  flex: 1;
+  min-width: 0;
+}
 
+/* ==== Flash Close Button ==== */
+.flash-close {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+
+  cursor: pointer;
+  opacity: 0.7;
+  touch-action: manipulation;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+/* ==== Flash Mobile ==== */
 @media (max-width: 768px) {
   .flash-container {
     top: calc(12px + env(safe-area-inset-top, 0px));
@@ -325,14 +364,13 @@ body {
   }
 
   .flash {
-    padding: 12px 14px;
+    padding: 12px 40px 12px 14px;
     font-size: 13px;
     border-radius: 8px;
   }
 }
 
 /* ==== Accessibility ==== */
-
 @media (prefers-reduced-motion: reduce) {
   .flash {
     transition: none;

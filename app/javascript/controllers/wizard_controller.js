@@ -1,4 +1,4 @@
-
+// app/javascript/controllers/wizard_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -35,9 +35,24 @@ export default class extends Controller {
       notes: 5
     }
 
-    this.current = steps[this.initialStepValue] ?? 0
     this.steps = this.stepTargets
     this.nav = this.element.querySelectorAll(".wiz-item")
+
+    const initialStep = this.initialStepValue
+    const numericStep = Number(initialStep)
+
+    if (Object.hasOwn(steps, initialStep)) {
+      this.current = steps[initialStep]
+    } else if (
+      initialStep !== "" &&
+      Number.isInteger(numericStep) &&
+      numericStep >= 0 &&
+      numericStep < this.steps.length
+    ) {
+      this.current = numericStep
+    } else {
+      this.current = 0
+    }
 
     this.onTouchStart = this.handleTouchStart.bind(this)
     this.onTouchEnd = this.handleTouchEnd.bind(this)
@@ -81,6 +96,7 @@ export default class extends Controller {
     this.update()
     this.updateNextButton()
     this.updateButtons()
+    this.updateStepUrl()
   }
 
   update() {
@@ -118,6 +134,14 @@ export default class extends Controller {
     if (!this.hasPrevButtonTarget) return
 
     this.prevButtonTarget.style.visibility = this.current === 0 ? "hidden" : "visible"
+  }
+
+  updateStepUrl() {
+    const url = new URL(window.location.href)
+
+    url.searchParams.set("step", this.current)
+
+    window.history.replaceState(window.history.state, "", url)
   }
 
   handleTouchStart(event) {

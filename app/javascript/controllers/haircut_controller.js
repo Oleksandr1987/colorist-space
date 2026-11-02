@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["container", "template", "addStep", "pickerModal", "pickerTitle", "pickerList"]
+  static targets = ["container", "template", "emptyTemplate", "addStep", "pickerModal", "pickerTitle", "pickerList"]
 
 	static values = {
 		title: String,
@@ -159,7 +159,7 @@ export default class extends Controller {
       }
     })
 
-    this.element.querySelectorAll(".haircut-zones-grid .section-btn")
+    this.element.querySelectorAll(".haircut-zones-grid .section-button")
     .forEach(button => {
       button.classList.remove("occupied")
       button.removeAttribute("data-step-number")
@@ -172,7 +172,7 @@ export default class extends Controller {
 
       if (!zone) return
 
-      this.element.querySelectorAll(".haircut-zones-grid .section-btn")
+      this.element.querySelectorAll(".haircut-zones-grid .section-button")
       .forEach(button => {
         if (button.dataset.zone !== zone) return
 
@@ -208,47 +208,12 @@ export default class extends Controller {
 	}
 
 	renderEmptyState() {
-		if (this.element.querySelector(".empty-haircut-step")) {
-			return
-		}
+    if (this.element.querySelector(".empty-haircut-step")) return
+    if (!this.hasEmptyTemplateTarget) return
 
-		const html = `
-			<div class="formula-step-wrapper empty-haircut-step" data-controller="collapse">
-				<div class="formula-step-header" data-action="click->collapse#toggle">
-					<span>${this.stepLabelValue} 1</span>
+    const emptyStep = this.emptyTemplateTarget.content.firstElementChild.cloneNode(true)
 
-					<svg class="chevron"
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2">
-						<path d="m6 9 6 6 6-6"/>
-					</svg>
-				</div>
-
-				<div class="formula-step-content" data-collapse-target="content">
-					<div class="sections-wrapper">
-						<h5>${this.selectZoneValue}</h5>
-						<div class="haircut-zones-grid">
-							${this.zoneButtons()}
-						</div>
-					</div>
-				</div>
-			</div>
-		`
-
-		this.element.insertAdjacentHTML("beforeend", html)
-	}
-
-	zoneButtons() {
-    return Object.entries(this.zonesValue).map(([zone, label]) => {
-      return `
-        <button type="button" class="section-btn" data-action="click->haircut#createStep" data-zone="${zone}">
-          ${label}
-        </button>
-      `
-    }).join("")
+    this.element.appendChild(emptyStep)
   }
 
   clearField(event) {

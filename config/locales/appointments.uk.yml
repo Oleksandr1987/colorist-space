@@ -17,6 +17,8 @@ uk:
     form:
       client_name: "Ім'я клієнта"
       client_name_placeholder: "Введіть чи оберіть ім’я клієнта"
+      select_client: "Вибрати клієнта зі списку"
+      clear_client_name: "Очистити ім'я"
       phone: "Телефон"
       date: "Дата"
       start_time: "Час початку"
@@ -34,20 +36,17 @@ uk:
 
       end_time_error: "Час завершення має бути пізніше часу початку"
 
+    working_hours:
+      title: "Запис поза робочим графіком"
+      day_off: "Вибраний день є неробочим. Бажаєте продовжити?"
+      outside_hours: "Запис виходить за межі робочого графіка (%{hours}). Бажаєте продовжити?"
+      confirm: "Продовжити"
+      error: "Не вдалося перевірити робочий графік. Спробуйте ще раз."
+
     modals:
       service:
         title: "Оберіть основні послуги"
         search: "Пошук послуги"
-        apply: "Застосувати"
-
-      preparation:
-        title: "Оберіть препарати"
-        search: "Пошук препарату"
-        apply: "Застосувати"
-
-      care_product:
-        title: "Оберіть засоби догляду"
-        search: "Пошук засобу"
         apply: "Застосувати"
 
     messages:
@@ -88,6 +87,8 @@ uk:
       delete: "Видалити"
 
     index:
+      edit: "Редагувати"
+      delete: "Видалити"
       new_appointment: "Новий запис"
       calendar: "Календар"
 

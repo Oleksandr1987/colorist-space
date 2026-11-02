@@ -39,6 +39,12 @@ en:
       price_per_unit: "Price per unit"
       concentration: "Concentration"
 
+    filters:
+      title: "Filter by brand"
+
+    confirm_delete: "Delete this ingredient?"
+    empty: "No ingredients yet"
+
     units:
       gram: "Gram"
       milliliter: "Milliliter"

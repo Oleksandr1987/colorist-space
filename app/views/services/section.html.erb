@@ -26,28 +26,45 @@
   </div>
 
   <!-- Services -->
-  <div class="services-list scrollable-service-list" data-service-target="list">
+  <div class="services-list scrollable-service-list service-section-list"
+      data-service-target="list">
     <% @services.each do |service| %>
-      <div class="service-item" data-name="<%= service.subtype.downcase %>">
-        <div class="service-info">
-          <strong><%= service.subtype %></strong>
+      <div class="service-item service-section-item"
+          data-name="<%= service.subtype.downcase %>">
 
-          <span>
-            — <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
-          </span>
+        <div class="service-section-content">
+          <div class="service-section-name">
+            <strong><%= service.subtype %></strong>
+          </div>
+
+          <div class="service-section-price">
+            <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
+          </div>
         </div>
 
-        <div class="service-actions">
+        <div class="service-actions service-section-actions">
           <%= link_to edit_service_path(service), class: "icon-button", aria: { label: t("services.list.edit") } do %>
-            <%= image_tag "pencil.png", class: "wiz-icon", width: 24, height: 24, alt: t("services.list.edit") %>
+            <%= image_tag "pencil.png",
+                  class: "wiz-icon",
+                  width: 20,
+                  height: 20,
+                  alt: "" %>
           <% end %>
 
-          <%= button_to service_path(service), method: :delete, class: "icon-button delete-button",
+          <%= button_to service_path(service),
+                method: :delete,
+                class: "icon-button delete-button",
                 form: {
-                  data: { turbo_confirm: t("services.list.confirm_delete") }
+                  data: {
+                    turbo_confirm: t("services.list.confirm_delete")
+                  }
                 },
                 aria: { label: t("services.list.delete") } do %>
-            <%= image_tag "delete.png", class: "wiz-icon",  width: 24, height: 24, alt: t("services.list.delete") %>
+            <%= image_tag "delete.png",
+                  class: "wiz-icon",
+                  width: 20,
+                  height: 20,
+                  alt: "" %>
           <% end %>
         </div>
       </div>

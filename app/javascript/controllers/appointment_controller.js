@@ -125,6 +125,8 @@ export default class extends Controller {
       .forEach(slot => slot.classList.remove("selected"))
 
     button.classList.add("selected")
+
+    this.element.dispatchEvent(new CustomEvent("appointment:slot-selected", { bubbles: true }))
   }
 
   normalizeDate(value) {

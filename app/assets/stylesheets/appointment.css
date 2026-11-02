@@ -47,23 +47,6 @@
   object-fit: contain;
 }
 
-.appointment-details-confirm {
-  margin-top: 32px;
-  display: flex;
-  justify-content: center;
-}
-
-.appointment-ok-button {
-  width: 100%;
-  max-width: 280px;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-weight: 700;
-}
-
 .button.small-button {
   padding: 0.5rem 1rem;
   font-size: 0.95rem;
@@ -80,32 +63,6 @@
 .button.small-button.delete {
   background-color: #ff4d4d;
   color: white;
-}
-
-.client-input-wrapper {
-  position: relative;
-}
-
-.clear-client-btn {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #eee;
-  border: none;
-  padding: 2px 6px;
-  font-size: 14px;
-  border-radius: 50%;
-  cursor: pointer;
-  opacity: 0.7;
-}
-
-.clear-client-btn:hover {
-  opacity: 1;
-}
-
-.clear-client-btn.hidden {
-  display: none;
 }
 
 .inline-error {
@@ -512,6 +469,7 @@
 
 .appointment-slots {
   margin-top: 1rem;
+  margin-bottom: 8px;
 }
 
 .appointment-slots-title {

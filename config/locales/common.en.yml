@@ -2,6 +2,7 @@ en:
   common:
     back: "Back"
     save: "Save"
+    saved: "Saved"
     edit: "Edit"
     delete: "Delete"
     apply: "Apply"

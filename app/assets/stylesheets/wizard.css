@@ -36,20 +36,14 @@
 
 /* STEPS ANIMATION */
 .wizard-step {
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  position: absolute;
-  inset: 0;
+  display: none;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  pointer-events: none;
 }
 
 .wizard-step.active {
-  opacity: 1;
-  position: relative;
-  pointer-events: auto;
+  display: block;
 }
 
 /* NAV */
@@ -61,7 +55,7 @@
   justify-content: center;
   gap: 28px;
   padding: 0 16px;
-  margin: 20px 0 28px;
+  margin: 12px 0 28px;
   overflow: visible;
 }
 
@@ -109,7 +103,7 @@
   flex-shrink: 0;
   background: #f8f6f5;
   z-index: 20;
-  padding: 18px 16px;
+  padding: 12px 16px;
   display: grid;
   grid-template-columns: 40px 1fr auto;
   align-items: center;
@@ -126,10 +120,66 @@
 /* TITLE */
 .wizard-top span {
   text-align: center;
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 700;
   font-family: serif;
   letter-spacing: 1px;
+}
+
+/* SAVE */
+.wizard-top > .appointment-save-button {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+}
+
+/* CLIENT INFO */
+.wizard-top-info {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 16px 8px;
+  margin: 0;
+  background: hsl(279, 28%, 64%);
+}
+
+/* CLIENT NAME */
+.wizard-top-client {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: normal;
+  color: #343039;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* APPOINTMENT DATE */
+.wizard-top-date {
+  flex: 0 0 auto;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: normal;
+  color: #070707;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* SAVE STATUS */
+.wizard-top > #save_status {
+  position: absolute;
+  right: 16px;
+  bottom: 4px;
 }
 
 /* BOTTOM */
@@ -454,6 +504,20 @@
     box-sizing: border-box;
   }
 
+  /* CLIENT INFO - MOBILE */
+  .wizard-top-info {
+    padding: 10px 16px 8px;
+    gap: 8px;
+  }
+
+  .wizard-top-client {
+    font-size: 13px;
+  }
+
+  .wizard-top-date {
+    font-size: 11px;
+  }
+
   /* SERVICE SELECTOR MODAL */
   .wizard-modal-content {
     width: 100%;
@@ -470,24 +534,15 @@
   }
 
   .wizard-modal-search {
-    padding:
-      14px
-      14px
-      8px;
+    padding: 14px 14px 8px;
   }
 
   .wizard-modal-filters {
-    padding:
-      6px
-      14px
-      12px;
+    padding: 6px 14px 12px;
   }
 
   .wizard-modal-list {
-    padding:
-      0
-      14px
-      28px;
+    padding: 0 14px 28px;
   }
 
   .wizard-check-row {

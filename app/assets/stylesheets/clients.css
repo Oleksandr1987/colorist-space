@@ -328,7 +328,7 @@ main:has(.client-profile-container) {
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.2;
-  text-align: left;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
