@@ -4,10 +4,11 @@ class FormulaProductsController < ApplicationController
 
   def index
     @formula_products = current_user.formula_products.ordered
-    @formula_category = %w[color oxidant].include?(params[:category]) ? params[:category] : "color"
+    @formula_category = %w[color oxidant additive].include?(params[:category]) ? params[:category] : "color"
 
     @color_brands = FormulaProduct.brands_for(@formula_products, "color")
     @oxidant_brands = FormulaProduct.brands_for(@formula_products, "oxidant")
+    @additive_brands = FormulaProduct.brands_for(@formula_products, "additive")
     @oxidant_concentrations = FormulaProduct.oxidant_concentrations(@formula_products)
   end
 

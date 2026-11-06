@@ -38,76 +38,124 @@
           </button>
         </div>
       </div>
+
+      <!-- INGREDIENT FIELDS -->
+      <div data-formula-target="colorsList" hidden>
+        <%= step_form.fields_for :formula_ingredients do |ingredient_form| %>
+          <% uid = ingredient_form.object.id || SecureRandom.hex(6) %>
+
+          <%= render "service_notes/formula_ingredient_fields", f: ingredient_form, uid: uid %>
+        <% end %>
+      </div>
+
       <!-- COLORS -->
       <div class="formula-block">
         <div class="block-title">
-          <span><%= image_tag "paint.png", class: "wiz-icon", width: 24, height: 24 %> <%= t("formula.colors") %></span>
-          <button type="button" class="add-btn-small add-color-btn" data-action="click->formula#openColorModal" data-step-index="<%= step_id %>">
+          <span>
+            <%= image_tag "paint.png", class: "wiz-icon", width: 24, height: 24 %>
+            <%= t("formula.colors") %>
+          </span>
+
+          <button type="button"
+                  class="add-btn-small add-color-btn"
+                  data-action="click->formula#openColorModal"
+                  data-step-index="<%= step_id %>">
             <%= image_tag "plus.png", class: "add-icon" %>
           </button>
         </div>
 
         <div class="colors-list" data-color-target="list">
-          <div data-formula-target="colorsList">
-            <%= step_form.fields_for :formula_ingredients do |ingredient_form| %>
-              <% uid = ingredient_form.object.id || SecureRandom.hex(6) %>
+          <% step_form.object.formula_ingredients.each do |ingredient| %>
+            <% next if ingredient.kind == "additive" %>
 
-              <%= render "service_notes/formula_ingredient_fields", f: ingredient_form, uid: uid %>
-              <div class="color-row-display" data-id="<%= uid %>">
-                <div class="color-left">
-                  <span class="brand"><%= ingredient_form.object.brand %></span>
-                  <span class="shade"><%= ingredient_form.object.shade %></span>
-                </div>
+            <div class="color-row-display" data-id="<%= ingredient.id %>">
+              <div class="color-left">
+                <span class="brand"><%= ingredient.brand %></span>
+                <span class="shade"><%= ingredient.shade %></span>
+              </div>
 
-                <div class="color-right">
-                  <span class="amount">
-                    <%= ingredient_form.object.amount %><%= ingredient_form.object.formula_product&.unit || "g" %>
-                  </span>
+              <div class="color-right">
+                <span class="amount">
+                  <%= ingredient.amount %><%= ingredient.formula_product&.unit || "g" %>
+                </span>
 
-                  <div class="color-actions">
-                    <button type="button" class="edit-btn" data-action="click->formula#editColor">
-                      <%= image_tag "pencil.png" %>
-                    </button>
+                <div class="color-actions">
+                  <button type="button" class="edit-btn" data-action="click->formula#editColor">
+                    <%= image_tag "pencil.png" %>
+                  </button>
 
-                    <button type="button" class="delete-btn" data-action="click->formula#removeColor">
-                      <%= image_tag "delete.png" %>
-                    </button>
-                  </div>
+                  <button type="button" class="delete-btn" data-action="click->formula#removeColor">
+                    <%= image_tag "delete.png" %>
+                  </button>
                 </div>
               </div>
-            <% end %>
-          </div>
-
+            </div>
+          <% end %>
         </div>
+
         <template data-formula-target="ingredientTemplate">
           <div class="ingredient-fields" data-id="NEW_ID">
-            <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][shade]"
-              data-field="shade">
+            <% %w[shade brand amount formula_product_id price kind].each do |field| %>
+              <input type="hidden"
+                    name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][<%= field %>]"
+                    data-field="<%= field %>"
+                    value="<%= field == 'kind' ? 'color' : '' %>">
+            <% end %>
 
             <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][brand]"
-              data-field="brand">
-
-            <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][amount]"
-              data-field="amount">
-
-            <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][formula_product_id]"
-              data-field="formula_product_id">
-
-            <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][price]"
-              data-field="price">
-
-            <input type="hidden"
-              name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][_destroy]"
-              value="0"
-              data-field="destroy">
+                  name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][_destroy]"
+                  value="0"
+                  data-field="destroy">
           </div>
         </template>
       </div>
+
+      <!-- ADDITIVES -->
+      <div class="formula-block">
+        <div class="block-title">
+          <span>
+            <%= image_tag "paint.png", class: "wiz-icon", width: 24, height: 24 %>
+            <%= t("formula_products.tabs.additives") %>
+          </span>
+
+          <button type="button" class="add-btn-small add-additive-btn" data-action="click->formula#openAdditiveModal">
+            <%= image_tag "plus.png", class: "add-icon" %>
+          </button>
+        </div>
+
+        <div class="colors-list" data-additive-list>
+          <% step_form.object.formula_ingredients.each do |ingredient| %>
+            <% next unless ingredient.kind == "additive" %>
+
+            <div class="color-row-display additive-row-display"
+                data-id="<%= ingredient.id %>">
+              <div class="color-left">
+                <span class="brand"><%= ingredient.brand %></span>
+                <span class="shade"><%= ingredient.shade %></span>
+              </div>
+
+              <div class="color-right">
+                <span class="amount">
+                  <%= ingredient.amount %><%= ingredient.formula_product&.unit || "g" %>
+                </span>
+
+                <div class="color-actions">
+                  <button type="button" class="edit-btn" data-action="click->formula#editAdditive">
+                    <%= image_tag "pencil.png" %>
+                  </button>
+
+                  <button type="button"
+                          class="delete-btn"
+                          data-action="click->formula#removeAdditive">
+                    <%= image_tag "delete.png" %>
+                  </button>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
       <!-- DEVELOPER -->
       <div class="formula-block">
         <div class="block-title">

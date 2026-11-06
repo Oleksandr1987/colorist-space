@@ -53,6 +53,18 @@ module Analytics
           .sort_by { |option| option[:label].downcase }
     end
 
+    def additive_options
+      @additive_options ||=
+        period_formula_charges.additives.where.not(formula_product_id: nil)
+          .select(:formula_product_id, :brand, :product_name).distinct
+          .map do |charge|
+            { id: charge.formula_product_id, brand: charge.brand,
+              label: [charge.brand, charge.product_name].compact_blank.join(" ") }
+          end
+          .uniq { |option| option[:id] }
+          .sort_by { |option| option[:label].downcase }
+    end
+
     def oxidant_options
       @oxidant_options ||=
         period_formula_charges
@@ -121,6 +133,19 @@ module Analytics
           .sort_by { |item| item[:label].downcase }
     end
 
+    def additive_income
+      @additive_income ||=
+        formula_charges.additives
+          .group_by { |charge| [charge.formula_product_id, charge.brand, charge.product_name] }
+          .map do |(product_id, _brand, _name), charges|
+            first = charges.first
+            { id: product_id,
+              label: [first.brand, first.product_name].compact_blank.join(" "),
+              amount: charges.sum(&:total) }
+          end
+          .sort_by { |item| item[:label].downcase }
+    end
+
     def oxidant_income
       @oxidant_income ||=
         formula_charges
@@ -158,6 +183,10 @@ module Analytics
       @formula_color_brands ||= formula_color_options.filter_map { |option| option[:brand].presence }.uniq.sort
     end
 
+    def additive_brands
+      @additive_brands ||= additive_options.filter_map { |option| option[:brand].presence }.uniq.sort
+    end
+
     def oxidant_brands
       @oxidant_brands ||= oxidant_options.filter_map { |option| option[:brand].presence }.uniq.sort
     end
@@ -186,6 +215,18 @@ module Analytics
 
     def available_formula_color_brands
       @available_formula_color_brands ||= available_formula_colors.filter_map { |option| option[:brand].presence }.uniq.sort
+    end
+
+    def available_additives
+      @available_additives ||=
+        user.formula_products.additives.order(:brand, :name).map do |product|
+          { id: product.id, brand: product.brand, label: formula_product_label(product) }
+        end
+    end
+
+    def available_additive_brands
+      @available_additive_brands ||=
+        available_additives.filter_map { |option| option[:brand].presence }.uniq.sort
     end
 
     def available_oxidants

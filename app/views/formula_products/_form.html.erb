@@ -9,6 +9,13 @@
     <%= f.text_field :brand, class: "form-input", required: true %>
   </div>
 
+  <% if formula_product.additive? %>
+    <div class="form-section">
+      <%= f.label :name, t("formula_products.form.name", default: "Назва додатка") %>
+      <%= f.text_field :name, class: "form-input", required: true %>
+    </div>
+  <% end %>
+
   <% if formula_product.oxidant? %>
     <% concentration = formula_product.concentration %>
     <% concentration_type = concentration&.downcase&.include?("vol") ? "vol" : "%" %>

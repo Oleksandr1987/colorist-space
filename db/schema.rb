@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_122021) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_02_154339) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -205,11 +205,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_122021) do
     t.datetime "created_at", null: false
     t.integer "formula_product_id"
     t.integer "formula_step_id", null: false
+    t.string "kind", default: "color", null: false
     t.decimal "price", precision: 10, scale: 2, default: "0.0"
     t.string "shade", null: false
     t.datetime "updated_at", null: false
     t.index ["formula_product_id"], name: "index_formula_ingredients_on_formula_product_id"
     t.index ["formula_step_id"], name: "index_formula_ingredients_on_formula_step_id"
+    t.index ["kind"], name: "index_formula_ingredients_on_kind"
   end
 
   create_table "formula_products", force: :cascade do |t|
