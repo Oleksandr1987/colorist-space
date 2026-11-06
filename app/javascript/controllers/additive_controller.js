@@ -271,6 +271,8 @@ export default class extends Controller {
   }
 
   fillHidden(hidden, row) {
+    hidden.dataset.unit = row.dataset.unit || "g"
+
     const values = {
       brand: row.dataset.brand,
       shade: row.querySelector(".additive-name").value.trim(),

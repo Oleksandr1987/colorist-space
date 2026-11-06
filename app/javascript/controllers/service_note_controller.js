@@ -205,12 +205,15 @@ export default class extends Controller {
       if (!shade || !Number.isFinite(amount) || amount <= 0) return
 
       const productId = value("formula_product_id")
-      const option = [...document.querySelectorAll(
+
+      const options = document.querySelectorAll(
         '[data-color-target="paletteTemplate"] option, ' +
         '[data-additive-target="productTemplate"] option'
-      )].find(item => item.value === productId)
+      )
 
-      const unit = option?.dataset.unit || "g"
+      const option = [...options].find(item => item.value === productId)
+
+      const unit = wrapper.dataset.unit || option?.dataset.unit || "g"
       const collection = kind === "additive" ? additives : colors
       const key = `${brand}|${shade}|${unit}`
 

@@ -1,6 +1,6 @@
 <% uid = local_assigns[:uid] || f.object.id || SecureRandom.hex(6) %>
 
-<div class="ingredient-fields" data-id="<%= uid %>">
+<div class="ingredient-fields" data-id="<%= uid %>" data-unit="<%= f.object.formula_product&.unit || 'g' %>">
   <%= f.hidden_field :id %>
   <%= f.hidden_field :shade, data: { field: "shade" } %>
   <%= f.hidden_field :brand, data: { field: "brand" } %>
