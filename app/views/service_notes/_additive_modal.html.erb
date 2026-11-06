@@ -1,0 +1,87 @@
+
+<div class="color-modal hidden"
+     data-controller="additive"
+     data-additive-target="modal"
+     data-additive-delete-icon-value="<%= asset_path('delete.png') %>"
+     data-additive-edit-icon-value="<%= asset_path('pencil.png') %>">
+
+  <div class="color-sheet" data-action="click->additive#stop">
+    <div class="sheet-header">
+      <button type="button"
+              class="sheet-back"
+              data-action="click->additive#closeModal">
+        <%= image_tag "close.png", class: "clear-icon" %>
+      </button>
+
+      <h2><%= t("formula_products.additives.add") %></h2>
+
+      <button type="button"
+              class="sheet-save"
+              data-action="click->additive#save"
+              data-additive-target="saveBtn"
+              disabled>
+        <%= t("common.save") %>
+      </button>
+    </div>
+
+    <div class="sheet-body">
+      <div class="color-rows" data-additive-target="rows"></div>
+
+      <template data-additive-target="productTemplate">
+        <div class="palette-row">
+          <select class="input-line"
+                  data-action="change->additive#selectProduct">
+            <option value="" disabled selected hidden>
+              <%= t("formula_products.additives.select") %>
+            </option>
+
+            <% current_user.formula_products.additives.order(:brand, :name).each do |product| %>
+              <option value="<%= product.id %>"
+                      data-brand="<%= product.brand %>"
+                      data-name="<%= product.name %>"
+                      data-price="<%= product.price_per_unit %>"
+                      data-unit="<%= product.unit %>">
+                <%= [product.brand, product.name].reject(&:blank?).join(" — ") %>
+              </option>
+            <% end %>
+          </select>
+        </div>
+      </template>
+
+      <template data-additive-target="rowTemplate">
+        <div class="color-row">
+          <div class="color-brand"></div>
+
+          <input type="text"
+                 class="form-input additive-name"
+                 readonly>
+
+          <input type="text"
+                 inputmode="decimal"
+                 class="form-input additive-amount"
+                 placeholder="<%= t('formula_products.additives.amount') %>">
+
+          <button type="button"
+                  class="color-remove"
+                  data-action="click->additive#removeRow">
+            <%= image_tag "close.png", class: "clear-icon" %>
+          </button>
+        </div>
+      </template>
+
+      <div class="color-actions hidden" data-additive-target="actions">
+        <button type="button"
+                class="color-action-btn color-action-primary"
+                data-action="click->additive#addRow">
+          <%= t("formula_products.additives.add_another") %>
+        </button>
+
+        <button type="button"
+                class="color-action-btn color-action-secondary"
+                data-action="click->additive#changeProduct">
+          <%= t("formula_products.additives.change_product") %>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

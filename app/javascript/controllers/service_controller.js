@@ -1,7 +1,8 @@
+// app/javascript/controllers/service_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type", "selected", "toggleButton", "colorFilters", "oxidantFilters", "formulaAddButton", "formulaBrandFilters"]
+  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type", "selected", "toggleButton", "colorFilters", "oxidantFilters", "additiveFilters", "formulaAddButton", "formulaBrandFilters"]
 
   static values = {
     categories: Object,
@@ -12,7 +13,8 @@ export default class extends Controller {
     formulaFilters: Boolean,
     formulaCategory: String,
     colorNewUrl: String,
-    oxidantNewUrl: String
+    oxidantNewUrl: String,
+    additiveNewUrl: String
   }
 
   connect() {
@@ -164,6 +166,10 @@ export default class extends Controller {
       this.oxidantFiltersTarget.classList.toggle("hidden", this.formulaCategory !== "oxidant")
     }
 
+    if (this.hasAdditiveFiltersTarget) {
+      this.additiveFiltersTarget.classList.toggle("hidden", this.formulaCategory !== "additive")
+    }
+
     this.filterFormulaProducts()
   }
 
@@ -172,6 +178,8 @@ export default class extends Controller {
 
     if (this.formulaCategory === "oxidant") {
       this.formulaAddButtonTarget.href = this.oxidantNewUrlValue
+    } else if (this.formulaCategory === "additive") {
+      this.formulaAddButtonTarget.href = this.additiveNewUrlValue
     } else {
       this.formulaAddButtonTarget.href = this.colorNewUrlValue
     }

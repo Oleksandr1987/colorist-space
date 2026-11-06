@@ -70,6 +70,10 @@
           <%= option[:label] %>
         </span>
       <% end %>
+      <!-- ADDITIVES -->
+      <% @income_filter_additives.select { |option| income_formula_product_filters.include?(option[:id]) }.each do |option| %>
+        <span class="analytics-active-filter"><%= option[:label] %></span>
+      <% end %>
       <!-- OXIDANTS -->
       <% @income_filter_oxidants.select { |option| income_formula_product_filters.include?(option[:id]) }.each do |option| %>
         <span class="analytics-active-filter">
@@ -194,6 +198,43 @@
                     <span>
                       <%= option[:label] %>
                     </span>
+                  </label>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          <!-- ADDITIVES -->
+          <% if @income_filter_additives.any? %>
+            <div class="filter-section">
+              <div class="filter-title"><%= t("formula_products.tabs.additives", default: "Додатки") %></div>
+              <div class="filter-chips">
+                <button type="button" class="filter-chip"
+                        data-analytics-filter-target="allAdditiveBrands"
+                        data-action="click->analytics-filter#selectAllAdditiveBrands">
+                  <%= t("analytics.income.all_brands", default: "Усі бренди") %>
+                </button>
+                <% @income_filter_additive_brands.each do |brand| %>
+                  <% selected = @income_filter_additives.any? { |option| income_formula_product_filters.include?(option[:id]) && option[:brand] == brand } %>
+                  <label class="filter-chip <%= 'active' if selected %>">
+                    <input type="checkbox" value="<%= brand %>" <%= 'checked' if selected %>
+                           data-additive-brand="<%= brand %>"
+                           data-action="change->analytics-filter#toggleAdditiveBrand">
+                    <span><%= brand %></span>
+                  </label>
+                <% end %>
+              </div>
+              <div class="filter-chips hidden" data-analytics-filter-target="incomeAdditives">
+                <button type="button" class="filter-chip"
+                        data-analytics-filter-target="allAdditives"
+                        data-action="click->analytics-filter#selectAllAdditives">
+                  <%= t("formula_products.tabs.additives", default: "Усі додатки") %>
+                </button>
+                <% @income_filter_additives.each do |option| %>
+                  <% selected = income_formula_product_filters.include?(option[:id]) %>
+                  <label class="filter-chip <%= 'active' if selected %>" data-additive-product-brand="<%= option[:brand] %>">
+                    <%= check_box_tag("formula_product_ids[]", option[:id], selected,
+                          data: { formula_kind: "additive", action: "change->analytics-filter#toggleFormulaProduct" }) %>
+                    <span><%= option[:label] %></span>
                   </label>
                 <% end %>
               </div>

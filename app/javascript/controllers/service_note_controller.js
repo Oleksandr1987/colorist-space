@@ -12,6 +12,7 @@ export default class extends Controller {
     "developerPrice",
     "developerAmount",
     "developerList",
+    "additivesList",
     "finalPrice",
     "careProductsList"
   ]
@@ -46,6 +47,7 @@ export default class extends Controller {
     window.addEventListener("care-products:changed", this.handleCareProductsChanged)
 
     this.renderCareProducts()
+    this.calculateFinal()
   }
 
   disconnect() {
@@ -179,74 +181,105 @@ export default class extends Controller {
   renderDeveloperList(grouped) {
     if (!this.hasDeveloperListTarget) return
 
-    this.developerListTarget.innerHTML = ""
-    this.colorsListTarget.innerHTML = ""
+    this.developerListTarget.replaceChildren()
+    if (this.hasColorsListTarget) this.colorsListTarget.replaceChildren()
+    if (this.hasAdditivesListTarget) this.additivesListTarget.replaceChildren()
 
-    let total = 0
-
-    const colors = {}
+    const colors = new Map()
+    const additives = new Map()
 
     document.querySelectorAll(".ingredient-fields").forEach(wrapper => {
+      if (wrapper.closest("template")) return
+      if (wrapper.closest(".formula-step-wrapper")?.querySelector(".destroy-field")?.value === "1") return
+      if (wrapper.querySelector("[data-field='destroy']")?.value === "1") return
 
-      const destroy = wrapper.querySelector("[data-field='destroy']")
+      const value = field => wrapper.querySelector(`[data-field="${field}"]`)?.value || ""
 
-      if (destroy?.value === "1") return
+      const kind = value("kind") || "color"
+      if (!["color", "additive"].includes(kind)) return
 
-      const brand = wrapper.querySelector("[data-field='brand']")?.value
-      const shade = wrapper.querySelector("[data-field='shade']")?.value
-      const amount = parseFloat(wrapper.querySelector("[data-field='amount']")?.value || 0)
-      const productId = wrapper.querySelector("[data-field='formula_product_id']")?.value
-      const productOption = Array.from(document
-        .querySelectorAll('[data-color-target="paletteTemplate"] option'))
-        .find(option => String(option.value) === String(productId))
-      const unit =productOption?.dataset.unit || "g"
+      const brand = value("brand")
+      const shade = value("shade")
+      const amount = Number(value("amount").replace(",", "."))
 
-      if (!brand || !shade || amount <= 0) return
+      if (!shade || !Number.isFinite(amount) || amount <= 0) return
 
+      const productId = value("formula_product_id")
+
+      const options = document.querySelectorAll(
+        '[data-color-target="paletteTemplate"] option, ' +
+        '[data-additive-target="productTemplate"] option'
+      )
+
+      const option = [...options].find(item => item.value === productId)
+
+      const unit = wrapper.dataset.unit || option?.dataset.unit || "g"
+      const collection = kind === "additive" ? additives : colors
       const key = `${brand}|${shade}|${unit}`
 
-      if (!colors[key]) {
-        colors[key] = {brand, shade, unit, amount: 0}
+      if (!collection.has(key)) {
+        collection.set(key, { brand, shade, unit, amount: 0 })
       }
 
-      colors[key].amount += amount
+      collection.get(key).amount += amount
     })
 
+    const renderRows = (collection, target) => {
+      if (!target) return
 
-    Object.values(colors).forEach(color => {
-      this.colorsListTarget.insertAdjacentHTML(
-        "beforeend",
-        `
-          <div class="notes-dev-row">
-            <span>${color.brand} ${color.shade}</span>
-            <span>${color.amount}${color.unit}</span>
-          </div>
-        `
-      )
-    })
+      collection.forEach(item => {
+        const row = document.createElement("div")
+        row.className = "notes-dev-row"
+
+        const name = document.createElement("span")
+        name.textContent = `${item.brand} ${item.shade}`.trim()
+
+        const amount = document.createElement("span")
+        amount.textContent = `${item.amount}${item.unit}`
+
+        row.append(name, amount)
+        target.appendChild(row)
+      })
+    }
+
+    renderRows(colors, this.hasColorsListTarget ? this.colorsListTarget : null)
+    renderRows(additives, this.hasAdditivesListTarget ? this.additivesListTarget : null)
+
+    let oxidantsTotal = 0
 
     Object.values(grouped).forEach(dev => {
-      total += dev.total
+      oxidantsTotal += dev.total
 
-      this.developerListTarget.insertAdjacentHTML(
-        "beforeend",
-        `
-          <div class="notes-dev-row">
-            <span>${dev.brand} ${dev.name}</span>
-            <span>${dev.amount}${dev.unit}</span>
-          </div>
-        `
-      )
+      const row = document.createElement("div")
+      row.className = "notes-dev-row"
+
+      const name = document.createElement("span")
+      name.textContent = `${dev.brand} ${dev.name}`.trim()
+
+      const amount = document.createElement("span")
+      amount.textContent = `${dev.amount}${dev.unit}`
+
+      row.append(name, amount)
+      this.developerListTarget.appendChild(row)
     })
 
     if (this.hasDeveloperPriceTarget) {
-      const colorsTotal = this.calculateColorsPrice()
-      const formulaTotal = colorsTotal + total
+      const formulaTotal =
+        this.calculateColorsPrice() +
+        this.calculateAdditivesPrice() +
+        oxidantsTotal
 
-      this.developerPriceTarget.innerHTML = `
-        <span><strong>${this.formulaPriceLabelValue}</strong></span>
-        <span>${formulaTotal} ₴</span>
-      `
+      this.developerPriceTarget.replaceChildren()
+
+      const label = document.createElement("span")
+      const strong = document.createElement("strong")
+      strong.textContent = this.formulaPriceLabelValue
+      label.appendChild(strong)
+
+      const price = document.createElement("span")
+      price.textContent = `${formulaTotal} ₴`
+
+      this.developerPriceTarget.append(label, price)
     }
   }
 
@@ -306,20 +339,34 @@ export default class extends Controller {
   }
 
   calculateColorsPrice() {
+    return this.calculateIngredientsPrice("color")
+  }
+
+  calculateAdditivesPrice() {
+    return this.calculateIngredientsPrice("additive")
+  }
+
+  calculateIngredientsPrice(kind) {
     let total = 0
 
-    document.querySelectorAll(".ingredient-fields")
-      .forEach(wrapper => {
+    document.querySelectorAll(".ingredient-fields").forEach(wrapper => {
+      if (wrapper.closest("template")) return
+      if (wrapper.closest(".formula-step-wrapper")?.querySelector(".destroy-field")?.value === "1") return
 
-        const destroy = wrapper.querySelector("[data-field='destroy']")
+      const destroy = wrapper.querySelector("[data-field='destroy']")
+      if (destroy?.value === "1") return
 
-        if (destroy?.value === "1") return
+      const ingredientKind = wrapper.querySelector("[data-field='kind']")?.value || "color"
 
-        const amount = parseFloat(wrapper.querySelector("[data-field='amount']")?.value || 0)
-        const price = parseFloat(wrapper.querySelector("[data-field='price']")?.value || 0)
+      if (ingredientKind !== kind) return
 
+      const amount = Number((wrapper.querySelector("[data-field='amount']")?.value || "0").replace(",", "."))
+      const price = Number((wrapper.querySelector("[data-field='price']")?.value || "0").replace(",", "."))
+
+      if (Number.isFinite(amount) && Number.isFinite(price)) {
         total += amount * price
-      })
+      }
+    })
 
     return total
   }
@@ -355,6 +402,7 @@ export default class extends Controller {
     const oxidants = this.calculateDeveloper()
     const colors = this.calculateColorsPrice()
     const care = this.calculateCareProducts()
+    const additives = this.calculateAdditivesPrice()
 
     let developerGrams = 0
 
@@ -374,7 +422,7 @@ export default class extends Controller {
       } catch {}
     })
 
-    const final = services + oxidants + colors + care
+    const final = services + oxidants + colors + additives + care
 
     if (this.hasFinalPriceTarget) {
       this.finalPriceTarget.innerHTML = `<strong>${final} ₴</strong>`

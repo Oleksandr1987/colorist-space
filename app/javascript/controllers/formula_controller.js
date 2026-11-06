@@ -26,10 +26,14 @@ export default class extends Controller {
 
   // ---------------- COLOR SUM ----------------
   getTotalColorAmount() {
-    const inputs = this.element.querySelectorAll("[name*='[amount]']")
+    const inputs = this.element.querySelectorAll(".ingredient-fields [data-field='amount']")
 
     let total = 0
     inputs.forEach(input => {
+      const wrapper = input.closest(".ingredient-fields")
+      if (wrapper.querySelector("[data-field='destroy']")?.value === "1") return
+      if ((wrapper.querySelector("[data-field='kind']")?.value || "color") !== "color") return
+      if (wrapper.closest(".formula-step-wrapper")?.querySelector(".destroy-field")?.value === "1") return
       const val = parseFloat(input.value)
       if (!isNaN(val)) total += val
     })
@@ -41,18 +45,24 @@ export default class extends Controller {
     if (!step) return
 
     let total = 0
+    const stepDeleted = step.querySelector(".destroy-field")?.value === "1"
 
     step
       .querySelectorAll(".ingredient-fields")
       .forEach(wrapper => {
+        if (stepDeleted) return
         const destroyInput = wrapper.querySelector("[data-field='destroy']")
         if (destroyInput?.value === "1") return
+
+        const kindInput = wrapper.querySelector("[data-field='kind']")
+        if (kindInput && kindInput.value !== "color") return
 
         const amountInput = wrapper.querySelector("[data-field='amount']")
         if (!amountInput) return
 
         const amount = parseFloat(amountInput.value || 0)
-        if (!Number.isNaN(amount)) {
+
+        if (Number.isFinite(amount)) {
           total += amount
         }
       })
@@ -228,6 +238,62 @@ export default class extends Controller {
     if (!step) return
 
     window.dispatchEvent(new CustomEvent("color:open", { detail: {step, ingredientId } }))
+  }
+
+
+  // ---------------- ADDITIVES ----------------
+  openAdditiveModal(event) {
+    event.preventDefault()
+
+    const step = event.currentTarget.closest(".formula-card")
+    if (!step) return
+
+    window.dispatchEvent(new CustomEvent("additive:open", { detail: { step } }))
+  }
+
+  editAdditive(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const display = event.currentTarget.closest(".additive-row-display")
+    if (!display) return
+
+    const ingredientId = display.dataset.id
+    const step = display.closest(".formula-card")
+
+    if (!ingredientId || !step) return
+
+    window.dispatchEvent(new CustomEvent("additive:open", { detail: { step, ingredientId } }))
+  }
+
+  removeAdditive(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const display = event.currentTarget.closest(".additive-row-display")
+    if (!display) return
+
+    const ingredientId = display.dataset.id
+    const step = display.closest(".formula-card")
+
+    if (!ingredientId || !step) return
+
+    const hidden = [...step.querySelectorAll(".ingredient-fields")].find(element => element.dataset.id === ingredientId)
+
+    if (hidden) {
+      const destroyInput = hidden.querySelector("[data-field='destroy']")
+
+      if (ingredientId.startsWith("new_")) {
+        hidden.remove()
+      } else if (destroyInput) {
+        destroyInput.value = "1"
+        hidden.classList.add("hidden")
+      }
+    }
+
+    display.remove()
+
+    window.dispatchEvent(new CustomEvent("formula:changed"))
   }
 
   // ---------------- DRAG ----------------

@@ -13,6 +13,7 @@ end
   users
   services
   formula_products
+  formula_additives
   care_products
   clients
   slot_rules

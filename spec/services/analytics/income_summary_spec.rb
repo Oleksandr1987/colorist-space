@@ -362,4 +362,44 @@ RSpec.describe Analytics::IncomeSummary do
       end
     end
   end
+
+  describe "additive income regression" do
+    let(:service) { create(:service, user: user, service_type: "service", category: "coloring", subtype: "Balayage", price: 100) }
+    let(:additive_product) do create(:formula_product, user: user,
+      category: "additive", brand: "Wella", name: "Booster", unit: "ml", price_per_unit: 3)
+    end
+
+    it "counts additives separately and supports filtering by additive product" do
+      appointment = create_appointment(service: service, time: "10:00")
+      note = create_note(appointment: appointment, service: service)
+      step = create(:formula_step, service_note: note)
+      create(:formula_ingredient, formula_step: step, formula_product: additive_product,
+        kind: "additive", brand: "Wella", shade: "Booster", amount: 4, price: 3)
+      sync_formula_charges(note)
+
+      expect(summary.additive_income).to contain_exactly(id: additive_product.id, label: "Wella Booster", amount: 12)
+      expect(summary.formula_color_income).to be_empty
+      expect(summary.formula_income).to eq(12)
+      expect(summary.total_income).to eq(112)
+
+      filtered = described_class.new(user: user, from: 1.month.ago.to_date, to: Date.current, formula_product_ids: [ additive_product.id ])
+      expect(filtered.formula_income).to eq(12)
+      expect(filtered.service_income).to eq(100)
+      expect(filtered.additive_income.sum { |row| row[:amount] }).to eq(12)
+    end
+
+    it "does not include other users' additive charges" do
+      other_user = create(:user)
+      other_client = create(:client, user: other_user)
+      other_appointment = create(:appointment, user: other_user, client: other_client)
+      other_note = create(:service_note, user: other_user, client: other_client, appointment: other_appointment)
+      step = create(:formula_step, service_note: other_note)
+      product = create(:formula_product, user: other_user, category: "additive", name: "Private")
+      create(:formula_ingredient, formula_step: step, formula_product: product, kind: "additive", shade: "Private", amount: 3, price: 5)
+      sync_formula_charges(other_note)
+
+      expect(summary.additive_income).to be_empty
+      expect(summary.formula_income).to eq(0)
+    end
+  end
 end

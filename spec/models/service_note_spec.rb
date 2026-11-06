@@ -649,4 +649,16 @@ RSpec.describe ServiceNote do
       end
     end
   end
+
+  describe "additive price regression" do
+    it "includes additives exactly once in the formula total and final price" do
+      step = create(:formula_step, service_note: note, oxidant: [ { "formula_product_id" => 1, "amount" => 10, "price" => 2 } ])
+      create(:formula_ingredient, formula_step: step, kind: "color", amount: 5, price: 3)
+      create(:formula_ingredient, formula_step: step, kind: "additive", shade: "Booster", amount: 4, price: 7)
+
+      expect(note.reload.additives_total_price).to eq(28)
+      expect(note.formula_ingredients_total_price).to eq(63)
+      expect(note.final_price).to eq(note.services_total + 63 + note.care_products_income)
+    end
+  end
 end

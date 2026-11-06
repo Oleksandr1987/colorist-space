@@ -3,7 +3,8 @@
      data-service-formula-filters-value="true"
      data-service-formula-category-value="<%= @formula_category %>"
      data-service-color-new-url-value="<%= new_formula_product_path(category: "color") %>"
-     data-service-oxidant-new-url-value="<%= new_formula_product_path(category: "oxidant") %>">
+     data-service-oxidant-new-url-value="<%= new_formula_product_path(category: "oxidant") %>"
+     data-service-additive-new-url-value="<%= new_formula_product_path(category: "additive") %>">
 
   <div class="category-header care-products-header">
     <div class="category-title">
@@ -37,6 +38,13 @@
               data-action="click->service#selectFormulaCategory">
         <%= t("formula_products.tabs.oxidants") %>
       </button>
+
+      <button type="button"
+        class="filter-button <%= 'active' if @formula_category == 'additive' %>"
+        data-formula-category="additive"
+        data-action="click->service#selectFormulaCategory">
+        <%= t("formula_products.tabs.additives") %>
+      </button>
     </div>
 
     <button type="button"
@@ -53,8 +61,7 @@
   <div class="formula-brand-filters hidden"
        data-service-target="formulaBrandFilters">
 
-    <div data-service-target="colorFilters"
-         class="<%= 'hidden' unless @formula_category == 'color' %>">
+    <div data-service-target="colorFilters" class="<%= 'hidden' unless @formula_category == 'color' %>">
       <% if @color_brands.any? %>
         <div class="care-products-filters">
           <% @color_brands.each do |brand| %>
@@ -69,11 +76,25 @@
       <% end %>
     </div>
 
-    <div data-service-target="oxidantFilters"
-         class="<%= 'hidden' unless @formula_category == 'oxidant' %>">
+    <div data-service-target="oxidantFilters" class="<%= 'hidden' unless @formula_category == 'oxidant' %>">
       <% if @oxidant_brands.any? %>
         <div class="care-products-filters">
           <% @oxidant_brands.each do |brand| %>
+            <button type="button"
+                    class="filter-button"
+                    data-brand="<%= brand.downcase %>"
+                    data-action="click->service#filterFormulaBrand">
+              <%= brand %>
+            </button>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div data-service-target="additiveFilters" class="<%= 'hidden' unless @formula_category == 'additive' %>">
+      <% if @additive_brands.any? %>
+        <div class="care-products-filters">
+          <% @additive_brands.each do |brand| %>
             <button type="button"
                     class="filter-button"
                     data-brand="<%= brand.downcase %>"

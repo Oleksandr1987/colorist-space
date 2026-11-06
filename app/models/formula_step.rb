@@ -82,7 +82,15 @@ class FormulaStep < ApplicationRecord
   end
 
   def colors_total_price
-    formula_ingredients.sum(&:total_price)
+    formula_ingredients.reject(&:marked_for_destruction?)
+                      .select { |ingredient| ingredient.kind == "color" }
+                      .sum(&:total_price)
+  end
+
+  def additives_total_price
+    formula_ingredients.reject(&:marked_for_destruction?)
+                      .select { |ingredient| ingredient.kind == "additive" }
+                      .sum(&:total_price)
   end
 
   private

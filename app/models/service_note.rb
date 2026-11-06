@@ -56,9 +56,16 @@ class ServiceNote < ApplicationRecord
     formula_steps.sum(&:oxidant_total_price)
   end
 
+  def additives_total_price
+    formula_steps.reject(&:marked_for_destruction?)
+                .sum(&:additives_total_price)
+  end
+
   def formula_ingredients_total_price
-    formula_steps.sum do |step|
-      step.colors_total_price + step.oxidant_total_price
+    formula_steps.reject(&:marked_for_destruction?).sum do |step|
+      step.colors_total_price +
+        step.additives_total_price +
+        step.oxidant_total_price
     end
   end
 

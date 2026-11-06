@@ -82,6 +82,11 @@
                 data-field="price">
 
               <input type="hidden"
+                    name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][kind]"
+                    value="color"
+                    data-field="kind">
+
+              <input type="hidden"
                 name="service_note[formula_steps_attributes][STEP_ID][formula_ingredients_attributes][NEW_ID][_destroy]"
                 value="0"
                 data-field="destroy">
@@ -128,6 +133,21 @@
               </div>
             </div>
           </template>
+        </div>
+        <!-- ADDITIVES -->
+        <div class="formula-block">
+          <div class="block-title">
+            <span>
+              <%= image_tag "paint.png", class: "wiz-icon", width: 24, height: 24 %>
+              <%= t("formula_products.tabs.additives") %>
+            </span>
+
+            <button type="button" class="add-btn-small" data-action="click->formula#openAdditiveModal">
+              <%= image_tag "plus.png", class: "add-icon" %>
+            </button>
+          </div>
+
+          <div class="colors-display" data-additive-list></div>
         </div>
         <!-- TIME -->
         <div class="formula-block">

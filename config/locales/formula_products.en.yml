@@ -3,6 +3,7 @@ en:
     tabs:
       colors: "Colors"
       oxidants: "Oxidants"
+      additives: "Additives"
 
     menu:
       search_placeholder: "Search..."
@@ -15,10 +16,12 @@ en:
     new:
       color_title: "New color"
       oxidant_title: "New oxidant"
+      additive_title: "New additive"
 
     edit:
       color_title: "Edit color"
       oxidant_title: "Edit oxidant"
+      additive_title: "Edit additive"
 
     pages:
       title: "Formula Ingredients"
@@ -31,10 +34,18 @@ en:
       add_color: "ADD COLOR"
       add_palette: "ADD PALETTE"
 
+    additives:
+      add: "Add additive"
+      select: "Select additive"
+      amount: "Amount"
+      add_another: "Add another"
+      change_product: "Change additive"
+
     form:
       new_title: "New product"
       edit_title: "Edit"
       brand: "Brand"
+      name: "Additive name"
       unit: "Unit"
       price_per_unit: "Price per unit"
       concentration: "Concentration"
