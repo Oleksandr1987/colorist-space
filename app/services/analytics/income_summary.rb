@@ -59,7 +59,7 @@ module Analytics
           .select(:formula_product_id, :brand, :product_name).distinct
           .map do |charge|
             { id: charge.formula_product_id, brand: charge.brand,
-              label: [charge.brand, charge.product_name].compact_blank.join(" ") }
+              label: [ charge.brand, charge.product_name ].compact_blank.join(" ") }
           end
           .uniq { |option| option[:id] }
           .sort_by { |option| option[:label].downcase }
@@ -136,11 +136,11 @@ module Analytics
     def additive_income
       @additive_income ||=
         formula_charges.additives
-          .group_by { |charge| [charge.formula_product_id, charge.brand, charge.product_name] }
+          .group_by { |charge| [ charge.formula_product_id, charge.brand, charge.product_name ] }
           .map do |(product_id, _brand, _name), charges|
             first = charges.first
             { id: product_id,
-              label: [first.brand, first.product_name].compact_blank.join(" "),
+              label: [ first.brand, first.product_name ].compact_blank.join(" "),
               amount: charges.sum(&:total) }
           end
           .sort_by { |item| item[:label].downcase }

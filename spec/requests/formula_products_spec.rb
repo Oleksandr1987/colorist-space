@@ -166,4 +166,22 @@ RSpec.describe "FormulaProducts" do
       expect(response).to redirect_to(formula_products_path(category: category, locale: I18n.locale))
     end
   end
+
+  describe "additive product requests" do
+    it "creates an additive and redirects to the additive tab" do
+      expect { post formula_products_path,
+        params: { formula_product: { category: "additive", brand: "Wella", name: "Booster", unit: "ml", price_per_unit: 3 } }
+      }.to change(FormulaProduct, :count).by(1)
+
+      expect(FormulaProduct.last).to have_attributes(user: user, category: "additive", name: "Booster")
+      expect(response).to redirect_to(formula_products_path(category: "additive", locale: I18n.locale))
+    end
+
+    it "rejects an additive without a name" do
+      expect { post formula_products_path,
+        params: { formula_product: { category: "additive", brand: "Wella", name: "", unit: "ml", price_per_unit: 3 } }
+      }.not_to change(FormulaProduct, :count)
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+  end
 end

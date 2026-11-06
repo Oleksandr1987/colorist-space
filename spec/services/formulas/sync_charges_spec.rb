@@ -111,4 +111,45 @@ RSpec.describe Formulas::SyncCharges do
       expect { described_class.new(service_note: service_note.reload).call }.not_to change(FormulaCharge, :count)
     end
   end
+
+  describe "additive regression" do
+    let(:additive_product) do
+      create(:formula_product, user: user,
+        category: "additive", brand: "Wella", name: "Booster", unit: "ml", price_per_unit: 3)
+    end
+
+    it "saves color and additive as distinct historical charge kinds and units" do
+      step = create(:formula_step, service_note: service_note)
+      create(:formula_ingredient, formula_step: step, formula_product: color_product, kind: "color", shade: "7/1", amount: 10, price: 5)
+      create(:formula_ingredient, formula_step: step, formula_product: additive_product,
+        kind: "additive", brand: "Wella", shade: "Booster", amount: 4, price: 3)
+
+      sync_charges.call
+
+      expect(service_note.formula_charges.pluck(:kind)).to contain_exactly("color", "additive")
+      additive = service_note.formula_charges.find_by!(kind: "additive")
+      expect(additive).to have_attributes(formula_product: additive_product, amount: 4, unit: "ml", unit_price: 3, total: 12)
+      expect(service_note.formula_charges.sum(:total)).to eq(62)
+    end
+
+    it "does not charge an ingredient marked for destruction" do
+      step = create(:formula_step, service_note: service_note)
+      create(:formula_ingredient, formula_step: step, formula_product: additive_product,
+        kind: "additive", brand: "Wella", shade: "Booster", amount: 4, price: 3)
+      step.formula_ingredients.load
+      step.formula_ingredients.first.mark_for_destruction
+
+      expect { sync_charges.call }.not_to change(FormulaCharge, :count)
+    end
+
+    it "uses g when an additive has no linked catalog product" do
+      step = create(:formula_step, service_note: service_note)
+      create(:formula_ingredient, formula_step: step, formula_product: nil,
+        kind: "additive", brand: "Archived", shade: "Booster", amount: 2, price: 4)
+
+      sync_charges.call
+
+      expect(service_note.formula_charges.first).to have_attributes(kind: "additive", unit: "g", total: 8)
+    end
+  end
 end

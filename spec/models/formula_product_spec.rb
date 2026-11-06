@@ -269,4 +269,21 @@ RSpec.describe FormulaProduct do
       expect(product).to be_valid
     end
   end
+
+  describe "additive regression" do
+    it "allows additive category and requires a name" do
+      product = build(:formula_product, category: "additive", name: "")
+      expect(product).not_to be_valid
+      expect(product.errors[:name]).to be_present
+      product.name = "Booster"
+      expect(product).to be_valid
+    end
+
+    it "keeps additives separate from colors and oxidants" do
+      additive = create(:formula_product, category: "additive", name: "Booster")
+      expect(described_class.additives).to include(additive)
+      expect(described_class.colors).not_to include(additive)
+      expect(described_class.oxidants).not_to include(additive)
+    end
+  end
 end
