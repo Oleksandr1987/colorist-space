@@ -10,16 +10,17 @@ module Formulas
       FormulaCharge.transaction do
         service_note.formula_charges.destroy_all
 
-        create_color_charges
+        create_ingredient_charges
         create_oxidant_charges
       end
     end
 
     private
 
-    def create_color_charges
+    def create_ingredient_charges
       service_note.formula_steps.each do |step|
         step.formula_ingredients.each do |ingredient|
+          next if ingredient.marked_for_destruction?
           next unless ingredient.amount.to_d.positive?
 
           product = ingredient.formula_product
@@ -28,11 +29,11 @@ module Formulas
             user: service_note.user,
             appointment: service_note.appointment,
             formula_product: product,
-            kind: "color",
-            brand: product&.brand,
+            kind: ingredient.kind,
+            brand: ingredient.brand.presence || product&.brand,
             product_name: ingredient.shade,
             amount: ingredient.amount,
-            unit: product&.unit,
+            unit: product&.unit || "g",
             unit_price: ingredient.price,
             total: ingredient.total_price
           )

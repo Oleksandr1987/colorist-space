@@ -16,6 +16,9 @@ export default class extends Controller {
     "allColorBrands",
     "allColors",
     "incomeOxidants",
+    "incomeAdditives",
+    "allAdditiveBrands",
+    "allAdditives",
     "allOxidantBrands",
     "allOxidants",
     "incomeCareProducts",
@@ -36,6 +39,10 @@ export default class extends Controller {
 
     if (this.hasIncomeOxidantsTarget) {
       this.restoreFormulaBrands("oxidant")
+    }
+
+    if (this.hasIncomeAdditivesTarget) {
+      this.restoreFormulaBrands("additive")
     }
 
     if (this.hasIncomeCareProductsTarget) {
@@ -210,6 +217,29 @@ export default class extends Controller {
     this.updateAllFormulaProducts("oxidant")
   }
 
+  // ADDITIVES
+  toggleAdditiveBrand(event) {
+    this.toggleChip(event)
+    if (!event.currentTarget.checked) {
+      this.clearFormulaProductsForBrand("additive", event.currentTarget.value)
+    }
+    this.updateFormulaBrandFilter("additive")
+  }
+
+  selectAllAdditiveBrands() {
+    this.element.querySelectorAll("[data-additive-brand]").forEach(checkbox => {
+      checkbox.checked = false
+      checkbox.closest(".filter-chip")?.classList.remove("active")
+    })
+    this.clearFormulaProducts("additive")
+    this.updateFormulaBrandFilter("additive")
+  }
+
+  selectAllAdditives() {
+    this.clearFormulaProducts("additive")
+    this.updateAllFormulaProducts("additive")
+  }
+
   // FORMULA PRODUCTS
   toggleFormulaProduct(event) {
     this.toggleChip(event)
@@ -218,31 +248,44 @@ export default class extends Controller {
     this.updateAllFormulaProducts(kind)
   }
 
+  formulaKindConfig(kind) {
+    if (kind === "color" && this.hasIncomeColorsTarget) {
+      return { brand: "data-color-brand", productBrand: "data-color-product-brand",
+               container: this.incomeColorsTarget, allBrands: this.allColorBrandsTarget,
+               allProducts: this.allColorsTarget }
+    }
+    if (kind === "oxidant" && this.hasIncomeOxidantsTarget) {
+      return { brand: "data-oxidant-brand", productBrand: "data-oxidant-product-brand",
+               container: this.incomeOxidantsTarget, allBrands: this.allOxidantBrandsTarget,
+               allProducts: this.allOxidantsTarget }
+    }
+    if (kind === "additive" && this.hasIncomeAdditivesTarget) {
+      return { brand: "data-additive-brand", productBrand: "data-additive-product-brand",
+               container: this.incomeAdditivesTarget, allBrands: this.allAdditiveBrandsTarget,
+               allProducts: this.allAdditivesTarget }
+    }
+    return null
+  }
+
   updateFormulaBrandFilter(kind) {
-    const brandSelector = kind === "color" ? "[data-color-brand]:checked" : "[data-oxidant-brand]:checked"
-    const selectedBrands = Array.from(this.element.querySelectorAll(brandSelector)).map((input) => input.value)
-    const container = kind === "color" ? this.incomeColorsTarget : this.incomeOxidantsTarget
-    const allBrandsTarget = kind === "color" ? this.allColorBrandsTarget : this.allOxidantBrandsTarget
-    const productAttribute = kind === "color" ? "data-color-product-brand" : "data-oxidant-product-brand"
+    const config = this.formulaKindConfig(kind)
+    if (!config) return
+
+    const selectedBrands = [...this.element.querySelectorAll(`[${config.brand}]:checked`)]
+      .map(input => input.value)
     const hasBrands = selectedBrands.length > 0
+    config.allBrands.classList.toggle("active", !hasBrands)
+    config.container.classList.toggle("hidden", !hasBrands)
 
-    allBrandsTarget.classList.toggle("active", !hasBrands)
-
-    container.classList.toggle("hidden", !hasBrands)
-
-    container
-      .querySelectorAll(`[${productAttribute}]`)
-      .forEach((chip) => {
-        const brand = chip.getAttribute(productAttribute)
-        const visible = selectedBrands.includes(brand)
-        chip.classList.toggle("hidden", !visible)
-      })
-
+    config.container.querySelectorAll(`[${config.productBrand}]`).forEach(chip => {
+      chip.classList.toggle("hidden", !selectedBrands.includes(chip.getAttribute(config.productBrand)))
+    })
     this.updateAllFormulaProducts(kind)
   }
 
   updateAllFormulaProducts(kind) {
-    const allTarget = kind === "color" ? this.allColorsTarget : this.allOxidantsTarget
+    const allTarget = this.formulaKindConfig(kind)?.allProducts
+    if (!allTarget) return
 
     allTarget.classList.toggle("active", !this.hasSelectedFormulaProducts(kind))
   }
@@ -257,7 +300,8 @@ export default class extends Controller {
   }
 
   clearFormulaProductsForBrand(kind, brand) {
-    const attribute = kind === "color" ? "data-color-product-brand" : "data-oxidant-product-brand"
+    const attribute = this.formulaKindConfig(kind)?.productBrand
+    if (!attribute) return
 
     this.element
       .querySelectorAll(`[${attribute}="${CSS.escape(brand)}"]`)
@@ -276,23 +320,20 @@ export default class extends Controller {
   }
 
   restoreFormulaBrands(kind) {
-    const selectedProducts =
-      this.element.querySelectorAll(`input[name="formula_product_ids[]"][data-formula-kind="${kind}"]:checked`)
+    const config = this.formulaKindConfig(kind)
+    if (!config) return
 
-    selectedProducts.forEach((input) => {
-      const chip = input.closest(kind === "color" ? "[data-color-product-brand]" : "[data-oxidant-product-brand]")
-
-      if (!chip) return
-
-      const brand = kind === "color" ? chip.dataset.colorProductBrand : chip.dataset.oxidantProductBrand
-      const brandCheckbox =
-        this.element.querySelector(kind === "color" ? `[data-color-brand="${CSS.escape(brand)}"]` : `[data-oxidant-brand="${CSS.escape(brand)}"]`)
-
-      if (!brandCheckbox) return
-
-      brandCheckbox.checked = true
-      brandCheckbox.closest(".filter-chip")?.classList.add("active")
-    })
+    this.element.querySelectorAll(`input[name="formula_product_ids[]"][data-formula-kind="${kind}"]:checked`)
+      .forEach(input => {
+        const chip = input.closest(`[${config.productBrand}]`)
+        const brand = chip?.getAttribute(config.productBrand)
+        if (!brand) return
+        const checkbox = [...this.element.querySelectorAll(`[${config.brand}]`)]
+          .find(item => item.value === brand)
+        if (!checkbox) return
+        checkbox.checked = true
+        checkbox.closest(".filter-chip")?.classList.add("active")
+      })
 
     this.updateFormulaBrandFilter(kind)
   }

@@ -3,14 +3,14 @@
     <%= step.section&.humanize || "Step" %>
   </div>
 
-  <% if step.formula_ingredients.any? %>
+  <% if step.formula_ingredients.any?(&:color?) %>
     <div class="formula-preview-group">
       <div class="formula-icon">
         <%= image_tag "paint.png", class: "wiz-icon", width: 24, height: 24 %>
       </div>
 
       <div class="formula-content">
-        <% step.formula_ingredients.each do |ingredient| %>
+        <% step.formula_ingredients.select(&:color?).each do |ingredient| %>
           <div class="formula-row">
             <span>
               <%= ingredient.brand %>
@@ -20,6 +20,23 @@
             <span>
               <%= ingredient.amount %><%= ingredient.formula_product&.unit || "g" %>
             </span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if step.formula_ingredients.any?(&:additive?) %>
+    <div class="formula-preview-group">
+      <div class="formula-icon">
+        <%= image_tag "paint.png", class: "wiz-icon", width: 24, height: 24 %>
+      </div>
+      <div class="formula-content">
+        <strong><%= t("formula_products.tabs.additives") %></strong>
+        <% step.formula_ingredients.select(&:additive?).each do |ingredient| %>
+          <div class="formula-row">
+            <span><%= [ingredient.brand, ingredient.shade].compact_blank.join(" ") %></span>
+            <span><%= ingredient.amount %><%= ingredient.formula_product&.unit || "g" %></span>
           </div>
         <% end %>
       </div>

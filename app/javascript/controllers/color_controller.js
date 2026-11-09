@@ -356,6 +356,7 @@ export default class extends Controller {
       .forEach(wrapper => {
         const destroyInput = wrapper.querySelector("[data-field='destroy']")
         if (destroyInput?.value === "1") return
+        if ((wrapper.querySelector("[data-field='kind']")?.value || "color") !== "color") return
 
         const amountInput = wrapper.querySelector("[data-field='amount']")
         if (!amountInput) return

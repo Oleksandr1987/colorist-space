@@ -94,7 +94,7 @@
     services_price = @service_note.services_total
 
     formula_price = formula_steps.sum do |step|
-      step.colors_total_price + step.oxidant_total_price
+      step.colors_total_price + step.additives_total_price + step.oxidant_total_price
     end
 
     care_products_price = Array(@service_note.care_products).sum do |product|

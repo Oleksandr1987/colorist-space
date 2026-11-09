@@ -158,6 +158,27 @@
             </div>
           <% end %>
 
+          <% if @additive_income.any? %>
+            <div class="monthly-expense-group">
+              <div class="month-header-aligned">
+                <span class="month-header-title"><%= t("formula_products.tabs.additives", default: "Додатки") %></span>
+                <span class="month-header-amount green"><%= @additive_income.sum { |item| item[:amount] }.to_i %> ₴</span>
+              </div>
+              <ul class="expenses-list">
+                <% @additive_income.each do |item| %>
+                  <li class="expense-item">
+                    <div class="expense-record-content">
+                      <div class="expense-record-details">
+                        <strong><%= item[:label] %></strong>
+                        <span class="expense-record-amount green"><%= item[:amount].to_i %> ₴</span>
+                      </div>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
           <% if @oxidant_income.any? %>
             <div class="monthly-expense-group">
               <div class="month-header-aligned">

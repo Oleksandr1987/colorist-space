@@ -1,8 +1,10 @@
+
 uk:
   formula_products:
     tabs:
       colors: "Кольори"
       oxidants: "Окисники"
+      additives: "Додатки"
 
     menu:
       search_placeholder: "Пошук..."
@@ -15,10 +17,12 @@ uk:
     new:
       color_title: "Новий колір"
       oxidant_title: "Новий окисник"
+      additive_title: "Новий додаток"
 
     edit:
       color_title: "Редагувати колір"
       oxidant_title: "Редагувати окисник"
+      additive_title: "Редагувати додаток"
 
     pages:
       title: "ІНГРЕДІЄНТИ ФОРМУЛИ"
@@ -31,10 +35,18 @@ uk:
       add_color: "ДОДАТИ КОЛІР"
       add_palette: "ДОДАТИ ПАЛІТРУ"
 
+    additives:
+      add: "Додати додаток"
+      select: "Виберіть додаток"
+      amount: "Кількість"
+      add_another: "Додати ще"
+      change_product: "Змінити додаток"
+
     form:
       new_title: "Новий продукт"
       edit_title: "Редагувати"
       brand: "Бренд"
+      name: "Назва додатка"
       unit: "Одиниця вимірювання"
       price_per_unit: "Ціна за одиницю (₴)"
       concentration: "Концентрація"

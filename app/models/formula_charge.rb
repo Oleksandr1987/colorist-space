@@ -1,5 +1,5 @@
 class FormulaCharge < ApplicationRecord
-  KINDS = %w[color oxidant].freeze
+  KINDS = %w[color oxidant additive].freeze
 
   belongs_to :user
   belongs_to :appointment
@@ -27,4 +27,5 @@ class FormulaCharge < ApplicationRecord
 
   scope :colors, -> { where(kind: "color") }
   scope :oxidants, -> { where(kind: "oxidant") }
+  scope :additives, -> { where(kind: "additive") }
 end

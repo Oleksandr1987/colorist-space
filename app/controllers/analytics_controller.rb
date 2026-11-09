@@ -55,12 +55,16 @@ class AnalyticsController < ApplicationController
 
     @formula_color_income = summary.formula_color_income
     @oxidant_income = summary.oxidant_income
+    @additive_income = summary.additive_income
     @care_product_income = summary.care_product_income
 
     @total_income = summary.total_income
 
     @income_filter_colors = summary.available_formula_colors
     @income_filter_color_brands = summary.available_formula_color_brands
+
+    @income_filter_additives = summary.available_additives
+    @income_filter_additive_brands = summary.available_additive_brands
 
     @income_filter_oxidants = summary.available_oxidants
     @income_filter_oxidant_brands = summary.available_oxidant_brands

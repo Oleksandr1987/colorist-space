@@ -1,16 +1,19 @@
 class FormulaProduct < ApplicationRecord
   belongs_to :user
+  has_many :formula_ingredients, dependent: :nullify
+  has_many :formula_charges, dependent: :nullify
 
   validates :brand, presence: true
-  validates :category, inclusion: { in: %w[color oxidant] }
+  validates :category, inclusion: { in: %w[color oxidant additive] }
   validates :unit, presence: true, inclusion: { in: %w[g ml] }
   validates :price_per_unit, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
-  validates :name, presence: true, if: :oxidant?
+  validates :name, presence: true, if: -> { oxidant? || additive? }
   validate :valid_oxidant_concentration
 
   scope :colors, -> { where(category: "color") }
   scope :oxidants, -> { where(category: "oxidant") }
+  scope :additives, -> { where(category: "additive") }
   scope :ordered, -> { order(:brand, :name) }
 
   scope :palette_list, -> { colors.select(:id, :brand, :unit, :price_per_unit).distinct.order(:brand) }
@@ -45,6 +48,10 @@ class FormulaProduct < ApplicationRecord
 
   def oxidant?
     category == "oxidant"
+  end
+
+  def additive?
+    category == "additive"
   end
 
   def concentration
