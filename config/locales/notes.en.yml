@@ -1,0 +1,13 @@
+en:
+  notes:
+    receipt:
+      price: "Price"
+      quantity: "Quantity"
+      brand_shade: "Brand / shade"
+      brand_name: "Brand / name"
+      brand_concentration: "Brand / concentration"
+      brand_category: "Brand / category"
+      services_total: "Services subtotal"
+      colors_total: "Colors subtotal"
+      additives_total: "Additives subtotal"
+      oxidants_total: "Oxidants subtotal"

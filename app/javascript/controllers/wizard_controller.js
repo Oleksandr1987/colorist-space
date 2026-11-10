@@ -118,6 +118,10 @@ export default class extends Controller {
     ]
 
     this.titleTarget.textContent = titles[this.current]
+
+    if (this.current === this.steps.length - 1) {
+      window.dispatchEvent(new CustomEvent("service-note:refresh"))
+    }
   }
 
   updateNextButton() {

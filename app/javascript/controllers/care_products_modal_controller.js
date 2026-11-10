@@ -143,10 +143,15 @@ export default class extends Controller {
         return
       }
 
+      const catalogProduct = this.catalog.find(product => String(product.id) === String(button.dataset.id))
+      if (!catalogProduct) return
+
       this.products.push({
-        care_product_id: button.dataset.id,
-        name: button.dataset.name,
-        price: parseFloat(button.dataset.price),
+        care_product_id: catalogProduct.id,
+        brand: catalogProduct.brand,
+        name: catalogProduct.name,
+        category: catalogProduct.category,
+        price: Number(catalogProduct.sale_price),
         qty: 1,
         available_stock: availableStock
       })

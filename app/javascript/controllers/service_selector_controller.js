@@ -102,7 +102,7 @@ export default class extends Controller {
         id,
         name: input.dataset.name,
         subtype: input.dataset.subtype,
-        price: input.dataset.price,
+        price: this.hasPricesValue ? (this.pricesValue[String(id)] ?? input.dataset.price) : input.dataset.price,
         serviceType: input.dataset.serviceType
       })
     } else {

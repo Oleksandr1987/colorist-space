@@ -218,7 +218,9 @@ class ServiceNotesController < ApplicationController
 
       {
         "care_product_id" => product.id,
-        "name" => (item["name"].presence || product.display_name),
+        "brand" => existing_item&.dig("brand").presence || product.brand,
+        "category" => existing_item&.dig("category").presence || product.category,
+        "name" => existing_item&.dig("name").presence || item["name"].presence || product.display_name,
         "price" => item["price"].to_f,
         "purchase_price" => purchase_price.to_f,
         "qty" => item["qty"].to_i

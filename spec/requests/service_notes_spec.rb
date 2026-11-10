@@ -116,12 +116,14 @@ RSpec.describe "ServiceNotes" do
 
       post client_service_notes_path(client), params: { appointment_id: appointment.id,
         service_note: { service_type: "coloring", service_ids: [ service.id ],
-          care_products: [ { care_product_id: care_product.id, name: "Mask", price: 100, qty: 2 } ].to_json
+          care_products: [ { care_product_id: care_product.id, name: "Wella", price: 100, qty: 2 } ].to_json
         }
       }
 
       expect(ServiceNote.last.care_products).to eq(
-        [ { "care_product_id" => care_product.id, "name" => "Mask", "price" => 100.0, "purchase_price" => 60.0, "qty" => 2 } ]
+        [ { "brand" => "Londa", "care_product_id" => care_product.id,
+            "category"=>"Shampoo", "name" => "Wella", "price" => 100.0, "purchase_price" => 60.0, "qty" => 2
+          } ]
       )
     end
 
@@ -179,10 +181,11 @@ RSpec.describe "ServiceNotes" do
 
     it "updates care_products from json" do
       patch client_service_note_path(client, service_note),
-        params: { service_note: { care_products: [ { care_product_id: care_product.id, name: "Shampoo", price: 50, qty: 3 } ].to_json } }
+        params: { service_note: { care_products: [ { care_product_id: care_product.id, name: "Shauma", price: 50, qty: 3 } ].to_json } }
 
       expect(service_note.reload.care_products).to eq(
-        [ { "care_product_id" => care_product.id, "name" => "Shampoo", "price" => 50.0, "purchase_price" => 60.0, "qty" => 3 } ]
+        [ { "brand" => "Londa", "care_product_id" => care_product.id,
+            "category"=>"Shampoo", "name" => "Shauma", "price" => 50.0, "purchase_price" => 60.0, "qty" => 3 } ]
       )
     end
 

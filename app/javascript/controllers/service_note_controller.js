@@ -3,18 +3,25 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = [
-    "tab",
-    "tabContent",
     "priceValue",
     "priceInput",
     "servicesList",
+    "servicesSection",
+    "formulaSection",
+    "colorsGroup",
     "colorsList",
-    "developerPrice",
-    "developerAmount",
-    "developerList",
+    "colorsTotal",
+    "additivesGroup",
     "additivesList",
-    "finalPrice",
-    "careProductsList"
+    "additivesTotal",
+    "developerGroup",
+    "developerList",
+    "developerTotal",
+    "developerPrice",
+    "careSection",
+    "careProductsList",
+    "careTotal",
+    "finalPrice"
   ]
 
   static values = {
@@ -24,400 +31,313 @@ export default class extends Controller {
 
   connect() {
     this.services = []
+    this.handleServicesChanged = event => { this.updateServices(event.detail?.services || []) }
+    this.handleRefresh = () => this.refreshReceipt()
+    this.handleCareProductsChanged = () => this.refreshReceipt()
+    this.handleFormulaChanged = () => this.refreshReceipt()
 
-    this.handleServicesChanged = (event) => {
-      this.updateServices(event.detail?.services || [])
-    }
-
-    window.addEventListener("services:changed", this.handleServicesChanged)
-
-    this.loadInitialServices()
-
-    this.handleFormulaChanged = () => {
-      this.calculateFinal()
-    }
-
-    this.handleCareProductsChanged = () => {
-      this.renderCareProducts()
-      this.calculateFinal()
-    }
-
+    window.addEventListener("service-selector:changed", this.handleServicesChanged)
     window.addEventListener("formula:changed", this.handleFormulaChanged)
     window.addEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
     window.addEventListener("care-products:changed", this.handleCareProductsChanged)
+    window.addEventListener("service-note:refresh", this.handleRefresh)
 
-    this.renderCareProducts()
-    this.calculateFinal()
+    this.loadInitialServices()
+    this.refreshReceipt()
   }
 
   disconnect() {
-    window.removeEventListener("services:changed", this.handleServicesChanged)
-    window.removeEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
+    window.removeEventListener("service-selector:changed", this.handleServicesChanged)
     window.removeEventListener("formula:changed", this.handleFormulaChanged)
+    window.removeEventListener("formula:colorAmountChanged", this.handleFormulaChanged)
     window.removeEventListener("care-products:changed", this.handleCareProductsChanged)
+    window.removeEventListener("service-note:refresh", this.handleRefresh)
   }
 
-  updateServices(services) {
-    this.services = services
+  number(value) {
+    const result = Number(String(value ?? "0").replace(",", "."))
+    return Number.isFinite(result) ? result : 0
+  }
 
-    this.recalculatePrice()
-    this.renderServices()
-    this.calculateFinal()
+  money(value) {
+    return `${new Intl.NumberFormat("uk-UA", {
+      minimumFractionDigits: 0, maximumFractionDigits: 2
+    }).format(value)} ₴`
+  }
+
+  quantity(value, unit = "") {
+    const amount = new Intl.NumberFormat("uk-UA", {
+      maximumFractionDigits: 2
+    }).format(value)
+
+    return unit ? `${amount} ${unit}` : amount
+  }
+
+  setText(target, value) {
+    if (target) target.textContent = value
+  }
+
+  setVisible(target, visible) {
+    if (target) target.hidden = !visible
+  }
+
+  createRow(columns, className) {
+    const row = document.createElement("div")
+    row.className = `receipt-row ${className}`
+
+    columns.forEach(value => {
+      const cell = document.createElement("span")
+      cell.textContent = String(value ?? "")
+      row.appendChild(cell)
+    })
+
+    return row
+  }
+
+  renderRows(target, items, columns) {
+    if (!target) return
+
+    target.replaceChildren()
+
+    items.forEach(item => {
+      const values = columns(item)
+
+      target.appendChild(this.createRow(values, `receipt-cols-${values.length}`))
+    })
   }
 
   loadInitialServices() {
     const selectorElement = this.element.closest('[data-controller~="service-selector"]')
-
     if (!selectorElement) return
 
-    const selectorController = this.application.getControllerForElementAndIdentifier(selectorElement, "service-selector")
+    const controller = this.application.getControllerForElementAndIdentifier(selectorElement, "service-selector")
+    if (!controller) return
 
-    if (!selectorController) return
-
-    this.updateServices(selectorController.selected || [])
+    this.services = controller.selected || []
   }
 
-  showTab(event) {
-    const name = event.currentTarget.dataset.tabName
-
-    this.tabTargets.forEach(tab => tab.classList.remove("active"))
-    event.currentTarget.classList.add("active")
-
-    this.tabContentTargets.forEach(content => {
-      content.classList.toggle("active", content.id === `${name}-tab`)
-      content.classList.toggle("hidden", content.id !== `${name}-tab`)
-    })
+  updateServices(services) {
+    this.services = services
+    this.refreshReceipt()
   }
 
-  recalculatePrice() {
-    const total = this.services.reduce((sum, service) => sum + Number(service.price || 0), 0)
+  calculateServices() {
+    return this.services.reduce((sum, service) => sum + this.number(service.price), 0)
+  }
 
-    if (this.hasPriceValueTarget) {
-      this.priceValueTarget.innerHTML = `<strong>${total} ₴</strong>`
-    }
+  renderServices() {
+    const total = this.calculateServices()
+
+    this.renderRows( this.servicesListTarget, this.services,
+      service => [ service.subtype || service.name || "", this.money(this.number(service.price)) ]
+    )
+
+    this.setText(this.priceValueTarget, this.money(total))
+    this.setVisible(this.servicesSectionTarget, this.services.length > 0)
 
     if (this.hasPriceInputTarget) {
       this.priceInputTarget.value = total
     }
-  }
-
-  renderServices() {
-    if (!this.hasServicesListTarget) return
-
-    this.servicesListTarget.innerHTML = ""
-
-    this.services.forEach(service => {
-      this.servicesListTarget.insertAdjacentHTML(
-        "beforeend",
-        `
-          <div class="notes-service-item" data-id="${service.id}">
-            <span>${service.subtype}</span>
-          </div>
-        `
-      )
-    })
-  }
-
-  removeFromNotes(event) {
-    const id = event.currentTarget.closest(".notes-service-item").dataset.id
-
-    window.dispatchEvent(
-      new CustomEvent("service-selector:remove", {detail: { id }})
-    )
-  }
-
-  calculateServices() {
-    return this.services.reduce((sum, service) => sum + Number(service.price || 0), 0)
-  }
-
-  calculateDeveloper() {
-    let total = 0
-    const grouped = {}
-
-    document.querySelectorAll("input[name*='[oxidant]']").forEach(input => {
-      if (input.closest("template")) return
-
-      const step = input.closest(".formula-step-wrapper")
-      if (!step) return
-
-      const destroyInput = step.querySelector(".destroy-field")
-      if (destroyInput?.value === "1") return
-
-      if (!input.value) return
-
-      let items
-
-      try {
-        items = JSON.parse(input.value)
-      } catch {
-        console.warn("Invalid oxidant JSON:", input.value)
-        return
-      }
-
-      if (!Array.isArray(items)) {
-        items = [items]
-      }
-
-      items.forEach(data => {
-        if (!data || typeof data !== "object") return
-
-        const serviceId = data.formula_product_id || data.service_id
-        const amount = parseFloat(data.amount || 0)
-        const price = parseFloat(data.price || 0)
-
-        if (!serviceId || !Number.isFinite(amount) || !Number.isFinite(price) || amount <= 0) return
-
-        const serviceOption = Array.from(document.querySelectorAll("option")).find(option => String(option.value) === String(serviceId))
-        const brand = data.brand || serviceOption?.dataset.brand || ""
-        const name = data.name || serviceOption?.dataset.name || serviceOption?.textContent.trim() || "Developer"
-        const unit = data.unit || serviceOption?.dataset.unit || "g"
-
-        if (!grouped[serviceId]) {
-          grouped[serviceId] = { name, brand, unit, amount: 0, total: 0 }
-        }
-
-        grouped[serviceId].amount += amount
-        grouped[serviceId].total += amount * price
-
-        total += amount * price
-      })
-    })
-
-    this.renderDeveloperList(grouped)
 
     return total
   }
 
-  renderDeveloperList(grouped) {
-    if (!this.hasDeveloperListTarget) return
+  activeFormulaSteps() {
+    return [...document.querySelectorAll(".formula-step-wrapper")]
+      .filter(step => {
+        if (step.closest("template")) return false
+        return step.querySelector(".destroy-field")?.value !== "1"
+      })
+  }
 
-    this.developerListTarget.replaceChildren()
-    if (this.hasColorsListTarget) this.colorsListTarget.replaceChildren()
-    if (this.hasAdditivesListTarget) this.additivesListTarget.replaceChildren()
+  ingredientItems(kind) {
+    const items = new Map()
 
-    const colors = new Map()
-    const additives = new Map()
+    this.activeFormulaSteps().forEach(step => {
+      step.querySelectorAll(".ingredient-fields").forEach(wrapper => {
+        if (wrapper.closest("template")) return
+        if (wrapper.querySelector("[data-field='destroy']")?.value === "1") return
 
-    document.querySelectorAll(".ingredient-fields").forEach(wrapper => {
-      if (wrapper.closest("template")) return
-      if (wrapper.closest(".formula-step-wrapper")?.querySelector(".destroy-field")?.value === "1") return
-      if (wrapper.querySelector("[data-field='destroy']")?.value === "1") return
+        const field = name => wrapper.querySelector(`[data-field="${name}"]`)?.value || ""
 
-      const value = field => wrapper.querySelector(`[data-field="${field}"]`)?.value || ""
+        if ((field("kind") || "color") !== kind) return
 
-      const kind = value("kind") || "color"
-      if (!["color", "additive"].includes(kind)) return
+        const amount = this.number(field("amount"))
+        if (amount <= 0) return
 
-      const brand = value("brand")
-      const shade = value("shade")
-      const amount = Number(value("amount").replace(",", "."))
+        const price = this.number(field("price"))
+        const brand = field("brand")
+        const shade = field("shade")
+        const productId = field("formula_product_id")
 
-      if (!shade || !Number.isFinite(amount) || amount <= 0) return
+        const option = [...document.querySelectorAll(
+          '[data-color-target="paletteTemplate"] option, ' +
+          '[data-additive-target="productTemplate"] option'
+        )].find(option => option.value === productId)
 
-      const productId = value("formula_product_id")
+        const unit = wrapper.dataset.unit || option?.dataset.unit || "g"
+        const name = [brand, shade].filter(Boolean).join(" ").trim()
 
-      const options = document.querySelectorAll(
-        '[data-color-target="paletteTemplate"] option, ' +
-        '[data-additive-target="productTemplate"] option'
-      )
+        const key = JSON.stringify([productId || null, brand, shade, unit, price])
 
-      const option = [...options].find(item => item.value === productId)
+        if (!items.has(key)) {
+          items.set(key, { name, unit, amount: 0, total: 0 })
+        }
 
-      const unit = wrapper.dataset.unit || option?.dataset.unit || "g"
-      const collection = kind === "additive" ? additives : colors
-      const key = `${brand}|${shade}|${unit}`
+        const item = items.get(key)
+        item.amount += amount
+        item.total += amount * price
+      })
+    })
 
-      if (!collection.has(key)) {
-        collection.set(key, { brand, shade, unit, amount: 0 })
+    return [...items.values()]
+  }
+
+  oxidantItems() {
+    const items = new Map()
+
+    this.activeFormulaSteps().forEach(step => {
+      step.querySelectorAll("input[name*='[oxidant]']").forEach(input => {
+        if (!input.value) return
+
+        let oxidants
+
+        try {
+          oxidants = JSON.parse(input.value)
+        } catch {
+          return
+        }
+
+        if (!Array.isArray(oxidants)) oxidants = [oxidants]
+
+        oxidants.forEach(data => {
+          if (!data || typeof data !== "object") return
+
+          const productId = data.formula_product_id || data.service_id
+          const amount = this.number(data.amount)
+          const price = this.number(data.price)
+
+          if (amount <= 0) return
+
+          const option = [...document.querySelectorAll("option")]
+            .find(option => String(option.value) === String(productId) && (option.dataset.brand || option.dataset.name))
+
+          const brand = data.brand || option?.dataset.brand || ""
+          const name = data.name || option?.dataset.name || ""
+          const unit = data.unit || option?.dataset.unit || "g"
+
+          const key = JSON.stringify([productId, brand, name, unit, price])
+
+          if (!items.has(key)) {
+            items.set(key, {
+              name: [brand, name].filter(Boolean).join(" "), unit, amount: 0, total: 0
+            })
+          }
+
+          const item = items.get(key)
+          item.amount += amount
+          item.total += amount * price
+        })
+      })
+    })
+
+    return [...items.values()]
+  }
+
+  renderIngredientGroup(items, list, totalTarget, groupTarget) {
+    const total = items.reduce((sum, item) => sum + item.total, 0)
+
+    this.renderRows(list, items, item => [ item.name, this.quantity(item.amount, item.unit), this.money(item.total) ])
+    this.setText(totalTarget, this.money(total))
+    this.setVisible(groupTarget, items.length > 0)
+
+    return total
+  }
+
+  renderFormula() {
+    const colors = this.ingredientItems("color")
+    const additives = this.ingredientItems("additive")
+    const oxidants = this.oxidantItems()
+    const colorsTotal = this.renderIngredientGroup(colors, this.colorsListTarget, this.colorsTotalTarget, this.colorsGroupTarget)
+    const additivesTotal = this.renderIngredientGroup(additives, this.additivesListTarget, this.additivesTotalTarget, this.additivesGroupTarget)
+    const oxidantsTotal = this.renderIngredientGroup(oxidants, this.developerListTarget, this.developerTotalTarget, this.developerGroupTarget)
+    const total = colorsTotal + additivesTotal + oxidantsTotal
+
+    this.setText(this.developerPriceTarget, this.money(total))
+    this.setVisible(this.formulaSectionTarget, colors.length + additives.length + oxidants.length > 0)
+
+    return total
+  }
+
+  careProductItems() {
+    const input = document.querySelector( "input[name='service_note[care_products]']")
+
+    if (!input) return []
+
+    try {
+      let products = JSON.parse(input.value || "[]")
+
+      if (typeof products === "string") {
+        products = JSON.parse(products)
       }
 
-      collection.get(key).amount += amount
-    })
+      if (!Array.isArray(products)) return []
 
-    const renderRows = (collection, target) => {
-      if (!target) return
+      return products
+        .map(product => {
+          const qty = this.number(product.qty)
+          const price = this.number(product.price)
 
-      collection.forEach(item => {
-        const row = document.createElement("div")
-        row.className = "notes-dev-row"
+          const brand = product.brand || ""
+          const category = product.category || ""
+          const name = product.name || ""
 
-        const name = document.createElement("span")
-        name.textContent = `${item.brand} ${item.shade}`.trim()
-
-        const amount = document.createElement("span")
-        amount.textContent = `${item.amount}${item.unit}`
-
-        row.append(name, amount)
-        target.appendChild(row)
-      })
-    }
-
-    renderRows(colors, this.hasColorsListTarget ? this.colorsListTarget : null)
-    renderRows(additives, this.hasAdditivesListTarget ? this.additivesListTarget : null)
-
-    let oxidantsTotal = 0
-
-    Object.values(grouped).forEach(dev => {
-      oxidantsTotal += dev.total
-
-      const row = document.createElement("div")
-      row.className = "notes-dev-row"
-
-      const name = document.createElement("span")
-      name.textContent = `${dev.brand} ${dev.name}`.trim()
-
-      const amount = document.createElement("span")
-      amount.textContent = `${dev.amount}${dev.unit}`
-
-      row.append(name, amount)
-      this.developerListTarget.appendChild(row)
-    })
-
-    if (this.hasDeveloperPriceTarget) {
-      const formulaTotal =
-        this.calculateColorsPrice() +
-        this.calculateAdditivesPrice() +
-        oxidantsTotal
-
-      this.developerPriceTarget.replaceChildren()
-
-      const label = document.createElement("span")
-      const strong = document.createElement("strong")
-      strong.textContent = this.formulaPriceLabelValue
-      label.appendChild(strong)
-
-      const price = document.createElement("span")
-      price.textContent = `${formulaTotal} ₴`
-
-      this.developerPriceTarget.append(label, price)
+          return { name: [brand, name].filter(Boolean).join(" "), category, qty, total: qty * price }
+        })
+        .filter(item => item.qty > 0)
+    } catch {
+      return []
     }
   }
 
   renderCareProducts() {
-    if (!this.hasCareProductsListTarget) return
+    const products = this.careProductItems()
+    const total = products.reduce((sum, product) => sum + product.total, 0)
 
-    const input = document.querySelector("input[name='service_note[care_products]']")
+    if (this.hasCareProductsListTarget) {
+      this.careProductsListTarget.replaceChildren()
 
-    if (!input) return
+      products.forEach(product => {
+        const row = this.createRow([product.name, this.quantity(product.qty, "шт."), this.money(product.total)], "receipt-cols-3")
 
-    let products = []
+        if (product.category) {
+          const category = document.createElement("small")
+          category.className = "receipt-product-category"
+          category.textContent = product.category
+          row.firstElementChild.appendChild(category)
+        }
 
-    try {
-      products = JSON.parse(input.value || "[]")
-
-      if (typeof products === "string") {
-        products = JSON.parse(products)
-      }
-
-      if (!Array.isArray(products)) {
-        products = []
-      }
-    } catch {
-      products = []
+        this.careProductsListTarget.appendChild(row)
+      })
     }
 
-    let total = 0
-
-    this.careProductsListTarget.innerHTML = ""
-
-    products.forEach(product => {
-      const qty = parseFloat(product.qty || 0)
-      const price = parseFloat(product.price || 0)
-
-      total += qty * price
-
-      this.careProductsListTarget.insertAdjacentHTML(
-        "beforeend",
-        `
-          <div class="notes-care-row">
-            <span>${product.name}</span>
-            <span> ${qty}</span>
-          </div>
-        `
-      )
-    })
-
-    this.careProductsListTarget.insertAdjacentHTML(
-      "beforeend",
-      `
-        <div class="notes-care-total">
-          <span><strong>${this.careProductsPriceLabelValue}</strong></span>
-          <span>${total} ₴</span>
-        </div>
-      `
-    )
-  }
-
-  calculateColorsPrice() {
-    return this.calculateIngredientsPrice("color")
-  }
-
-  calculateAdditivesPrice() {
-    return this.calculateIngredientsPrice("additive")
-  }
-
-  calculateIngredientsPrice(kind) {
-    let total = 0
-
-    document.querySelectorAll(".ingredient-fields").forEach(wrapper => {
-      if (wrapper.closest("template")) return
-      if (wrapper.closest(".formula-step-wrapper")?.querySelector(".destroy-field")?.value === "1") return
-
-      const destroy = wrapper.querySelector("[data-field='destroy']")
-      if (destroy?.value === "1") return
-
-      const ingredientKind = wrapper.querySelector("[data-field='kind']")?.value || "color"
-
-      if (ingredientKind !== kind) return
-
-      const amount = Number((wrapper.querySelector("[data-field='amount']")?.value || "0").replace(",", "."))
-      const price = Number((wrapper.querySelector("[data-field='price']")?.value || "0").replace(",", "."))
-
-      if (Number.isFinite(amount) && Number.isFinite(price)) {
-        total += amount * price
-      }
-    })
+    this.setText(this.careTotalTarget, this.money(total))
+    this.setVisible(this.careSectionTarget, products.length > 0)
 
     return total
   }
 
-  calculateCareProducts() {
-    const input = document.querySelector("input[name='service_note[care_products]']")
+  refreshReceipt() {
+    this.loadInitialServices()
 
-    if (!input) return 0
+    const services = this.renderServices()
+    const formula = this.renderFormula()
+    const care = this.renderCareProducts()
 
-    let products = []
-
-    try {
-      products = JSON.parse(input.value || "[]")
-
-      if (typeof products === "string") {
-        products = JSON.parse(products)
-      }
-
-      if (!Array.isArray(products)) {
-        products = []
-      }
-    } catch {
-      return 0
-    }
-
-    return products.reduce((sum, item) => {
-      return sum + (parseFloat(item.price || 0) * parseFloat(item.qty || 0))
-    }, 0)
+    this.setText(this.finalPriceTarget, this.money(services + formula + care))
   }
 
   calculateFinal() {
-    const services = this.calculateServices()
-    const oxidants = this.calculateDeveloper()
-    const colors = this.calculateColorsPrice()
-    const additives = this.calculateAdditivesPrice()
-    const care = this.calculateCareProducts()
-
-    const final = services + oxidants + colors + additives + care
-
-    if (this.hasFinalPriceTarget) {
-      this.finalPriceTarget.innerHTML = `<strong>${final} ₴</strong>`
-    }
+    this.refreshReceipt()
   }
 }
