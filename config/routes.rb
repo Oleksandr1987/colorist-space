@@ -8,6 +8,9 @@ Rails.application.routes.draw do
            }
 
   resources :clients do
+    get "formula_history", to: "formula_history#index", as: :formula_history
+    get "formula_history/:service_note_id", to: "formula_history#show", as: :formula_history_entry
+
     resources :service_notes do
       member do
         patch :main_photo

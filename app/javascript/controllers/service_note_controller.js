@@ -135,6 +135,14 @@ export default class extends Controller {
     const grouped = {}
 
     document.querySelectorAll("input[name*='[oxidant]']").forEach(input => {
+      if (input.closest("template")) return
+
+      const step = input.closest(".formula-step-wrapper")
+      if (!step) return
+
+      const destroyInput = step.querySelector(".destroy-field")
+      if (destroyInput?.value === "1") return
+
       if (!input.value) return
 
       let items
@@ -151,12 +159,15 @@ export default class extends Controller {
       }
 
       items.forEach(data => {
+        if (!data || typeof data !== "object") return
+
         const serviceId = data.formula_product_id || data.service_id
         const amount = parseFloat(data.amount || 0)
         const price = parseFloat(data.price || 0)
-        if (!serviceId || isNaN(amount) || isNaN(price)) return
 
-        const serviceOption = document.querySelector(`option[value="${serviceId}"]`)
+        if (!serviceId || !Number.isFinite(amount) || !Number.isFinite(price) || amount <= 0) return
+
+        const serviceOption = Array.from(document.querySelectorAll("option")).find(option => String(option.value) === String(serviceId))
         const brand = data.brand || serviceOption?.dataset.brand || ""
         const name = data.name || serviceOption?.dataset.name || serviceOption?.textContent.trim() || "Developer"
         const unit = data.unit || serviceOption?.dataset.unit || "g"
@@ -171,7 +182,6 @@ export default class extends Controller {
         total += amount * price
       })
     })
-
 
     this.renderDeveloperList(grouped)
 
@@ -401,26 +411,8 @@ export default class extends Controller {
     const services = this.calculateServices()
     const oxidants = this.calculateDeveloper()
     const colors = this.calculateColorsPrice()
-    const care = this.calculateCareProducts()
     const additives = this.calculateAdditivesPrice()
-
-    let developerGrams = 0
-
-    document.querySelectorAll("input[name*='[oxidant]']").forEach(input => {
-      if (!input.value) return
-
-      try {
-        const items = JSON.parse(input.value)
-
-        ;(Array.isArray(items) ? items : [items]).forEach(data => {
-          const amount = parseFloat(data.amount || 0)
-
-          if (!isNaN(amount)) {
-            developerGrams += amount
-          }
-        })
-      } catch {}
-    })
+    const care = this.calculateCareProducts()
 
     const final = services + oxidants + colors + additives + care
 

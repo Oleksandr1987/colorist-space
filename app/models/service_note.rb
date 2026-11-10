@@ -17,6 +17,7 @@ class ServiceNote < ApplicationRecord
   accepts_nested_attributes_for :haircut_steps, allow_destroy: true, reject_if: :reject_empty_haircut_step?
 
   validates :appointment_id, uniqueness: true
+  validate :appointment_belongs_to_client_and_user
   validate :care_products_stock_available
   validate :care_products_are_active_for_stock_increase
 
@@ -130,6 +131,15 @@ class ServiceNote < ApplicationRecord
   end
 
   private
+
+  def appointment_belongs_to_client_and_user
+    return if appointment.blank?
+
+    if appointment.client_id != client_id ||
+      appointment.user_id != user_id
+      errors.add(:appointment, :invalid)
+    end
+  end
 
   def set_price_from_services
     return if price.present?

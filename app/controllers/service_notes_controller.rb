@@ -8,7 +8,7 @@ class ServiceNotesController < ApplicationController
   def show; end
 
   def new
-    @appointment = current_user.appointments.find(params[:appointment_id])
+    @appointment = current_user.appointments.where(client_id: @client.id).find(params[:appointment_id])
     @service_note = @client.service_notes.build(user: current_user, appointment: @appointment)
     @selected_service_ids = @appointment.service_ids
   end
@@ -24,7 +24,7 @@ class ServiceNotesController < ApplicationController
     # :nocov:
     if params[:appointment_id].present?
       # :nocov:
-      @service_note.appointment = current_user.appointments.find(params[:appointment_id])
+      @service_note.appointment = current_user.appointments.where(client_id: @client.id).find(params[:appointment_id])
     end
 
     if service_ids.present?
@@ -83,6 +83,11 @@ class ServiceNotesController < ApplicationController
     if @service_note.valid?
       ServiceNote.transaction do
         @service_note.save!
+
+        if params[:service_note].key?("service_ids") && service_ids.empty?
+          @service_note.appointment.sync_services_with_prices!([])
+        end
+
         Formulas::SyncCharges.new(service_note: @service_note).call
       end
 
@@ -160,8 +165,33 @@ class ServiceNotesController < ApplicationController
       :care_products,
       photos: [],
       service_ids: [],
-      haircut_steps_attributes: [ :id, :zone, :instrument, :parting, :elevation, :cut_type, :notes, :_destroy ],
-      formula_steps_attributes: [ :id, :section, :oxidant, :time, :_destroy, formula_ingredients_attributes: {} ]
+      haircut_steps_attributes: [
+        :id,
+        :zone,
+        :instrument,
+        :parting,
+        :elevation,
+        :cut_type,
+        :notes,
+        :_destroy
+      ],
+      formula_steps_attributes: [
+        :id,
+        :section,
+        :oxidant,
+        :time,
+        :_destroy,
+        formula_ingredients_attributes: [
+          :id,
+          :shade,
+          :brand,
+          :amount,
+          :formula_product_id,
+          :price,
+          :kind,
+          :_destroy
+        ]
+      ]
     )
   end
 
@@ -200,9 +230,11 @@ class ServiceNotesController < ApplicationController
 
   # :nocov:
   def attach_photos
-    return unless params[:service_note][:photos].present?
+    photos = Array(params.dig(:service_note, :photos)).compact_blank
 
-    @service_note.photos.attach(params[:service_note][:photos])
+    return if photos.empty?
+
+    @service_note.photos.attach(photos)
   end
   # :nocov:
 end

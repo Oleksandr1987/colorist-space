@@ -23,8 +23,10 @@ RSpec.describe ServiceNote do
   describe "scope .for_client" do
     let(:client) { create(:client) }
     let(:user) { client.user }
-    let!(:older) { create(:service_note, client: client, user: user, created_at: 2.days.ago) }
-    let!(:newer) { create(:service_note, client: client, user: user, created_at: 1.day.ago) }
+    let(:older_appointment) { create(:appointment, user: user, client: client, appointment_date: Date.current - 2.days) }
+    let(:newer_appointment) { create(:appointment, user: user, client: client, appointment_date: Date.current - 1.day) }
+    let!(:older) { create(:service_note, client: client, user: user, appointment: older_appointment, created_at: 2.days.ago) }
+    let!(:newer) { create(:service_note, client: client, user: user, appointment: newer_appointment, created_at: 1.day.ago) }
 
     it "returns notes ordered by created_at desc" do
       expect(described_class.for_client(client.id)).to eq([ newer, older ])
@@ -46,6 +48,41 @@ RSpec.describe ServiceNote do
       service_note = build(:service_note, :without_services, appointment: appointment, user: user, client: client)
 
       expect(service_note).to be_valid
+    end
+  end
+
+  describe "validation: appointment_belongs_to_client_and_user" do
+    it "is valid when appointment belongs to the same client and user" do
+      service_note = build(:service_note, user: user, client: client, appointment: appointment)
+
+      expect(service_note).to be_valid
+    end
+
+    it "rejects appointment belonging to another client" do
+      other_client = create(:client, user: user)
+      other_appointment = create(:appointment, user: user, client: other_client)
+      service_note = build(:service_note, user: user, client: client, appointment: other_appointment)
+
+      expect(service_note).not_to be_valid
+      expect(service_note.errors[:appointment]).to be_present
+    end
+
+    it "rejects appointment belonging to another user" do
+      other_user = create(:user)
+      other_client = create(:client, user: other_user)
+      other_appointment = create(:appointment, user: other_user, client: other_client)
+      service_note = build(:service_note, user: user, client: client, appointment: other_appointment)
+
+      expect(service_note).not_to be_valid
+      expect(service_note.errors[:appointment]).to be_present
+    end
+
+    it "does not add a custom validation error when appointment is nil" do
+      service_note = build(:service_note, user: user, client: client, appointment: nil)
+
+      service_note.valid?
+
+      expect(service_note.errors.details[:appointment]).not_to include(error: :invalid)
     end
   end
 

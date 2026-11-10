@@ -1,0 +1,90 @@
+<div class="formula-history-modal hidden"
+     data-formula-history-target="modal"
+     role="dialog"
+     aria-modal="true"
+     aria-label="<%= t('formula.history.title') %>">
+
+  <div class="formula-history-header">
+    <button type="button"
+            class="formula-history-back"
+            data-formula-history-target="back"
+            data-action="click->formula-history#back"
+            aria-label="<%= t('formula.history.back') %>">
+      <%= image_tag "back.png", width: 24, height: 24, alt: "" %>
+    </button>
+
+    <h3 data-formula-history-target="title">
+      <%= t('formula.history.title') %>
+    </h3>
+
+    <button type="button"
+            class="formula-history-close"
+            data-action="click->formula-history#close"
+            aria-label="<%= t('formula.history.close') %>">
+      <%= image_tag "close.png", width: 24, height: 24, alt: "" %>
+    </button>
+  </div>
+
+  <div class="formula-history-body">
+
+    <!-- HISTORY LIST -->
+    <div data-formula-history-target="history">
+
+      <div class="formula-history-search">
+        <input type="search"
+               placeholder="<%= t('formula.history.search_placeholder') %>"
+               data-formula-history-target="search"
+               data-action="input->formula-history#search">
+      </div>
+
+      <div class="formula-history-count"
+           data-formula-history-target="count"></div>
+
+      <div class="formula-history-list"
+           data-formula-history-target="list"></div>
+
+      <div class="formula-history-empty hidden"
+           data-formula-history-target="empty">
+        <%= t("formula.history.empty") %>
+      </div>
+
+      <button type="button"
+              class="formula-history-more hidden"
+              data-formula-history-target="more"
+              data-action="click->formula-history#loadMore">
+        <%= t("formula.history.load_more") %>
+      </button>
+    </div>
+
+    <!-- FORMULA DETAILS -->
+    <div class="formula-history-details hidden"
+         data-formula-history-target="details">
+
+      <div class="formula-history-selection-header">
+        <span data-formula-history-target="selectedCount"></span>
+
+        <button type="button"
+                data-formula-history-target="selectAll"
+                data-action="click->formula-history#toggleAll">
+          <%= t("formula.history.deselect_all") %>
+        </button>
+      </div>
+
+      <div class="formula-history-steps"
+           data-formula-history-target="steps"></div>
+
+      <button type="button"
+              class="formula-history-copy"
+              data-formula-history-target="copy"
+              data-action="click->formula-history#copySelected">
+        <%= t("formula.history.copy_selected", count: 0) %>
+      </button>
+    </div>
+
+    <div class="formula-history-loading hidden"
+         data-formula-history-target="loading">
+      <%= t("formula.history.loading") %>
+    </div>
+
+  </div>
+</div>

@@ -5,8 +5,8 @@ RSpec.describe "ServiceNotes" do
 
   let(:user) { create(:user, :trial) }
   let(:client) { create(:client, user: user) }
-  let(:service_note) { create(:service_note, client: client, user: user) }
   let(:appointment) { create(:appointment, user: user, client: client) }
+  let(:service_note) { create(:service_note, client: client, user: user, appointment: appointment) }
   let(:care_product) do
     create(:care_product, user: user, brand: "Londa", name: "Mask", sale_price: 100, purchase_price: 60, stock_quantity: 20)
   end
