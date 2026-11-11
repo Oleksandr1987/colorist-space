@@ -161,6 +161,8 @@ class ServiceNotesController < ApplicationController
     params.require(:service_note).permit(
       :service_type,
       :notes,
+      :haircut_notes,
+      :formula_notes,
       :price,
       :care_products,
       photos: [],

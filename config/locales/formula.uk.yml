@@ -3,6 +3,7 @@ uk:
     title: "ФОРМУЛА"
     add_step: "ДОДАТИ КРОК"
     add_section: "Оберіть зону"
+    change_section: "Змінити на..."
     step: "Крок"
 
     colors: "КОЛЬОРИ"

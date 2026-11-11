@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 import Sortable from "sortablejs"
 
 export default class extends Controller {
-  static targets = ["container", "template", "steps", "colorsList", "addStep"]
+  static targets = ["container", "template", "steps", "colorsList", "addStep", "sectionModal"]
 
   static values = {
     sections: Object,
@@ -24,6 +24,7 @@ export default class extends Controller {
   disconnect() {
     this.element.removeEventListener("input", this.handleAmountInput)
     window.removeEventListener("formula:firstStepFilled", this.showAddStepHandler)
+    this.sectionEditingStep = null
   }
 
   // ---------------- COLOR SUM ----------------
@@ -145,6 +146,7 @@ export default class extends Controller {
 
   removeStep(event) {
     event.preventDefault()
+    event.stopPropagation()
 
     const wrapper = event.currentTarget.closest(".formula-step-wrapper")
     if (!wrapper) return
@@ -308,9 +310,8 @@ export default class extends Controller {
 
   // ---------------- IMPORT FORMULA ----------------
   hasActiveFormulaSteps() {
-    return Array.from(
-      this.containerTarget.querySelectorAll(".formula-step-wrapper")
-    ).some(wrapper => {
+    return Array.from(this.containerTarget.querySelectorAll(".formula-step-wrapper"))
+    .some(wrapper => {
       const destroy = wrapper.querySelector(".destroy-field")
 
       return wrapper.style.display !== "none" && destroy?.value !== "1"
@@ -516,6 +517,57 @@ export default class extends Controller {
     row.querySelector(".delete-icon").src = this.deleteIconValue
 
     list.appendChild(row)
+  }
+  // ---------------- CHANGE SECTION ----------------
+  openSectionPicker(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const wrapper = event.currentTarget.closest(".formula-step-wrapper")
+    if (!wrapper || !this.hasSectionModalTarget) return
+
+    this.sectionEditingStep = wrapper
+    this.sectionModalTarget.classList.remove("hidden")
+  }
+
+  changeSection(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const wrapper = this.sectionEditingStep
+    if (!wrapper) return
+
+    const section = event.currentTarget.dataset.section
+    if (!Object.hasOwn(this.sectionsValue, section)) return
+
+    const sectionInput = wrapper.querySelector('input[name$="[section]"]')
+    const sectionTitle = wrapper.querySelector(".formula-section-title")
+
+    if (!sectionInput || !sectionTitle) return
+
+    sectionInput.value = section
+    sectionTitle.textContent = this.sectionsValue[section]
+
+    this.closeSectionPicker()
+
+    window.dispatchEvent(new CustomEvent("formula:changed"))
+  }
+
+  closeSectionPicker(event) {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
+    if (this.hasSectionModalTarget) {
+      this.sectionModalTarget.classList.add("hidden")
+    }
+
+    this.sectionEditingStep = null
+  }
+
+  stopPropagation(event) {
+    event.stopPropagation()
   }
 
   // ---------------- DRAG ----------------

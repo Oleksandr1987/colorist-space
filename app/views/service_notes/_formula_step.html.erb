@@ -1,21 +1,27 @@
 <% step_id = step_form.index || step_form.object.id %>
 
 <div id="formula_step_<%= step_form.object.id %>" class="formula-step-wrapper" data-controller="collapse" data-step-id="<%= step_id %>">
-  <!-- HEADER -->
+  <!-- STEP HEADER -->
   <div class="formula-step-header" data-action="click->collapse#toggle">
-    <span>
-      <%= t("haircut.step") %>
-      <span class="step-number"></span>
-    </span>
+    <div class="formula-step-header-left">
+      <svg class="chevron"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
 
-    <svg class="chevron"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2">
-      <path d="m6 9 6 6 6-6"/>
-    </svg>
+      <span>
+        <%= t("haircut.step") %>
+        <span class="step-number"></span>
+      </span>
+    </div>
+
+    <button type="button" class="formula-step-delete" data-action="click->formula#removeStep" aria-label="<%= t('common.delete') %>">
+      <%= image_tag "close.png", class: "clear-icon" %>
+    </button>
   </div>
   <!-- CONTENT -->
   <div class="formula-step-content hidden" data-collapse-target="content">
@@ -23,9 +29,9 @@
     <div class="formula-card" data-controller="developer" data-step-id="<%= step_id %>">
       <!-- IMPORTANT: SECTION -->
       <%= step_form.hidden_field :section %>
-      <!-- HEADER -->
+      <!-- FORMULA HEADER -->
       <div class="formula-header">
-        <span>
+        <span class="formula-section-title">
           <% if step_form.object.section.present? %>
             <%= t("formula.sections.#{step_form.object.section}") %>
           <% end %>
@@ -33,8 +39,9 @@
 
         <div class="step-remove">
           <%= step_form.hidden_field :_destroy, value: 0, class: "destroy-field" %>
-          <button type="button" data-action="click->formula#removeStep">
-            <%= image_tag "close.png", class: "clear-icon" %>
+
+          <button type="button" class="formula-change-section" data-action="click->formula#openSectionPicker" aria-label="<%= t('formula.add_section') %>">
+            <%= image_tag "up-down.png", alt: "", width: 24, height: 24 %>
           </button>
         </div>
       </div>

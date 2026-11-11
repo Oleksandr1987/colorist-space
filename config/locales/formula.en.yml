@@ -3,6 +3,7 @@ en:
     title: "FORMULA"
     add_step: "ADD STEP"
     add_section: "Select zone"
+    change_section: "Change to..."
     step: "Step"
 
     colors: "COLORS"

@@ -89,4 +89,52 @@
   <%= render "service_notes/formula_step_template" %>
 
   <%= render "service_notes/formula_history_modal" %>
+  <!-- FORMULA NOTES -->
+  <div class="step-general-notes">
+    <div class="block-title">
+      <span>
+        <%= image_tag "notes.png", class: "wiz-icon", width: 24, height: 24 %>
+        <%= t("appointments.form.notes") %>
+      </span>
+    </div>
+
+    <%= f.text_area :formula_notes, class: "notes-textarea", rows: 4 %>
+  </div>
+  <!-- CHANGE FORMULA SECTION MODAL -->
+  <div class="formula-section-modal hidden"
+      data-formula-target="sectionModal"
+      data-action="click->formula#closeSectionPicker">
+
+    <div class="formula-section-modal-content" data-action="click->formula#stopPropagation">
+
+      <div class="formula-section-modal-header">
+        <h3><%= t("formula.change_section") %></h3>
+
+        <button type="button"
+                class="formula-section-modal-close"
+                data-action="click->formula#closeSectionPicker"
+                aria-label="<%= t('common.close') %>">
+          <%= image_tag "close.png", class: "clear-icon" %>
+        </button>
+      </div>
+
+      <div class="sections-grid formula-section-change-grid">
+        <% FormulaStep::SECTIONS.each do |section| %>
+          <button type="button"
+                  class="section-button"
+                  data-action="click->formula#changeSection"
+                  data-section="<%= section %>">
+
+            <span class="section-button-image">
+              <%= image_tag "#{section}.png", alt: "", width: 96, height: 96, loading: "lazy" %>
+            </span>
+
+            <span class="section-button-label">
+              <%= t("formula.sections.#{section}") %>
+            </span>
+          </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
 </div>
