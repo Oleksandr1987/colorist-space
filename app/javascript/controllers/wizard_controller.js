@@ -54,20 +54,9 @@ export default class extends Controller {
       this.current = 0
     }
 
-    this.onTouchStart = this.handleTouchStart.bind(this)
-    this.onTouchEnd = this.handleTouchEnd.bind(this)
-
-    this.containerTarget.addEventListener("touchstart", this.onTouchStart, { passive: true })
-    this.containerTarget.addEventListener("touchend", this.onTouchEnd, { passive: true })
-
     this.update()
     this.updateNextButton()
     this.updateButtons()
-  }
-
-  disconnect() {
-    this.containerTarget.removeEventListener("touchstart", this.onTouchStart)
-    this.containerTarget.removeEventListener("touchend", this.onTouchEnd)
   }
 
   go(event) {
@@ -146,20 +135,5 @@ export default class extends Controller {
     url.searchParams.set("step", this.current)
 
     window.history.replaceState(window.history.state, "", url)
-  }
-
-  handleTouchStart(event) {
-    this.startX = event.changedTouches[0].screenX
-  }
-
-  handleTouchEnd(event) {
-    if (this.startX === undefined) return
-
-    const diff = event.changedTouches[0].screenX - this.startX
-    this.startX = undefined
-
-    if (Math.abs(diff) <= 50) return
-
-    diff > 0 ? this.prev() : this.next()
   }
 }

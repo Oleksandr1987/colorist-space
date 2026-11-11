@@ -1,25 +1,60 @@
-<div class="admin-dashboard">
+<div class="service-wrapper formula-products-page services-main-page" data-controller="service">
   <!-- Header -->
-  <div class="appointment-header modal-header">
-    <div class="appointment-header-left">
-      <%= link_to services_path, class: "back-link inline", aria: { label: t("services.pages.back") } do %>
+  <div class="category-header care-products-header">
+    <div class="category-title">
+      <%= link_to services_path, class: "back", aria: { label: t("services.pages.back") } do %>
         <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24 %>
       <% end %>
 
-      <h1>
-        <%= t("services.pages.categories") %>
-      </h1>
+      <span><%= t("services.pages.services") %></span>
     </div>
 
-    <%= link_to new_service_path(service_type: "service"), class: "service-header-icon", aria: { label: t("services.pages.new_service") } do %>
-      <%= image_tag "plus.png", class: "wiz-icon", width: 24,height: 24 %>
+    <%= link_to new_service_path(service_type: "service"), class: "formula-add-button", aria: { label: t("services.pages.new_service") } do %>
+      <%= image_tag "plus.png", width: 24, height: 24, alt: "" %>
     <% end %>
   </div>
 
-  <!-- Categories -->
-    <% @categories.each do |category| %>
-      <% key = category.to_s.downcase %>
+  <!-- Category tabs -->
+  <div class="formula-category-tabs services-category-tabs">
+    <div class="formula-category-buttons services-category-buttons">
+      <% @categories.each do |category| %>
+        <%= link_to section_services_path(category: category), class: "filter-button services-category-link" do %>
+          <%= t("services.categories.#{category}", default: category.to_s.humanize) %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
 
-      <%= link_to t("services.categories.#{key}", default: category), section_services_path(category: category), class: "admin-card" %>
+  <!-- Services -->
+  <div class="services-list scrollable-service-list service-section-list" data-service-target="list">
+
+    <% @services.each do |service| %>
+      <div id="<%= dom_id(service) %>" class="service-item service-section-item">
+
+        <div class="service-section-content">
+          <div class="service-section-name">
+            <strong><%= service.subtype %></strong>
+          </div>
+
+          <div class="service-section-price">
+            <%= number_to_currency(service.price, unit: "", precision: 0) %> ₴
+          </div>
+        </div>
+
+        <div class="service-actions service-section-actions">
+          <%= link_to edit_service_path(service), class: "icon-button", aria: { label: t("services.list.edit") } do %>
+            <%= image_tag "pencil.png", class: "wiz-icon", width: 20, height: 20, alt: "" %>
+          <% end %>
+
+          <%= button_to service_path(service),
+                method: :delete,
+                class: "icon-button delete-button",
+                form: { data: { turbo_confirm: t("services.list.confirm_delete") } },
+                aria: { label: t("services.list.delete") } do %>
+            <%= image_tag "delete.png", class: "wiz-icon", width: 20, height: 20, alt: "" %>
+          <% end %>
+        </div>
+      </div>
     <% end %>
+  </div>
 </div>

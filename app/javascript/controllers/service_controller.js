@@ -2,7 +2,24 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["subtype", "categorySelect", "search", "sort", "list", "menu", "unitField", "typeSelect", "type", "selected", "toggleButton", "colorFilters", "oxidantFilters", "additiveFilters", "formulaAddButton", "formulaBrandFilters"]
+  static targets = [
+    "subtype",
+    "categorySelect",
+    "search",
+    "sort",
+    "list",
+    "menu",
+    "unitField",
+    "typeSelect",
+    "type",
+    "selected",
+    "colorFilters",
+    "oxidantFilters",
+    "additiveFilters",
+    "formulaAddButton",
+    "formulaBrandFilters",
+    "servicesAddButton"
+  ]
 
   static values = {
     categories: Object,
@@ -28,15 +45,6 @@ export default class extends Controller {
     this.formulaCategory = this.hasFormulaCategoryValue ? this.formulaCategoryValue : "color"
     this.selectedFormulaBrands = []
     this.selectedFormulaConcentrations = []
-
-    if (this.hasFormulaBrandFiltersTarget) {
-      this.formulaBrandFiltersTarget.classList.add("hidden")
-    }
-
-    if (this.hasToggleButtonTarget) {
-      this.toggleButtonTarget.classList.remove("active")
-      this.toggleButtonTarget.setAttribute("aria-expanded", "false")
-    }
 
     if (this.hasCategorySelectTarget) {
       this.updateSubtypeOptions()
@@ -146,9 +154,10 @@ export default class extends Controller {
     event.preventDefault()
 
     this.formulaCategory = event.currentTarget.dataset.formulaCategory
-    this.updateFormulaAddButton()
     this.selectedFormulaBrands = []
     this.selectedFormulaConcentrations = []
+
+    this.updateFormulaAddButton()
 
     this.element
       .querySelectorAll("[data-formula-category]")
@@ -246,17 +255,6 @@ export default class extends Controller {
     } else {
       this.unitFieldTarget.style.display = "none"
     }
-  }
-
-  toggleFormulaFilters(event) {
-    event.preventDefault()
-
-    if (!this.hasFormulaBrandFiltersTarget) return
-
-    const isHidden = this.formulaBrandFiltersTarget.classList.toggle("hidden")
-
-    event.currentTarget.classList.toggle("active", !isHidden)
-    event.currentTarget.setAttribute("aria-expanded", String(!isHidden))
   }
 
   updateType() {

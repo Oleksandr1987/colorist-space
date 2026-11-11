@@ -60,13 +60,15 @@
     </div>
   <% end %>
 
+  <% selected_unit = formula_product.unit.presence || "g" %>
+
   <div class="form-section">
     <%= f.label :unit, t("formula_products.form.unit") %>
 
     <div class="formula-unit-selector" role="group" aria-label="<%= t("formula_products.form.unit") %>">
 
       <button type="button"
-              class="formula-unit-button <%= 'active' if formula_product.unit == 'g' %>"
+              class="formula-unit-button <%= 'active' if selected_unit == 'g' %>"
               data-formula-unit-target="button"
               data-value="g"
               data-action="click->formula-unit#select">
@@ -74,7 +76,7 @@
       </button>
 
       <button type="button"
-              class="formula-unit-button <%= 'active' if formula_product.unit == 'ml' %>"
+              class="formula-unit-button <%= 'active' if selected_unit == 'ml' %>"
               data-formula-unit-target="button"
               data-value="ml"
               data-action="click->formula-unit#select">
@@ -82,7 +84,7 @@
       </button>
     </div>
 
-    <%= f.hidden_field :unit, data: { formula_unit_target: "input" } %>
+    <%= f.hidden_field :unit, value: selected_unit, data: { formula_unit_target: "input" } %>
   </div>
 
   <div class="form-section">
