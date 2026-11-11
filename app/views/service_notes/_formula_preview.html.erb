@@ -1,83 +1,163 @@
-<div class="formula-preview-card">
-  <div class="formula-preview-title">
-    <%= step.section&.humanize || "Step" %>
-  </div>
 
-  <% if step.formula_ingredients.any?(&:color?) %>
-    <div class="formula-preview-group">
-      <div class="formula-icon">
-        <%= image_tag "paint.png", class: "wiz-icon", width: 24, height: 24 %>
-      </div>
+<%
+  section_key = step.section.to_s
 
-      <div class="formula-content">
-        <% step.formula_ingredients.select(&:color?).each do |ingredient| %>
-          <div class="formula-row">
+  section_name = t("formula.sections.#{section_key}", default: section_key.humanize)
+
+  colors = step.formula_ingredients.select(&:color?)
+  additives = step.formula_ingredients.select(&:additive?)
+
+  money = ->(amount) { "#{number_with_precision(amount, precision: 2, strip_insignificant_zeros: true)} ₴" }
+%>
+
+<div class="receipt-preview formula-receipt-preview">
+
+  <h4 class="receipt-preview-zone">
+    <%= section_name %>
+  </h4>
+
+  <!-- COLORS -->
+  <% if colors.any? %>
+    <div class="receipt-group">
+      <h4 class="receipt-group-title">
+        <%= image_tag "paint.png", class: "wiz-icon", width: 26, height: 26 %>
+        <%= t("formula_products.tabs.colors") %>
+      </h4>
+
+      <div class="receipt-table">
+        <div class="receipt-table-header receipt-cols-3">
+          <span><%= t("notes.receipt.brand_shade") %></span>
+          <span><%= t("notes.receipt.quantity") %></span>
+          <span><%= t("notes.receipt.price") %></span>
+        </div>
+
+        <% colors.each do |ingredient| %>
+          <div class="receipt-row receipt-cols-3">
             <span>
-              <%= ingredient.brand %>
-              <%= ingredient.shade %>
+              <%= [ingredient.brand, ingredient.shade].compact_blank.join(" ") %>
             </span>
-
             <span>
-              <%= ingredient.amount %><%= ingredient.formula_product&.unit || "g" %>
+              <%= ingredient.amount %>
+              <%= ingredient.formula_product&.unit || "g" %>
             </span>
+            <span><%= money.call(ingredient.price) %></span>
           </div>
         <% end %>
+
+        <div class="receipt-subtotal receipt-cols-2">
+          <strong><%= t("notes.receipt.colors_total") %></strong>
+          <strong><%= money.call(step.colors_total_price) %></strong>
+        </div>
       </div>
     </div>
   <% end %>
 
-  <% if step.formula_ingredients.any?(&:additive?) %>
-    <div class="formula-preview-group">
-      <div class="formula-icon">
-        <%= image_tag "additive.png", class: "wiz-icon", width: 24, height: 24 %>
-      </div>
-      <div class="formula-content">
-        <strong><%= t("formula_products.tabs.additives") %></strong>
-        <% step.formula_ingredients.select(&:additive?).each do |ingredient| %>
-          <div class="formula-row">
-            <span><%= [ingredient.brand, ingredient.shade].compact_blank.join(" ") %></span>
-            <span><%= ingredient.amount %><%= ingredient.formula_product&.unit || "g" %></span>
+  <!-- ADDITIVES -->
+  <% if additives.any? %>
+    <div class="receipt-group">
+      <h4 class="receipt-group-title">
+        <%= image_tag "additive.png", class: "wiz-icon", width: 26, height: 26 %>
+        <%= t("formula_products.tabs.additives") %>
+      </h4>
+
+      <div class="receipt-table">
+        <div class="receipt-table-header receipt-cols-3">
+          <span><%= t("notes.receipt.brand_name") %></span>
+          <span><%= t("notes.receipt.quantity") %></span>
+          <span><%= t("notes.receipt.price") %></span>
+        </div>
+
+        <% additives.each do |ingredient| %>
+          <div class="receipt-row receipt-cols-3">
+            <span>
+              <%= [ingredient.brand, ingredient.shade].compact_blank.join(" ") %>
+            </span>
+            <span>
+              <%= ingredient.amount %>
+              <%= ingredient.formula_product&.unit || "g" %>
+            </span>
+            <span><%= money.call(ingredient.price) %></span>
           </div>
         <% end %>
+
+        <div class="receipt-subtotal receipt-cols-2">
+          <strong><%= t("notes.receipt.additives_total") %></strong>
+          <strong><%= money.call(step.additives_total_price) %></strong>
+        </div>
       </div>
     </div>
   <% end %>
 
+  <!-- OXIDANTS -->
   <% if step.oxidant_data.any? %>
-    <div class="formula-preview-group">
-      <div class="formula-icon">
-        <%= image_tag "percent.png", class: "wiz-icon", width: 24,height: 24 %>
-      </div>
+    <div class="receipt-group">
+      <h4 class="receipt-group-title">
+        <%= image_tag "percent.png", class: "wiz-icon", width: 26, height: 26 %>
+        <%= t("formula_products.tabs.oxidants") %>
+      </h4>
 
-      <div class="formula-content">
+      <div class="receipt-table">
+        <div class="receipt-table-header receipt-cols-3">
+          <span><%= t("notes.receipt.brand_concentration") %></span>
+          <span><%= t("notes.receipt.quantity") %></span>
+          <span><%= t("notes.receipt.price") %></span>
+        </div>
+
         <% step.oxidant_data.each do |data| %>
-          <% product = FormulaProduct.find_by(id: data["formula_product_id"] || data["service_id"]) %>
+          <% product = FormulaProduct.find_by(
+               id: data["formula_product_id"] || data["service_id"],
+               user_id: @service_note.user_id
+             ) %>
 
-          <div class="formula-row">
+          <% amount = data["amount"].to_f %>
+          <% unit_price = product&.price_per_unit.to_f %>
+
+          <div class="receipt-row receipt-cols-3">
             <span>
-              <%= [product&.brand, product&.name].compact.join(" ").presence || "Unknown" %>
+              <%= [product&.brand, product&.name].compact_blank.join(" ").presence || "—" %>
               <%= data["ratio"] %>
             </span>
-
             <span>
-              <%= data["amount"] %><%= data["unit"].presence || product&.unit || "g" %>
+              <%= data["amount"] %>
+              <%= data["unit"].presence || product&.unit || "g" %>
             </span>
+            <span><%= money.call(amount * unit_price) %></span>
           </div>
         <% end %>
+
+        <div class="receipt-subtotal receipt-cols-2">
+          <strong><%= t("notes.receipt.oxidants_total") %></strong>
+          <strong><%= money.call(step.oxidant_total_price) %></strong>
+        </div>
       </div>
     </div>
   <% end %>
 
+  <!-- TIME -->
   <% if step.time.present? %>
-    <div class="formula-preview-group">
-      <div class="formula-icon">
-        <%= image_tag "time.png", class: "wiz-icon", width: 24, height: 24 %>
-      </div>
+    <div class="receipt-group">
+      <h4 class="receipt-group-title">
+        <%= image_tag "time.png", class: "wiz-icon", width: 26, height: 26 %>
+        <%= t("formula.time", default: "Час витримки") %>
+      </h4>
 
-      <div class="formula-content">
-        <div class="formula-row">
-          <span><%= step.time.to_i %> min</span>
-        </div>
+      <div class="receipt-row receipt-cols-2">
+        <span><%= t("formula.time", default: "Час витримки") %></span>
+        <strong><%= step.time.to_i %> <%= t("datetime.prompts.minute", default: "хв") %></strong>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- STEP NOTES -->
+  <% if step.try(:notes).present? %>
+    <div class="receipt-group">
+      <h4 class="receipt-group-title">
+        <%= image_tag "notes.png", class: "wiz-icon", width: 26, height: 26 %>
+        <%= t("appointments.form.notes") %>
+      </h4>
+
+      <div class="receipt-notes-text">
+        <%= simple_format(step.notes) %>
       </div>
     </div>
   <% end %>

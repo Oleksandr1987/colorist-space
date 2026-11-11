@@ -84,239 +84,201 @@
 
   <%
     haircut_steps = @service_note.haircut_steps.reject do |step|
-      step.instrument.blank? && step.parting.blank? && step.elevation.blank? && step.cut_type.blank?
+      step.instrument.blank? && step.parting.blank? &&
+        step.elevation.blank? && step.cut_type.blank?
     end
 
     formula_steps = @service_note.formula_steps.select do |step|
-      step.formula_ingredients.any? || step.oxidant.present? || step.time.present?
+      step.formula_ingredients.any? ||
+        step.oxidant_data.any? ||
+        step.time.present? ||
+        step.try(:notes).present?
     end
 
     services_price = @service_note.services_total
 
     formula_price = formula_steps.sum do |step|
-      step.colors_total_price + step.additives_total_price + step.oxidant_total_price
+      step.colors_total_price +
+        step.additives_total_price +
+        step.oxidant_total_price
     end
 
-    care_products_price = Array(@service_note.care_products).sum do |product|
+    care_products = Array(@service_note.care_products)
+
+    care_products_price = care_products.sum do |product|
       product["price"].to_f * product["qty"].to_f
     end
+
+    money = ->(amount) { "#{number_with_precision(amount, precision: 2, strip_insignificant_zeros: true)} ₴" }
   %>
 
-  <!-- CONTENT -->
-  <div class="note-content">
+  <div class="note-content note-receipt">
 
-    <!-- HAIRCUT -->
+    <!-- 1. SERVICES -->
+    <% if @service_note.services.any? %>
+      <section class="note-section receipt-section" data-controller="collapse">
+        <div class="note-section-title receipt-heading note-step-pill"
+             data-action="click->collapse#toggle">
+          <%= image_tag "services.png", class: "wiz-icon", width: 30, height: 30 %>
+          <strong><%= t("services.title") %></strong>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </div>
+
+        <div class="note-section-content hidden" data-collapse-target="content">
+          <div class="receipt-table">
+            <div class="receipt-table-header receipt-cols-2">
+              <span><%= t("services.title") %></span>
+              <span><%= t("notes.receipt.price") %></span>
+            </div>
+
+            <% @service_note.services.each do |service| %>
+              <% relation = @service_note.appointment.appointment_services_relations.find { |item| item.service_id == service.id } %>
+
+              <div class="receipt-row receipt-cols-2">
+                <span><%= service.name %></span>
+                <span><%= money.call(relation&.price.to_f) %></span>
+              </div>
+            <% end %>
+
+            <div class="receipt-subtotal receipt-cols-2">
+              <strong><%= t("notes.receipt.services_total") %></strong>
+              <strong><%= money.call(services_price) %></strong>
+            </div>
+          </div>
+        </div>
+      </section>
+    <% end %>
+
+    <!-- 2. HAIRCUT -->
     <% if haircut_steps.any? %>
-      <div class="note-section" data-controller="collapse">
-        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
-          <%= image_tag "brush.png", class: "wiz-icon", width: 34, height: 34 %>
-
-          <span>
-            <strong><%= t("haircut.title") %></strong>
-          </span>
-
-          <svg class="chevron"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2">
+      <section class="note-section receipt-section" data-controller="collapse">
+        <div class="note-section-title receipt-heading note-step-pill"
+             data-action="click->collapse#toggle">
+          <%= image_tag "brush.png", class: "wiz-icon", width: 30, height: 30 %>
+          <strong><%= t("haircut.title") %></strong>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m6 9 6 6 6-6"/>
           </svg>
         </div>
 
         <div class="note-section-content hidden" data-collapse-target="content">
           <% haircut_steps.each_with_index do |step, index| %>
-            <div data-controller="collapse" class="note-step">
-              <div class="note-step-pill" data-action="click->collapse#toggle">
-                <span>
-                  <%= t("haircut.step") %> <%= index + 1 %>
-                </span>
-
-                <svg class="chevron"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2">
+            <div class="note-step receipt-step" data-controller="collapse">
+              <div class="note-step-pill receipt-step-heading"
+                   data-action="click->collapse#toggle">
+                <strong><%= t("haircut.step") %> <%= index + 1 %></strong>
+                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="m6 9 6 6 6-6"/>
                 </svg>
               </div>
 
               <div class="note-step-content hidden" data-collapse-target="content">
-                <%= render "service_notes/haircut_preview",
-                    step: step %>
+                <%= render "service_notes/haircut_preview", step: step %>
               </div>
             </div>
           <% end %>
         </div>
-      </div>
+      </section>
     <% end %>
 
-
-    <!-- FORMULA -->
+    <!-- 3. FORMULA -->
     <% if formula_steps.any? %>
-      <div class="note-section" data-controller="collapse">
-        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
-          <%= image_tag "formula.png", class: "wiz-icon", width: 34, height: 34 %>
-
-          <span>
-            <strong><%= t("formula.title") %></strong>
-          </span>
-
-          <svg class="chevron"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2">
+      <section class="note-section receipt-section" data-controller="collapse">
+        <div class="note-section-title receipt-heading note-step-pill"
+             data-action="click->collapse#toggle">
+          <%= image_tag "formula.png", class: "wiz-icon", width: 30, height: 30 %>
+          <strong><%= t("formula.title") %></strong>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m6 9 6 6 6-6"/>
           </svg>
         </div>
 
         <div class="note-section-content hidden" data-collapse-target="content">
           <% formula_steps.each_with_index do |step, index| %>
-            <div data-controller="collapse" class="note-step">
-              <div class="note-step-pill" data-action="click->collapse#toggle">
-                <span>
-                  <%= t("formula.step") %> <%= index + 1 %>
-                </span>
-
-                <svg class="chevron"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2">
+            <div class="note-step receipt-step" data-controller="collapse">
+              <div class="note-step-pill receipt-step-heading"
+                   data-action="click->collapse#toggle">
+                <strong><%= t("formula.step") %> <%= index + 1 %></strong>
+                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="m6 9 6 6 6-6"/>
                 </svg>
               </div>
 
               <div class="note-step-content hidden" data-collapse-target="content">
-                <%= render "service_notes/formula_preview",
-                    step: step %>
+                <%= render "service_notes/formula_preview", step: step %>
               </div>
             </div>
           <% end %>
         </div>
-      </div>
+      </section>
     <% end %>
 
-    <!-- SERVICES -->
-    <% if @service_note.services.any? %>
-      <div class="note-section" data-controller="collapse">
-        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
-          <%= image_tag "services.png", class: "wiz-icon", width: 34, height: 34 %>
+    <!-- 4. CARE PRODUCTS -->
+    <%= render "service_notes/care_products_preview", care_products: care_products %>
 
-          <span>
-            <strong><%= t("services.title") %></strong>
-          </span>
-
-          <svg class="chevron"
-               xmlns="http://www.w3.org/2000/svg"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="currentColor"
-               stroke-width="2">
+    <!-- 5. FINAL PRICE -->
+    <% if @service_note.final_price.to_f.positive? %>
+      <section class="note-section receipt-section" data-controller="collapse">
+        <div class="note-section-title receipt-heading note-step-pill"
+             data-action="click->collapse#toggle">
+          <%= image_tag "price.png", class: "wiz-icon", width: 30, height: 30 %>
+          <strong><%= t("services.price.final") %></strong>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m6 9 6 6 6-6"/>
           </svg>
         </div>
 
         <div class="note-section-content hidden" data-collapse-target="content">
-          <% @service_note.services.each do |service| %>
-            <div class="note-row">
-              <%= service.name %>
+          <div class="receipt-table">
+            <div class="receipt-row receipt-cols-2">
+              <span><%= t("services.title") %></span>
+              <strong><%= money.call(services_price) %></strong>
             </div>
-          <% end %>
+
+            <div class="receipt-row receipt-cols-2">
+              <span><%= t("services.price.formula_ingredients") %></span>
+              <strong><%= money.call(formula_price) %></strong>
+            </div>
+
+            <div class="receipt-row receipt-cols-2">
+              <span><%= t("care_products.title") %></span>
+              <strong><%= money.call(care_products_price) %></strong>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <div class="receipt-final note-receipt-final">
+          <strong><%= t("services.price.total") %></strong>
+          <strong><%= money.call(@service_note.final_price) %></strong>
+        </div>
+      </section>
     <% end %>
 
-
-    <!-- CARE PRODUCTS -->
-    <%= render("service_notes/care_products_preview", care_products: @service_note.care_products) %>
-
-    <!-- NOTES -->
+    <!-- 6. NOTES -->
     <% if @service_note.notes.present? %>
-      <div class="note-section note-section-notes" data-controller="collapse">
-        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
-          <%= image_tag "notes.png", class: "wiz-icon", width: 34, height: 34 %>
-
-          <span>
-            <strong><%= t("appointments.form.notes") %></strong>
-          </span>
-
-          <svg class="chevron"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2">
+      <section class="note-section receipt-section receipt-notes"
+               data-controller="collapse">
+        <div class="note-section-title receipt-heading note-step-pill"
+             data-action="click->collapse#toggle">
+          <%= image_tag "notes.png", class: "wiz-icon", width: 30, height: 30 %>
+          <strong><%= t("appointments.form.notes") %></strong>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m6 9 6 6 6-6"/>
           </svg>
         </div>
 
-        <div class="note-section-content note-notes-content hidden" data-collapse-target="content">
-          <div class="note-value">
+        <div class="note-section-content note-notes-content hidden"
+             data-collapse-target="content">
+          <div class="note-value receipt-notes-text">
             <%= simple_format(@service_note.notes) %>
           </div>
         </div>
-      </div>
+      </section>
     <% end %>
 
-    <!-- FINAL PRICE -->
-    <% if @service_note.final_price.to_f.positive? %>
-      <div class="note-section" data-controller="collapse">
-        <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
-          <%= image_tag "price.png", class: "wiz-icon", width: 34, height: 34 %>
-
-          <span>
-            <strong><%= t("services.price.final") %></strong>
-          </span>
-
-          <svg class="chevron"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2">
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
-        </div>
-
-        <div class="note-section-content hidden" data-collapse-target="content">
-          <div class="note-price-row">
-            <span><%= t("services.title") %></span>
-
-            <strong>
-              <%= number_with_precision(services_price, precision: 2, strip_insignificant_zeros: true) %> ₴
-            </strong>
-          </div>
-
-          <div class="note-price-row">
-            <span><%= t("formula.title") %></span>
-            <strong>
-              <%= number_with_precision(formula_price, precision: 2, strip_insignificant_zeros: true) %> ₴
-            </strong>
-          </div>
-
-          <div class="note-price-row">
-            <span><%= t("care_products.title") %></span>
-
-            <strong>
-              <%= number_with_precision(care_products_price, precision: 2, strip_insignificant_zeros: true) %> ₴
-            </strong>
-          </div>
-
-          <div class="note-price-row note-price-total">
-            <span><%= t("services.price.total") %></span>
-
-            <strong>
-              <%= number_with_precision(@service_note.final_price, precision: 2, strip_insignificant_zeros: true) %> ₴
-            </strong>
-          </div>
-        </div>
-      </div>
-    <% end %>
   </div>
+</div>
+
 </div>
