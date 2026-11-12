@@ -1,0 +1,80 @@
+
+<div data-income-group-panel="formula">
+
+  <% formula_sections = [
+    {
+      kind: "color",
+      title: t("formula.colors"),
+      category_title: t("formula_products.tabs.colors"),
+      options: report.filter_colors,
+      brands: report.filter_color_brands,
+      brand_target: "allColorBrands",
+      products_target: "incomeColors",
+      all_target: "allColors",
+      brand_action: "selectAllColorBrands",
+      toggle_brand_action: "toggleColorBrand",
+      products_action: "selectAllColors",
+      all_products_label: t("analytics.income.all_colors")
+    },
+    {
+      kind: "additive",
+      title: t("formula_products.tabs.additives"),
+      category_title: t("formula_products.tabs.additives"),
+      options: report.filter_additives,
+      brands: report.filter_additive_brands,
+      brand_target: "allAdditiveBrands",
+      products_target: "incomeAdditives",
+      all_target: "allAdditives",
+      brand_action: "selectAllAdditiveBrands",
+      toggle_brand_action: "toggleAdditiveBrand",
+      products_action: "selectAllAdditives",
+      all_products_label: t("analytics.income.all_additives")
+    },
+    {
+      kind: "oxidant",
+      title: t("analytics.income.oxidants"),
+      category_title: t("analytics.income.oxidants"),
+      options: report.filter_oxidants,
+      brands: report.filter_oxidant_brands,
+      brand_target: "allOxidantBrands",
+      products_target: "incomeOxidants",
+      all_target: "allOxidants",
+      brand_action: "selectAllOxidantBrands",
+      toggle_brand_action: "toggleOxidantBrand",
+      products_action: "selectAllOxidants",
+      all_products_label: t("analytics.income.all_oxidants")
+    }
+  ] %>
+
+  <% if formula_sections.any? { |section| section[:options].any? } %>
+
+    <div class="filter-title analytics-filter-group-title">
+      <%= image_tag "formula.png", class: "analytics-filter-group-icon", width: 24, height: 24, alt: "" %>
+      <span><%= t("formula.title") %></span>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-subtitle">
+        <%= t("analytics.income.category") %>
+      </div>
+
+      <div class="filter-chips">
+        <% formula_sections.each do |section| %>
+          <% selected = report.formula_kinds.include?(section[:kind]) %>
+
+          <label class="filter-chip <%= 'active' if selected %>">
+            <%= check_box_tag "formula_kinds[]", section[:kind], selected,
+                              data: { income_formula_kind: section[:kind], action: "change->analytics-filter#toggleFormulaKind" } %>
+
+            <span><%= section[:category_title] %></span>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <% formula_sections.each do |section| %>
+      <%= render "shared/analytics_income_filters/formula_kind", section: section, report: report %>
+    <% end %>
+
+  <% end %>
+</div>

@@ -103,6 +103,7 @@ Rails.application.routes.draw do
     get :balance
   end
 
+  get "analytics/income_filter_options", to: "analytics#income_filter_options", as: :analytics_income_filter_options
   root to: "home#index"
 
   get "up" => "rails/health#show", as: :rails_health_check

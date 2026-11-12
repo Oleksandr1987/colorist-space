@@ -1,0 +1,24 @@
+
+<div class="grouped-expense-block" data-controller="collapse">
+
+  <div class="category-summary-link aligned"
+       data-action="click->collapse#toggle">
+
+    <span class="category-name-text">
+      <%= t("formula.title") %>
+    </span>
+
+    <span class="category-amount green">
+      <%= report.display_formula_income.to_i %> ₴
+    </span>
+  </div>
+
+  <div class="expenses-scroll-wrapper collapsible hidden"
+       data-collapse-target="content">
+
+    <% presentation.formula_sections.each do |section| %>
+      <%= render "analytics/income/formula_section", section: section %>
+    <% end %>
+
+  </div>
+</div>

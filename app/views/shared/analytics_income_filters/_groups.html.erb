@@ -1,0 +1,19 @@
+
+<div class="filter-section analytics-income-groups">
+  <div class="filter-title">
+    <%= t("analytics.income.category") %>
+  </div>
+
+  <div class="filter-chips">
+    <% [ ["services", t("services.title")], ["formula", t("formula.title")], ["care_products", t("care_products.title")] ].each do |group, title| %>
+      <% selected = report.income_groups.include?(group) %>
+
+      <label class="filter-chip <%= 'active' if selected %>">
+        <%= check_box_tag "income_groups[]", group, selected,
+              data: { income_group: group, action: "change->analytics-filter#toggleIncomeGroup" } %>
+
+        <span><%= title %></span>
+      </label>
+    <% end %>
+  </div>
+</div>

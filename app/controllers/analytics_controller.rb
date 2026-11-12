@@ -27,6 +27,14 @@ class AnalyticsController < ApplicationController
     redirect_to analytics_path(permitted_params.except(:tab).to_h.merge(tab: "income"))
   end
 
+  def income_filter_options
+    options = ::Analytics::IncomeFilterOptions.new(user: current_user, from: filter_from, to: filter_to)
+
+    render json: options.call.merge(
+      period: { from: @from.iso8601, to: @to.iso8601 }
+    )
+  end
+
   private
 
   def load_balance
@@ -52,42 +60,20 @@ class AnalyticsController < ApplicationController
   end
 
   def load_income
-    @income_filter_categories = Service.categories_for_user(current_user)
-    @income_category_filters = Array(permitted_params[:income_categories]).select { |category| @income_filter_categories.include?(category) }
-    @income_service_filters = Array(permitted_params[:service_ids]).filter_map { |id| Integer(id, exception: false) }
-    @income_formula_product_filters = Array(permitted_params[:formula_product_ids]).filter_map { |id| Integer(id, exception: false) }
-    @income_care_product_filters = Array(permitted_params[:care_product_ids]).filter_map { |id| Integer(id, exception: false) }
-
-    summary = ::Analytics::IncomeSummary.new(
+    @income_report = ::Analytics::IncomeReport.new(
       user: current_user,
       from: filter_from,
       to: filter_to,
-      service_categories: @income_category_filters,
-      service_ids: @income_service_filters,
-      formula_product_ids: @income_formula_product_filters,
-      care_product_ids: @income_care_product_filters
-    )
+      params: permitted_params
+    ).call
 
-    @grouped_income = summary.grouped_service_income
-    @formula_income = summary.formula_income
-    @care_products_income = summary.care_products_income
-    @formula_color_income = summary.formula_color_income
-    @oxidant_income = summary.oxidant_income
-    @additive_income = summary.additive_income
-    @care_product_income = summary.care_product_income
-    @total_income = summary.total_income
-    @income_filter_colors = summary.available_formula_colors
-    @income_filter_color_brands = summary.available_formula_color_brands
-    @income_filter_additives = summary.available_additives
-    @income_filter_additive_brands = summary.available_additive_brands
-    @income_filter_oxidants = summary.available_oxidants
-    @income_filter_oxidant_brands = summary.available_oxidant_brands
-    @income_filter_care_products = summary.available_care_products
-    @income_filter_care_brands = summary.available_care_product_brands
-    @income_filter_care_categories = summary.available_care_product_categories
-    @expanded_income_category = permitted_params[:expanded] if @grouped_income.key?(permitted_params[:expanded])
-    @monthly_income = @expanded_income_category.present? ? summary.monthly_income(@expanded_income_category) : {}
-    @income_filter_services = current_user.services.appointment_services.ordered_for_filter
+    @income_presentation = ::Analytics::IncomePresentation.new(
+      report: @income_report,
+      params: permitted_params,
+      from: @from,
+      to: @to,
+      all_time: @all_time
+    )
   end
 
   def filter_from
@@ -112,7 +98,14 @@ class AnalyticsController < ApplicationController
   end
 
   def all_time_period
-    active_action = action_name == "show" ? permitted_params[:tab].presence_in(%w[balance income expenses]) || "balance" : action_name
+    active_action =
+      if action_name == "show"
+        permitted_params[:tab].presence_in(%w[balance income expenses]) || "balance"
+      elsif action_name == "income_filter_options"
+        "income"
+      else
+        action_name
+      end
 
     case active_action
     when "expenses"
@@ -167,8 +160,9 @@ class AnalyticsController < ApplicationController
 
   def permitted_params
     params.permit(
-      :tab, :from, :to, :all_time, :expanded, :category, :service_type, :subtype, :locale,
-      categories: [], income_categories: [], service_ids: [], formula_product_ids: [], care_product_ids: []
+      :tab, :from, :to, :all_time, :expanded, :category, :service_type, :subtype, :locale, :income_groups_applied,
+      categories: [], income_categories: [], service_ids: [], formula_product_ids: [], care_product_ids: [],
+      income_groups: [], formula_kinds: []
     )
   end
 end

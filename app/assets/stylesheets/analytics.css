@@ -835,6 +835,33 @@ body.modal-open {
   border-radius: 4px;
 }
 
+/* ===== INCOME FILTER GROUPS ===== */
+
+.analytics-filter-form .analytics-income-groups {
+  margin-bottom: 18px;
+}
+
+.analytics-filter-form [data-income-group-panel] {
+  min-width: 0;
+}
+
+.analytics-filter-form [data-income-formula-panel] {
+  min-width: 0;
+}
+
+.analytics-filter-form [data-income-care-categories-section] {
+  margin-top: 10px;
+}
+
+.analytics-filter-form [data-income-care-products] {
+  margin-top: 10px;
+}
+
+/* Keep hidden elements hidden despite flex/grid styles */
+.analytics-filter-form .hidden {
+  display: none !important;
+}
+
 /* ===== RESPONSIVE — MOBILE ===== */
 @media (max-width: 600px) {
   html,

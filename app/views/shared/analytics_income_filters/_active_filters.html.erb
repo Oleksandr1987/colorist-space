@@ -1,0 +1,47 @@
+<% if @income_presentation.filters_applied? %>
+  <div class="analytics-active-filters">
+    <% if period_filter_applied? %>
+      <span class="analytics-active-filter">
+        <% if @all_time %>
+          <%= t("analytics.period_filter.presets.all_time") %>
+        <% else %>
+          <%= @from.strftime("%d.%m.%Y") %>
+          –
+          <%= @to.strftime("%d.%m.%Y") %>
+        <% end %>
+      </span>
+    <% end %>
+
+    <% report.category_filters.each do |category| %>
+      <span class="analytics-active-filter">
+        <%= t("services.categories.#{category}", default: category.humanize) %>
+      </span>
+    <% end %>
+
+    <% report.filter_services.each do |service| %>
+      <% if report.service_filters.include?(service.id) %>
+        <span class="analytics-active-filter">
+          <%= service.subtype %>
+        </span>
+      <% end %>
+    <% end %>
+
+    <% [ report.filter_colors, report.filter_additives, report.filter_oxidants ].each do |options| %>
+      <% options.each do |option| %>
+        <% if report.formula_product_filters.include?(option[:id]) %>
+          <span class="analytics-active-filter">
+            <%= option[:label] %>
+          </span>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <% report.filter_care_products.each do |option| %>
+      <% if report.care_product_filters.include?(option[:id]) %>
+        <span class="analytics-active-filter">
+          <%= option[:label] %>
+        </span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
