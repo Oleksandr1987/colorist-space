@@ -118,8 +118,9 @@
           <%= render "shared/analytics_period_fields", from_date: from_date, to_date: to_date %>
           <!-- SERVICE CATEGORIES -->
           <div class="filter-section">
-            <div class="filter-title">
-              <%= t("services.title") %>
+            <div class="filter-title analytics-filter-group-title">
+              <%= image_tag "services.png", class: "analytics-filter-group-icon", width: 24, height: 24, alt: "" %>
+              <span><%= t("services.title") %></span>
             </div>
 
             <div class="filter-chips">
@@ -158,10 +159,16 @@
               <% end %>
             </div>
           </div>
+          <!-- FORMULA GROUP -->
+          <% if @income_filter_colors.any? || @income_filter_additives.any? || @income_filter_oxidants.any? %>
+             <div class="filter-title analytics-filter-group-title">
+              <%= image_tag "formula.png", class: "analytics-filter-group-icon", width: 24, height: 24, alt: "" %>
+              <span><%= t("formula.title") %></span>
+            </div>
           <!-- COLORS -->
           <% if @income_filter_colors.any? %>
             <div class="filter-section">
-              <div class="filter-title">
+              <div class="filter-subtitle analytics-formula-subtitle">
                 <%= t("formula.colors") %>
               </div>
               <!-- COLOR BRANDS -->
@@ -205,7 +212,7 @@
           <!-- ADDITIVES -->
           <% if @income_filter_additives.any? %>
             <div class="filter-section">
-              <div class="filter-title"><%= t("formula_products.tabs.additives") %></div>
+              <div class="filter-subtitle analytics-formula-subtitle"><%= t("formula_products.tabs.additives") %></div>
               <div class="filter-chips">
                 <button type="button" class="filter-chip"
                         data-analytics-filter-target="allAdditiveBrands"
@@ -242,7 +249,7 @@
           <!-- OXIDANTS -->
           <% if @income_filter_oxidants.any? %>
             <div class="filter-section">
-              <div class="filter-title">
+              <div class="filter-subtitle analytics-formula-subtitle">
                 <%= t("analytics.income.oxidants") %>
               </div>
               <!-- OXIDANT BRANDS -->
@@ -283,11 +290,13 @@
               </div>
             </div>
           <% end %>
+          <% end %>
           <!-- CARE PRODUCTS -->
           <% if @income_filter_care_products.any? %>
             <div class="filter-section">
-              <div class="filter-title">
-                <%= t("care_products.title") %>
+              <div class="filter-title analytics-filter-group-title">
+                <%= image_tag "skincare.png", class: "analytics-filter-group-icon", width: 24, height: 24, alt: "" %>
+                <span><%= t("care_products.title") %></span>
               </div>
               <!-- BRAND -->
               <div class="filter-subtitle">

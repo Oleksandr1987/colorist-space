@@ -86,6 +86,9 @@ uk:
         y1: "1 рік"
         all_time: "За увесь час"
 
+      categories:
+        category: "Категорія"
+
     income_filter:
       period: "Період"
       from: "Від"
