@@ -138,12 +138,12 @@
     <div class="receipt-group">
       <h4 class="receipt-group-title">
         <%= image_tag "time.png", class: "wiz-icon", width: 26, height: 26 %>
-        <%= t("formula.time", default: "Час витримки") %>
+        <%= t("formula.time") %>
       </h4>
 
       <div class="receipt-row receipt-cols-2">
-        <span><%= t("formula.time", default: "Час витримки") %></span>
-        <strong><%= step.time.to_i %> <%= t("datetime.prompts.minute", default: "хв") %></strong>
+        <span><%= t("formula.time") %></span>
+        <strong><%= step.time.to_i %> <%= t("formula.minutes") %></strong>
       </div>
     </div>
   <% end %>

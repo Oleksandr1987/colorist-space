@@ -11,7 +11,7 @@
 
   <% if formula_product.additive? %>
     <div class="form-section">
-      <%= f.label :name, t("formula_products.form.name", default: "Назва додатка") %>
+      <%= f.label :name, t("formula_products.form.name") %>
       <%= f.text_field :name, class: "form-input", required: true %>
     </div>
   <% end %>

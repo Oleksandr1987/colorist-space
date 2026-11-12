@@ -2,7 +2,7 @@
   <%= form_with(model: expense, local: true) do |f| %>
 
     <div class="form-modal-header">
-      <%= link_to expenses_analytics_path, class: "form-modal-close", data: { turbo: false }, aria: { label: t("analytics.cancel") } do %>
+      <%= link_to analytics_path(tab: "expenses"), class: "form-modal-close", data: { turbo: false }, aria: { label: t("analytics.cancel") } do %>
         <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
       <% end %>
 

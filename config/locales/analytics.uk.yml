@@ -53,6 +53,15 @@ uk:
 
     income:
       title: "Аналітика: Дохід"
+      all: "Всі категорії"
+      category: "Категорія"
+      all_oxidants: "Всі окисники"
+      all_brands: "Всі бренди"
+      oxidants: "Окисники"
+      all_colors: "Всі кольори"
+      all_additives: "Всі додатки"
+      all_cp: "Всі засоби"
+      all_services: "Всі послуги"
 
       types:
         service: "Послуги"
@@ -64,6 +73,8 @@ uk:
       from: "Від"
       to: "До"
       apply: "Фільтрувати"
+      cancel: "Скасувати"
+      filter: "Фільтри"
 
       presets:
         d7: "7 днів"
@@ -74,10 +85,6 @@ uk:
         m9: "9 місяців"
         y1: "1 рік"
         all_time: "За увесь час"
-
-      categories:
-        all: "Всі категорії"
-        category: "Категорія"
 
     income_filter:
       period: "Період"

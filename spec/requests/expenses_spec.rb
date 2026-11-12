@@ -30,7 +30,7 @@ RSpec.describe "Expenses" do
       params = { expense: { category: "materials", amount: 100, spent_on: Date.today, note: "Test expense" } }
 
       expect { post expenses_path, params: params }.to change(user.expenses, :count).by(1)
-      expect(response).to redirect_to(expenses_analytics_path(locale: I18n.locale))
+      expect(response).to redirect_to(analytics_path(tab: "expenses", locale: I18n.locale))
     end
 
     it "renders new when invalid" do
@@ -74,7 +74,7 @@ RSpec.describe "Expenses" do
     it "updates expense" do
       patch expense_path(expense), params: { expense: { amount: 200 } }
 
-      expect(response).to redirect_to(expenses_analytics_path(locale: I18n.locale))
+      expect(response).to redirect_to(analytics_path(tab: "expenses", locale: I18n.locale))
       expect(expense.reload.amount).to eq(200)
     end
 
@@ -99,7 +99,7 @@ RSpec.describe "Expenses" do
       expense
 
       expect { delete expense_path(expense) }.to change(Expense, :count).by(-1)
-      expect(response).to redirect_to(expenses_analytics_path(locale: I18n.locale))
+      expect(response).to redirect_to(analytics_path(tab: "expenses", locale: I18n.locale))
     end
   end
 end

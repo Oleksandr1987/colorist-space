@@ -589,6 +589,25 @@ body.modal-open {
   color: #dc3545;
 }
 
+.analytics-page .formula-category-buttons {
+  display: grid;
+   grid-template-columns: repeat(3, minmax(0, 1fr));
+   gap: 8px;
+ }
+
+.analytics-page .formula-category-buttons .filter-button {
+  min-width: 0;
+   text-align: center;
+   text-decoration: none;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+ }
+
+.analytics-tab-content {
+  min-width: 0;
+}
+
 /* RESPONSIVE */
 @media (max-width: 600px) {
   html,

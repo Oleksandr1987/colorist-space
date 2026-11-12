@@ -23,7 +23,7 @@ RSpec.describe "Analytics" do
       create(:expense, user: user, category: "rent", amount: 300, spent_on: 2.months.ago.to_date)
       create(:expense, user: other_user, category: "rent", amount: 400, spent_on: Date.current)
 
-      get expenses_analytics_path, params: { from: from, to: to, categories: [ "rent" ] }
+      get analytics_path(tab: "expenses"), params: { from: from, to: to, categories: [ "rent" ] }
 
       expect(response).to have_http_status(:ok)
 
@@ -35,21 +35,21 @@ RSpec.describe "Analytics" do
     end
 
     it "accepts valid category filters" do
-      get expenses_analytics_path, params: { categories: [ "rent", "materials" ] }
+      get analytics_path(tab: "expenses"), params: { categories: [ "rent", "materials" ] }
 
       expect(response).to have_http_status(:ok)
       expect(controller.instance_variable_get(:@category_filters)).to eq([ "rent", "materials" ])
     end
 
     it "ignores invalid category filters" do
-      get expenses_analytics_path, params: { categories: [ "rent", "INVALID_CATEGORY" ] }
+      get analytics_path(tab: "expenses"), params: { categories: [ "rent", "INVALID_CATEGORY" ] }
 
       expect(response).to have_http_status(:ok)
       expect(controller.instance_variable_get(:@category_filters)).to eq([ "rent" ])
     end
 
     it "falls back to default dates when invalid dates passed" do
-      get expenses_analytics_path, params: { from: "INVALID_DATE", to: "INVALID_DATE" }
+      get analytics_path(tab: "expenses"), params: { from: "INVALID_DATE", to: "INVALID_DATE" }
 
       expect(response).to have_http_status(:ok)
     end
@@ -59,7 +59,7 @@ RSpec.describe "Analytics" do
         current_expense = create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
         historical_expense = create(:expense, user: user, category: "materials", amount: 200, spent_on: 1.year.ago.to_date)
 
-        get expenses_analytics_path
+        get analytics_path(tab: "expenses")
 
         expect(response).to have_http_status(:ok)
         expect(controller.instance_variable_get(:@expenses)).to contain_exactly(current_expense, historical_expense)
@@ -126,13 +126,13 @@ RSpec.describe "Analytics" do
     end
 
     it "returns success response" do
-      get income_analytics_path, params: { from: from, to: to }
+      get analytics_path(tab: "income"), params: { from: from, to: to }
 
       expect(response).to have_http_status(:ok)
     end
 
     it "calculates income from historical service prices" do
-      get income_analytics_path, params: { from: from, to: to }
+      get analytics_path(tab: "income"), params: { from: from, to: to }
 
       expect(total_income).to eq(300)
     end
@@ -141,13 +141,13 @@ RSpec.describe "Analytics" do
       service_a.update!(price: 500)
       service_b.update!(price: 800)
 
-      get income_analytics_path, params: { from: from, to: to }
+      get analytics_path(tab: "income"), params: { from: from, to: to }
 
       expect(total_income).to eq(300)
     end
 
     it "groups historical service income by category" do
-      get income_analytics_path, params: { from: from, to: to }
+      get analytics_path(tab: "income"), params: { from: from, to: to }
 
       expect(grouped_income).to eq({ "haircut" => 100, "coloring" => 200 })
     end
@@ -161,7 +161,7 @@ RSpec.describe "Analytics" do
 
       Formulas::SyncCharges.new(service_note: service_note_b.reload).call
 
-      get income_analytics_path, params: { from: from, to: to }
+      get analytics_path(tab: "income"), params: { from: from, to: to }
 
       expect(total_income).to eq(350)
     end
@@ -174,7 +174,7 @@ RSpec.describe "Analytics" do
 
       Formulas::SyncCharges.new(service_note: service_note_b.reload).call
 
-      get income_analytics_path, params: { from: from, to: to }
+      get analytics_path(tab: "income"), params: { from: from, to: to }
 
       expect(total_income).to eq(340)
     end
@@ -185,7 +185,7 @@ RSpec.describe "Analytics" do
       service_note.services = [ service_a ]
       service_note.save!
 
-      get income_analytics_path, params: { from: from, to: to }
+      get analytics_path(tab: "income"), params: { from: from, to: to }
 
       expect(total_income).to eq(400)
     end
@@ -205,20 +205,20 @@ RSpec.describe "Analytics" do
 
       Formulas::SyncCharges.new(service_note: service_note_b.reload).call
 
-      get income_analytics_path, params: { from: from, to: to }
+      get analytics_path(tab: "income"), params: { from: from, to: to }
 
       expect(total_income).to eq(490)
     end
 
     it "filters income by service category" do
-      get income_analytics_path, params: { from: from, to: to, income_categories: [ "coloring" ] }
+      get analytics_path(tab: "income"), params: { from: from, to: to, income_categories: [ "coloring" ] }
 
       expect(total_income).to eq(200)
       expect(grouped_income).to eq({ "coloring" => 200 })
     end
 
     it "filters income by service id" do
-      get income_analytics_path, params: { from: from, to: to, service_ids: [ service_a.id ] }
+      get analytics_path(tab: "income"), params: { from: from, to: to, service_ids: [ service_a.id ] }
 
       expect(total_income).to eq(100)
       expect(grouped_income).to eq({ "haircut" => 100 })
@@ -229,7 +229,7 @@ RSpec.describe "Analytics" do
 
       expect(appointment_b.reload.appointment_services_relations.pluck(:service_id, :price)).to eq([ [ service_b.id, 200 ] ])
 
-      get income_analytics_path, params: { from: from, to: to, service_ids: [ service_b.id ] }
+      get analytics_path(tab: "income"), params: { from: from, to: to, service_ids: [ service_b.id ] }
 
       expect(total_income).to eq(300)
     end
@@ -237,13 +237,13 @@ RSpec.describe "Analytics" do
     it "does not include formula or care product income from appointments excluded by service filter" do
       create(:service_note, appointment: appointment_b, user: user, client: client, care_products: care_products)
 
-      get income_analytics_path, params: { from: from, to: to, service_ids: [ service_a.id ] }
+      get analytics_path(tab: "income"), params: { from: from, to: to, service_ids: [ service_a.id ] }
 
       expect(total_income).to eq(100)
     end
 
     it "expands a selected income category into monthly historical relations" do
-      get income_analytics_path, params: { from: from, to: to, expanded: "haircut" }
+      get analytics_path(tab: "income"), params: { from: from, to: to, expanded: "haircut" }
 
       expect(monthly_income).to be_present
 
@@ -254,20 +254,20 @@ RSpec.describe "Analytics" do
     end
 
     it "does not expand an unknown income category" do
-      get income_analytics_path, params: { from: from, to: to, expanded: "unknown" }
+      get analytics_path(tab: "income"), params: { from: from, to: to, expanded: "unknown" }
 
       expect(monthly_income).to eq({})
     end
 
     it "ignores invalid income categories" do
-      get income_analytics_path, params: { from: from, to: to, income_categories: [ "INVALID_CATEGORY" ] }
+      get analytics_path(tab: "income"), params: { from: from, to: to, income_categories: [ "INVALID_CATEGORY" ] }
 
       expect(response).to have_http_status(:ok)
       expect(total_income).to eq(300)
     end
 
     it "ignores invalid service ids" do
-      get income_analytics_path, params: { from: from, to: to, service_ids: [ "INVALID" ] }
+      get analytics_path(tab: "income"), params: { from: from, to: to, service_ids: [ "INVALID" ] }
 
       expect(response).to have_http_status(:ok)
       expect(total_income).to eq(300)
@@ -281,7 +281,7 @@ RSpec.describe "Analytics" do
                                       main_service: service_a)
       historical_appointment.update_column(:appointment_date, 1.year.ago.to_date)
 
-      get income_analytics_path, params: { all_time: "1" }
+      get analytics_path(tab: "income"), params: { all_time: "1" }
 
       expect(total_income).to eq(400)
     end
@@ -294,7 +294,7 @@ RSpec.describe "Analytics" do
                                       main_service: service_a)
       historical_appointment.update_column(:appointment_date, 1.year.ago.to_date)
 
-      get income_analytics_path
+      get analytics_path(tab: "income")
 
       expect(response).to have_http_status(:ok)
       expect(total_income).to eq(400)
@@ -344,7 +344,7 @@ RSpec.describe "Analytics" do
     end
 
     context "with selected period" do
-      before { get balance_analytics_path, params: { from: from, to: to } }
+      before { get analytics_path(tab: "balance"), params: { from: from, to: to } }
 
       it "returns success" do
         expect(response).to have_http_status(:ok)
@@ -369,7 +369,7 @@ RSpec.describe "Analytics" do
       end
 
       context "with all_time" do
-        before { get balance_analytics_path, params: { all_time: "1" } }
+        before { get analytics_path(tab: "balance"), params: { all_time: "1" } }
 
         it "returns success" do
           expect(response).to have_http_status(:ok)
@@ -383,7 +383,7 @@ RSpec.describe "Analytics" do
       end
 
       context "without period params" do
-        before { get balance_analytics_path }
+        before { get analytics_path(tab: "balance") }
 
         it "returns success" do
           expect(response).to have_http_status(:ok)
@@ -400,7 +400,7 @@ RSpec.describe "Analytics" do
     it "does not count care product purchases as manual expenses in balance" do
       create(:expense, user: user, category: "care_products", amount: 48_000, spent_on: Date.current)
 
-      get balance_analytics_path, params: { from: Date.current.beginning_of_month.iso8601, to: Date.current.iso8601 }
+      get analytics_path(tab: "balance"), params: { from: Date.current.beginning_of_month.iso8601, to: Date.current.iso8601 }
 
       expect(response).to have_http_status(:ok)
       expect(controller.instance_variable_get(:@manual_expenses)).to eq(40)
@@ -410,7 +410,7 @@ RSpec.describe "Analytics" do
       create(:care_product, user: user, purchase_price: 800, stock_quantity: 60)
       other_product = create(:care_product, user: other_user, purchase_price: 10_000, stock_quantity: 100)
 
-      get balance_analytics_path
+      get analytics_path(tab: "balance")
 
       stock_value = controller.instance_variable_get(:@care_products_stock_value)
 

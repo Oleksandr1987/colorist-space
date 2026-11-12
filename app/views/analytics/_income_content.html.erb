@@ -8,18 +8,8 @@
     params[:formula_product_ids].present? ||
     params[:care_product_ids].present?
 
-  back_path = filters_applied ? income_analytics_path : analytics_path
+  back_path = filters_applied ? analytics_path(tab: "income") : analytics_path
 %>
-
-<div class="analytics-header-bar">
-  <%= link_to back_path, class: "back-button-inline", title: t("analytics.back") do %>
-    <%= image_tag "back.png",  class: "wiz-icon", width: 24, height: 24 %>
-  <% end %>
-
-  <h1><%= t("analytics.income.title") %></h1>
-</div>
-
-<%= render "shared/analytics_income_filters" %>
 
 <% if @grouped_income.present? ||
       @formula_income.positive? ||
@@ -55,7 +45,7 @@
       %>
 
       <div class="grouped-expense-block">
-        <%= link_to income_analytics_path(category_params), class: "category-summary-link aligned" do %>
+        <%= link_to analytics_path(category_params.merge(tab: "income")), class: "category-summary-link aligned" do %>
           <span class="category-name-text">
             <%= t("services.categories.#{category}", default: category.to_s.humanize) %>
           </span>
@@ -117,7 +107,7 @@
       <div class="grouped-expense-block" data-controller="collapse">
         <div class="category-summary-link aligned" data-action="click->collapse#toggle">
           <span class="category-name-text">
-            <%= t("analytics.income.formula", default: "Формула") %>
+            <%= t("formula.title") %>
           </span>
 
           <span class="category-amount green">
@@ -130,7 +120,7 @@
             <div class="monthly-expense-group">
               <div class="month-header-aligned">
                 <span class="month-header-title">
-                  <%= t("analytics.income.colors", default: "Кольори") %>
+                  <%= t("formula_products.tabs.colors") %>
                 </span>
 
                 <span class="month-header-amount green">
@@ -161,7 +151,7 @@
           <% if @additive_income.any? %>
             <div class="monthly-expense-group">
               <div class="month-header-aligned">
-                <span class="month-header-title"><%= t("formula_products.tabs.additives", default: "Додатки") %></span>
+                <span class="month-header-title"><%= t("formula_products.tabs.additives") %></span>
                 <span class="month-header-amount green"><%= @additive_income.sum { |item| item[:amount] }.to_i %> ₴</span>
               </div>
               <ul class="expenses-list">
@@ -183,7 +173,7 @@
             <div class="monthly-expense-group">
               <div class="month-header-aligned">
                 <span class="month-header-title">
-                  <%= t("analytics.income.oxidants", default: "Окисники") %>
+                  <%= t("analytics.income.oxidants") %>
                 </span>
 
                 <span class="month-header-amount green">
@@ -218,7 +208,7 @@
       <div class="grouped-expense-block" data-controller="collapse">
         <div class="category-summary-link aligned" data-action="click->collapse#toggle">
           <span class="category-name-text">
-            <%= t("analytics.income.care_products", default: "Доглядова продукція") %>
+            <%= t("care_products.title") %>
           </span>
 
           <span class="category-amount green">

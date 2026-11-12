@@ -21,6 +21,7 @@ uk:
       new_title: "Новий засіб"
       edit_title: "Редагувати"
       brand: "Бренд"
+      all_brands: "Усі бренди"
       name: "Назва"
       category: "Категорія"
       purchase_price: "Ціна закупівлі"
