@@ -85,6 +85,197 @@ RSpec.describe "Appointments" do
       expect(response.body).to include(edit_appointment_path(second_appointment, locale: I18n.locale))
       expect(response.body).not_to include(edit_appointment_path(excluded_appointment, locale: I18n.locale))
     end
+
+    it "returns all appointments when no period is selected" do
+      first = create(:appointment, user: user, client: client, appointment_date: Date.new(2025, 6, 10), main_service: service)
+      second = create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 1, 15), main_service: service)
+
+      get all_appointments_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_appointment_path(first, locale: I18n.locale))
+      expect(response.body).to include(edit_appointment_path(second, locale: I18n.locale))
+    end
+
+    it "filters appointments by year" do
+      matching = create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 1, 15), main_service: service)
+      excluded = create(:appointment, user: user, client: client, appointment_date: Date.new(2025, 1, 15), main_service: service)
+
+      get all_appointments_path, params: { year: 2026 }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_appointment_path(matching, locale: I18n.locale))
+      expect(response.body).not_to include(edit_appointment_path(excluded, locale: I18n.locale))
+    end
+
+    it "filters appointments by year and month" do
+      matching = create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 1, 15), main_service: service)
+      excluded = create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 2, 15), main_service: service)
+
+      get all_appointments_path, params: { year: 2026, month: 1 }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_appointment_path(matching, locale: I18n.locale))
+      expect(response.body).not_to include(edit_appointment_path(excluded, locale: I18n.locale))
+    end
+
+    it "filters appointments by custom period" do
+      matching = create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 1, 15), main_service: service)
+      excluded = create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 3, 15), main_service: service)
+
+      get all_appointments_path, params: { from: "01.01.2026", to: "31.01.2026" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_appointment_path(matching, locale: I18n.locale))
+      expect(response.body).not_to include(edit_appointment_path(excluded, locale: I18n.locale))
+    end
+
+    it "returns appointments from all dates when all_time is enabled" do
+      first = create(:appointment, user: user, client: client, appointment_date: Date.new(2025, 6, 10), main_service: service)
+      second = create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 1, 15), main_service: service)
+
+      get all_appointments_path, params: { all_time: "1", from: "01.01.2026", to: "31.01.2026" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_appointment_path(first, locale: I18n.locale))
+      expect(response.body).to include(edit_appointment_path(second, locale: I18n.locale))
+    end
+
+    it "prioritizes year and month over custom period" do
+      matching = create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 1, 15), main_service: service)
+      excluded = create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 3, 15), main_service: service)
+
+      get all_appointments_path, params: { year: 2026, month: 1, from: "01.03.2026", to: "31.03.2026" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_appointment_path(matching, locale: I18n.locale))
+      expect(response.body).not_to include(edit_appointment_path(excluded, locale: I18n.locale))
+    end
+
+    it "renders successfully when there are no appointments" do
+      get all_appointments_path
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "accepts valid custom period dates" do
+      get all_appointments_path, params: { from: "01.01.2026", to: "31.01.2026" }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "ignores invalid custom period dates" do
+      get all_appointments_path, params: { from: "invalid-date", to: "31.01.2026" }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "handles blank custom period dates" do
+      get all_appointments_path, params: { from: "", to: "" }
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe "GET /appointments/filter_options" do
+    let(:path) { filter_options_appointments_path }
+    let(:json) { response.parsed_body }
+
+    let(:coloring_service) { create(:service, user: user, category: "coloring", subtype: "Balayage") }
+    let(:haircut_service) { create(:service, user: user, category: "haircut", subtype: "Fade") }
+    let(:treatment_service) { create(:service, user: user, category: "treatment", subtype: "Treatment") }
+
+    before do
+      create(:appointment, user: user, client: client, appointment_date: Date.new(2025, 6, 10), main_service: treatment_service)
+      create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 1, 15), main_service: coloring_service)
+      create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 3, 15), main_service: haircut_service)
+    end
+
+    it "returns all used categories and services without period filters" do
+      get path
+
+      expect(response).to have_http_status(:ok)
+      expect(json["categories"]).to contain_exactly("coloring", "haircut", "treatment")
+      expect(json["services"].pluck("id")).to contain_exactly(coloring_service.id, haircut_service.id, treatment_service.id)
+    end
+
+    it "filters available services by year" do
+      get path, params: { year: 2026 }
+
+      expect(response).to have_http_status(:ok)
+      expect(json["categories"]).to contain_exactly("coloring", "haircut")
+      expect(json["services"].pluck("id")).to contain_exactly(coloring_service.id, haircut_service.id)
+    end
+
+    it "filters available services by year and month" do
+      get path, params: { year: 2026, month: 1 }
+
+      expect(response).to have_http_status(:ok)
+      expect(json["categories"]).to eq([ "coloring" ])
+      expect(json["services"].pluck("id")).to eq([ coloring_service.id ])
+    end
+
+    it "filters available services by custom period" do
+      get path, params: { from: "01.03.2026", to: "31.03.2026" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json["categories"]).to eq([ "haircut" ])
+      expect(json["services"].pluck("id")).to eq([ haircut_service.id ])
+    end
+
+    it "ignores date filters when all_time is enabled" do
+      get path, params: { all_time: "1", from: "01.03.2026", to: "31.03.2026" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json["categories"]).to contain_exactly("coloring", "haircut", "treatment")
+      expect(json["services"].pluck("id")).to contain_exactly(coloring_service.id, haircut_service.id, treatment_service.id)
+    end
+
+    it "prioritizes year and month over custom period" do
+      get path, params: { year: 2026, month: 1, from: "01.03.2026", to: "31.03.2026" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json["categories"]).to eq([ "coloring" ])
+      expect(json["services"].pluck("id")).to eq([ coloring_service.id ])
+    end
+
+    it "returns empty categories and services when period has no appointments" do
+      get path, params: { from: "01.01.2024", to: "31.12.2024" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json).to eq("categories" => [], "services" => [])
+    end
+
+    it "does not expose another user's services" do
+      other_user = create(:user)
+      other_client = create(:client, user: other_user)
+      other_service = create(:service, user: other_user, category: "styling", subtype: "Other styling")
+
+      create(:appointment, user: other_user, client: other_client, main_service: other_service)
+
+      get path
+
+      expect(response).to have_http_status(:ok)
+      expect(json["categories"]).not_to include("styling")
+      expect(json["services"].pluck("id")).not_to include(other_service.id)
+    end
+
+    it "returns only services used in appointments" do
+      unused_service = create(:service, user: user, category: "styling", subtype: "Unused styling")
+
+      get path
+
+      expect(response).to have_http_status(:ok)
+      expect(json["categories"]).not_to include("styling")
+      expect(json["services"].pluck("id")).not_to include(unused_service.id)
+    end
+
+    it "returns service details in the expected format" do
+      get path, params: { year: 2026, month: 1 }
+
+      expect(response).to have_http_status(:ok)
+      expect(json["services"]).to eq([ { "id" => coloring_service.id, "category" => "coloring", "name" => "Balayage" } ])
+    end
   end
 
   describe "GET /appointments/calendar" do
@@ -349,6 +540,180 @@ RSpec.describe "Appointments" do
       }
 
       expect(response).to have_http_status(:unprocessable_content)
+    end
+  end
+
+  describe "POST /appointments client resolution" do
+    let(:path) { appointments_path }
+
+    let(:appointment_params) do
+      {
+        appointment: {
+          appointment_date: Date.current + 1.day,
+          appointment_time: "10:00",
+          client_name: client.full_name,
+          phone: client.phone,
+          service_ids: [ service.id ]
+        }
+      }
+    end
+
+    it "uses the selected client when client_id is provided" do
+      params = appointment_params.deep_dup
+      params[:appointment][:client_id] = client.id
+
+      expect { post path, params: params }.to change(Appointment, :count).by(1)
+
+      expect(response).to have_http_status(:redirect)
+      expect(Appointment.last.client).to eq(client)
+    end
+
+    it "rejects an invalid client_id" do
+      params = appointment_params.deep_dup
+      params[:appointment][:client_id] = 999999
+
+      expect { post path, params: params }.not_to change(Appointment, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "does not allow selecting another user's client" do
+      other_client = create(:client)
+      params = appointment_params.deep_dup
+      params[:appointment][:client_id] = other_client.id
+
+      expect { post path, params: params }.not_to change(Appointment, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "uses the existing client when phone and name match" do
+      client
+
+      expect { post path, params: appointment_params }.not_to change(Client, :count)
+
+      expect(response).to have_http_status(:redirect)
+      expect(Appointment.last.client).to eq(client)
+    end
+
+    it "rejects a phone number belonging to a different client name" do
+      params = appointment_params.deep_dup
+      params[:appointment][:client_name] = "Different Person"
+
+      expect { post path, params: params }.not_to change(Appointment, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "restores an archived client found by phone" do
+      client.update!(archived_at: 1.day.ago)
+
+      expect { post path, params: appointment_params }.not_to change(Client, :count)
+
+      expect(response).to have_http_status(:redirect)
+      expect(Appointment.last.client).to eq(client)
+      expect(client.reload).not_to be_archived
+    end
+
+    it "finds an existing client by normalized name when phone differs" do
+      params = appointment_params.deep_dup
+      params[:appointment][:phone] = "+380930000099"
+
+      expect { post path, params: params }.not_to change(Client, :count)
+
+      expect(response).to have_http_status(:redirect)
+      expect(Appointment.last.client).to eq(client)
+    end
+
+    it "restores an archived client found by normalized name" do
+      client.update!(archived_at: 1.day.ago)
+
+      params = appointment_params.deep_dup
+      params[:appointment][:phone] = "+380930000099"
+
+      expect { post path, params: params }.not_to change(Client, :count)
+
+      expect(response).to have_http_status(:redirect)
+      expect(Appointment.last.client).to eq(client)
+      expect(client.reload).not_to be_archived
+    end
+
+    it "creates a new client when no existing client matches" do
+      params = appointment_params.deep_dup
+      params[:appointment][:client_name] = "New Customer"
+      params[:appointment][:phone] = "+380930000099"
+
+      expect { post path, params: params }.to change(Client, :count).by(1)
+
+      created_client = Appointment.last.client
+
+      expect(response).to have_http_status(:redirect)
+      expect(created_client.first_name).to eq("New")
+      expect(created_client.last_name).to eq("Customer")
+      expect(created_client.phone).to eq("+380930000099")
+    end
+
+    it "creates a client with an empty last name when only first name is provided" do
+      params = appointment_params.deep_dup
+      params[:appointment][:client_name] = "New"
+      params[:appointment][:phone] = "+380930000099"
+
+      expect { post path, params: params }.to change(Client, :count).by(1)
+
+      expect(Appointment.last.client.first_name).to eq("New")
+      expect(Appointment.last.client.last_name).to eq("")
+    end
+  end
+
+  describe "AppointmentsController#handle_client_error" do
+    let(:controller_instance) { AppointmentsController.new }
+    let(:invalid_appointment) { build(:appointment, user: user, client: client, main_service: service) }
+
+    before do
+      controller_instance.instance_variable_set(:@appointment, invalid_appointment)
+    end
+
+    it "returns when the invalid record is the appointment" do
+      error = ActiveRecord::RecordInvalid.new(invalid_appointment)
+
+      controller_instance.send(:handle_client_error, error)
+
+      expect(invalid_appointment.errors).to be_empty
+    end
+
+    it "copies phone and name errors from the client" do
+      invalid_client = build(:client, user: user)
+
+      invalid_client.errors.add(:phone, :invalid)
+      invalid_client.errors.add(:first_name, :blank)
+
+      error = ActiveRecord::RecordInvalid.new(invalid_client)
+
+      controller_instance.send(:handle_client_error, error)
+
+      expect(invalid_appointment.errors[:phone]).to include(invalid_client.errors[:phone].first)
+      expect(invalid_appointment.errors[:client_name]).to include(invalid_client.errors[:first_name].first)
+      expect(invalid_appointment.errors[:base]).to be_empty
+    end
+
+    it "adds a base error when the invalid record is not a client" do
+      other_appointment = build(:appointment, user: user, client: client, main_service: service)
+
+      error = ActiveRecord::RecordInvalid.new(other_appointment)
+
+      controller_instance.send(:handle_client_error, error)
+
+      expect(invalid_appointment.errors[:base]).to include(error.message)
+    end
+
+    it "adds a base error when the client has no errors" do
+      invalid_client = build(:client, user: user)
+
+      error = ActiveRecord::RecordInvalid.new(invalid_client)
+
+      controller_instance.send(:handle_client_error, error)
+
+      expect(invalid_appointment.errors[:base]).to include(error.message)
     end
   end
 
