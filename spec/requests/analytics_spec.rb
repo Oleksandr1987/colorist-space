@@ -16,6 +16,58 @@ RSpec.describe "Analytics" do
 
   after { travel_back }
 
+  describe "GET /analytics" do
+    it "defaults to income when tab is missing" do
+      get analytics_path
+
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@analytics_tab)).to eq("income")
+    end
+
+    it "defaults to income when tab is invalid" do
+      get analytics_path(tab: "invalid")
+
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@analytics_tab)).to eq("income")
+    end
+
+    it "loads expenses when tab is expenses" do
+      get analytics_path(tab: "expenses")
+
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@analytics_tab)).to eq("expenses")
+    end
+
+    it "loads balance when tab is balance" do
+      get analytics_path(tab: "balance")
+
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@analytics_tab)).to eq("balance")
+    end
+  end
+
+  describe "analytics redirects" do
+    it "redirects income to analytics with income tab" do
+      get income_analytics_path, params: { from: "01.01.2026", to: "15.01.2026" }
+
+      expect(response).to redirect_to(analytics_path(tab: "income", from: "01.01.2026", to: "15.01.2026"))
+    end
+
+    it "redirects expenses to analytics with expenses tab" do
+      get expenses_analytics_path, params: { from: "01.01.2026", to: "15.01.2026" }
+
+      expect(response).to redirect_to(
+        analytics_path(tab: "expenses", from: "01.01.2026", to: "15.01.2026")
+      )
+    end
+
+    it "redirects balance to analytics with balance tab" do
+      get balance_analytics_path, params: { from: "01.01.2026", to: "15.01.2026" }
+
+      expect(response).to redirect_to(analytics_path(tab: "balance", from: "01.01.2026", to: "15.01.2026"))
+    end
+  end
+
   describe "GET /analytics/expenses" do
     it "filters expenses by user, period and category" do
       rent = create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
@@ -432,6 +484,94 @@ RSpec.describe "Analytics" do
 
       expect(stock_value).to eq(user.care_products.total_stock_value)
       expect(stock_value).not_to eq(other_product.stock_value)
+    end
+  end
+
+  describe "GET /analytics/income_filter_options" do
+    let(:path) { analytics_income_filter_options_path }
+
+    it "returns income filter options with the selected period" do
+      get path, params: { from: "01.01.2026", to: "15.01.2026" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body["period"]).to eq("from" => "2026-01-01", "to" => "2026-01-15")
+    end
+
+    it "uses income appointment dates for all-time period" do
+      client = create(:client, user: user)
+      service = create(:service, user: user)
+
+      create(:appointment, user: user, client: client, main_service: service, appointment_date: Date.new(2025, 6, 10))
+
+      get path, params: { all_time: "1" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body["period"]).to eq("from" => "2025-06-10", "to" => "2025-06-10")
+    end
+
+    it "uses current date when no appointments exist" do
+      get path, params: { all_time: "1" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body["period"]).to eq("from" => "2026-01-15", "to" => "2026-01-15")
+    end
+  end
+
+  describe "GET /analytics/expenses all-time period" do
+    it "uses earliest and latest expense dates" do
+      create(:expense, user: user, spent_on: Date.new(2024, 3, 10))
+      create(:expense, user: user, spent_on: Date.new(2025, 9, 20))
+
+      get analytics_path(tab: "expenses"), params: { all_time: "1" }
+
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@from)).to eq(Date.new(2024, 3, 10))
+      expect(controller.instance_variable_get(:@to)).to eq(Date.new(2025, 9, 20))
+    end
+
+    it "uses current date when no expenses exist" do
+      get analytics_path(tab: "expenses"), params: { all_time: "1" }
+
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@from)).to eq(Date.current)
+      expect(controller.instance_variable_get(:@to)).to eq(Date.current)
+    end
+  end
+
+  describe "GET /analytics/income all-time period" do
+    let(:client) { create(:client, user: user) }
+    let(:service) { create(:service, user: user) }
+
+    it "uses earliest and latest appointment dates" do
+      create(:appointment, user: user, client: client, main_service: service,
+        appointment_date: Date.new(2024, 5, 10), appointment_time: "10:00")
+
+      create(:appointment, user: user, client: client, main_service: service,
+        appointment_date: Date.new(2026, 1, 15), appointment_time: "12:00")
+
+      get analytics_path(tab: "income"), params: { all_time: "1" }
+
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@from)).to eq(Date.new(2024, 5, 10))
+      expect(controller.instance_variable_get(:@to)).to eq(Date.new(2026, 1, 15))
+    end
+
+    it "uses current date when no appointments exist" do
+      get analytics_path(tab: "income"), params: { all_time: "1" }
+
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@from)).to eq(Date.current)
+      expect(controller.instance_variable_get(:@to)).to eq(Date.current)
+    end
+  end
+
+  describe "GET /analytics/balance empty all-time period" do
+    it "uses current date when there are no financial records" do
+      get analytics_path(tab: "balance"), params: { all_time: "1" }
+
+      expect(response).to have_http_status(:ok)
+      expect(controller.instance_variable_get(:@from)).to eq(Date.current)
+      expect(controller.instance_variable_get(:@to)).to eq(Date.current)
     end
   end
 end

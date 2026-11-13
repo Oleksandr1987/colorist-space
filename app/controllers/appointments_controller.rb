@@ -5,7 +5,7 @@ class AppointmentsController < ApplicationController
 
   auto_authorize :appointment, only: %i[new create edit update destroy show]
 
-  after_action :verify_authorized, except: %i[all calendar by_date free_slots check_working_hours]
+  after_action :verify_authorized, except: %i[all calendar by_date free_slots check_working_hours filter_options]
 
   def new
     @appointment = current_user.appointments.build
@@ -89,30 +89,40 @@ class AppointmentsController < ApplicationController
   end
 
   def all
-    base_scope = current_user.appointments.with_client
+    base_scope = current_user.appointments
 
-    @appointments =
-      base_scope
-        .search(params[:query])
-        .for_year(params[:year])
-        .for_month(params[:year].presence || Date.current.year, params[:month])
-        .for_categories(params[:categories])
-        .for_services(params[:service_ids])
-        .distinct
-        .ordered
+    @period_first_date, @period_last_date = Appointment.date_bounds(base_scope)
+
+    @all_time = params[:all_time] == "1"
+
+    @from_date = parse_filter_date(params[:from])
+    @to_date = parse_filter_date(params[:to])
+
+    if @all_time
+      @from_date = @period_first_date
+      @to_date = @period_last_date
+    end
+
+    filtered_scope = base_scope.search(params[:query]).for_categories(params[:categories]).for_services(params[:service_ids]).distinct
+
+    @stats = Appointment.statistics(filtered_scope, year: Date.current.year, month: Date.current.month)
+
+    @appointments = Appointment.filtered(
+      base_scope.with_client,
+      query: params[:query],
+      categories: params[:categories],
+      service_ids: params[:service_ids],
+      year: params[:year],
+      month: params[:month],
+      from_date: @from_date,
+      to_date: @to_date,
+      all_time: @all_time
+    )
 
     @appointments_by_month = Appointment.grouped_by_month(@appointments)
 
-    dashboard_scope =
-      base_scope.search(params[:query]).for_categories(params[:categories]).for_services(params[:service_ids]).distinct
-
-    dashboard_year = params[:year].present? ? params[:year].to_i : Date.current.year
-    dashboard_month = params[:month].present? ? params[:month].to_i : Date.current.month
-
-    @stats = Appointment.statistics(dashboard_scope, year: dashboard_year, month: dashboard_month)
-    @available_years = Appointment.available_years(base_scope)
     @available_categories = current_user.services.categories
-    @available_services = current_user.services.for_filter(params[:categories])
+    @available_services = current_user.services.for_filter(nil)
   end
 
   def calendar
@@ -132,6 +142,38 @@ class AppointmentsController < ApplicationController
     render json: result
   rescue ArgumentError, ActionController::ParameterMissing
     render json: { status: "invalid_date" }, status: :unprocessable_content
+  end
+
+  def filter_options
+    from_date = parse_filter_date(params[:from])
+    to_date = parse_filter_date(params[:to])
+
+    scope = current_user.appointments
+
+    unless params[:all_time] == "1"
+      if params[:year].present?
+        scope = if params[:month].present?
+          scope.for_month(params[:year], params[:month])
+        else
+          scope.for_year(params[:year])
+        end
+      else
+        scope = scope.for_period(from_date, to_date)
+      end
+    end
+
+    services = Appointment.available_filter_services(scope, user: current_user).to_a
+
+    render json: {
+      categories: services.map(&:category).compact.uniq,
+      services: services.map do |service|
+        {
+          id: service.id,
+          category: service.category,
+          name: service.subtype
+        }
+      end
+    }
   end
 
   def by_date
@@ -203,8 +245,7 @@ class AppointmentsController < ApplicationController
       return client
     end
 
-    first_name, last_name =
-      @appointment.client_name.split(/\s+/, 2)
+    first_name, last_name = @appointment.client_name.split(/\s+/, 2)
 
     normalized_phone = @appointment.phone
     phone_owner = current_user.clients.find_by(phone: normalized_phone)
@@ -249,6 +290,14 @@ class AppointmentsController < ApplicationController
     if @appointment.errors.empty?
       @appointment.errors.add(:base, error.message)
     end
+  end
+
+  def parse_filter_date(value)
+    return if value.blank?
+
+    Date.strptime(value, "%d.%m.%Y")
+  rescue Date::Error
+    nil
   end
 
   def appointment_params

@@ -1,3 +1,7 @@
+<% filter_controller = local_assigns.fetch(:filter_controller, "analytics-filter") %>
+<% filter_target_prefix = filter_controller.tr("-", "_") %>
+<% period_all_time = local_assigns.fetch(:all_time, @all_time) %>
+
 <div class="filter-section analytics-period-section">
   <div class="analytics-period-header">
     <div class="filter-title">
@@ -16,9 +20,9 @@
           data: {
             controller: "datepicker",
             datepicker_parent: ".analytics-filter-modal-content",
-            analytics_filter_target: "fromDisplay",
+            "#{filter_target_prefix}_target": "fromDisplay",
             analytics_filter_datepicker_target: "fromPicker",
-            action: "datepicker:selected->analytics-filter#fromChanged",
+            action: "datepicker:selected->#{filter_controller}#fromChanged",
             max: Date.current.strftime("%Y-%m-%d")
           } %>
       </div>
@@ -34,9 +38,9 @@
           data: {
             controller: "datepicker",
             datepicker_parent: ".analytics-filter-modal-content",
-            analytics_filter_target: "toDisplay",
+            "#{filter_target_prefix}_target": "toDisplay",
             analytics_filter_datepicker_target: "toPicker",
-            action: "datepicker:selected->analytics-filter#toChanged",
+            action: "datepicker:selected->#{filter_controller}#toChanged",
             min: from_date&.strftime("%Y-%m-%d"),
             max: Date.current.strftime("%Y-%m-%d")
           } %>
@@ -45,12 +49,12 @@
   </div>
 
   <div class="filter-chips">
-    <label class="filter-chip">
+    <label class="filter-chip <%= 'active' if period_all_time %>">
       <input type="radio"
              value="all"
-             <%= "checked" if @all_time %>
+             <%= "checked" if period_all_time %>
              data-period-option
-             data-action="change->analytics-filter#selectAllTime">
+             data-action="change-><%= filter_controller %>#selectAllTime">
 
       <span>
         <%= t("analytics.period_filter.presets.all_time") %>
@@ -66,15 +70,16 @@
       [t("analytics.period_filter.presets.m9"), 270],
       [t("analytics.period_filter.presets.y1"), 365]
     ].each do |label, days| %>
-      <% preset_from = Date.current - (days - 1).days %>
-      <% preset_active = !@all_time && from_date == preset_from && to_date == Date.current %>
 
-      <label class="filter-chip <%= "active" if preset_active %>">
+      <% preset_from = Date.current - (days - 1).days %>
+      <% preset_active = !period_all_time && from_date == preset_from && to_date == Date.current %>
+
+      <label class="filter-chip <%= 'active' if preset_active %>">
         <input type="radio"
                value="<%= days %>"
                <%= "checked" if preset_active %>
                data-period-option
-               data-action="change->analytics-filter#selectPeriod"
+               data-action="change-><%= filter_controller %>#selectPeriod"
                data-from="<%= preset_from %>"
                data-to="<%= Date.current %>">
 
@@ -84,8 +89,8 @@
   </div>
 </div>
 
-<%= hidden_field_tag :from, from_date&.strftime("%d.%m.%Y"), data: { analytics_filter_target: "from" } %>
+<%= hidden_field_tag :from, from_date&.strftime("%d.%m.%Y"), data: { "#{filter_target_prefix}_target": "from" } %>
 
-<%= hidden_field_tag :to, to_date&.strftime("%d.%m.%Y"), data: { analytics_filter_target: "to" } %>
+<%= hidden_field_tag :to, to_date&.strftime("%d.%m.%Y"), data: { "#{filter_target_prefix}_target": "to" } %>
 
-<%= hidden_field_tag :all_time, @all_time ? "1" : "0", data: { analytics_filter_target: "allTime" } %>
+<%= hidden_field_tag :all_time, period_all_time ? "1" : "0", data: { "#{filter_target_prefix}_target": "allTime" } %>
