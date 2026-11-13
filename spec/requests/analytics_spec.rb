@@ -101,16 +101,20 @@ RSpec.describe "Analytics" do
       note
     end
 
+    def income_report
+      controller.instance_variable_get(:@income_report)
+    end
+
     def total_income
-      controller.instance_variable_get(:@total_income)
+      income_report.total_income
     end
 
     def grouped_income
-      controller.instance_variable_get(:@grouped_income)
+      income_report.grouped_income
     end
 
     def monthly_income
-      controller.instance_variable_get(:@monthly_income)
+      income_report.monthly_income
     end
 
     before do
@@ -298,6 +302,18 @@ RSpec.describe "Analytics" do
 
       expect(response).to have_http_status(:ok)
       expect(total_income).to eq(400)
+    end
+
+    it "displays only selected income groups" do
+      get analytics_path(tab: "income"), params: { income_groups_applied: "1", income_groups: [ "services" ] }
+
+      expect(income_report.display_total_income).to eq(300)
+    end
+
+    it "returns zero when no income groups are selected" do
+      get analytics_path(tab: "income"), params: { income_groups_applied: "1" }
+
+      expect(income_report.display_total_income).to eq(0)
     end
   end
 
