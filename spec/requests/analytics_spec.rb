@@ -574,4 +574,43 @@ RSpec.describe "Analytics" do
       expect(controller.instance_variable_get(:@to)).to eq(Date.current)
     end
   end
+
+  describe "GET /analytics with all_time" do
+    let(:client) { create(:client, user: user) }
+    let(:service) { create(:service, user: user, service_type: "service", category: "haircut", subtype: "Basic", price: 100) }
+
+    before do
+      create(:appointment, user: user, client: client,
+        appointment_date: Date.current, appointment_time: "10:00", end_time: "10:30", main_service: service)
+
+      historical_appointment = create(:appointment, user: user, client: client,
+        appointment_date: Date.current, appointment_time: "11:00", end_time: "11:30", main_service: service)
+
+      historical_appointment.update_column(:appointment_date, Date.new(2025, 6, 10))
+
+      create(:expense, user: user, amount: 100, spent_on: Date.new(2024, 1, 5))
+    end
+
+    context "when tab is missing" do
+      it "uses the income tab and its date range" do
+        get analytics_path, params: { all_time: "1" }
+
+        expect(response).to have_http_status(:ok)
+        expect(controller.instance_variable_get(:@analytics_tab)).to eq("income")
+        expect(controller.instance_variable_get(:@from)).to eq(Date.new(2025, 6, 10))
+        expect(controller.instance_variable_get(:@to)).to eq(Date.current)
+      end
+    end
+
+    context "when tab is invalid" do
+      it "falls back to income and its date range" do
+        get analytics_path, params: { tab: "bogus", all_time: "1" }
+
+        expect(response).to have_http_status(:ok)
+        expect(controller.instance_variable_get(:@analytics_tab)).to eq("income")
+        expect(controller.instance_variable_get(:@from)).to eq(Date.new(2025, 6, 10))
+        expect(controller.instance_variable_get(:@to)).to eq(Date.current)
+      end
+    end
+  end
 end
