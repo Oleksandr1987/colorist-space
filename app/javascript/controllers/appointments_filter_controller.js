@@ -13,10 +13,13 @@ export default class extends Controller {
 
   connect() {
     this.handleEscape = this.handleEscape.bind(this)
+    this.filterOptionsAbortController = null
     this.resetSelection()
   }
 
   disconnect() {
+    this.abortFilterOptionsRequest()
+
     document.removeEventListener("keydown", this.handleEscape)
     document.body.classList.remove("modal-open")
   }
@@ -34,6 +37,8 @@ export default class extends Controller {
   }
 
   close() {
+    this.abortFilterOptionsRequest()
+
     this.modalTarget.classList.add("hidden")
     document.body.classList.remove("modal-open")
     document.removeEventListener("keydown", this.handleEscape)
@@ -296,7 +301,17 @@ export default class extends Controller {
       })
   }
 
+  abortFilterOptionsRequest() {
+    this.filterOptionsAbortController?.abort()
+    this.filterOptionsAbortController = null
+  }
+
   async refreshFilterOptions() {
+    this.abortFilterOptionsRequest()
+
+    const controller = new AbortController()
+    this.filterOptionsAbortController = controller
+
     const url = new URL(this.optionsUrlValue, window.location.origin)
 
     if (this.allTimeTarget.value === "1") {
@@ -311,34 +326,56 @@ export default class extends Controller {
       }
     }
 
-    const response = await fetch(url, { headers: { Accept: "application/json" } })
-
-    if (!response.ok) return
-
-    const data = await response.json()
-    const availableCategories = new Set(data.categories)
-    const availableServices = new Set(data.services.map(service => String(service.id)))
-
-    this.categoriesTarget
-      .querySelectorAll("[data-filter-value]")
-      .forEach(button => {
-        const value = button.dataset.filterValue
-
-        button.classList.toggle("hidden", value !== "" && !availableCategories.has(value))
+    try {
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" },
+        signal: controller.signal
       })
 
-    this.servicesTarget
-      .querySelectorAll("[data-service-category]")
-      .forEach(button => {
-        const id = button.dataset.filterValue
+      if (!response.ok) {
+        throw new Error(`Failed to load filter options: ${response.status}`)
+      }
 
-        button.classList.toggle("period-unavailable", !availableServices.has(id))
-      })
+      const data = await response.json()
 
-    this.selected.categories = this.selected.categories.filter(category => availableCategories.has(category))
-    this.selected.service_ids = this.selected.service_ids.filter(id => availableServices.has(id))
+      if (controller.signal.aborted || this.filterOptionsAbortController !== controller) {
+        return
+      }
 
-    this.updateChips()
+      const availableCategories = new Set(data.categories)
+      const availableServices = new Set(data.services.map(service => String(service.id)))
+
+      this.categoriesTarget
+        .querySelectorAll("[data-filter-value]")
+        .forEach(button => {
+          const value = button.dataset.filterValue
+
+          button.classList.toggle("hidden",nvalue !== "" && !availableCategories.has(value))
+        })
+
+      this.servicesTarget
+        .querySelectorAll("[data-service-category]")
+        .forEach(button => {
+          const id = button.dataset.filterValue
+
+          button.classList.toggle("period-unavailable", !availableServices.has(id))
+        })
+
+      this.selected.categories = this.selected.categories.filter( category => availableCategories.has(category))
+      this.selected.service_ids = this.selected.service_ids.filter(id => availableServices.has(id))
+
+      this.updateChips()
+    } catch (error) {
+      if (controller.signal.aborted || error.name === "AbortError") {
+        return
+      }
+
+      console.error("Failed to refresh appointment filter options:", error)
+    } finally {
+      if (this.filterOptionsAbortController === controller) {
+        this.filterOptionsAbortController = null
+      }
+    }
   }
 
   // APPLY
