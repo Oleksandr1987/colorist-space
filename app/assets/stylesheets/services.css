@@ -59,14 +59,6 @@
   border-radius: 999px;
 }
 
-.service-section-search {
-  margin-bottom: 16px;
-}
-
-.service-section-search .form-input {
-  width: 100%;
-}
-
 .service-item {
   display: flex;
   justify-content: space-between;
@@ -125,45 +117,6 @@
 
 .delete-button form {
   margin: 0;
-}
-
-.create-button {
-  margin-top: 30px;
-  text-align: center;
-}
-
-.create-button .button.primary.full {
-  width: auto;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  background-color: #7e3af2;
-  color: white;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  border: none;
-  letter-spacing: 0.5px;
-}
-
-.create-button .button.primary.full:hover {
-  background-color: #5f2ac0;
-}
-
-.popover {
-  position: absolute;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 4px 8px;
-  top: 28px;
-  right: 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  z-index: 10;
-}
-
-.popover.hidden {
-  display: none;
 }
 
 .back-button {
@@ -464,8 +417,7 @@
   min-height: 0;
 }
 
-.service-form-wrapper:has(.service-section-list) .appointment-header,
-.service-form-wrapper:has(.service-section-list) .service-section-search {
+.service-form-wrapper:has(.service-section-list) .appointment-header {
   flex-shrink: 0;
 }
 
@@ -548,10 +500,7 @@
 .services-main-page .services-category-buttons .filter-button {
   white-space: nowrap;
 }
-.services-main-page .service-section-search {
-  margin-top: 16px;
-  margin-bottom: 12px;
-}
+
 .services-main-page .service-section-list {
   min-height: 120px;
 }
@@ -719,15 +668,6 @@
     flex-wrap: wrap;
     padding: 12px;
     position: relative;
-  }
-
-  .create-button {
-    margin-top: 24px;
-  }
-
-  .create-button .button.primary.full {
-    font-size: 0.85rem;
-    padding: 10px 18px;
   }
 
   .service-form-wrapper {
