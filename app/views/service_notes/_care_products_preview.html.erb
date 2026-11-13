@@ -1,36 +1,54 @@
-<% return if care_products.blank? %>
-
-<div class="note-section" data-controller="collapse">
-  <div class="note-section-title note-step-pill" data-action="click->collapse#toggle">
-    <%= image_tag "skincare.png", class: "wiz-icon", width: 34, height: 34 %>
-
-    <span>
+<% if care_products.present? %>
+  <section class="note-section receipt-section" data-controller="collapse">
+    <div class="note-section-title receipt-heading note-step-pill"
+         data-action="click->collapse#toggle">
+      <%= image_tag "skincare.png", class: "wiz-icon", width: 30, height: 30 %>
       <strong><%= t("care_products.title") %></strong>
-    </span>
 
-    <svg class="chevron"
-         xmlns="http://www.w3.org/2000/svg"
-         viewBox="0 0 24 24"
-         fill="none"
-         stroke="currentColor"
-         stroke-width="2">
-      <path d="m6 9 6 6 6-6"/>
-    </svg>
-  </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
+    </div>
 
-  <div class="note-section-content hidden" data-collapse-target="content">
-    <% care_products.each do |item| %>
-      <% product = CareProduct.find_by(id: item["care_product_id"]) %>
+    <div class="note-section-content hidden" data-collapse-target="content">
+      <div class="receipt-table">
+        <div class="receipt-table-header receipt-cols-3">
+          <span><%= t("notes.receipt.brand_category") %></span>
+          <span><%= t("notes.receipt.quantity") %></span>
+          <span><%= t("notes.receipt.price") %></span>
+        </div>
 
-      <div class="note-row">
-        <strong>
-          <%= product&.brand || item["brand"] %>
-        </strong>
+        <% care_products.each do |item| %>
+          <% quantity = item["qty"].to_f %>
+          <% total = item["price"].to_f * quantity %>
 
-        <span>
-          <%= product&.name || item["name"] || item["category"] %>
-        </span>
+          <div class="receipt-row receipt-cols-3">
+            <span>
+              <strong><%= item["brand"] %></strong>
+              <span class="receipt-product-name">
+                <%= item["name"].presence || item["category"] %>
+              </span>
+            </span>
+
+            <span><%= item["qty"] %></span>
+
+            <span>
+              <%= number_with_precision(total, precision: 2, strip_insignificant_zeros: true) %> ₴
+            </span>
+          </div>
+        <% end %>
+
+        <div class="receipt-subtotal receipt-cols-2">
+          <strong><%= t("care_products.total") %></strong>
+          <strong>
+            <%= number_with_precision(
+              care_products.sum { |item| item["price"].to_f * item["qty"].to_f },
+              precision: 2,
+              strip_insignificant_zeros: true
+            ) %> ₴
+          </strong>
+        </div>
       </div>
-    <% end %>
-  </div>
-</div>
+    </div>
+  </section>
+<% end %>

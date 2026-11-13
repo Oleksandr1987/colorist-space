@@ -190,15 +190,16 @@ RSpec.describe CareProductStockMovement do
     end
 
     it "returns service note sale for a sale linked to a service note" do
-      service_note = create(:service_note, user: user)
+      client = create(:client, user: user)
+      appointment = create(:appointment, user: user, client: client)
+      service_note = create(:service_note, user: user, client: client, appointment: appointment)
 
-      movement =
-        create(:care_product_stock_movement, user: user, care_product: care_product,
-          appointment: service_note.appointment, service_note: service_note, movement_type: "sale",
-          quantity: -1, unit_cost: 30, occurred_on: Date.current)
+      movement = create(:care_product_stock_movement, user: user, care_product: care_product,
+        appointment: appointment, service_note: service_note, movement_type: "sale",
+        quantity: -1, unit_cost: 30, occurred_on: Date.current)
 
       create(:care_product_sale, user: user, care_product: care_product,
-        appointment: service_note.appointment, service_note: service_note, stock_movement: movement,
+        appointment: appointment, service_note: service_note, stock_movement: movement,
         quantity: 1, unit_price: 50, unit_cost: 30, sold_on: Date.current)
 
       expect(movement.reload.history_type).to eq("service_note_sale")

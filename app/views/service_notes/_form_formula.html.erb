@@ -1,10 +1,36 @@
 <div class="formula-container"
-     data-controller="formula"
+     data-controller="formula formula-history"
+     data-formula-edit-icon-value="<%= asset_path('pencil.png') %>"
+     data-formula-delete-icon-value="<%= asset_path('delete.png') %>"
+     data-formula-history-appointment-id-value="<%= @appointment.id %>"
+     data-formula-history-target-service-note-id-value="<%= @service_note.id %>"
+     data-formula-history-url-value="<%= client_formula_history_path(@client) %>"
+     data-formula-history-exclude-id-value="<%= @service_note.id %>"
      data-service-note-id="<%= @service_note.id %>"
      data-client-id="<%= @client.id %>"
-     data-formula-sections-value="<%= FormulaStep::SECTIONS.index_with { |section|
-       t("formula.sections.#{section}")
-     }.to_json %>">
+     data-formula-sections-value="<%= FormulaStep::SECTIONS.index_with { |section| t("formula.sections.#{section}") }.to_json %>"
+     data-formula-history-translations-value="<%= {
+      title: t('formula.history.title'),
+      formulasFound: t('formula.history.formulas_found', count: '__COUNT__'),
+      stepsCount: t('formula.history.steps_count', count: '__COUNT__'),
+      stepTitle: t('formula.history.step_title', number: '__NUMBER__', section: '__SECTION__'),
+      formulaDate: t('formula.history.formula_date', date: '__DATE__'),
+      noDate: t('formula.history.no_date'),
+      loading: t('formula.history.loading'),
+      loadError: t('formula.history.load_error'),
+      detailsError: t('formula.history.details_error'),
+      selectedCount: t('formula.history.selected_count', selected: '__SELECTED__', total: '__TOTAL__'),
+      selectAll: t('formula.history.select_all'),
+      deselectAll: t('formula.history.deselect_all'),
+      copySelected: t('formula.history.copy_selected', count: '__COUNT__'),
+      colors: t('formula.history.colors'),
+      additives: t('formula.history.additives'),
+      oxidants: t('formula.history.oxidants'),
+      processingTime: t('formula.history.processing_time', time: '__TIME__'),
+      importError: t('formula.history.import_error'),
+      formulaNotEmpty: t('formula.history.formula_not_empty'),
+      units: { g: t("formula.units.g"), ml: t("formula.units.ml") }
+    }.to_json %>">
   <!-- STEP 1 -->
   <div class="formula-steps" data-formula-target="container">
     <%= f.fields_for :formula_steps do |step_form| %>
@@ -41,8 +67,74 @@
       <%= render "service_notes/formula_section_picker", close_on_select: true %>
     </div>
   </div>
+
+  <% saved_formula_exists = @service_note.formula_steps.any?(&:persisted?) %>
+
+  <% unless saved_formula_exists %>
+    <div class="formula-history-action"
+        data-formula-history-target="action">
+
+      <button type="button"
+              class="formula-history-button"
+              data-action="click->formula-history#open">
+        <%= image_tag "copy.png", width: 22, height: 22, alt: "", onerror: nil %>
+
+        <span><%= t("formula.history.copy_from_history") %></span>
+      </button>
+    </div>
+  <% end %>
   <!-- EMPTY STEP -->
   <%= render "service_notes/empty_formula_step" if @service_note.formula_steps.empty? %>
   <!-- TEMPLATE -->
   <%= render "service_notes/formula_step_template" %>
+
+  <%= render "service_notes/formula_history_modal" %>
+  <!-- FORMULA NOTES -->
+  <div class="step-general-notes">
+    <div class="block-title">
+      <span>
+        <%= image_tag "notes.png", class: "wiz-icon", width: 24, height: 24 %>
+        <%= t("appointments.form.notes") %>
+      </span>
+    </div>
+
+    <%= f.text_area :formula_notes, class: "notes-textarea", rows: 4 %>
+  </div>
+  <!-- CHANGE FORMULA SECTION MODAL -->
+  <div class="formula-section-modal hidden"
+      data-formula-target="sectionModal"
+      data-action="click->formula#closeSectionPicker">
+
+    <div class="formula-section-modal-content" data-action="click->formula#stopPropagation">
+
+      <div class="formula-section-modal-header">
+        <h3><%= t("formula.change_section") %></h3>
+
+        <button type="button"
+                class="formula-section-modal-close"
+                data-action="click->formula#closeSectionPicker"
+                aria-label="<%= t('common.close') %>">
+          <%= image_tag "close.png", class: "clear-icon" %>
+        </button>
+      </div>
+
+      <div class="sections-grid formula-section-change-grid">
+        <% FormulaStep::SECTIONS.each do |section| %>
+          <button type="button"
+                  class="section-button"
+                  data-action="click->formula#changeSection"
+                  data-section="<%= section %>">
+
+            <span class="section-button-image">
+              <%= image_tag "#{section}.png", alt: "", width: 96, height: 96, loading: "lazy" %>
+            </span>
+
+            <span class="section-button-label">
+              <%= t("formula.sections.#{section}") %>
+            </span>
+          </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
 </div>

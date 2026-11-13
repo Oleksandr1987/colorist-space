@@ -1,0 +1,34 @@
+
+<div class="monthly-expense-group">
+
+  <div class="month-header-aligned">
+    <span class="month-header-title">
+      <%= t(section[:title_key]) %>
+    </span>
+
+    <span class="month-header-amount green">
+      <%= section[:total].to_i %> ₴
+    </span>
+  </div>
+
+  <ul class="expenses-list">
+    <% section[:items].each do |item| %>
+      <li class="expense-item">
+        <div class="expense-record-content">
+          <div class="expense-record-details">
+
+            <strong>
+              <%= item[:label] %>
+            </strong>
+
+            <span class="expense-record-amount green">
+              <%= item[:amount].to_i %> ₴
+            </span>
+
+          </div>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+
+</div>

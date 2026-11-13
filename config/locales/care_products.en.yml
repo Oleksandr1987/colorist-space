@@ -21,6 +21,7 @@ en:
       new_title: "New product"
       edit_title: "Edit"
       brand: "Brand"
+      all_brands: "All brands"
       name: "Name"
       category: "Category"
       purchase_price: "Purchase price"

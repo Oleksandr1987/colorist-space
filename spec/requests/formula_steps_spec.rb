@@ -5,7 +5,8 @@ RSpec.describe "FormulaSteps" do
 
   let(:user) { create(:user, :trial) }
   let(:client) { create(:client, user: user) }
-  let(:service_note) { create(:service_note, client: client, user: user) }
+  let(:appointment) { create(:appointment, user: user, client: client) }
+  let(:service_note) { create(:service_note, user: user, client: client, appointment: appointment) }
   let(:formula_step) { create(:formula_step, service_note: service_note) }
 
   before do

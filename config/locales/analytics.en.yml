@@ -53,6 +53,15 @@ en:
 
     income:
       title: "Analytics: Income"
+      all: "All categories"
+      category: "Category"
+      all_oxidants: "All oxidants"
+      all_brands: "All brands"
+      oxidants: "Oxidants"
+      all_colors: "All colors"
+      all_additives: "All additives"
+      all_cp: "All products"
+      all_services: "All services"
 
       types:
         service: "Services"
@@ -64,6 +73,8 @@ en:
       from: "From"
       to: "To"
       apply: "Filter"
+      cancel: "Cancel"
+      filter: "Filters"
 
       presets:
         d7: "7 days"
@@ -76,7 +87,6 @@ en:
         all_time: "All time"
 
       categories:
-        all: "All categories"
         category: "Category"
 
     income_filter:

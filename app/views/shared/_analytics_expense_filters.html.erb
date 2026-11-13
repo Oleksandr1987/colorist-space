@@ -8,21 +8,21 @@
 
 <div class="analytics-filter" data-controller="analytics-filter">
   <% if filters_applied %>
-    <%= link_to expenses_analytics_path, class: "analytics-floating-reset-button" do %>
+    <%= link_to analytics_path(tab: "expenses"), class: "analytics-floating-reset-button" do %>
       <span>
-        <%= t("analytics.period_filter.reset", default: "Скинути") %>
+        <%= t("analytics.period_filter.cancel") %>
       </span>
     <% end %>
   <% end %>
 
   <!-- FILTER BUTTON -->
   <button type="button" class="analytics-floating-filter-button" data-action="click->analytics-filter#open"
-          title="<%= t('analytics.period_filter.filters', default: 'Фільтри') %>"
-          aria-label="<%= t('analytics.period_filter.filters', default: 'Фільтри') %>">
+          title="<%= t('analytics.period_filter.filter') %>"
+          aria-label="<%= t('analytics.period_filter.filter') %>">
     <%= image_tag "filter.png", class: "analytics-filter-icon", width: 28, height: 28 %>
 
     <span>
-      <%= t("analytics.period_filter.filters", default: "Фільтри") %>
+      <%= t("analytics.period_filter.filter") %>
     </span>
   </button>
 
@@ -31,7 +31,7 @@
     <div class="analytics-active-filters">
       <span class="analytics-active-filter">
         <% if @all_time %>
-          <%= t("analytics.period_filter.presets.all_time", default: "За увесь час") %>
+          <%= t("analytics.period_filter.presets.all_time") %>
         <% else %>
           <%= @from.strftime("%d.%m.%Y") %>
           –
@@ -49,21 +49,23 @@
   <!-- FILTER MODAL -->
   <div class="analytics-filter-modal hidden" data-analytics-filter-target="modal" data-action="click->analytics-filter#closeOnOverlay">
     <div class="analytics-filter-modal-content">
-      <%= form_with url: expenses_analytics_path, method: :get, local: true, class: "analytics-filter-form" do %>
+      <%= form_with url: analytics_path, method: :get, local: true, class: "analytics-filter-form" do %>
+
+        <%= hidden_field_tag :tab, "expenses" %>
         <!-- HEADER -->
         <div class="analytics-filter-modal-header">
           <!-- CLOSE -->
           <button type="button" class="analytics-filter-close" data-action="click->analytics-filter#close"
-                  aria-label="<%= t('common.close', default: 'Закрити') %>">
+                  aria-label="<%= t('common.close') %>">
             <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
           </button>
           <!-- TITLE -->
           <h2>
-            <%= t("analytics.period_filter.filters", default: "Фільтри") %>
+            <%= t("analytics.period_filter.filter") %>
           </h2>
           <!-- APPLY -->
           <button type="submit" class="analytics-filter-save">
-            <%= t("analytics.period_filter.apply", default: "Застосувати").upcase %>
+            <%= t("analytics.period_filter.apply").upcase %>
           </button>
         </div>
         <!-- SCROLLABLE CONTENT -->

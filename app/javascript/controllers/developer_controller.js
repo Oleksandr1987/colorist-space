@@ -60,18 +60,23 @@ export default class extends Controller {
   getColorAmount() {
     let total = 0
 
-    this.element
-      .querySelectorAll(".ingredient-fields")
-      .forEach(wrapper => {
-        const destroyInput = wrapper.querySelector("[data-field='destroy']")
-        if (destroyInput?.value === "1") return
+    this.element.querySelectorAll(".ingredient-fields").forEach(wrapper => {
+      if (wrapper.querySelector("[data-field='destroy']")?.value === "1") {
+        return
+      }
 
-        const amountInput = wrapper.querySelector("[data-field='amount']")
-        const value = parseFloat(amountInput?.value || 0)
-        if (!Number.isNaN(value)) {
-          total += value
-        }
-      })
+      const kind = wrapper.querySelector("[data-field='kind']")?.value || "color"
+
+      if (kind !== "color") return
+
+      const amount = parseFloat(
+        wrapper.querySelector("[data-field='amount']")?.value || 0
+      )
+
+      if (Number.isFinite(amount)) {
+        total += amount
+      }
+    })
 
     return total
   }

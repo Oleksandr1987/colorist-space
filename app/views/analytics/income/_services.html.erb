@@ -1,0 +1,75 @@
+<% report.grouped_income.each do |category, sum| %>
+  <div class="grouped-expense-block">
+
+    <%= link_to analytics_path(presentation.category_params(category)),
+                class: "category-summary-link aligned" do %>
+
+      <span class="category-name-text">
+        <%= t(
+          "services.categories.#{category}",
+          default: category.to_s.humanize
+        ) %>
+      </span>
+
+      <span class="category-amount green">
+        <%= sum.to_i %> ₴
+      </span>
+    <% end %>
+
+    <% if report.expanded_income_category == category %>
+      <div class="expenses-scroll-wrapper">
+        <% report.monthly_income.each do |month_name, relations| %>
+          <div class="monthly-expense-group" data-controller="collapse">
+
+            <div class="month-header-aligned"
+                 data-action="click->collapse#toggle">
+
+              <span class="month-header-title">
+                <%= month_name %>
+              </span>
+
+              <div class="month-header-right">
+                <span class="month-header-amount green">
+                  <%= relations.sum(&:price).to_i %> ₴
+                </span>
+              </div>
+            </div>
+
+            <ul class="expenses-list collapsible hidden"
+                data-collapse-target="content">
+
+              <% relations.each do |relation| %>
+                <li class="expense-item">
+                  <div class="expense-record-content">
+
+                    <div class="expense-record-name">
+                      <strong><%= relation.service_name %></strong>
+                    </div>
+
+                    <div class="expense-record-details">
+                      <% if relation.appointment.appointment_date.present? %>
+                        <span class="expense-record-date">
+                          <%= l(
+                            relation.appointment.appointment_date,
+                            format: :default
+                          ) %>
+                        </span>
+                      <% end %>
+
+                      <span class="expense-record-amount green">
+                        <%= relation.price.to_i %> ₴
+                      </span>
+                    </div>
+
+                  </div>
+                </li>
+              <% end %>
+
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+  </div>
+<% end %>

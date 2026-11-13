@@ -1,20 +1,26 @@
 <template data-formula-target="template">
   <div class="formula-step-wrapper" data-controller="collapse" data-step-id="NEW_RECORD">
-  <!-- HEADER -->
+  <!-- STEP HEADER -->
     <div class="formula-step-header" data-action="click->collapse#toggle">
-      <span>
-        <%= t("haircut.step") %>
-        <span class="step-number"></span>
-      </span>
+      <div class="formula-step-header-left">
+        <svg class="chevron"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
 
-      <svg class="chevron"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2">
-        <path d="m6 9 6 6 6-6"/>
-      </svg>
+        <span>
+          <%= t("haircut.step") %>
+          <span class="step-number"></span>
+        </span>
+      </div>
+
+      <button type="button" class="formula-step-delete" data-action="click->formula#removeStep" aria-label="<%= t('common.delete') %>">
+        <%= image_tag "close.png", class: "clear-icon" %>
+      </button>
     </div>
   <!-- CONTENT -->
     <div class="formula-step-content" data-collapse-target="content">
@@ -26,18 +32,20 @@
 
         <input type="hidden"
                name="service_note[formula_steps_attributes][NEW_RECORD][id]" />
-        <!-- HEADER -->
+        <!-- FORMULA HEADER -->
         <div class="formula-header">
-          <span>__SECTION_LABEL__</span>
+          <span class="formula-section-title">
+            __SECTION_LABEL__
+          </span>
 
           <div class="step-remove">
             <input type="hidden"
                   name="service_note[formula_steps_attributes][NEW_RECORD][_destroy]"
                   value="0"
-                  class="destroy-field" />
+                  class="destroy-field">
 
-            <button type="button" data-action="click->formula#removeStep">
-              <%= image_tag "close.png", class: "clear-icon" %>
+            <button type="button" class="formula-change-section" data-action="click->formula#openSectionPicker" aria-label="<%= t('formula.add_section') %>">
+              <%= image_tag "up-down.png", alt: "", width: 24, height: 24 %>
             </button>
           </div>
         </div>
@@ -138,8 +146,8 @@
         <div class="formula-block">
           <div class="block-title">
             <span>
-              <%= image_tag "paint.png", class: "wiz-icon", width: 24, height: 24 %>
-              <%= t("formula_products.tabs.additives") %>
+              <%= image_tag "additive.png", class: "wiz-icon", width: 24, height: 24 %>
+              <%= t("formula.additives") %>
             </span>
 
             <button type="button" class="add-btn-small" data-action="click->formula#openAdditiveModal">

@@ -3,10 +3,12 @@ import { Controller } from "@hotwired/stimulus"
 import Sortable from "sortablejs"
 
 export default class extends Controller {
-  static targets = ["container", "template", "steps", "colorsList", "addStep"]
+  static targets = ["container", "template", "steps", "colorsList", "addStep", "sectionModal"]
 
   static values = {
-    sections: Object
+    sections: Object,
+    editIcon: String,
+    deleteIcon: String
   }
 
   connect() {
@@ -22,6 +24,7 @@ export default class extends Controller {
   disconnect() {
     this.element.removeEventListener("input", this.handleAmountInput)
     window.removeEventListener("formula:firstStepFilled", this.showAddStepHandler)
+    this.sectionEditingStep = null
   }
 
   // ---------------- COLOR SUM ----------------
@@ -84,26 +87,35 @@ export default class extends Controller {
   }
 
   // ---------------- CREATE STEP ----------------
+  nextNestedIndex() {
+    this.nestedIndexCounter = (this.nestedIndexCounter || 0) + 1
+
+    return String(Date.now() * 1000 + this.nestedIndexCounter)
+  }
+
   createStep(event) {
     event.preventDefault()
 
     const section = event.currentTarget.dataset.section
     const sectionLabel = this.sectionsValue[section] || section
     const template = this.templateTarget.innerHTML
-    const stepId = Date.now()
+    const stepId = this.nextNestedIndex()
 
-    let html = template
+    const html = template
       .replaceAll("__SECTION_VALUE__", section)
       .replaceAll("__SECTION_LABEL__", sectionLabel)
       .replaceAll("NEW_RECORD", stepId)
+
     this.containerTarget.insertAdjacentHTML("beforeend", html)
 
     const newStep = this.containerTarget.lastElementChild
     const destroyInput = newStep.querySelector(".destroy-field")
-    if (destroyInput) destroyInput.value = "0"
 
-    const empty = this.element.querySelector(".empty-step")
-    if (empty) empty.remove()
+    if (destroyInput) {
+      destroyInput.value = "0"
+    }
+
+    this.element.querySelector(".empty-step")?.classList.add("hidden")
 
     this.containerTarget.classList.remove("hidden")
 
@@ -113,8 +125,6 @@ export default class extends Controller {
 
     this.updateStepNumbers()
     window.dispatchEvent(new CustomEvent("formula:changed"))
-
-    this.containerTarget.classList.remove("hidden")
   }
 
   updateStepNumbers() {
@@ -136,33 +146,34 @@ export default class extends Controller {
 
   removeStep(event) {
     event.preventDefault()
+    event.stopPropagation()
 
     const wrapper = event.currentTarget.closest(".formula-step-wrapper")
+    if (!wrapper) return
+
     const card = wrapper.querySelector(".formula-card")
-    wrapper.style.display = "none"
+    if (!card) return
 
     const destroyInput = card.querySelector(".destroy-field")
+
     if (destroyInput) {
       destroyInput.value = "1"
-      card.style.display = "none"
-    } else {
-      card.remove()
     }
+
+    wrapper.style.display = "none"
+    card.style.display = "none"
 
     this.updateStepNumbers()
 
-    const step = card
-    this.dispatchColorAmount(step)
+    this.dispatchColorAmount(card)
 
-    const visibleSteps = this.containerTarget.querySelectorAll(".formula-card:not([style*='display: none'])")
-    if (visibleSteps.length === 0) {
-      if (this.hasAddStepTarget) {
-        this.addStepTarget.classList.remove("hidden")
-      }
-
+    if (!this.hasActiveFormulaSteps()) {
       const empty = this.element.querySelector(".empty-step")
       if (empty) {
         empty.classList.remove("hidden")
+      }
+      if (this.hasAddStepTarget) {
+        this.addStepTarget.classList.remove("hidden")
       }
     }
     window.dispatchEvent(new CustomEvent("formula:changed"))
@@ -185,7 +196,7 @@ export default class extends Controller {
     const list = card.querySelector("[data-formula-target='colorsList']")
     const prototype = list.dataset.prototype
     const stepIndex = card.dataset.stepId
-    const newId = `${Date.now()}_${Math.random().toString(36).slice(2)}`
+    const newId = this.nextNestedIndex()
 
     let html = prototype.replace(/NEW_COLOR/g, newId).replace(/NEW_RECORD/g, stepIndex)
     list.insertAdjacentHTML("beforeend", html)
@@ -293,7 +304,270 @@ export default class extends Controller {
 
     display.remove()
 
+    this.dispatchColorAmount(step)
     window.dispatchEvent(new CustomEvent("formula:changed"))
+  }
+
+  // ---------------- IMPORT FORMULA ----------------
+  hasActiveFormulaSteps() {
+    return Array.from(this.containerTarget.querySelectorAll(".formula-step-wrapper"))
+    .some(wrapper => {
+      const destroy = wrapper.querySelector(".destroy-field")
+
+      return wrapper.style.display !== "none" && destroy?.value !== "1"
+    })
+  }
+
+
+  importSteps(steps) {
+    if (!Array.isArray(steps) || steps.length === 0) {
+      return false
+    }
+
+    if (!this.hasTemplateTarget) {
+      return false
+    }
+
+    const allowedSections = ["roots", "midshaft", "length", "strands", "all_over"]
+
+    if (steps.some(step => !allowedSections.includes(step.section))) {
+      return false
+    }
+
+    const fragment = document.createDocumentFragment()
+
+    try {
+      steps.forEach((step, index) => {
+        const wrapper = this.buildImportedStep(step, index)
+        fragment.appendChild(wrapper)
+      })
+    } catch (error) {
+      console.error("Formula import:", error)
+      return false
+    }
+
+    this.containerTarget.appendChild(fragment)
+    this.element.querySelector(".empty-step")?.classList.add("hidden")
+    this.containerTarget.classList.remove("hidden")
+
+    if (this.hasAddStepTarget) {
+      this.addStepTarget.classList.remove("hidden")
+    }
+
+    this.updateStepNumbers()
+
+    requestAnimationFrame(() => {
+      this.containerTarget
+        .querySelectorAll(".formula-card")
+        .forEach(card => {
+          const wrapper = card.closest(".formula-step-wrapper")
+
+          if (wrapper?.style.display === "none") return
+          if (card.querySelector(".destroy-field")?.value === "1") return
+
+          this.dispatchColorAmount(card)
+        })
+
+      window.dispatchEvent(new CustomEvent("formula:changed"))
+      window.dispatchEvent(new CustomEvent("formula:firstStepFilled"))
+    })
+
+    return true
+  }
+
+  buildImportedStep(step, index) {
+    const stepId = this.nextNestedIndex()
+    const sectionLabel = this.sectionsValue[step.section] || step.section
+    const html = this.templateTarget.innerHTML
+      .replaceAll("__SECTION_VALUE__", step.section)
+      .replaceAll("__SECTION_LABEL__", sectionLabel)
+      .replaceAll("NEW_RECORD", stepId)
+
+    const template = document.createElement("template")
+    template.innerHTML = html.trim()
+
+    const wrapper = template.content.firstElementChild
+
+    if (!wrapper) {
+      throw new Error("Formula step template is empty")
+    }
+
+    const card = wrapper.querySelector(".formula-card")
+
+    if (!card) {
+      throw new Error("Formula card not found")
+    }
+
+    const destroy = card.querySelector(".destroy-field")
+    if (destroy) destroy.value = "0"
+
+    const timeInput = card.querySelector(`input[name$="[time]"]`)
+
+    if (timeInput) {
+      timeInput.value = step.time ?? 0
+    }
+
+    ;(step.ingredients || []).forEach(ingredient => {
+      this.importIngredient(card, ingredient, stepId)
+    })
+
+    const oxidantInput = card.querySelector('[data-developer-target="input"]')
+
+    if (oxidantInput) {
+      const oxidants = Array.isArray(step.oxidant) ? step.oxidant : step.oxidant ? [step.oxidant] : []
+
+      oxidantInput.value = JSON.stringify(oxidants)
+    }
+
+    return wrapper
+  }
+
+  importIngredient(card, ingredient, stepId) {
+    const ingredientTemplate = card.querySelector('[data-formula-target="ingredientTemplate"]')
+    const hiddenList = card.querySelector('[data-formula-target="colorsList"]')
+
+    if (!ingredientTemplate || !hiddenList) {
+      throw new Error("Ingredient template or container not found")
+    }
+
+    const ingredientId = `new_${crypto.randomUUID()}`
+    const ingredientIndex = this.nextNestedIndex()
+    const html = ingredientTemplate.innerHTML.replaceAll("STEP_ID", stepId).replaceAll("NEW_ID", ingredientIndex)
+    const template = document.createElement("template")
+    template.innerHTML = html.trim()
+
+    const fields = template.content.querySelector(".ingredient-fields")
+
+    if (!fields) {
+      throw new Error("Ingredient fields not found")
+    }
+
+    fields.dataset.id = ingredientId
+    fields.dataset.unit = ingredient.unit || "g"
+
+    const values = {
+      shade: ingredient.shade ?? "",
+      brand: ingredient.brand ?? "",
+      amount: ingredient.amount ?? "",
+      formula_product_id: ingredient.formula_product_id ?? "",
+      price: ingredient.price ?? 0,
+      kind: ingredient.kind === "additive" ? "additive" : "color",
+      destroy: "0"
+    }
+
+    Object.entries(values).forEach(([name, value]) => {
+      const input = fields.querySelector(`[data-field="${name}"]`)
+      if (input) input.value = value
+    })
+
+    hiddenList.appendChild(fields)
+
+    this.renderImportedIngredient(card, ingredient, ingredientId)
+  }
+
+  renderImportedIngredient(card, ingredient, ingredientId) {
+    const additive = ingredient.kind === "additive"
+
+    const list = additive ? card.querySelector("[data-additive-list]") : card.querySelector('[data-color-target="list"]')
+
+    if (!list) {
+      throw new Error("Ingredient display list not found")
+    }
+
+    const row = document.createElement("div")
+
+    row.className = additive ? "color-row-display additive-row-display" : "color-row-display"
+
+    row.dataset.id = ingredientId
+
+    row.innerHTML = `
+      <div class="color-left">
+        <span class="shade"></span>
+        <span class="brand"></span>
+      </div>
+
+      <div class="color-right">
+        <span class="amount"></span>
+
+        <div class="color-actions">
+          <button type="button"
+                  class="edit-btn"
+                  data-action="click->formula#${additive ? "editAdditive" : "editColor"}">
+            <img class="edit-icon" alt="">
+          </button>
+
+          <button type="button"
+                  class="delete-btn"
+                  data-action="click->formula#${additive ? "removeAdditive" : "removeColor"}">
+            <img class="delete-icon" alt="">
+          </button>
+        </div>
+      </div>
+    `
+
+    row.querySelector(".shade").textContent = ingredient.shade || ""
+    row.querySelector(".brand").textContent = ingredient.brand || ""
+
+    const unit = ingredient.unit || "g"
+
+    row.querySelector(".amount").textContent =
+      `${ingredient.amount ?? 0}${unit}`
+
+    row.querySelector(".edit-icon").src = this.editIconValue
+    row.querySelector(".delete-icon").src = this.deleteIconValue
+
+    list.appendChild(row)
+  }
+  // ---------------- CHANGE SECTION ----------------
+  openSectionPicker(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const wrapper = event.currentTarget.closest(".formula-step-wrapper")
+    if (!wrapper || !this.hasSectionModalTarget) return
+
+    this.sectionEditingStep = wrapper
+    this.sectionModalTarget.classList.remove("hidden")
+  }
+
+  changeSection(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const wrapper = this.sectionEditingStep
+    if (!wrapper) return
+
+    const section = event.currentTarget.dataset.section
+    if (!Object.hasOwn(this.sectionsValue, section)) return
+
+    const sectionInput = wrapper.querySelector('input[name$="[section]"]')
+    const sectionTitle = wrapper.querySelector(".formula-section-title")
+
+    if (!sectionInput || !sectionTitle) return
+
+    sectionInput.value = section
+    sectionTitle.textContent = this.sectionsValue[section]
+
+    this.closeSectionPicker()
+
+    window.dispatchEvent(new CustomEvent("formula:changed"))
+  }
+
+  closeSectionPicker(event) {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
+    if (this.hasSectionModalTarget) {
+      this.sectionModalTarget.classList.add("hidden")
+    }
+
+    this.sectionEditingStep = null
+  }
+
+  stopPropagation(event) {
+    event.stopPropagation()
   }
 
   // ---------------- DRAG ----------------

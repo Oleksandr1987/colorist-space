@@ -7,6 +7,8 @@ class FormulaIngredient < ApplicationRecord
   validates :shade, :amount, presence: true
   validates :kind, inclusion: { in: KINDS }
 
+  validate :formula_product_belongs_to_user
+
   scope :colors, -> { where(kind: "color") }
   scope :additives, -> { where(kind: "additive") }
 
@@ -24,5 +26,18 @@ class FormulaIngredient < ApplicationRecord
 
   def total_price
     total_cost
+  end
+
+  private
+
+  def formula_product_belongs_to_user
+    return if formula_product_id.blank?
+
+    user = formula_step&.service_note&.user
+    return if user.blank?
+
+    unless user.formula_products.exists?(id: formula_product_id)
+      errors.add(:formula_product, :invalid)
+    end
   end
 end

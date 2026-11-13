@@ -1,0 +1,61 @@
+
+<div data-income-formula-panel="<%= section[:kind] %>">
+  <div class="filter-section">
+    <div class="filter-subtitle analytics-formula-subtitle">
+      <%= section[:title] %>
+    </div>
+
+    <!-- BRANDS -->
+    <div class="filter-chips" data-income-formula-brands>
+
+      <button type="button"
+              class="filter-chip"
+              data-analytics-filter-target="<%= section[:brand_target] %>"
+              data-action="click->analytics-filter#<%= section[:brand_action] %>">
+        <%= t("analytics.income.all_brands") %>
+      </button>
+
+      <% section[:brands].each do |brand| %>
+        <% selected = section[:options].any? do |option|
+             report.formula_product_filters.include?(option[:id]) && option[:brand] == brand
+           end %>
+
+        <label class="filter-chip <%= 'active' if selected %>">
+          <input type="checkbox"
+                 value="<%= brand %>"
+                 <%= "checked" if selected %>
+                 data-<%= section[:kind] %>-brand="<%= brand %>"
+                 data-action="change->analytics-filter#<%= section[:toggle_brand_action] %>">
+
+          <span><%= brand %></span>
+        </label>
+      <% end %>
+
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="filter-chips hidden" data-analytics-filter-target="<%= section[:products_target] %>">
+
+      <button type="button"
+              class="filter-chip"
+              data-analytics-filter-target="<%= section[:all_target] %>"
+              data-action="click->analytics-filter#<%= section[:products_action] %>">
+        <%= section[:all_products_label] %>
+      </button>
+
+      <% section[:options].each do |option| %>
+        <% selected = report.formula_product_filters.include?(option[:id]) %>
+
+        <label class="filter-chip <%= 'active' if selected %>"
+               data-<%= section[:kind] %>-product-brand="<%= option[:brand] %>">
+
+          <%= check_box_tag "formula_product_ids[]", option[:id], selected,
+                            data: { formula_kind: section[:kind], action: "change->analytics-filter#toggleFormulaProduct" } %>
+
+          <span><%= option[:label] %></span>
+        </label>
+      <% end %>
+
+    </div>
+  </div>
+</div>

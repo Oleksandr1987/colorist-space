@@ -7,10 +7,6 @@ en:
     title: "SERVICES"
     menu:
       search_placeholder: "Search services..."
-      sort_default: "Sort by…"
-      sort_name: "Sort by name A–Z"
-      sort_price_asc: "Sort by price ↑"
-      sort_price_desc: "Sort by price ↓"
 
     form:
       category: "Service Category"
@@ -92,6 +88,9 @@ en:
       services: "SERVICES PRICE:"
       formula_ingredients: "FORMULA INGREDIENTS PRICE:"
       care_products: "CARE PRODUCTS PRICE:"
+
+    filters:
+      all: "All"
 
     errors:
       services_required: "Please select at least one service"

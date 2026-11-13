@@ -1,85 +1,218 @@
-/* .notes-block {
-  padding: 20px 16px;
-} */
-
-/* ===== PRICE ===== */
-.price-wrapper {
-  margin-bottom: 32px;
+/* ===== RECEIPT ===== */
+.notes-block {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 12px 16px 28px;
+  color: #17131b;
 }
 
-.price-label {
-  margin-top: 6px;
-  font-size: 13px;
-}
-
-/* ===== NOTES ===== */
-.notes-wrapper {
-  margin-top: 24px;
-}
-
-.notes-label {
-  font-size: 16px;
-  margin-bottom: 8px;
-}
-
-.notes-subtitle {
-  display: grid;
-  grid-template-columns: 34px 1fr 34px;
-  align-items: center;
-}
-
-.notes-subtitle strong {
-  grid-column: 2;
-  text-align: center;
-}
-
-.notes-textarea {
-  width: 96%;
-  min-height: 140px;
-  border: 1px solid #e5e5e5;
-  border-radius: 16px;
-  padding: 10px;
-  font-size: 16px;
-  outline: none;
-  resize: none;
-  background: #fafafa;
-}
-
-.notes-textarea:focus {
-  border-color: #ccc;
-  background: #fff;
+.notes-block [hidden] {
+  display: none !important;
 }
 
 .notes-date {
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 500;
   color: #555;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
 }
 
-.notes-care-total {
-  margin-top: 8px;
+/* ===== SECTIONS ===== */
+.receipt-section {
+  margin-bottom: 24px;
+  min-width: 0;
+}
+
+.receipt-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(80, 50, 90, 0.15);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.receipt-heading .wiz-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.receipt-group {
+  margin-bottom: 18px;
+}
+
+.receipt-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.receipt-group-title .wiz-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+/* ===== TABLE ===== */
+.receipt-table {
+  width: 100%;
+  min-width: 0;
+}
+
+.receipt-cols-2,
+.receipt-cols-3 {
+  display: grid;
+  align-items: start;
+  column-gap: 8px;
+}
+
+.receipt-cols-2 {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.receipt-cols-3 {
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(58px, 0.55fr)
+    minmax(70px, 0.65fr);
+}
+
+.receipt-cols-2 > :last-child,
+.receipt-cols-3 > :last-child {
+  text-align: right;
+}
+
+.receipt-cols-3 > :nth-child(2) {
+  text-align: right;
+}
+
+.receipt-table-header {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(80, 50, 90, 0.2);
+  color: #655c69;
+  font-size: 11px;
   font-weight: 600;
 }
 
-/* ===== ROWS ===== */
-.price-display,
-.notes-dev-row,
-.notes-care-row,
-.notes-care-total,
-.price-final {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-  margin-top: 8px;
+.receipt-row {
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(80, 50, 90, 0.08);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
-.notes-dev-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.receipt-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.receipt-product-category {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #6c6270;
+}
+
+/* ===== TOTALS ===== */
+.receipt-subtotal {
   margin-top: 10px;
-  font-weight: 600;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.receipt-category-total {
+  padding: 12px 0;
+  border-top: 1px solid rgba(80, 50, 90, 0.2);
+  border-bottom: 1px solid rgba(80, 50, 90, 0.2);
+  font-size: 14px;
+}
+
+.receipt-final {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin: 24px 0;
+  background: rgba(83, 37, 176, 0.1);
+  border: 1px solid rgba(83, 37, 176, 0.15);
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.receipt-final > :last-child {
+  text-align: right;
+  white-space: nowrap;
+  color: #5225b0;
+  font-size: 19px;
+}
+
+/* ===== NOTES ===== */
+.receipt-notes {
+  margin-top: 24px;
+}
+
+.notes-textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 140px;
+  padding: 14px;
+  border: 1px solid #ded5e4;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #17131b;
+  resize: vertical;
+  outline: none;
+}
+
+.notes-textarea:focus {
+  border-color: #5225b0;
+  background: #fff;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 390px) {
+  .notes-block {
+    padding: 12px 10px 24px;
+  }
+
+  .receipt-cols-3 {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(48px, 0.5fr)
+      minmax(65px, 0.65fr);
+    column-gap: 5px;
+  }
+
+  .receipt-row {
+    font-size: 12px;
+  }
+
+  .receipt-table-header {
+    font-size: 10px;
+  }
+
+  .receipt-final {
+    padding: 12px;
+  }
+
+  .receipt-final > :last-child {
+    font-size: 17px;
+  }
 }

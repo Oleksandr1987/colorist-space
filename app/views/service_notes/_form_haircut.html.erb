@@ -126,4 +126,15 @@
   <template data-haircut-target="emptyTemplate">
     <%= render "service_notes/empty_haircut_step" %>
   </template>
+  <!-- HAIRCUT NOTES -->
+  <div class="step-general-notes">
+    <div class="block-title">
+      <span>
+        <%= image_tag "notes.png", class: "wiz-icon", width: 24, height: 24 %>
+        <%= t("appointments.form.notes") %>
+      </span>
+    </div>
+
+    <%= f.text_area :haircut_notes, class: "notes-textarea", rows: 4 %>
+  </div>
 </div>

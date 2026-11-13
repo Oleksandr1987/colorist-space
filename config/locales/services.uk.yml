@@ -7,10 +7,6 @@ uk:
     title: "ПОСЛУГИ"
     menu:
       search_placeholder: "Пошук послуг..."
-      sort_default: "Сортувати…"
-      sort_name: "За назвою A–Z"
-      sort_price_asc: "За ціною ↑"
-      sort_price_desc: "За ціною ↓"
 
     form:
       category: "Категорія послуги"
@@ -92,6 +88,9 @@ uk:
       services: "ЦІНА ПОСЛУГ:"
       formula_ingredients: "ЦІНА ІНГРЕДІЄНТІВ ФОРМУЛИ:"
       care_products: "ЦІНА ЗАСОБІВ ДОГЛЯДУ:"
+
+    filters:
+      all: "Усі"
 
     errors:
       services_required: "Будь ласка, оберіть хоча б одну послугу"

@@ -352,13 +352,10 @@ button:hover {
 .add-phone-text {
   display: block;
   margin-top: 6px;
-
   font-size: 15px;
   font-weight: 500;
-
   color: #6c5ce7;
   cursor: pointer;
-
   text-align: left;
 }
 
@@ -477,6 +474,15 @@ button:hover {
   51%,
   100% {
     opacity: 0;
+  }
+}
+
+/* Prevent iOS Safari auto-zoom on focused form controls. */
+@supports (-webkit-touch-callout: none) {
+  input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }
 

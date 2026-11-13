@@ -1,153 +1,155 @@
 <div class="notes-block"
      data-controller="service-note"
-     data-service-note-formula-price-label-value="<%= t("services.price.formula_ingredients") %>"
-     data-service-note-care-products-price-label-value="<%= t("services.price.care_products") %>">
+     data-service-note-formula-price-label-value="<%= t('services.price.formula_ingredients') %>"
+     data-service-note-care-products-price-label-value="<%= t('services.price.care_products') %>">
 
   <div class="notes-date">
     <%= l(@appointment.appointment_date, format: :long) %>
   </div>
+
   <!-- SERVICES -->
-  <div class="notes-collapse-section" data-controller="collapse">
-    <div class="notes-label note-step-pill" data-action="click->collapse#toggle">
-      <%= image_tag "services.png", class: "wiz-icon", width: 34, height: 34 %>
+  <section class="receipt-section"
+           data-service-note-target="servicesSection">
+    <h3 class="receipt-heading">
+      <%= image_tag "services.png", class: "wiz-icon", width: 30, height: 30 %>
+      <%= t("services.title") %>
+    </h3>
 
-      <span>
-        <strong><%= t("services.title") %></strong>
-      </span>
-
-      <svg class="chevron"
-           xmlns="http://www.w3.org/2000/svg"
-           viewBox="0 0 24 24"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2">
-        <path d="m6 9 6 6 6-6"/>
-      </svg>
-    </div>
-
-    <div class="notes-collapse-content hidden" data-collapse-target="content">
-      <div class="notes-services">
-        <div data-service-note-target="servicesList"></div>
+    <div class="receipt-table">
+      <div class="receipt-table-header receipt-cols-2">
+        <span><%= t("services.title") %></span>
+        <span><%= t("notes.receipt.price") %></span>
       </div>
 
-      <div class="price-wrapper">
-        <div class="price-display">
-          <span class="price-label">
-            <strong><%= t("services.price.services") %></strong>
-          </span>
+      <div data-service-note-target="servicesList"></div>
 
-          <span class="price-value"
-                data-service-note-target="priceValue">
-            <strong><%= @service_note.price || 0 %> ₴</strong>
-          </span>
-        </div>
-
-        <%= f.hidden_field :price, data: { service_note_target: "priceInput" } %>
+      <div class="receipt-subtotal receipt-cols-2">
+        <strong><%= t("notes.receipt.services_total") %></strong>
+        <strong data-service-note-target="priceValue">0 ₴</strong>
       </div>
     </div>
-  </div>
-  <!-- FORMULA INGREDIENTS -->
-  <div class="notes-collapse-section" data-controller="collapse">
-    <div class="notes-label note-step-pill" data-action="click->collapse#toggle">
-      <%= image_tag "formula.png", class: "wiz-icon", width: 34,height: 34 %>
 
-      <span>
-        <strong><%= t("formula_products.pages.title") %></strong>
-      </span>
+    <%= f.hidden_field :price, data: { service_note_target: "priceInput" } %>
+  </section>
 
-      <svg class="chevron"
-           xmlns="http://www.w3.org/2000/svg"
-           viewBox="0 0 24 24"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2">
-        <path d="m6 9 6 6 6-6"/>
-      </svg>
-    </div>
+  <!-- FORMULA -->
+  <section class="receipt-section" data-service-note-target="formulaSection">
+    <h3 class="receipt-heading">
+      <%= image_tag "formula.png", class: "wiz-icon", width: 30, height: 30 %>
+      <%= t("formula_products.pages.title") %>
+    </h3>
 
-    <div class="notes-collapse-content hidden" data-collapse-target="content">
-      <div class="notes-dev">
-        <div class="notes-subtitle">
-          <%= image_tag "paint.png", class: "wiz-icon", width: 34, height: 34 %>
-          <strong><%= t("formula_products.tabs.colors") %></strong>
+    <!-- COLORS -->
+    <div class="receipt-group" data-service-note-target="colorsGroup">
+      <h4 class="receipt-group-title">
+        <%= image_tag "paint.png", class: "wiz-icon", width: 26, height: 26 %>
+        <%= t("formula_products.tabs.colors") %>
+      </h4>
+
+      <div class="receipt-table">
+        <div class="receipt-table-header receipt-cols-3">
+          <span><%= t("notes.receipt.brand_shade") %></span>
+          <span><%= t("notes.receipt.quantity") %></span>
+          <span><%= t("notes.receipt.price") %></span>
         </div>
 
         <div data-service-note-target="colorsList"></div>
 
-        <div class="notes-subtitle">
-          <%= image_tag "paint.png", class: "wiz-icon", width: 34, height: 34 %>
-          <strong><%= t("formula_products.tabs.additives") %></strong>
+        <div class="receipt-subtotal receipt-cols-2">
+          <strong><%= t("notes.receipt.colors_total") %></strong>
+          <strong data-service-note-target="colorsTotal">0 ₴</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADDITIVES -->
+    <div class="receipt-group" data-service-note-target="additivesGroup">
+      <h4 class="receipt-group-title">
+        <%= image_tag "additive.png", class: "wiz-icon", width: 26, height: 26 %>
+        <%= t("formula_products.tabs.additives") %>
+      </h4>
+
+      <div class="receipt-table">
+        <div class="receipt-table-header receipt-cols-3">
+          <span><%= t("notes.receipt.brand_name") %></span>
+          <span><%= t("notes.receipt.quantity") %></span>
+          <span><%= t("notes.receipt.price") %></span>
         </div>
 
         <div data-service-note-target="additivesList"></div>
-        <div class="notes-subtitle">
-          <%= image_tag "percent.png", class: "wiz-icon", width: 34,height: 34 %>
-          <strong><%= t("formula_products.tabs.oxidants") %></strong>
+
+        <div class="receipt-subtotal receipt-cols-2">
+          <strong><%= t("notes.receipt.additives_total") %></strong>
+          <strong data-service-note-target="additivesTotal">0 ₴</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- OXIDANTS -->
+    <div class="receipt-group" data-service-note-target="developerGroup">
+      <h4 class="receipt-group-title">
+        <%= image_tag "percent.png", class: "wiz-icon", width: 26, height: 26 %>
+        <%= t("formula_products.tabs.oxidants") %>
+      </h4>
+
+      <div class="receipt-table">
+        <div class="receipt-table-header receipt-cols-3">
+          <span><%= t("notes.receipt.brand_concentration") %></span>
+          <span><%= t("notes.receipt.quantity") %></span>
+          <span><%= t("notes.receipt.price") %></span>
         </div>
 
         <div data-service-note-target="developerList"></div>
-        <div class="notes-dev-total"
-             data-service-note-target="developerPrice">
+
+        <div class="receipt-subtotal receipt-cols-2">
+          <strong><%= t("notes.receipt.oxidants_total") %></strong>
+          <strong data-service-note-target="developerTotal">0 ₴</strong>
         </div>
       </div>
     </div>
-  </div>
-  <!-- CARE PRODUCTS -->
-  <div class="notes-collapse-section" data-controller="collapse">
-    <div class="notes-label note-step-pill" data-action="click->collapse#toggle">
-      <%= image_tag "skincare.png", class: "wiz-icon", width: 34, height: 34 %>
 
-      <span>
-        <strong><%= t("care_products.title") %></strong>
-      </span>
-
-      <svg class="chevron"
-           xmlns="http://www.w3.org/2000/svg"
-           viewBox="0 0 24 24"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2">
-        <path d="m6 9 6 6 6-6"/>
-      </svg>
+    <div class="receipt-category-total receipt-cols-2">
+      <strong><%= t("services.price.formula_ingredients") %></strong>
+      <strong data-service-note-target="developerPrice">0 ₴</strong>
     </div>
+  </section>
 
-    <div class="notes-collapse-content hidden" data-collapse-target="content">
-      <div class="notes-care-products">
-        <div data-service-note-target="careProductsList"></div>
+  <!-- CARE PRODUCTS -->
+  <section class="receipt-section" data-service-note-target="careSection">
+    <h3 class="receipt-heading">
+      <%= image_tag "skincare.png", class: "wiz-icon", width: 30, height: 30 %>
+      <%= t("care_products.title") %>
+    </h3>
+
+    <div class="receipt-table">
+      <div class="receipt-table-header receipt-cols-3">
+        <span><%= t("notes.receipt.brand_category") %></span>
+        <span><%= t("notes.receipt.quantity") %></span>
+        <span><%= t("notes.receipt.price") %></span>
+      </div>
+
+      <div data-service-note-target="careProductsList"></div>
+
+      <div class="receipt-subtotal receipt-cols-2">
+        <strong><%= t("care_products.total") %></strong>
+        <strong data-service-note-target="careTotal">0 ₴</strong>
       </div>
     </div>
+  </section>
+
+  <!-- FINAL TOTAL -->
+  <div class="receipt-final">
+    <strong><%= t("services.price.total") %></strong>
+    <strong data-service-note-target="finalPrice">0 ₴</strong>
   </div>
+
   <!-- NOTES -->
-  <div class="notes-wrapper notes-collapse-section" data-controller="collapse">
-    <div class="notes-label note-step-pill" data-action="click->collapse#toggle">
-      <%= image_tag "notes.png", class: "wiz-icon", width: 34, height: 34 %>
+  <section class="receipt-section receipt-notes">
+    <h3 class="receipt-heading">
+      <%= image_tag "notes.png", class: "wiz-icon", width: 30, height: 30 %>
+      <%= t("appointments.form.notes") %>
+    </h3>
 
-      <span>
-        <strong><%= t("appointments.form.notes") %></strong>
-      </span>
-
-      <svg class="chevron"
-           xmlns="http://www.w3.org/2000/svg"
-           viewBox="0 0 24 24"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2">
-        <path d="m6 9 6 6 6-6"/>
-      </svg>
-    </div>
-
-    <div class="notes-collapse-content hidden" data-collapse-target="content">
-      <%= f.text_area :notes, value: @service_note.notes.presence || @appointment&.notes, class: "notes-textarea" %>
-    </div>
-  </div>
-  <!-- FINAL PRICE -->
-  <div class="price-final">
-    <span>
-      <strong><%= t("services.price.total") %></strong>
-    </span>
-
-    <span data-service-note-target="finalPrice">
-      <strong><%= @service_note.final_price %> ₴</strong>
-    </span>
-  </div>
+    <%= f.text_area :notes, value: @service_note.notes.presence || @appointment&.notes, class: "notes-textarea", rows: 5 %>
+  </section>
 </div>

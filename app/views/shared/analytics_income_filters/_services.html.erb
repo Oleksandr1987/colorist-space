@@ -1,0 +1,51 @@
+
+<div data-income-group-panel="services">
+  <div class="filter-section">
+    <div class="filter-title analytics-filter-group-title">
+      <%= image_tag "services.png", class: "analytics-filter-group-icon", width: 24, height: 24, alt: "" %>
+      <span><%= t("services.title") %></span>
+    </div>
+
+    <div class="filter-chips" data-income-service-categories>
+      <button type="button" class="filter-chip" data-action="click->analytics-filter#selectAllIncomeCategories">
+        <%= t("analytics.income.all") %>
+      </button>
+
+      <% report.filter_categories.each do |category| %>
+        <% selected = report.category_filters.include?(category) %>
+
+        <label class="filter-chip <%= 'active' if selected %>">
+          <%= check_box_tag "income_categories[]", category, selected,
+                            data: { action: "change->analytics-filter#toggleIncomeCategory", category: category } %>
+          <span>
+            <%= t("services.categories.#{category}", default: category.humanize) %>
+          </span>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="filter-section <%= 'hidden' if report.category_filters.empty? %>"
+       data-analytics-filter-target="incomeServicesSection">
+
+    <div class="filter-chips" data-analytics-filter-target="incomeServices">
+      <button type="button"
+              class="filter-chip"
+              data-analytics-filter-target="allIncomeServices"
+              data-action="click->analytics-filter#selectAllIncomeServices">
+        <%= t("analytics.income.all_services") %>
+      </button>
+
+      <% report.filter_services.each do |service| %>
+        <% selected = report.service_filters.include?(service.id) %>
+
+        <label class="filter-chip <%= 'active' if selected %>"
+               data-income-service-category="<%= service.category %>">
+          <%= check_box_tag "service_ids[]", service.id, selected,
+                            data: { action: "change->analytics-filter#toggleIncomeService" } %>
+          <span><%= service.subtype %></span>
+        </label>
+      <% end %>
+    </div>
+  </div>
+</div>

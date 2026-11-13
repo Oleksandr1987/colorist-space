@@ -223,8 +223,9 @@ export default class extends Controller {
 
     if (!template || !hiddenContainer || !displayContainer) return
 
-    const uid = `new_${Date.now()}_${Math.random().toString(36).slice(2)}`
-    const html = template.innerHTML.replace(/NEW_ID/g, uid).replace(/STEP_ID/g, stepId)
+    const uid = `new_${crypto.randomUUID()}`
+    const nestedIndex = String(Date.now() * 1000 + Math.floor(Math.random() * 1000))
+    const html = template.innerHTML.replaceAll("NEW_ID", nestedIndex).replaceAll("STEP_ID", stepId)
     const wrapper = document.createElement("div")
     wrapper.innerHTML = html
 
@@ -232,6 +233,7 @@ export default class extends Controller {
     if (!hidden) return
 
     hidden.dataset.id = uid
+
     this.fillHidden(hidden, row)
     hiddenContainer.appendChild(hidden)
 
@@ -249,13 +251,11 @@ export default class extends Controller {
         <span class="amount"></span>
 
         <div class="color-actions">
-          <button type="button" class="edit-btn"
-                  data-action="click->formula#editAdditive">
+          <button type="button" class="edit-btn" data-action="click->formula#editAdditive">
             <img class="edit-icon" alt="Edit">
           </button>
 
-          <button type="button" class="delete-btn"
-                  data-action="click->formula#removeAdditive">
+          <button type="button" class="delete-btn" data-action="click->formula#removeAdditive">
             <img class="delete-icon" alt="Delete">
           </button>
         </div>

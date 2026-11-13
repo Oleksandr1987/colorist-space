@@ -1,0 +1,13 @@
+uk:
+  notes:
+    receipt:
+      price: "Ціна"
+      quantity: "Кількість"
+      brand_shade: "Бренд / відтінок"
+      brand_name: "Бренд / назва"
+      brand_concentration: "Бренд / концентрація"
+      brand_category: "Бренд / категорія"
+      services_total: "Разом послуги"
+      colors_total: "Разом кольори"
+      additives_total: "Разом додатки"
+      oxidants_total: "Разом окисники"

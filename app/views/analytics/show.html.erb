@@ -1,18 +1,45 @@
-<h1><%= t("analytics.title") %></h1>
+<% active_tab = @analytics_tab || "income" %>
 
-<div class="admin-dashboard">
-  <%= link_to expenses_analytics_path, class: "admin-card expenses" do %>
-    <%= image_tag "accounting.png", class: "wiz-icon", width: 34, height: 34 %>
-    <%= t("analytics.menu.expenses") %>
-  <% end %>
+<div class="service-wrapper analytics-page">
+  <div class="category-header care-products-header analytics-fixed-header">
+    <div class="category-title">
+      <%= link_to services_path, class: "back" do %>
+        <%= image_tag "back.png", class: "wiz-icon", width: 24, height: 24, alt: "" %>
+      <% end %>
+      <span><%= t("analytics.title") %></span>
+    </div>
 
-  <%= link_to income_analytics_path, class: "admin-card income" do %>
-    <%= image_tag "income.png", class: "wiz-icon", width: 34,height: 34 %>
-    <%= t("analytics.menu.income") %>
-  <% end %>
+    <% if active_tab == "expenses" %>
+      <%= link_to new_expense_path, class: "formula-add-button", title: t("analytics.expenses.add") do %>
+        <%= image_tag "plus.png", width: 24, height: 24, alt: "" %>
+      <% end %>
+    <% end %>
+  </div>
 
-  <%= link_to balance_analytics_path, class: "admin-card balance" do %>
-    <%= image_tag "balance.png", class: "wiz-icon", width: 34, height: 34 %>
-    <%= t("analytics.menu.balance") %>
-  <% end %>
+  <div class="formula-category-tabs analytics-fixed-tabs">
+     <div class="analytics-tabs">
+      <% [
+        ["income", t("analytics.menu.income")],
+        ["expenses", t("analytics.menu.expenses")],
+        ["balance", t("analytics.menu.balance")]].each do |tab, title| %>
+        <%= link_to analytics_path(tab: tab), class: "filter-button #{'active' if active_tab == tab}" do %>
+          <%= title %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="analytics-tab-content analytics-scroll-content">
+    <% case active_tab %>
+    <% when "income" %>
+      <%= render "shared/analytics_income_filters" %>
+      <%= render "analytics/income_content" %>
+    <% when "expenses" %>
+      <%= render "shared/analytics_expense_filters" %>
+      <%= render "analytics/expenses_content" %>
+    <% when "balance" %>
+      <%= render "shared/analytics_balance_filters" %>
+      <%= render "analytics/balance_content" %>
+    <% end %>
+  </div>
 </div>

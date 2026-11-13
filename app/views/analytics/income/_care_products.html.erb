@@ -1,0 +1,40 @@
+
+<div class="grouped-expense-block" data-controller="collapse">
+
+  <div class="category-summary-link aligned"
+       data-action="click->collapse#toggle">
+
+    <span class="category-name-text">
+      <%= t("care_products.title") %>
+    </span>
+
+    <span class="category-amount green">
+      <%= report.care_products_income.to_i %> ₴
+    </span>
+  </div>
+
+  <div class="expenses-scroll-wrapper collapsible hidden"
+       data-collapse-target="content">
+
+    <ul class="expenses-list">
+      <% report.care_product_income.each do |item| %>
+        <li class="expense-item">
+          <div class="expense-record-content">
+            <div class="expense-record-details">
+
+              <strong>
+                <%= item[:label] %>
+              </strong>
+
+              <span class="expense-record-amount green">
+                <%= item[:amount].to_i %> ₴
+              </span>
+
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+
+  </div>
+</div>

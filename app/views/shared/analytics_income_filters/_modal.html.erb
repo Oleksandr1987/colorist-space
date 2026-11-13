@@ -1,0 +1,33 @@
+
+<div class="analytics-filter-modal hidden"
+     data-analytics-filter-target="modal"
+     data-action="click->analytics-filter#closeOnOverlay">
+
+  <div class="analytics-filter-modal-content">
+    <%= form_with url: analytics_path, method: :get, local: true, class: "analytics-filter-form" do %>
+      <%= hidden_field_tag :tab, "income" %>
+      <%= hidden_field_tag :income_groups_applied, "1" %>
+
+      <div class="analytics-filter-modal-header">
+        <button type="button" class="analytics-filter-close" data-action="click->analytics-filter#close" aria-label="<%= t('common.close') %>">
+          <%= image_tag "close.png", class: "wiz-icon", width: 24, height: 24 %>
+        </button>
+
+        <h2><%= t("analytics.period_filter.filter") %></h2>
+
+        <button type="submit" class="analytics-filter-save">
+          <%= t("analytics.period_filter.apply").upcase %>
+        </button>
+      </div>
+
+      <div class="analytics-filter-form-content">
+        <%= render "shared/analytics_period_fields",
+          from_date: permitted_params[:from].present? ? @from : nil, to_date: permitted_params[:to].present? ? @to : nil %>
+        <%= render "shared/analytics_income_filters/groups", report: report %>
+        <%= render "shared/analytics_income_filters/services", report: report %>
+        <%= render "shared/analytics_income_filters/formula", report: report %>
+        <%= render "shared/analytics_income_filters/care_products", report: report %>
+      </div>
+    <% end %>
+  </div>
+</div>

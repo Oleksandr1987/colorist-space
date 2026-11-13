@@ -9,7 +9,9 @@ export default class extends Controller {
     checkboxName: String,
     placeholderClass: String,
     closeIcon: String,
-    prices: Object
+    prices: Object,
+    servicesLabel: String,
+    priceLabel: String
   }
 
   connect() {
@@ -102,7 +104,7 @@ export default class extends Controller {
         id,
         name: input.dataset.name,
         subtype: input.dataset.subtype,
-        price: input.dataset.price,
+        price: this.hasPricesValue ? (this.pricesValue[String(id)] ?? input.dataset.price) : input.dataset.price,
         serviceType: input.dataset.serviceType
       })
     } else {
@@ -147,19 +149,42 @@ export default class extends Controller {
       this.selectedContentTarget.classList.remove("hidden")
     }
 
-    this.selectedContentTarget.innerHTML =
-      this.selected.map(service => `
-        <div class="selected-service-row">
-          <button type="button" class="selected-service-name" data-action="click->service-selector#open" data-type="service">
-            ${service.subtype || service.name}
-            (${service.price} ₴)
-          </button>
-
-          <button type="button" class="selected-service-remove" data-id="${service.id}" data-action="click->service-selector#removeService">
-            <img src="${this.closeIconValue}" class="wiz-icon" width="18" height="18">
-          </button>
+    this.selectedContentTarget.innerHTML = `
+      <div class="selected-services-table">
+        <div class="selected-services-table-header">
+          <span>${this.servicesLabelValue}</span>
+          <span>${this.priceLabelValue}</span>
         </div>
-      `).join("")
+
+        ${this.selected.map(service => `
+          <div class="selected-service-row">
+            <button type="button"
+                    class="selected-service-name"
+                    data-action="click->service-selector#open"
+                    data-type="service">
+              ${service.subtype || service.name}
+            </button>
+
+            <span class="selected-service-price">
+              ${new Intl.NumberFormat(
+                document.documentElement.lang || "uk",
+                { maximumFractionDigits: 2 }
+              ).format(Number(service.price) || 0)} ₴
+            </span>
+
+            <button type="button"
+                    class="selected-service-remove"
+                    data-id="${service.id}"
+                    data-action="click->service-selector#removeService">
+              <img src="${this.closeIconValue}"
+                  class="wiz-icon"
+                  width="18"
+                  height="18">
+            </button>
+          </div>
+        `).join("")}
+      </div>
+    `
 
     if (notify) {
       window.dispatchEvent(new CustomEvent("service-selector:changed", {

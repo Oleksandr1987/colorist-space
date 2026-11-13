@@ -46,21 +46,10 @@
         <%= t("formula_products.tabs.additives") %>
       </button>
     </div>
-
-    <button type="button"
-            class="formula-filter-toggle"
-            data-service-target="toggleButton"
-            data-action="click->service#toggleFormulaFilters"
-            aria-label="<%= t('formula_products.filters.title') %>"
-            aria-expanded="false">
-      <%= image_tag "filter.png", width: 20, height: 20, alt: "" %>
-    </button>
   </div>
 
-  <%# BRAND FILTERS - HIDDEN BY DEFAULT %>
-  <div class="formula-brand-filters hidden"
-       data-service-target="formulaBrandFilters">
-
+  <%# BRAND FILTERS %>
+  <div class="formula-brand-filters" data-service-target="formulaBrandFilters">
     <div data-service-target="colorFilters" class="<%= 'hidden' unless @formula_category == 'color' %>">
       <% if @color_brands.any? %>
         <div class="care-products-filters">

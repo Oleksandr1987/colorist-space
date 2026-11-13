@@ -274,23 +274,27 @@ export default class extends Controller {
     const shade = row.querySelector(".color-shade").value.trim()
     const amount = row.querySelector(".color-amount").value.trim().replace(",", ".")
 
-    if (parseFloat(amount) <= 0) {
-      return
-    }
+    if (parseFloat(amount) <= 0) return
 
     const template = this.currentStep.querySelector("[data-formula-target='ingredientTemplate']")
+    const hiddenContainer = this.currentStep.querySelector("[data-formula-target='colorsList']")
+    const displayContainer = this.currentStep.querySelector("[data-color-target='list']")
 
-    if (!template) return
+    if (!template || !hiddenContainer || !displayContainer) return
 
-    const uid = `new_${Date.now()}_${Math.random().toString(36).slice(2)}`
-    const html = template.innerHTML.replace(/NEW_ID/g, uid).replace(/STEP_ID/g, stepId)
+    const uid = `new_${crypto.randomUUID()}`
+    const nestedIndex = String(Date.now() * 1000 + Math.floor(Math.random() * 1000))
+
+    const html = template.innerHTML.replaceAll("NEW_ID", nestedIndex).replaceAll("STEP_ID", stepId)
+
     const wrapper = document.createElement("div")
-
     wrapper.innerHTML = html
 
     const hidden = wrapper.querySelector(".ingredient-fields")
+    if (!hidden) return
 
     hidden.dataset.id = uid
+    hidden.dataset.unit = unit
 
     hidden.querySelector("[data-field='brand']").value = brand
     hidden.querySelector("[data-field='shade']").value = shade
@@ -298,7 +302,7 @@ export default class extends Controller {
     hidden.querySelector("[data-field='formula_product_id']").value = row.dataset.productId
     hidden.querySelector("[data-field='price']").value = row.dataset.price
 
-    this.currentStep.querySelector("[data-formula-target='colorsList']").appendChild(hidden)
+    hiddenContainer.appendChild(hidden)
 
     const display = document.createElement("div")
 
@@ -332,7 +336,7 @@ export default class extends Controller {
     display.querySelector(".edit-icon").src = this.editIconValue
     display.querySelector(".delete-icon").src = this.deleteIconValue
 
-    this.currentStep.querySelector("[data-color-target='list']").appendChild(display)
+    displayContainer.appendChild(display)
   }
 
   dispatchColorChanged(total, stepId, firstStepFilled = false) {

@@ -51,7 +51,7 @@ RSpec.describe "Services" do
         }
       }.to change(Service, :count).by(1)
 
-      expect(response).to redirect_to(section_services_path(category: "haircut"))
+      expect(response).to redirect_to(main_services_path(category: "haircut"))
     end
 
     it "renders new when invalid" do
@@ -67,7 +67,7 @@ RSpec.describe "Services" do
 
       patch service_path(service), params: { service: { subtype: "Updated", price: 999, category: "coloring" } }
 
-      expect(response).to redirect_to(section_services_path(category: "coloring", locale: I18n.locale))
+      expect(response).to redirect_to(main_services_path(category: "coloring", locale: I18n.locale))
       expect(service.reload.subtype).to eq("Updated")
     end
 
@@ -85,7 +85,7 @@ RSpec.describe "Services" do
       service = create(:service, user: user)
 
       expect { delete service_path(service) }.to change(Service, :count).by(-1)
-      expect(response).to redirect_to(section_services_path(category: service.category))
+      expect(response).to redirect_to(main_services_path(category: service.category))
     end
   end
 

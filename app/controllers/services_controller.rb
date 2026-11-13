@@ -10,6 +10,8 @@ class ServicesController < ApplicationController
 
   def main
     @categories = Service.categories_for_user(current_user)
+
+    @services = current_user.services.where(service_type: "service").order(:category, :subtype, :id)
   end
 
   def section
@@ -20,6 +22,7 @@ class ServicesController < ApplicationController
       return
     end
 
+    @categories = Service.categories_for_user(current_user)
     @translated_category = t("services.categories.#{@category}", default: @category.humanize)
     @services = Service.for_user_and_category(current_user, @category)
   end
@@ -27,18 +30,8 @@ class ServicesController < ApplicationController
   def new
     category = Service.normalize_category(params[:category])
 
-    @service = Service.new(
-      service_type: params[:service_type] || "service",
-      category: category
-    )
-
-    @translated_category =
-      if category.present?
-        t(
-          "services.categories.#{category}",
-          default: category.humanize
-        )
-      end
+    @service = Service.new(service_type: params[:service_type] || "service", category: category)
+    @translated_category = t("services.categories.#{category}", default: category.humanize) if category.present?
   end
 
   def create
@@ -87,18 +80,12 @@ class ServicesController < ApplicationController
   end
 
   def redirect_path_for(service)
-    case service.service_type
-    when "service"
-      section_services_path(category: service.category)
-    else
-      services_path
-    end
+    redirect_path_for_open(service.service_type, service.category)
   end
 
   def redirect_path_for_open(service_type, category)
-    case service_type
-    when "service"
-      section_services_path(category: category)
+    if service_type == "service"
+      main_services_path(category: category)
     else
       services_path
     end

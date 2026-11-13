@@ -8,6 +8,9 @@ Rails.application.routes.draw do
            }
 
   resources :clients do
+    get "formula_history", to: "formula_history#index", as: :formula_history
+    get "formula_history/:service_note_id", to: "formula_history#show", as: :formula_history_entry
+
     resources :service_notes do
       member do
         patch :main_photo
@@ -100,6 +103,7 @@ Rails.application.routes.draw do
     get :balance
   end
 
+  get "analytics/income_filter_options", to: "analytics#income_filter_options", as: :analytics_income_filter_options
   root to: "home#index"
 
   get "up" => "rails/health#show", as: :rails_health_check

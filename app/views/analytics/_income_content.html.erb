@@ -1,0 +1,39 @@
+<% presentation = @income_presentation %>
+<% report = @income_report %>
+
+<% if presentation.show_content? %>
+  <div class="grouped-expense-list">
+
+    <!-- SERVICES -->
+    <% if presentation.show_services? %>
+      <%= render "analytics/income/services",
+        report: report,
+        presentation: presentation %>
+    <% end %>
+
+    <!-- FORMULA -->
+    <% if presentation.show_formula? %>
+      <%= render "analytics/income/formula",
+        report: report,
+        presentation: presentation %>
+    <% end %>
+
+    <!-- CARE PRODUCTS -->
+    <% if presentation.show_care_products? %>
+      <%= render "analytics/income/care_products",
+        report: report %>
+    <% end %>
+
+  </div>
+
+  <!-- TOTAL -->
+  <div class="grouped-expense-total">
+    <span>
+      <%= t("analytics.period.total_for_period") %>:
+    </span>
+
+    <strong class="green">
+      <%= report.display_total_income.to_i %> ₴
+    </strong>
+  </div>
+<% end %>

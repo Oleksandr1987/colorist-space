@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_02_154339) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -228,6 +228,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_154339) do
 
   create_table "formula_steps", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.text "notes"
     t.json "oxidant"
     t.string "section", null: false
     t.integer "service_note_id", null: false
@@ -265,6 +266,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_154339) do
     t.integer "client_id", null: false
     t.datetime "created_at", null: false
     t.json "data", default: {}, null: false
+    t.text "formula_notes"
+    t.text "haircut_notes"
     t.integer "main_photo_id"
     t.text "notes"
     t.integer "price"
