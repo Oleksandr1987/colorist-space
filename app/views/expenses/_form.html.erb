@@ -10,7 +10,9 @@
         <%= expense.persisted? ? t("analytics.expenses.edit") : t("analytics.expenses.new") %>
       </h2>
 
-      <%= f.submit t("analytics.save"), class: "form-modal-save" %>
+      <button type="submit" class="appointment-save-button">
+        <%= t("common.save").upcase %>
+      </button>
     </div>
 
     <div class="form-section">

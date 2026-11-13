@@ -12,9 +12,10 @@
 
     <div class="care-products-header-actions">
       <%= link_to archived_care_products_path,
-        class: "care-products-archive-link",
-        aria: { label: t("care_products.archive.view") } do %>
-        <%= t("care_products.archive.view") %>
+            class: "formula-add-button",
+            title: t("care_products.archive.view"),
+            aria: { label: t("care_products.archive.view") } do %>
+        <%= image_tag "archive.png", width: 24, height: 24 %>
       <% end %>
 
       <%= link_to new_care_product_path, class: "formula-add-button" do %>

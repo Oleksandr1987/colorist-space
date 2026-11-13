@@ -573,19 +573,33 @@ body.modal-open {
   color: #dc3545;
 }
 
-.analytics-page .formula-category-buttons {
+/* ===== ANALYTICS TABS ===== */
+.analytics-page .analytics-fixed-tabs {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.analytics-page .analytics-tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
-.analytics-page .formula-category-buttons .filter-button {
-  min-width: 0;
-  text-align: center;
-  text-decoration: none;
+.analytics-page .analytics-tabs .filter-button {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .analytics-tab-content {

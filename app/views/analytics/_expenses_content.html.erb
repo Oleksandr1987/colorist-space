@@ -33,43 +33,61 @@
                 </div>
               </div>
 
-              <ul class="expenses-list collapsible hidden" data-collapse-target="content">
-                <% expenses.each do |expense| %>
-                  <li class="expense-item">
-                    <div class="expense-record-content">
-                      <div class="expense-record-name">
-                        <strong>
-                          <%= expense.note.presence || expense.category_name %>
-                        </strong>
-                      </div>
+              <div class="expense-categories-list collapsible hidden" data-collapse-target="content">
 
-                      <div class="expense-record-details">
-                        <span class="expense-record-date">
-                          <%= l(expense.spent_on, format: :default) %>
-                        </span>
+                <% expenses.group_by(&:category).each do |category, category_expenses| %>
+                  <div class="expense-category-group">
 
-                        <span class="expense-record-amount red">
-                          <%= expense.amount.to_i %> ₴
-                        </span>
-                      </div>
+                    <div class="expense-category-header">
+                      <span class="expense-category-name">
+                        <%= t("analytics.expenses.categories.#{category}") %>
+                      </span>
+
+                      <span class="expense-category-amount">
+                        <%= category_expenses.sum(&:amount).to_i %> ₴
+                      </span>
                     </div>
 
-                    <div class="appointment-record-actions">
-                      <%= link_to edit_expense_path(expense), class: "appointment-action-button", title: t("analytics.expenses.edit") do %>
-                        <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16 %>
-                      <% end %>
+                    <ul class="expenses-list">
+                      <% category_expenses.each do |expense| %>
+                        <li class="expense-item">
+                          <div class="expense-record-content">
+                            <div class="expense-record-name">
+                              <strong>
+                                <%= expense.note.presence || expense.category_name %>
+                              </strong>
+                            </div>
 
-                      <%= button_to expense_path(expense),
-                            method: :delete,
-                            form: { data: { turbo_confirm: t("analytics.expenses.confirm_delete") } },
-                            class: "appointment-action-button appointment-delete-button",
-                            title: t("analytics.expenses.delete") do %>
-                        <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16 %>
+                            <div class="expense-record-details">
+                              <span class="expense-record-date">
+                                <%= l(expense.spent_on, format: :default) %>
+                              </span>
+
+                              <span class="expense-record-amount red">
+                                <%= expense.amount.to_i %> ₴
+                              </span>
+                            </div>
+                          </div>
+
+                          <div class="appointment-record-actions">
+                            <%= link_to edit_expense_path(expense), class: "appointment-action-button", title: t("analytics.expenses.edit") do %>
+                              <%= image_tag "pencil.png", class: "wiz-icon", width: 16, height: 16 %>
+                            <% end %>
+
+                            <%= button_to expense_path(expense),
+                                  method: :delete,
+                                  form: { data: { turbo_confirm: t("analytics.expenses.confirm_delete") } },
+                                  class: "appointment-action-button appointment-delete-button",
+                                  title: t("analytics.expenses.delete") do %>
+                              <%= image_tag "delete.png", class: "wiz-icon", width: 16, height: 16 %>
+                            <% end %>
+                          </div>
+                        </li>
                       <% end %>
-                    </div>
-                  </li>
+                    </ul>
+                  </div>
                 <% end %>
-              </ul>
+              </div>
             </div>
           <% end %>
         </div>

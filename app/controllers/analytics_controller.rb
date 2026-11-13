@@ -5,26 +5,25 @@ class AnalyticsController < ApplicationController
   helper_method :permitted_params, :period_filter_applied?
 
   def show
-    @analytics_tab = %w[balance income expenses].include?(permitted_params[:tab]) ? permitted_params[:tab] : "balance"
+    @analytics_tab = %w[income expenses balance].include?(permitted_params[:tab]) ? permitted_params[:tab] : "income"
 
     case @analytics_tab
-    when "balance" then load_balance
-    when "expenses" then load_expenses
     when "income" then load_income
+    when "expenses" then load_expenses
+    when "balance" then load_balance
     end
   end
 
-
-  def balance
-    redirect_to analytics_path(permitted_params.except(:tab).to_h.merge(tab: "balance"))
+  def income
+    redirect_to analytics_path(permitted_params.except(:tab).to_h.merge(tab: "income"))
   end
 
   def expenses
     redirect_to analytics_path(permitted_params.except(:tab).to_h.merge(tab: "expenses"))
   end
 
-  def income
-    redirect_to analytics_path(permitted_params.except(:tab).to_h.merge(tab: "income"))
+  def balance
+    redirect_to analytics_path(permitted_params.except(:tab).to_h.merge(tab: "balance"))
   end
 
   def income_filter_options

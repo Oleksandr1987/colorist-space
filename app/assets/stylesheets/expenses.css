@@ -409,6 +409,60 @@
   color: #2a6d2d;
 }
 
+
+/* ===== EXPENSE CATEGORIES ===== */
+.expense-categories-list {
+  width: 100%;
+}
+
+.expense-category-group {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.expense-category-group + .expense-category-group {
+  margin-top: 20px;
+}
+
+.expense-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 8px 10px;
+  margin-bottom: 4px;
+
+  background: #f1ebff;
+  border-radius: 8px;
+}
+
+.expense-category-name {
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5526b5;
+}
+
+.expense-category-amount {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e00000;
+  white-space: nowrap;
+}
+
+.expense-category-group .expenses-list {
+  margin: 0;
+  padding: 0 10px;
+  list-style: none;
+}
+
+.expense-category-group .expense-item:last-child {
+  border-bottom: none;
+}
+
+
 /* ===== RESPONSIVE — MOBILE ===== */
 @media (max-width: 600px) {
   .analytics-page .category-summary-link.aligned {
