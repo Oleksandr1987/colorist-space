@@ -152,4 +152,97 @@ RSpec.describe Formulas::SyncCharges do
       expect(service_note.formula_charges.first).to have_attributes(kind: "additive", unit: "g", total: 8)
     end
   end
+
+  describe "ingredient charge edge cases" do
+    it "skips ingredients with zero amount" do
+      step = create(:formula_step, service_note: service_note)
+
+      create(:formula_ingredient, formula_step: step, formula_product: color_product, amount: 0, price: 5)
+
+      expect { sync_charges.call }.not_to change(FormulaCharge, :count)
+    end
+
+    it "skips ingredients with negative amount" do
+      step = create(:formula_step, service_note: service_note)
+
+      create(:formula_ingredient, formula_step: step, formula_product: color_product, amount: -10, price: 5)
+
+      expect { sync_charges.call }.not_to change(FormulaCharge, :count)
+    end
+
+    it "uses the catalog brand when ingredient brand is blank" do
+      step = create(:formula_step, service_note: service_note)
+
+      create(:formula_ingredient, formula_step: step, formula_product: color_product, brand: nil, shade: "7/1", amount: 10, price: 5)
+
+      sync_charges.call
+
+      charge = service_note.formula_charges.find_by!(kind: "color")
+
+      expect(charge).to have_attributes(brand: "Wella", formula_product: color_product, total: 50)
+    end
+
+    it "uses ingredient brand when no catalog product exists" do
+      step = create(:formula_step, service_note: service_note)
+
+      create(:formula_ingredient, formula_step: step, formula_product: nil, brand: "Archived Brand", shade: "7/1", amount: 10, price: 5)
+
+      sync_charges.call
+
+      charge = service_note.formula_charges.find_by!(kind: "color")
+
+      expect(charge).to have_attributes(brand: "Archived Brand", formula_product: nil, unit: "g", total: 50)
+    end
+  end
+
+  describe "oxidant charge edge cases" do
+    it "skips oxidants with zero amount" do
+      create(:formula_step, service_note: service_note,
+        oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 0, "price" => 2 } ]
+      )
+
+      expect { sync_charges.call }.not_to change(FormulaCharge, :count)
+    end
+
+    it "skips oxidants with negative amount" do
+      create(:formula_step, service_note: service_note,
+        oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => -10, "price" => 2 } ]
+      )
+
+      expect { sync_charges.call }.not_to change(FormulaCharge, :count)
+    end
+
+    it "creates a charge with fallback name when oxidant product is missing" do
+      missing_product_id = FormulaProduct.maximum(:id).to_i + 1
+
+      create(:formula_step, service_note: service_note,
+        oxidant: [ { "formula_product_id" => missing_product_id, "amount" => 20, "price" => 2 } ]
+      )
+
+      sync_charges.call
+
+      charge = service_note.formula_charges.find_by!(kind: "oxidant")
+
+      expect(charge).to have_attributes(formula_product: nil, brand: nil, product_name: "Oxidant", amount: 20, unit_price: 2, total: 40)
+    end
+
+    it "does not use an oxidant product belonging to another user" do
+      other_user = create(:user)
+
+      foreign_product = create(:formula_product, :oxidant, user: other_user, brand: "Foreign Brand", name: "9%", unit: "ml")
+
+      create(:formula_step, service_note: service_note,
+        oxidant: [ { "formula_product_id" => foreign_product.id, "amount" => 10, "price" => 3 } ]
+      )
+
+      sync_charges.call
+
+      charge = service_note.formula_charges.find_by!(kind: "oxidant")
+
+      expect(charge.formula_product).to be_nil
+      expect(charge.brand).to be_nil
+      expect(charge.product_name).to eq("Oxidant")
+      expect(charge.total).to eq(30)
+    end
+  end
 end

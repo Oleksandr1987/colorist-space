@@ -307,7 +307,7 @@ export default class extends Controller {
   }
 
   async refreshFilterOptions() {
-    this.abortFilterOptionsRequest()
+    this.filterOptionsAbortController?.abort()
 
     const controller = new AbortController()
     this.filterOptionsAbortController = controller
@@ -327,13 +327,13 @@ export default class extends Controller {
     }
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(url.toString(), {
         headers: { Accept: "application/json" },
         signal: controller.signal
       })
 
       if (!response.ok) {
-        throw new Error(`Failed to load filter options: ${response.status}`)
+        throw new Error(`HTTP ${response.status}`)
       }
 
       const data = await response.json()
@@ -350,7 +350,7 @@ export default class extends Controller {
         .forEach(button => {
           const value = button.dataset.filterValue
 
-          button.classList.toggle("hidden",nvalue !== "" && !availableCategories.has(value))
+          button.classList.toggle("hidden", value !== "" && !availableCategories.has(value))
         })
 
       this.servicesTarget
@@ -361,16 +361,15 @@ export default class extends Controller {
           button.classList.toggle("period-unavailable", !availableServices.has(id))
         })
 
-      this.selected.categories = this.selected.categories.filter( category => availableCategories.has(category))
+      this.selected.categories = this.selected.categories.filter(category => availableCategories.has(category))
+
       this.selected.service_ids = this.selected.service_ids.filter(id => availableServices.has(id))
 
       this.updateChips()
     } catch (error) {
-      if (controller.signal.aborted || error.name === "AbortError") {
-        return
+      if (error.name !== "AbortError" && !controller.signal.aborted) {
+        console.error("Failed to refresh appointment filter options:", error)
       }
-
-      console.error("Failed to refresh appointment filter options:", error)
     } finally {
       if (this.filterOptionsAbortController === controller) {
         this.filterOptionsAbortController = null

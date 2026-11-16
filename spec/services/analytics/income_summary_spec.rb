@@ -46,7 +46,6 @@ RSpec.describe Analytics::IncomeSummary do
         create(:formula_ingredient, formula_step: step, formula_product: color_product, amount: 10, price: 5)
 
         sync_formula_charges(note)
-
         create_appointment(service: other_service, time: "11:00")
       end
 
@@ -69,7 +68,6 @@ RSpec.describe Analytics::IncomeSummary do
           oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ])
 
         sync_formula_charges(note)
-
         create_appointment(service: other_service, time: "11:00")
       end
 
@@ -77,6 +75,52 @@ RSpec.describe Analytics::IncomeSummary do
         expect(summary.service_income).to eq(100)
         expect(summary.formula_income).to eq(40)
         expect(summary.total_income).to eq(140)
+      end
+    end
+  end
+
+  describe "service income" do
+    let(:haircut) { create(:service, user: user, category: "haircut", subtype: "Haircut", price: 100) }
+    let(:coloring) { create(:service, user: user, category: "coloring", subtype: "Coloring", price: 200) }
+
+    before do
+      create_appointment(service: haircut, time: "10:00")
+      create_appointment(service: coloring, time: "11:00")
+    end
+
+    it "groups service income by category" do
+      expect(summary.grouped_service_income).to eq("haircut" => 100, "coloring" => 200)
+    end
+
+    it "calculates total service income" do
+      expect(summary.service_income).to eq(300)
+    end
+
+    it "filters services by category" do
+      filtered = described_class.new(user: user, from: 1.month.ago.to_date, to: Date.current, service_categories: [ "haircut" ])
+
+      expect(filtered.grouped_service_income).to eq("haircut" => 100)
+      expect(filtered.service_income).to eq(100)
+    end
+
+    it "returns expanded relations for an existing category" do
+      relations = summary.expanded_relations("haircut")
+
+      expect(relations.size).to eq(1)
+      expect(relations.first.service_category).to eq("haircut")
+    end
+
+    it "returns no expanded relations for an unknown category" do
+      expect(summary.expanded_relations("unknown")).to be_empty
+      expect(summary.expanded_relations(nil)).to be_empty
+    end
+
+    it "groups monthly income by appointment month" do
+      I18n.with_locale(:en) do
+        grouped = summary.monthly_income("haircut")
+
+        expect(grouped.keys).to eq([ Date.current.strftime("%B %Y") ])
+        expect(grouped.values.flatten.size).to eq(1)
       end
     end
   end
@@ -151,6 +195,8 @@ RSpec.describe Analytics::IncomeSummary do
   describe "historical filter options" do
     let(:service) { create(:service, user: user, service_type: "service", category: "coloring", subtype: "Balayage", price: 100) }
     let(:color_product) { create(:formula_product, user: user, category: "color", brand: "Londa", name: "7/1") }
+    let(:additive_product) { create(:formula_product, user: user, category: "additive", brand: "Wella", name: "Booster", unit: "ml") }
+    let(:oxidant_product) { create(:formula_product, :oxidant, user: user, brand: "Inebrya", name: "6%") }
     let(:care_product) { create(:care_product, user: user) }
 
     before do
@@ -163,16 +209,30 @@ RSpec.describe Analytics::IncomeSummary do
           ]
         )
 
-      step = create(:formula_step, service_note: note)
+      step =
+        create(:formula_step, service_note: note,
+          oxidant: [
+            { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 }
+          ]
+        )
 
       create(:formula_ingredient, formula_step: step, formula_product: color_product, brand: "Londa", shade: "7/1", amount: 10, price: 5)
+      create(:formula_ingredient, formula_step: step, formula_product: additive_product,
+        kind: "additive", brand: "Wella", shade: "Booster", amount: 4, price: 3)
+
       sync_formula_charges(note)
     end
 
     it "builds color options from historical ingredient snapshots" do
-      expect(summary.formula_color_options).to contain_exactly(
-        { id: color_product.id, brand: "Londa", label: "Londa 7/1" }
-      )
+      expect(summary.formula_color_options).to contain_exactly({ id: color_product.id, brand: "Londa", label: "Londa 7/1" })
+    end
+
+    it "builds additive options from historical charges" do
+      expect(summary.additive_options).to contain_exactly({ id: additive_product.id, brand: "Wella", label: "Wella Booster" })
+    end
+
+    it "builds oxidant options from historical charges" do
+      expect(summary.oxidant_options).to contain_exactly({ id: oxidant_product.id, brand: "Inebrya", label: "Inebrya 6%" })
     end
 
     it "builds care product options from sales" do
@@ -181,15 +241,14 @@ RSpec.describe Analytics::IncomeSummary do
       )
     end
 
-    it "builds color brands from historical color options" do
+    it "builds brands from historical formula options" do
       expect(summary.formula_color_brands).to eq([ "Londa" ])
+      expect(summary.additive_brands).to eq([ "Wella" ])
+      expect(summary.oxidant_brands).to eq([ "Inebrya" ])
     end
 
-    it "builds care product brands from historical care product options" do
+    it "builds care product brands and categories" do
       expect(summary.care_product_brands).to eq([ care_product.brand ])
-    end
-
-    it "builds care product categories from historical care product options" do
       expect(summary.care_product_categories).to eq([ care_product.category ])
     end
   end
@@ -198,15 +257,13 @@ RSpec.describe Analytics::IncomeSummary do
     let(:care_product) { create(:care_product, user: user, purchase_price: 30, sale_price: 50, stock_quantity: 10) }
 
     it "includes direct sales in care product income" do
-      create(:care_product_sale, user: user, care_product: care_product,
-              quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
+      create(:care_product_sale, user: user, care_product: care_product, quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
 
       expect(summary.care_products_income).to eq(100)
     end
 
     it "includes direct sales in care product income breakdown" do
-      create(:care_product_sale, user: user, care_product: care_product,
-              quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
+      create(:care_product_sale, user: user, care_product: care_product, quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
 
       expect(summary.care_product_income).to contain_exactly(
         { id: care_product.id, label: care_product.display_name, amount: 100 }
@@ -216,8 +273,7 @@ RSpec.describe Analytics::IncomeSummary do
     it "excludes direct sales when filtering by service" do
       service = create(:service, user: user, service_type: "service", category: "haircut", subtype: "Haircut", price: 100)
 
-      create(:care_product_sale, user: user, care_product: care_product,
-              quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
+      create(:care_product_sale, user: user, care_product: care_product, quantity: 2, unit_price: 50, unit_cost: 30, sold_on: Date.current)
 
       filtered_summary = described_class.new(user: user, from: 1.month.ago.to_date, to: Date.current, service_ids: [ service.id ])
 
@@ -245,30 +301,26 @@ RSpec.describe Analytics::IncomeSummary do
         create(:formula_step, service_note: note, oxidant: [ { "formula_product_id" => oxidant_product.id, "amount" => 20, "price" => 2 } ])
 
       create(:formula_ingredient, formula_step: step, formula_product: color_product, brand: "Londa", shade: "7/1", amount: 10, price: 5)
+
       sync_formula_charges(note)
     end
 
     it "builds historical color income" do
-      expect(summary.formula_color_income).to contain_exactly(
-        { id: color_product.id, label: "Londa 7/1", amount: 50 }
-      )
+      expect(summary.formula_color_income).to contain_exactly({ id: color_product.id, label: "Londa 7/1", amount: 50 })
     end
 
     it "builds historical oxidant income" do
-      expect(summary.oxidant_income).to contain_exactly(
-        { id: oxidant_product.id, label: "Inebrya 9%", amount: 40 }
-      )
+      expect(summary.oxidant_income).to contain_exactly({ id: oxidant_product.id, label: "Inebrya 9%", amount: 40 })
     end
 
     it "builds care product income from historical sale prices" do
-      expect(summary.care_product_income).to contain_exactly(
-        { id: care_product.id, label: care_product.display_name, amount: 600 }
-      )
+      expect(summary.care_product_income).to contain_exactly({ id: care_product.id, label: care_product.display_name, amount: 600 })
     end
 
     it "matches the formula breakdown with formula income" do
       breakdown_total =
         summary.formula_color_income.sum { |item| item[:amount] } +
+        summary.additive_income.sum { |item| item[:amount] } +
         summary.oxidant_income.sum { |item| item[:amount] }
 
       expect(breakdown_total).to eq(summary.formula_income)
@@ -281,8 +333,8 @@ RSpec.describe Analytics::IncomeSummary do
     end
   end
 
-  describe "#available_formula_color_brands" do
-    it "includes all user brands even when they were not used during the period" do
+  describe "available formula filter options" do
+    it "includes all color brands belonging to the user" do
       create(:formula_product, user: user, category: "color", brand: "Londa", name: "7/1")
       create(:formula_product, user: user, category: "color", brand: "Wella", name: "8/0")
 
@@ -292,29 +344,28 @@ RSpec.describe Analytics::IncomeSummary do
 
       expect(summary.available_formula_color_brands).to eq([ "Londa", "Wella" ])
     end
-  end
 
-  describe "#available_formula_colors" do
-    it "includes colors that were not used during the period" do
+    it "includes colors not used during the selected period" do
       product = create(:formula_product, user: user, category: "color", brand: "Londa", name: "7/1")
 
-      expect(summary.available_formula_colors).to include(
-        { id: product.id, brand: "Londa", label: "Londa 7/1" }
-      )
+      expect(summary.available_formula_colors).to include({ id: product.id, brand: "Londa", label: "Londa 7/1" })
     end
-  end
 
-  describe "#available_oxidant_brands" do
-    it "includes all user brands even when they were not used during the period" do
+    it "includes available additives" do
+      product = create(:formula_product, user: user, category: "additive", brand: "Wella", name: "Booster")
+
+      expect(summary.available_additives).to include({ id: product.id, brand: "Wella", label: "Wella Booster" })
+      expect(summary.available_additive_brands).to eq([ "Wella" ])
+    end
+
+    it "includes all oxidant brands belonging to the user" do
       create(:formula_product, user: user, category: "oxidant", brand: "Inebrya", name: "3%")
       create(:formula_product, user: user, category: "oxidant", brand: "Nouvelle", name: "6%")
 
       expect(summary.available_oxidant_brands).to eq([ "Inebrya", "Nouvelle" ])
     end
-  end
 
-  describe "#available_oxidants" do
-    it "includes oxidants that were not used during the period" do
+    it "includes oxidants not used during the selected period" do
       product = create(:formula_product, user: user, category: "oxidant", brand: "Inebrya", name: "9%")
 
       expect(summary.available_oxidants).to include({ id: product.id, brand: "Inebrya", label: "Inebrya 9%" })
@@ -322,59 +373,52 @@ RSpec.describe Analytics::IncomeSummary do
   end
 
   describe "available care product filter options" do
-    describe "#available_care_products" do
-      it "includes care products even when they were not sold during the period" do
-        product = create(:care_product, user: user, brand: "Londa", name: "Repair Mask", category: "Mask")
+    it "includes care products not sold during the period" do
+      product = create(:care_product, user: user, brand: "Londa", name: "Repair Mask", category: "Mask")
 
-        expect(summary.available_care_products).to include(
-          { id: product.id, brand: "Londa", category: "Mask", label: product.display_name }
-        )
-      end
+      expect(summary.available_care_products).to include({ id: product.id, brand: "Londa", category: "Mask", label: product.display_name })
     end
 
-    describe "#available_care_product_brands" do
-      it "includes brands even when they were not sold during the period" do
-        create(:care_product, user: user, brand: "Lakme", name: "Repair Mask", category: "Mask")
-        create(:care_product, user: user, brand: "Londa", name: "Deep Moisture", category: "Shampoo")
+    it "includes all care product brands" do
+      create(:care_product, user: user, brand: "Lakme", name: "Repair Mask", category: "Mask")
+      create(:care_product, user: user, brand: "Londa", name: "Deep Moisture", category: "Shampoo")
 
-        expect(summary.available_care_product_brands).to eq([ "Lakme", "Londa" ])
-      end
+      expect(summary.available_care_product_brands).to eq([ "Lakme", "Londa" ])
     end
 
-    describe "#available_care_product_categories" do
-      it "includes categories even when products were not sold during the period" do
-        create(:care_product, user: user, brand: "Lakme", name: "Repair Mask", category: "Mask")
-        create(:care_product, user: user, brand: "Londa", name: "Deep Moisture", category: "Shampoo")
+    it "includes all care product categories" do
+      create(:care_product, user: user, brand: "Lakme", name: "Repair Mask", category: "Mask")
+      create(:care_product, user: user, brand: "Londa", name: "Deep Moisture", category: "Shampoo")
 
-        expect(summary.available_care_product_categories).to eq([ "Mask", "Shampoo" ])
-      end
+      expect(summary.available_care_product_categories).to eq([ "Mask", "Shampoo" ])
     end
 
-    describe "user isolation" do
-      it "does not include care products belonging to another user" do
-        create(:care_product, user: user, brand: "Londa", name: "Repair Mask", category: "Mask")
+    it "does not include another user's care product brands" do
+      create(:care_product, user: user, brand: "Londa", name: "Repair Mask", category: "Mask")
 
-        other_user = create(:user)
+      other_user = create(:user)
 
-        create(:care_product, user: other_user, brand: "Matrix", name: "Total Results", category: "Shampoo")
+      create(:care_product, user: other_user, brand: "Matrix", name: "Total Results", category: "Shampoo")
 
-        expect(summary.available_care_product_brands).to eq([ "Londa" ])
-      end
+      expect(summary.available_care_product_brands).to eq([ "Londa" ])
     end
   end
 
   describe "additive income regression" do
     let(:service) { create(:service, user: user, service_type: "service", category: "coloring", subtype: "Balayage", price: 100) }
-    let(:additive_product) do create(:formula_product, user: user,
-      category: "additive", brand: "Wella", name: "Booster", unit: "ml", price_per_unit: 3)
+
+    let(:additive_product) do
+      create(:formula_product, user: user, category: "additive", brand: "Wella", name: "Booster", unit: "ml", price_per_unit: 3)
     end
 
     it "counts additives separately and supports filtering by additive product" do
       appointment = create_appointment(service: service, time: "10:00")
       note = create_note(appointment: appointment, service: service)
       step = create(:formula_step, service_note: note)
-      create(:formula_ingredient, formula_step: step, formula_product: additive_product,
-        kind: "additive", brand: "Wella", shade: "Booster", amount: 4, price: 3)
+
+      create(:formula_ingredient, formula_step: step, formula_product: additive_product, kind: "additive",
+        brand: "Wella", shade: "Booster", amount: 4, price: 3)
+
       sync_formula_charges(note)
 
       expect(summary.additive_income).to contain_exactly(id: additive_product.id, label: "Wella Booster", amount: 12)
@@ -383,6 +427,7 @@ RSpec.describe Analytics::IncomeSummary do
       expect(summary.total_income).to eq(112)
 
       filtered = described_class.new(user: user, from: 1.month.ago.to_date, to: Date.current, formula_product_ids: [ additive_product.id ])
+
       expect(filtered.formula_income).to eq(12)
       expect(filtered.service_income).to eq(100)
       expect(filtered.additive_income.sum { |row| row[:amount] }).to eq(12)
@@ -395,11 +440,55 @@ RSpec.describe Analytics::IncomeSummary do
       other_note = create(:service_note, user: other_user, client: other_client, appointment: other_appointment)
       step = create(:formula_step, service_note: other_note)
       product = create(:formula_product, user: other_user, category: "additive", name: "Private")
+
       create(:formula_ingredient, formula_step: step, formula_product: product, kind: "additive", shade: "Private", amount: 3, price: 5)
+
       sync_formula_charges(other_note)
 
       expect(summary.additive_income).to be_empty
       expect(summary.formula_income).to eq(0)
+    end
+  end
+
+  describe "filter normalization" do
+    let(:filters) do
+      {
+        service_categories: [ "coloring", "", "coloring", nil ],
+        service_ids: [ "1", "1", "invalid", nil ],
+        formula_product_ids: [ "2", "invalid", "2" ],
+        care_product_ids: [ "3", "", "3" ]
+      }
+    end
+
+    it "removes blank, invalid and duplicate filter values" do
+      expect(summary.service_categories).to eq([ "coloring" ])
+      expect(summary.service_ids).to eq([ 1 ])
+      expect(summary.formula_product_ids).to eq([ 2 ])
+      expect(summary.care_product_ids).to eq([ 3 ])
+    end
+  end
+
+  describe "empty results" do
+    it "returns zero income when there are no records" do
+      expect(summary.grouped_service_income).to eq({})
+      expect(summary.service_income).to eq(0)
+      expect(summary.formula_income).to eq(0)
+      expect(summary.care_products_income).to eq(0)
+      expect(summary.total_income).to eq(0)
+    end
+
+    it "returns empty income breakdowns" do
+      expect(summary.formula_color_income).to eq([])
+      expect(summary.additive_income).to eq([])
+      expect(summary.oxidant_income).to eq([])
+      expect(summary.care_product_income).to eq([])
+    end
+
+    it "returns empty historical filter options" do
+      expect(summary.formula_color_options).to eq([])
+      expect(summary.additive_options).to eq([])
+      expect(summary.oxidant_options).to eq([])
+      expect(summary.care_product_options).to eq([])
     end
   end
 end

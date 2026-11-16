@@ -58,8 +58,7 @@ module Analytics
         period_formula_charges.additives.where.not(formula_product_id: nil)
           .select(:formula_product_id, :brand, :product_name).distinct
           .map do |charge|
-            { id: charge.formula_product_id, brand: charge.brand,
-              label: [ charge.brand, charge.product_name ].compact_blank.join(" ") }
+            { id: charge.formula_product_id, brand: charge.brand, label: [ charge.brand, charge.product_name ].compact_blank.join(" ") }
           end
           .uniq { |option| option[:id] }
           .sort_by { |option| option[:label].downcase }
@@ -328,10 +327,6 @@ module Analytics
       service_categories.present? || service_ids.present?
     end
 
-    def appointment_filters?
-      service_filters? || formula_product_ids.present?
-    end
-
     def valid_category?(category)
       category.present? && grouped_service_income.key?(category)
     end
@@ -346,29 +341,6 @@ module Analytics
 
     def formula_product_label(product)
       [ product.brand, product.name ].compact_blank.join(" ")
-    end
-
-    def formula_color_label(ingredient)
-      [ ingredient.brand, ingredient.shade ].compact_blank.join(" ")
-    end
-
-    def oxidant_label(product, id)
-      return "Oxidant ##{id}" unless product
-
-      [ product.brand, product.name ].compact_blank.join(" ")
-    end
-
-    def oxidant_product_ids
-      @oxidant_product_ids ||=
-        period_service_notes
-          .flat_map(&:formula_steps)
-          .flat_map(&:oxidant_data)
-          .filter_map { |oxidant| Integer(oxidant["formula_product_id"], exception: false) }
-          .uniq
-    end
-
-    def oxidant_products
-      @oxidant_products ||= user.formula_products.where(id: oxidant_product_ids, category: "oxidant").index_by(&:id)
     end
 
     def formula_charges

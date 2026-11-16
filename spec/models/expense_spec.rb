@@ -152,5 +152,60 @@ RSpec.describe Expense do
         expect(grouped["December 2025"].size).to eq(1)
       end
     end
+
+    describe ".grouped_by_year_and_month" do
+      it "groups expenses by year and month" do
+        I18n.with_locale(:en) do
+          january_first = create(:expense, spent_on: Date.new(2026, 1, 5), amount: 100)
+          january_second = create(:expense, spent_on: Date.new(2026, 1, 10), amount: 200)
+          december = create(:expense, spent_on: Date.new(2025, 12, 15), amount: 300)
+
+          grouped = described_class.grouped_by_year_and_month(described_class.all)
+
+          expect(grouped.keys).to eq([ 2026, 2025 ])
+          expect(grouped[2026].keys).to eq([ "January 2026" ])
+          expect(grouped[2025].keys).to eq([ "December 2025" ])
+          expect(grouped[2026]["January 2026"]).to eq([ january_second, january_first ])
+          expect(grouped[2025]["December 2025"]).to eq([ december ])
+        end
+      end
+
+      it "orders months and expenses by date descending" do
+        I18n.with_locale(:en) do
+          january = create(:expense, spent_on: Date.new(2026, 1, 5))
+
+          december = create(:expense, spent_on: Date.new(2025, 12, 10))
+          november = create(:expense, spent_on: Date.new(2025, 11, 20))
+          grouped = described_class.grouped_by_year_and_month(described_class.all)
+
+          expect(grouped.keys).to eq([ 2026, 2025 ])
+          expect(grouped[2025].keys).to eq([ "December 2025", "November 2025" ])
+          expect(grouped[2026]["January 2026"]).to eq([ january ])
+          expect(grouped[2025]["December 2025"]).to eq([ december ])
+          expect(grouped[2025]["November 2025"]).to eq([ november ])
+        end
+      end
+
+      it "returns an empty hash when there are no expenses" do
+        grouped = described_class.grouped_by_year_and_month(
+          described_class.none
+        )
+
+        expect(grouped).to eq({})
+      end
+
+      it "groups only expenses from the provided scope" do
+        user = create(:user)
+        other_user = create(:user)
+        included_expense = create(:expense, user: user, spent_on: Date.new(2026, 1, 10))
+
+        create(:expense, user: other_user, spent_on: Date.new(2025, 12, 10))
+
+        grouped = described_class.grouped_by_year_and_month(user.expenses)
+
+        expect(grouped.keys).to eq([ 2026 ])
+        expect(grouped[2026].values.flatten).to eq([ included_expense ])
+      end
+    end
   end
 end
