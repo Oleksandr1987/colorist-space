@@ -138,25 +138,39 @@
   font-size: 14px;
 }
 
-.receipt-final {
+.receipt-final,
+.note-receipt .note-receipt-final {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  padding: 16px;
-  margin: 24px 0;
-  background: rgba(83, 37, 176, 0.1);
-  border: 1px solid rgba(83, 37, 176, 0.15);
-  border-radius: 12px;
-  font-size: 17px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0;
+  color: #17131b;
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1.45;
 }
 
-.receipt-final > :last-child {
+.receipt-final strong,
+.note-receipt .note-receipt-final strong {
+  font-size: inherit;
+  font-weight: 700;
+  color: inherit;
+}
+
+.receipt-final strong:last-child,
+.note-receipt .note-receipt-final strong:last-child {
+  margin-left: auto;
   text-align: right;
   white-space: nowrap;
-  color: #5225b0;
-  font-size: 19px;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ===== NOTES ===== */
@@ -171,7 +185,6 @@
   min-height: 140px;
   padding: 14px;
   border: 1px solid #ded5e4;
-  border-radius: 12px;
   background: rgba(255, 255, 255, 0.7);
   font-family: inherit;
   font-size: 16px;

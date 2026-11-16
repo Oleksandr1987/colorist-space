@@ -12,7 +12,6 @@
 
   <% selected_year = (params[:year].presence || Date.current.year).to_i %>
   <% selected_month = (params[:month].presence || Date.current.month).to_i %>
-  <% selected_month_date = Date.new(selected_year, selected_month, 1) %>
   <% custom_period_active = params[:from].present? || params[:to].present? || params[:all_time] == "1" %>
 
   <!-- DASHBOARD -->
@@ -40,7 +39,7 @@
             data-month="<%= selected_month %>"
             data-action="click->appointments-filter#filterMonth">
       <span class="dashboard-label">
-        <%= t("appointments.dashboard.month", count: @stats[:current_month], month: l(selected_month_date, format: "%B").downcase) %>
+        <%= t( "appointments.dashboard.month", count: @stats[:current_month], month: t("appointments.dashboard.months.#{selected_month}")) %>
       </span>
     </button>
   </div>

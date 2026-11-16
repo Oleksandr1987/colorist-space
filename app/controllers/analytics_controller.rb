@@ -2,7 +2,7 @@ class AnalyticsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_period
 
-  helper_method :permitted_params, :period_filter_applied?
+  helper_method :permitted_params, :period_filter_applied?, :all_time_period
 
   def show
     @analytics_tab = analytics_tab

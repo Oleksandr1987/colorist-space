@@ -31,7 +31,9 @@ export default class extends Controller {
   static values = {
     optionsUrl: String,
     defaultFrom: String,
-    defaultTo: String
+    defaultTo: String,
+    allTimeFrom: String,
+    allTimeTo: String
   }
 
   connect() {
@@ -545,8 +547,35 @@ export default class extends Controller {
     this.updateToMinDate(null)
     this.updatePeriodChips(event.currentTarget)
 
-    this.refreshIncomeOptions()
     this.periodSelectedByUser = true
+
+    if (this.hasAllTimeFromValue && this.hasAllTimeToValue) {
+      const from = this.formatDate(this.allTimeFromValue)
+      const to = this.formatDate(this.allTimeToValue)
+
+      this.updatingPeriodProgrammatically = true
+
+      try {
+        this.fromTarget.value = from
+        this.toTarget.value = to
+        this.setPeriodDate(this.fromDisplayTarget, from)
+        this.setPeriodDate(this.toDisplayTarget, to)
+      } finally {
+        this.updatingPeriodProgrammatically = false
+      }
+    }
+
+    this.refreshIncomeOptions()
+  }
+
+  setPeriodDate(element, value) {
+    const controller = this.application.getControllerForElementAndIdentifier(element, "datepicker")
+
+    if (controller) {
+      controller.setDate(value)
+    } else {
+      element.value = value
+    }
   }
 
   selectPeriod(event) {
@@ -570,6 +599,7 @@ export default class extends Controller {
   }
 
   fromChanged() {
+    if (this.updatingPeriodProgrammatically) return
     this.allTimeTarget.value = "0"
 
     const from = this.fromDisplayTarget.value
@@ -593,6 +623,7 @@ export default class extends Controller {
   }
 
   toChanged() {
+    if (this.updatingPeriodProgrammatically) return
     this.allTimeTarget.value = "0"
 
     const to = this.toDisplayTarget.value
@@ -825,22 +856,17 @@ export default class extends Controller {
   // ===== SERVICE OPTIONS =====
   renderServiceOptions(services) {
     const categoriesContainer = this.element.querySelector("[data-income-service-categories]")
-
     if (!categoriesContainer || !this.hasIncomeServicesTarget) return
 
     const categories = [...new Set(services.map(service => service.category).filter(Boolean))]
-
-    const categoryLabels = new Map(
-      [...categoriesContainer.querySelectorAll('input[name="income_categories[]"]')]
-      .map(input => [input.value, input.closest("label")?.querySelector("span")?.textContent?.trim()])
-    )
+    const categoryLabels = JSON.parse(categoriesContainer.dataset.categoryLabels || "{}")
 
     this.replaceFilterChips(
       categoriesContainer,
       categories.map(category => this.createFilterChip({
         name: "income_categories[]",
         value: category,
-        label: categoryLabels.get(category) || category,
+        label: categoryLabels[category] || category,
         action: "change->analytics-filter#toggleIncomeCategory",
         attributes: { "data-income-category-option": category }
       }))

@@ -295,19 +295,28 @@
   height: 42px;
 }
 
-/* --- Photo section --- */
-.note-photo {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-}
+/* ===== SERVICE NOTE SHOW — PHOTO VIEWER ===== */
 
 .note-photo-wrapper {
   position: relative;
   width: 100%;
-  display: block;
+  height: clamp(300px, 55dvh, 650px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #e9e5e9;
   touch-action: pan-y;
+}
+
+.note-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .photo-main-btn {
@@ -477,7 +486,6 @@
   box-sizing: border-box;
   padding: 12px;
   background: #fff;
-  border-radius: 14px;
   text-align: left;
   white-space: normal;
 }
@@ -891,7 +899,6 @@
 }
 
 /* ===== SERVICE NOTE RECEIPT VIEW ===== */
-
 .note-receipt {
   padding: 24px 22px 40px;
 }
@@ -903,7 +910,6 @@
 }
 
 /* SECTION HEADINGS */
-
 .note-receipt .receipt-heading {
   display: flex;
   align-items: center;
@@ -941,9 +947,8 @@
 }
 
 /* COLLAPSIBLE CONTENT */
-
 .note-receipt .note-section-content {
-  padding: 12px 0 0;
+  padding: 2px 0 0;
 }
 
 .note-receipt .note-section-content.hidden,
@@ -952,7 +957,6 @@
 }
 
 /* STEP HEADINGS */
-
 .note-receipt .receipt-step {
   margin: 0;
   padding: 0;
@@ -985,7 +989,6 @@
 }
 
 /* ZONE TITLE */
-
 .note-receipt .receipt-preview-zone {
   margin: 0 0 16px;
   padding: 0 0 10px;
@@ -996,7 +999,6 @@
 }
 
 /* FORMULA GROUPS */
-
 .note-receipt .receipt-group {
   margin: 0 0 20px;
 }
@@ -1021,7 +1023,6 @@
 }
 
 /* RECEIPT TABLES */
-
 .note-receipt .receipt-table {
   width: 100%;
   min-width: 0;
@@ -1090,26 +1091,9 @@
   font-weight: 700;
 }
 
-/* FINAL TOTAL */
-
-.note-receipt .note-receipt-final {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 12px;
-  padding: 16px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.18);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.18);
-  font-size: 15px;
-  font-weight: 700;
-}
-
 /* NOTES */
-
 .note-receipt .receipt-notes-text {
-  padding: 8px 0;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
@@ -1122,8 +1106,23 @@
   margin-bottom: 0;
 }
 
+/* TABLET */
+@media (max-width: 768px) {
+  .note-photo-wrapper {
+    height: 48dvh;
+    min-height: 280px;
+    max-height: 500px;
+  }
+}
+
 /* MOBILE */
 @media (max-width: 480px) {
+  .note-photo-wrapper {
+    height: 42dvh;
+    min-height: 260px;
+    max-height: 420px;
+  }
+
   .note-receipt {
     padding: 20px 16px 32px;
   }

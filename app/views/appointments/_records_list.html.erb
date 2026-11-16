@@ -6,7 +6,7 @@
         <button type="button" class="appointments-month-header" data-action="click->collapse#toggle">
 
           <span class="appointments-month-title">
-            <%= l(month, format: "%B %Y") %>
+            <%= t("appointments.month_names.#{month.month}") %> <%= month.year %>
           </span>
 
           <span class="appointments-month-meta">

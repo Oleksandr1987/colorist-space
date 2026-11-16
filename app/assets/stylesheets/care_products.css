@@ -54,48 +54,53 @@
   color: #666;
 }
 
-/* QTY CONTROL */
+/* ===== CARE PRODUCT QUANTITY BUTTONS ===== */
+
 .qty-control {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.qty-control button {
-  width: 32px;
-  height: 32px;
+.qty-control button,
+.remove-care-product {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  padding: 4px;
   border: none;
-  border-radius: 50%;
-  background: #e8dcff;
-  font-size: 18px;
-  font-weight: 700;
+  border-radius: 0;
+  background: transparent;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
-.qty-control button:hover {
-  opacity: 0.9;
+.care-product-control-icon,
+.care-product-remove-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.qty-control button:hover:not(:disabled),
+.remove-care-product:hover {
+  opacity: 0.7;
 }
 
 .qty-control button:disabled {
-  opacity: 0.4;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
 .qty-value {
   min-width: 24px;
   text-align: center;
+  font-size: 14px;
   font-weight: 600;
-}
-
-/* REMOVE */
-.remove-care-product {
-  border: none;
-  background: transparent;
-  font-size: 22px;
-  line-height: 1;
-  color: #999;
-  cursor: pointer;
 }
 
 /* TOTAL */

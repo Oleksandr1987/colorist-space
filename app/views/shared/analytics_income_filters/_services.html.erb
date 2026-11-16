@@ -6,8 +6,15 @@
       <span><%= t("services.title") %></span>
     </div>
 
-    <div class="filter-chips" data-income-service-categories>
-      <button type="button" class="filter-chip" data-action="click->analytics-filter#selectAllIncomeCategories">
+    <div class="filter-chips"
+         data-income-service-categories
+         data-category-labels="<%= Service::CATEGORIES.index_with { |category|
+           t("services.categories.#{category}", default: category.humanize)
+         }.to_json %>">
+
+      <button type="button"
+              class="filter-chip"
+              data-action="click->analytics-filter#selectAllIncomeCategories">
         <%= t("analytics.income.all") %>
       </button>
 
