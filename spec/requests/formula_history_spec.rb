@@ -264,6 +264,31 @@ RSpec.describe "FormulaHistory" do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "preloads formula ingredients for all steps" do
+      note = create_formula_note(client: client, user: user, sections: [ "roots", "length", "strands" ])
+
+      note.formula_steps.each do |step|
+        product = create(:formula_product, user: user, category: "color", brand: "Wella", unit: "g")
+
+        create(:formula_ingredient, formula_step: step, formula_product: product)
+      end
+
+      queries = []
+
+      subscriber = lambda do |_name, _started, _finished, _unique_id, payload|
+        sql = payload[:sql]
+        queries << sql if sql.match?(/\bFROM\s+["`]?formula_ingredients["`]?\b/i)
+      end
+
+      ActiveSupport::Notifications.subscribed(subscriber, "sql.active_record") do
+        get client_formula_history_entry_path(client, note), params: { target_service_note_id: target_note.id }
+      end
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body["steps"].size).to eq(3)
+      expect(queries.size).to eq(1)
+    end
   end
 
   describe "authentication" do

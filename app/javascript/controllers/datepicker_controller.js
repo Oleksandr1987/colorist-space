@@ -71,6 +71,21 @@ export default class extends Controller {
     this.picker?.destroy()
   }
 
+  setDate(value) {
+    const input = this.element
+
+    if (!value) {
+      this.picker?.clearSelection()
+      input.value = ""
+      return
+    }
+
+    const isoDate = /^\d{2}\.\d{2}\.\d{4}$/.test(value) ? value.split(".").reverse().join("-") : value
+
+    this.picker?.setDate(isoDate)
+    input.value = isoDate.split("-").reverse().join(".")
+  }
+
   setMinDate(value) {
     this.picker?.setOptions({ minDate: value || null })
   }

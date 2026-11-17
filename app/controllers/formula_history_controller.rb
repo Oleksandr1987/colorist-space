@@ -59,7 +59,7 @@ class FormulaHistoryController < ApplicationController
     render json: {
       id: note.id,
       date: note.appointment&.appointment_date,
-      steps: note.formula_steps.order(:id).map do |step|
+      steps: note.formula_steps.sort_by(&:id).map do |step|
         {
           section: step.section,
           time: step.time,

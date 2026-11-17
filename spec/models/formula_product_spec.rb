@@ -10,7 +10,7 @@ RSpec.describe FormulaProduct do
   it { is_expected.to validate_presence_of(:price_per_unit) }
 
   it do
-    expect(formula_product).to validate_inclusion_of(:category).in_array(%w[color oxidant])
+    expect(formula_product).to validate_inclusion_of(:category).in_array(%w[color oxidant additive])
   end
 
   it do
@@ -268,6 +268,21 @@ RSpec.describe FormulaProduct do
 
       expect(product).to be_valid
     end
+
+    it "does not add an additional format error when the name is blank" do
+      product = build(:formula_product, :oxidant, name: "")
+
+      product.valid?
+
+      expect(product.errors.details[:name]).to include(hash_including(error: :blank))
+      expect(product.errors.details[:name]).not_to include(hash_including(error: :invalid))
+    end
+
+    it "does not validate concentration format for additives" do
+      product = build(:formula_product, category: "additive", name: "Booster")
+
+      expect(product).to be_valid
+    end
   end
 
   describe "additive regression" do
@@ -284,6 +299,57 @@ RSpec.describe FormulaProduct do
       expect(described_class.additives).to include(additive)
       expect(described_class.colors).not_to include(additive)
       expect(described_class.oxidants).not_to include(additive)
+    end
+  end
+
+  describe "#oxidant?" do
+    it "returns true for oxidant products" do
+      product = build(:formula_product, :oxidant)
+
+      expect(product.oxidant?).to be true
+    end
+
+    it "returns false for color products" do
+      product = build(:formula_product, category: "color")
+
+      expect(product.oxidant?).to be false
+    end
+
+    it "returns false for additive products" do
+      product = build(:formula_product, category: "additive", name: "Booster")
+
+      expect(product.oxidant?).to be false
+    end
+  end
+
+  describe "#additive?" do
+    it "returns true for additive products" do
+      product = build(:formula_product, category: "additive", name: "Booster")
+
+      expect(product.additive?).to be true
+    end
+
+    it "returns false for color products" do
+      product = build(:formula_product, category: "color")
+
+      expect(product.additive?).to be false
+    end
+
+    it "returns false for oxidant products" do
+      product = build(:formula_product, :oxidant)
+
+      expect(product.additive?).to be false
+    end
+  end
+
+  describe ".additives" do
+    it "returns only additive products" do
+      additive = create(:formula_product, category: "additive", name: "Booster")
+      color = create(:formula_product, category: "color")
+      oxidant = create(:formula_product, :oxidant)
+
+      expect(described_class.additives).to include(additive)
+      expect(described_class.additives).not_to include(color, oxidant)
     end
   end
 end

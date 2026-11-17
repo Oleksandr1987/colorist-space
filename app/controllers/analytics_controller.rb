@@ -2,10 +2,10 @@ class AnalyticsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_period
 
-  helper_method :permitted_params, :period_filter_applied?
+  helper_method :permitted_params, :period_filter_applied?, :all_time_period
 
   def show
-    @analytics_tab = %w[income expenses balance].include?(permitted_params[:tab]) ? permitted_params[:tab] : "income"
+    @analytics_tab = analytics_tab
 
     case @analytics_tab
     when "income" then load_income
@@ -99,7 +99,7 @@ class AnalyticsController < ApplicationController
   def all_time_period
     active_action =
       if action_name == "show"
-        permitted_params[:tab].presence_in(%w[balance income expenses]) || "balance"
+        analytics_tab
       elsif action_name == "income_filter_options"
         "income"
       else
@@ -155,6 +155,10 @@ class AnalyticsController < ApplicationController
 
   def period_filter_applied?
     permitted_params[:all_time] == "1" || permitted_params.values_at(:from, :to).any?(&:present?)
+  end
+
+  def analytics_tab
+    permitted_params[:tab].presence_in(%w[income expenses balance]) || "income"
   end
 
   def permitted_params

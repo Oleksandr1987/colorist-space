@@ -4,6 +4,12 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["list", "input", "total"]
 
+  static values = {
+    minusIcon: String,
+    plusIcon: String,
+    closeIcon: String
+  }
+
   connect() {
     this.products = this.load()
     this.initialProducts = this.cloneProducts(this.products)
@@ -86,21 +92,35 @@ export default class extends Controller {
             </div>
 
             <div class="qty-control">
-              <button type="button" data-index="${index}" data-action="click->care-products#decreaseQty">
-                −
+              <button
+                type="button"
+                data-index="${index}"
+                data-action="click->care-products#decreaseQty"
+                aria-label="Decrease quantity">
+                <img src="${this.minusIconValue}" class="care-product-control-icon" alt="">
               </button>
 
               <span class="qty-value">
                 ${item.qty}
               </span>
 
-              <button type="button" data-index="${index}" data-action="click->care-products#increaseQty" ${maxReached ? "disabled" : ""}>
-                +
+              <button
+                type="button"
+                data-index="${index}"
+                data-action="click->care-products#increaseQty"
+                aria-label="Increase quantity"
+                ${maxReached ? "disabled" : ""}>
+                <img src="${this.plusIconValue}" class="care-product-control-icon" alt="">
               </button>
             </div>
 
-            <button type="button" class="remove-care-product" data-index="${index}" data-action="click->care-products#remove">
-              ×
+            <button
+              type="button"
+              class="remove-care-product"
+              data-index="${index}"
+              data-action="click->care-products#remove"
+              aria-label="Remove product">
+              <img src="${this.closeIconValue}" class="care-product-remove-icon" alt="">
             </button>
           </div>
         `

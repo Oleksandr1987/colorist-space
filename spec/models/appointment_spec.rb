@@ -290,6 +290,42 @@ RSpec.describe Appointment do
       end
     end
 
+    describe ".for_period" do
+      let!(:first_appointment) { create_appointment(appointment_date: Date.new(2026, 3, 10)) }
+      let!(:second_appointment) { create_appointment(appointment_date: Date.new(2026, 4, 15)) }
+      let!(:third_appointment) { create_appointment(appointment_date: Date.new(2026, 5, 20)) }
+
+      it "returns all appointments when dates are blank" do
+        result = described_class.for_period(nil, nil)
+
+        expect(result).to contain_exactly(first_appointment, second_appointment, third_appointment)
+      end
+
+      it "filters appointments within the given period" do
+        result = described_class.for_period(Date.new(2026, 3, 10), Date.new(2026, 4, 15))
+
+        expect(result).to contain_exactly(first_appointment, second_appointment)
+      end
+
+      it "filters appointments from the given date" do
+        result = described_class.for_period(Date.new(2026, 4, 15), nil)
+
+        expect(result).to contain_exactly(second_appointment, third_appointment)
+      end
+
+      it "filters appointments until the given date" do
+        result = described_class.for_period(nil, Date.new(2026, 4, 15))
+
+        expect(result).to contain_exactly(first_appointment, second_appointment)
+      end
+
+      it "returns no appointments when the period has no matches" do
+        result = described_class.for_period(Date.new(2026, 6, 1), Date.new(2026, 6, 30))
+
+        expect(result).to be_empty
+      end
+    end
+
     describe ".for_month" do
       it "returns all when month is blank" do
         appointment
@@ -373,6 +409,18 @@ RSpec.describe Appointment do
         stats = described_class.statistics(described_class.all, year: 2026, month: 3)
 
         expect(stats).to eq(total: 3, current_year: 2, current_month: 1)
+      end
+    end
+
+    it "counts appointments only once when multiple services match" do
+      travel_to Time.zone.local(2026, 3, 4) do
+        create_appointment(extra_services: [ extra_service ])
+
+        scope = user.appointments.for_services([ main_service.id, extra_service.id ]).distinct
+
+        stats = described_class.statistics(scope, year: 2026, month: 3)
+
+        expect(stats).to eq(total: 1, current_year: 1, current_month: 1)
       end
     end
   end
@@ -482,6 +530,189 @@ RSpec.describe Appointment do
 
         expect(described_class.available_time_ranges(user, Date.current)).to eq([])
       end
+    end
+  end
+
+  describe ".filtered" do
+    let(:coloring_service) { create(:service, user: user, category: "coloring", subtype: "Balayage", price: 100) }
+    let(:haircut_service) { create(:service, user: user, category: "haircut", subtype: "Fade", price: 200) }
+    let!(:march_appointment) { create_appointment(appointment_date: Date.new(2026, 3, 10), main_service: coloring_service, notes: "Note") }
+    let!(:april_appointment) { create_appointment(appointment_date: Date.new(2026, 4, 15), main_service: haircut_service) }
+    let!(:next_year_appointment) { create_appointment(appointment_date: Date.new(2027, 3, 10), main_service: coloring_service) }
+
+    it "returns appointments ordered by date descending" do
+      result = described_class.filtered(user.appointments)
+
+      expect(result.to_a).to eq([ next_year_appointment, april_appointment, march_appointment ])
+    end
+
+    it "filters appointments by search query" do
+      result = described_class.filtered(user.appointments, query: "Note")
+
+      expect(result).to contain_exactly(march_appointment)
+    end
+
+    it "filters appointments by categories" do
+      result = described_class.filtered(user.appointments, categories: [ "coloring" ])
+
+      expect(result).to contain_exactly(march_appointment, next_year_appointment)
+    end
+
+    it "filters appointments by service ids" do
+      result = described_class.filtered(user.appointments, service_ids: [ haircut_service.id ])
+
+      expect(result).to contain_exactly(april_appointment)
+    end
+
+    it "filters appointments by year" do
+      result = described_class.filtered(user.appointments, year: 2026)
+
+      expect(result).to contain_exactly(march_appointment, april_appointment)
+    end
+
+    it "filters appointments by year and month" do
+      result = described_class.filtered(user.appointments, year: 2026, month: 3)
+
+      expect(result).to contain_exactly(march_appointment)
+    end
+
+    it "filters appointments by custom period" do
+      result = described_class.filtered(user.appointments, from_date: Date.new(2026, 4, 1), to_date: Date.new(2026, 4, 30))
+
+      expect(result).to contain_exactly(april_appointment)
+    end
+
+    it "ignores custom period when all_time is enabled" do
+      result = described_class.filtered(user.appointments,
+        from_date: Date.new(2026, 4, 1), to_date: Date.new(2026, 4, 30), all_time: true
+      )
+
+      expect(result).to contain_exactly(march_appointment, april_appointment, next_year_appointment)
+    end
+
+    it "prioritizes year and month over custom period" do
+      result = described_class.filtered(user.appointments,
+        year: 2026, month: 3, from_date: Date.new(2026, 4, 1), to_date: Date.new(2026, 4, 30)
+      )
+
+      expect(result).to contain_exactly(march_appointment)
+    end
+
+    it "combines category and period filters" do
+      result = described_class.filtered(user.appointments, categories: [ "coloring" ], year: 2026)
+
+      expect(result).to contain_exactly(march_appointment)
+    end
+
+    it "returns distinct appointments when multiple services match" do
+      march_appointment.sync_services_with_prices!([ coloring_service.id, haircut_service.id ])
+
+      result = described_class.filtered(user.appointments, categories: %w[coloring haircut], year: 2026)
+
+      expect(result.to_a).to contain_exactly(march_appointment, april_appointment)
+    end
+
+    it "does not return appointments belonging to another user" do
+      other_user = create(:user)
+      other_client = create(:client, user: other_user)
+      other_service = create(:service, user: other_user)
+
+      create(:appointment, user: other_user, client: other_client, main_service: other_service)
+
+      result = described_class.filtered(user.appointments)
+
+      expect(result).to contain_exactly(march_appointment, april_appointment, next_year_appointment)
+    end
+  end
+
+  describe ".date_bounds" do
+    it "returns first and last appointment dates as Date objects" do
+      create_appointment(appointment_date: Date.new(2026, 3, 10))
+      create_appointment(appointment_date: Date.new(2026, 5, 20))
+
+      result = described_class.date_bounds(user.appointments)
+
+      expect(result).to eq([ Date.new(2026, 3, 10), Date.new(2026, 5, 20) ])
+      expect(result).to all(be_a(Date))
+    end
+
+    it "returns nil dates when no appointments exist" do
+      result = described_class.date_bounds(user.appointments)
+
+      expect(result).to eq([ nil, nil ])
+    end
+
+    it "returns the same date when only one appointment exists" do
+      create_appointment(appointment_date: Date.new(2026, 3, 10))
+
+      result = described_class.date_bounds(user.appointments)
+
+      expect(result).to eq([ Date.new(2026, 3, 10), Date.new(2026, 3, 10) ])
+    end
+
+    it "respects the provided scope" do
+      create_appointment(appointment_date: Date.new(2025, 3, 10))
+      create_appointment(appointment_date: Date.new(2026, 4, 15))
+      create_appointment(appointment_date: Date.new(2026, 6, 20))
+
+      result = described_class.date_bounds(user.appointments.for_year(2026))
+
+      expect(result).to eq([ Date.new(2026, 4, 15), Date.new(2026, 6, 20) ])
+    end
+  end
+
+  describe ".available_filter_services" do
+    let(:coloring_service) { create(:service, user: user, category: "coloring", subtype: "Balayage") }
+    let(:haircut_service) { create(:service, user: user, category: "haircut", subtype: "Fade") }
+    let(:unused_service) { create(:service, user: user, category: "styling", subtype: "Styling") }
+
+    it "returns only services used in appointments" do
+      create_appointment(main_service: coloring_service)
+      unused_service
+
+      result = described_class.available_filter_services(user.appointments, user: user)
+
+      expect(result).to contain_exactly(coloring_service)
+    end
+
+    it "returns services used within the selected period" do
+      create_appointment(appointment_date: Date.new(2026, 3, 10), main_service: coloring_service)
+      create_appointment(appointment_date: Date.new(2026, 4, 15), main_service: haircut_service)
+
+      scope = user.appointments.for_month(2026, 3)
+      result = described_class.available_filter_services(scope, user: user)
+
+      expect(result).to contain_exactly(coloring_service)
+    end
+
+    it "returns unique services used in multiple appointments" do
+      create_appointment(appointment_date: Date.new(2026, 3, 10), main_service: coloring_service)
+      create_appointment(appointment_date: Date.new(2026, 3, 11), main_service: coloring_service)
+
+      result = described_class.available_filter_services(user.appointments, user: user)
+
+      expect(result).to contain_exactly(coloring_service)
+    end
+
+    it "returns an empty relation when no appointments exist" do
+      coloring_service
+
+      result = described_class.available_filter_services(user.appointments, user: user)
+
+      expect(result).to be_empty
+    end
+
+    it "does not return services belonging to another user" do
+      other_user = create(:user)
+      other_client = create(:client, user: other_user)
+      other_service = create(:service, user: other_user)
+
+      create(:appointment, user: other_user, client: other_client, main_service: other_service)
+      create_appointment(main_service: coloring_service)
+
+      result = described_class.available_filter_services(described_class.all, user: user)
+
+      expect(result).to contain_exactly(coloring_service)
     end
   end
 

@@ -45,6 +45,7 @@ Rails.application.routes.draw do
       get :by_date
       get :free_slots
       get :check_working_hours
+      get :filter_options
     end
   end
 

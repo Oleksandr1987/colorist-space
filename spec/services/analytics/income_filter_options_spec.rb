@@ -108,5 +108,11 @@ RSpec.describe Analytics::IncomeFilterOptions do
         care_products: []
       )
     end
+
+    it "returns an empty array for an unsupported formula kind" do
+      result = described_class.new(user: user, from: from, to: to).send(:formula_options, "unknown")
+
+      expect(result).to eq([])
+    end
   end
 end

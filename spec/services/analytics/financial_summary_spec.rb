@@ -233,4 +233,29 @@ RSpec.describe Analytics::FinancialSummary do
       expect(summary_after.care_products_income).to eq(care_products_income_before)
     end
   end
+
+  describe "expenses without a selected period" do
+    subject(:summary) { described_class.new(user: user, from: nil, to: nil) }
+
+    it "includes manual expenses without date restrictions" do
+      create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
+      create(:expense, user: user, category: "materials", amount: 200, spent_on: 2.years.ago.to_date)
+
+      expect(summary.manual_expenses).to eq(300)
+    end
+
+    it "excludes another user's expenses" do
+      create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
+      create(:expense, user: other_user, category: "rent", amount: 500, spent_on: Date.current)
+
+      expect(summary.manual_expenses).to eq(100)
+    end
+
+    it "excludes care product purchase expenses without a period" do
+      create(:expense, user: user, category: "rent", amount: 100, spent_on: Date.current)
+      create(:expense, user: user, category: "care_products", amount: 500, spent_on: Date.current)
+
+      expect(summary.manual_expenses).to eq(100)
+    end
+  end
 end

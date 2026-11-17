@@ -91,6 +91,15 @@ class Appointment < ApplicationRecord
     where(appointment_date: first_day..first_day.end_of_month)
   }
 
+  scope :for_period, ->(from_date, to_date) {
+    scope = all
+
+    scope = scope.where(arel_table[:appointment_date].gteq(from_date)) if from_date.present?
+    scope = scope.where(arel_table[:appointment_date].lteq(to_date)) if to_date.present?
+
+    scope
+  }
+
   scope :for_categories, ->(categories) {
     categories = Array(categories).reject(&:blank?)
 
@@ -108,6 +117,37 @@ class Appointment < ApplicationRecord
   }
 
   class << self
+    def filtered(scope, query: nil, categories: nil, service_ids: nil,
+             year: nil, month: nil, from_date: nil, to_date: nil, all_time: false)
+      result = scope .search(query) .for_categories(categories) .for_services(service_ids) .distinct
+
+      if year.present?
+        result = month.present? ? result.for_month(year, month) : result.for_year(year)
+      elsif !all_time
+        result = result.for_period(from_date, to_date)
+      end
+
+      result.ordered
+    end
+
+    def date_bounds(scope)
+      first_date, last_date = scope.pick(
+        Arel.sql("MIN(appointments.appointment_date)"),
+        Arel.sql("MAX(appointments.appointment_date)")
+      )
+
+      [ first_date&.to_date, last_date&.to_date ]
+    end
+
+    def available_filter_services(scope, user:)
+      service_ids = AppointmentServicesRelation
+        .where(appointment_id: scope.reselect(:id).reorder(nil))
+        .distinct
+        .select(:service_id)
+
+      user.services.where(id: service_ids).order(:category, :subtype)
+    end
+
     def grouped_by_month(relation)
       relation
         .group_by { |appointment| appointment.appointment_date.beginning_of_month }
@@ -127,14 +167,10 @@ class Appointment < ApplicationRecord
     end
 
     def statistics(scope, year:, month:)
-      first_day_of_year = Date.new(year, 1, 1)
-      last_day_of_year = Date.new(year, 12, 31)
-      first_day_of_month = Date.new(year, month, 1)
-
       {
-        total: scope.count,
-        current_year: scope.where(appointment_date: first_day_of_year..last_day_of_year).count,
-        current_month: scope.where(appointment_date: first_day_of_month..first_day_of_month.end_of_month).count
+        total: scope.distinct.count(:id),
+        current_year: scope.for_year(year).distinct.count(:id),
+        current_month: scope.for_month(year, month).distinct.count(:id)
       }
     end
 
