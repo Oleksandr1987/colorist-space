@@ -175,6 +175,30 @@ RSpec.describe "Appointments" do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it "shows statistics for the selected non-current year" do
+      create(:appointment, user: user, client: client, appointment_date: Date.new(2025, 6, 10), main_service: service)
+      create(:appointment, user: user, client: client, appointment_date: Date.new(2025, 8, 15), main_service: service)
+      create(:appointment, user: user, client: client, appointment_date: Date.new(2026, 1, 15), main_service: service)
+
+      get all_appointments_path, params: { year: 2025 }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(I18n.t("appointments.dashboard.year", count: 2, year: 2025))
+      expect(response.body).not_to include(I18n.t("appointments.dashboard.year", count: 1, year: 2025))
+    end
+
+    it "shows statistics for the selected non-current year and month" do
+      create(:appointment, user: user, client: client, appointment_date: Date.new(2025, 3, 10), main_service: service)
+      create(:appointment, user: user, client: client, appointment_date: Date.new(2025, 3, 15), main_service: service)
+      create(:appointment, user: user, client: client, appointment_date: Date.new(2025, 6, 10), main_service: service)
+
+      get all_appointments_path, params: { year: 2025, month: 3 }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(I18n.t("appointments.dashboard.month", count: 2, month: I18n.t("appointments.dashboard.months.3")))
+      expect(response.body).not_to include(I18n.t("appointments.dashboard.month", count: 0, month: I18n.t("appointments.dashboard.months.3")))
+    end
   end
 
   describe "GET /appointments/filter_options" do

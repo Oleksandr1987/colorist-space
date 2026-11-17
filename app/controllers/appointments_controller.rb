@@ -105,7 +105,10 @@ class AppointmentsController < ApplicationController
 
     filtered_scope = base_scope.search(params[:query]).for_categories(params[:categories]).for_services(params[:service_ids]).distinct
 
-    @stats = Appointment.statistics(filtered_scope, year: Date.current.year, month: Date.current.month)
+    stats_year = params[:year].presence&.to_i || Date.current.year
+    stats_month = params[:month].presence&.to_i || Date.current.month
+
+    @stats = Appointment.statistics(filtered_scope, year: stats_year, month: stats_month)
 
     @appointments = Appointment.filtered(
       base_scope.with_client,
