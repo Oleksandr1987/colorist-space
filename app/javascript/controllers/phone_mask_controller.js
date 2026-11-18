@@ -9,7 +9,7 @@ export default class extends Controller {
     this.digits = this.extractNationalDigits(this.element.value)
 
     this.element.inputMode = "numeric"
-    this.element.autocomplete = "tel"
+    // this.element.autocomplete = "tel"
 
     this.handleBeforeInput = this.handleBeforeInput.bind(this)
     this.handleInput = this.handleInput.bind(this)
@@ -33,6 +33,7 @@ export default class extends Controller {
 
     this.createDisplay()
     this.render()
+    this.element.dispatchEvent(new Event("input", { bubbles: true }))
 
     this.element.setAttribute("data-unsaved-ready-phone-mask", "")
 
@@ -186,6 +187,7 @@ export default class extends Controller {
     }
 
     this.moveCursorToEnd()
+    this.element.dispatchEvent(new CustomEvent("phone-mask:rendered", { bubbles: true }))
   }
 
   normalizedValue() {

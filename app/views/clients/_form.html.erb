@@ -4,13 +4,11 @@
      <% if @client.new_record? %>
        data-client-duplicates-url-value="<%= duplicates_clients_path %>"
      <% end %>>
-  <%= form_with model: @client, local: true, html: { multipart: true, class: "client-form", data: { unsaved_changes_target: "form" } } do |f| %>
+  <%= form_with model: @client, local: true, html: { multipart: true, class: "client-form", autocomplete: "off" },
+    data: { controller: "client-form", action: "submit->client-form#sync", unsaved_changes_target: "form" } do |f| %>
 
     <header class="client-form-header">
-      <button type="button"
-              class="client-form-back"
-              aria-label="<%= t('wizard.back') %>"
-              data-action="click->unsaved-changes#close">
+      <button type="button" class="client-form-back" aria-label="<%= t('wizard.back') %>" data-action="click->unsaved-changes#close">
         <%= image_tag "back.png", width: 24, height: 24, class: "wiz-icon" %>
       </button>
 
@@ -23,13 +21,27 @@
 
     <div class="client-form-content">
       <div class="login__field">
-        <%= f.label :first_name do %>
-          <%= t("clients.form.first_name") %>
+        <label for="c_f_1">
+          <%= t("clients.form.first_name_safari") %>
           <span class="required-asterisk">*</span>
-        <% end %>
+        </label>
 
-        <%= f.text_field :first_name, class: "login__input", autocomplete: "off",
-            data: (@client.new_record? ? { client_duplicates_target: "input", action: "input->client-duplicates#search" } : {}) %>
+        <%= text_field_tag "q_1",
+            @client.first_name,
+            id: "c_f_1",
+            class: "login__input",
+            placeholder: t("clients.form.first_name_placeholder_safari"),
+            autocomplete: "off",
+            autocorrect: "off",
+            autocapitalize: "words",
+            spellcheck: false,
+            data: {
+              client_form_target: "firstName",
+              action: [ "input->client-form#sync", (@client.new_record? ? "input->client-duplicates#search" : nil) ].compact.join(" "),
+              **(@client.new_record? ? { client_duplicates_target: "input" } : {})
+            } %>
+
+        <%= f.hidden_field :first_name, data: { client_form_target: "submittedFirstName" } %>
 
         <% @client.errors.where(:first_name).each do |error| %>
           <div class="inline-error" role="alert">
@@ -54,19 +66,36 @@
       </div>
 
       <div class="login__field">
-        <%= f.label :last_name, t("clients.form.last_name") %>
-        <%= f.text_field :last_name, class: "login__input" %>
+        <label for="c_f_2">
+          <%= t("clients.form.last_name_safari") %>
+        </label>
+
+        <%= text_field_tag "q_2",
+            @client.last_name,
+            id: "c_f_2",
+            class: "login__input",
+            placeholder: t("clients.form.last_name_placeholder_safari"),
+            autocomplete: "off",
+            autocorrect: "off",
+            autocapitalize: "words",
+            spellcheck: false,
+            data: { client_form_target: "lastName", action: "input->client-form#sync" } %>
+
+        <%= f.hidden_field :last_name, data: { client_form_target: "submittedLastName" } %>
       </div>
 
       <div class="login__field">
-        <%= f.label :phone do %>
-          <%= t("clients.form.phone") %>
+        <label for="c_f_3">
+          <%= t("clients.form.phone_safari") %>
           <span class="required-asterisk">*</span>
-        <% end %>
+        </label>
 
         <div class="phone-input-wrapper">
-          <%= f.telephone_field :phone, class: "login__input", autocomplete: "tel", data: { controller: "phone-mask" } %>
+          <%= text_field_tag "q_3", @client.phone, id: "c_f_3", class: "login__input", autocomplete: "off", inputmode: "numeric",
+              data: { controller: "phone-mask", client_form_target: "phone", action: "input->client-form#sync phone-mask:rendered->client-form#sync" } %>
         </div>
+
+        <%= f.hidden_field :phone, data: { client_form_target: "submittedPhone" } %>
 
         <% @client.errors.where(:phone).each do |error| %>
           <div class="inline-error" role="alert">
@@ -80,7 +109,7 @@
           <%= f.fields_for :client_phones do |phone_form| %>
             <div class="phone-row">
               <div class="phone-input-wrapper">
-                <%= phone_form.telephone_field :phone, class: "login__input", autocomplete: "tel", data: { controller: "phone-mask" } %>
+                <%= phone_form.telephone_field :phone, class: "login__input", autocomplete: "off", data: { controller: "phone-mask" } %>
               </div>
 
               <%= phone_form.hidden_field :_destroy %>
@@ -96,7 +125,8 @@
           <div class="phone-row">
             <div class="phone-input-wrapper">
               <input type="tel"
-                    autocomplete="tel"
+                    autocomplete="off"
+                    inputmode="numeric"
                     data-controller="phone-mask"
                     name="client[client_phones_attributes][NEW_RECORD][phone]"
                     class="login__input">
@@ -136,34 +166,24 @@
         <% end %>
 
         <!-- Inline birthday picker -->
-        <div class="birthday-picker-inline hidden"
-            data-birthday-picker-target="modal">
-
+        <div class="birthday-picker-inline hidden" data-birthday-picker-target="modal">
           <div class="birthday-picker-top">
-            <button type="button"
-                    class="birthday-picker-cancel"
-                    data-action="click->birthday-picker#close">
+            <button type="button" class="birthday-picker-cancel" data-action="click->birthday-picker#close">
               <%= t("common.cancel") %>
             </button>
 
-            <button type="button"
-                    class="birthday-picker-save"
-                    data-action="click->birthday-picker#save">
+            <button type="button" class="birthday-picker-save" data-action="click->birthday-picker#save">
               <%= t("common.save").upcase %>
             </button>
           </div>
 
           <div class="birthday-picker">
             <div class="birthday-picker-column birthday-picker-month">
-              <div class="birthday-wheel"
-                  data-birthday-picker-target="months"
-                  data-action="scroll->birthday-picker#scrollMonth">
-
+              <div class="birthday-wheel" data-birthday-picker-target="months" data-action="scroll->birthday-picker#scrollMonth">
                 <div class="birthday-wheel-spacer"></div>
 
                 <% I18n.t("date.month_names").drop(1).each_with_index do |month, index| %>
-                  <div class="birthday-wheel-item"
-                      data-month="<%= format("%02d", index + 1) %>">
+                  <div class="birthday-wheel-item" data-month="<%= format("%02d", index + 1) %>">
                     <%= month %>
                   </div>
                 <% end %>
@@ -207,11 +227,7 @@
       <div class="client-duplicates-backdrop"
           data-action="click->client-duplicates#closeModal"></div>
 
-      <div class="client-duplicates-modal-card"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="client-duplicates-modal-title">
-
+      <div class="client-duplicates-modal-card" role="dialog" aria-modal="true" aria-labelledby="client-duplicates-modal-title">
         <div class="client-duplicates-modal-header">
           <h3 id="client-duplicates-modal-title">
             <%= t("clients.duplicates.all_matches") %>

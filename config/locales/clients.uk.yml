@@ -28,6 +28,12 @@ uk:
       all_photos_deleted: "Усі фото видалено."
 
     form:
+      first_name_safari: "Ім\u200B’я"
+      first_name_placeholder_safari: "Введ\u0456ть \u0456м\u200B’я"
+      last_name_safari: "Пр\u200Bізвище"
+      last_name_placeholder_safari: "Введ\u0456ть пр\u200Bізвище"
+      phone_safari: "Тел\u200Bефон"
+
       first_name: "Ім’я"
       last_name: "Прізвище"
       phone: "Телефон"

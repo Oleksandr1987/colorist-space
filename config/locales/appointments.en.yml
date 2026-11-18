@@ -42,6 +42,8 @@ en:
       12: "December"
 
     form:
+      client_name_safari: "Cl\u200Bient Name"
+      client_name_placeholder_safari: "Enter cl\u200Bient name"
       client_name: "Client Name"
       client_name_placeholder: "Enter or select client name"
       select_client: "Select a client from the list"

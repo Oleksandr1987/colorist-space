@@ -26,6 +26,11 @@ en:
       all_photos_deleted: "All photos deleted."
 
     form:
+      first_name_safari: "Fi\u200Brst Name"
+      first_name_placeholder_safari: "Enter fi\u200Brst name"
+      last_name_safari: "La\u200Bst Name"
+      last_name_placeholder_safari: "Enter la\u200Bst name"
+      phone_safari: "Ph\u200Bone Number"
       first_name: "First Name"
       last_name: "Last Name"
       phone: "Phone Number"

@@ -42,6 +42,8 @@ uk:
       12: "Грудень"
 
     form:
+      client_name_safari: "Ім\u200B’я кл\u0456єнта"
+      client_name_placeholder_safari: "Введ\u0456ть \u0456м\u200B’я"
       client_name: "Ім'я клієнта"
       client_name_placeholder: "Введіть чи оберіть ім’я клієнта"
       select_client: "Вибрати клієнта зі списку"
