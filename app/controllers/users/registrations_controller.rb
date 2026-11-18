@@ -15,7 +15,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
       return
     end
     resource.transaction do
-      resource.subscription&.destroy!
+      subscription&.destroy!
       # Reload clears the cached has_one association before dependent checks.
       resource.reload
       super

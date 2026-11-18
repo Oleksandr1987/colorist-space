@@ -1,12 +1,19 @@
-
+// app/javascript/controllers/client_selector_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "name", "clientId", "phone", "suggestions", "suggestion", "clearButton", "search", "row", "empty"]
+  static targets = [
+    "modal", "name", "submittedName", "clientId", "phone",
+    "suggestions", "suggestion", "clearButton",
+    "search", "row", "empty"
+  ]
 
   connect() {
     this.selectedName = this.nameTarget.value.trim()
+
+    this.syncSubmittedName()
     this.hideSuggestions()
+    this.toggleClearButton()
 
     this.onOutsideClick = this.handleOutsideClick.bind(this)
     document.addEventListener("pointerdown", this.onOutsideClick)
@@ -18,6 +25,8 @@ export default class extends Controller {
 
   input() {
     const name = this.nameTarget.value.trim()
+
+    this.syncSubmittedName()
 
     if (this.clientIdTarget.value && name !== this.selectedName) {
       this.clientIdTarget.value = ""
@@ -33,6 +42,16 @@ export default class extends Controller {
 
   focus() {
     this.showSuggestions()
+  }
+
+  submit() {
+    this.syncSubmittedName()
+  }
+
+  syncSubmittedName() {
+    if (!this.hasSubmittedNameTarget) return
+
+    this.submittedNameTarget.value = this.nameTarget.value
   }
 
   showSuggestions() {
@@ -83,6 +102,8 @@ export default class extends Controller {
     this.clientIdTarget.value = id
     this.nameTarget.value = name
     this.selectedName = name
+
+    this.syncSubmittedName()
 
     if (oldId !== id) {
       this.clientIdTarget.dispatchEvent(new Event("change", { bubbles: true }))

@@ -41,6 +41,20 @@ RSpec.configure do |config|
     Rails.root.join('spec/fixtures')
   ]
 
+  # config.around do |example|
+  #   if %i[request system].include?(example.metadata[:type])
+  #     example.run
+  #   else
+  #     Bullet.start_request
+
+  #     begin
+  #       example.run
+  #     ensure
+  #       Bullet.perform_out_of_channel_notifications if Bullet.notification?
+  #       Bullet.end_request
+  #     end
+  #   end
+  # end
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.

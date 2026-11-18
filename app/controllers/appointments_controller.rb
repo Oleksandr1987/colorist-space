@@ -111,7 +111,7 @@ class AppointmentsController < ApplicationController
     @stats = Appointment.statistics(filtered_scope, year: stats_year, month: stats_month)
 
     @appointments = Appointment.filtered(
-      base_scope.with_client,
+      base_scope.for_history,
       query: params[:query],
       categories: params[:categories],
       service_ids: params[:service_ids],

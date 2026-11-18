@@ -217,7 +217,10 @@ RSpec.describe Appointment do
       it "includes the client association" do
         appointment
 
-        expect(described_class.with_client.first.association(:client)).to be_loaded
+        result = described_class.with_client.first
+
+        expect(result.association(:client)).to be_loaded
+        expect(result.client.full_name).to eq(client.full_name)
       end
     end
 
