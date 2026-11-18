@@ -431,4 +431,30 @@ RSpec.describe Client do
       expect(user.clients.with_name("John", "Smith")).to be_empty
     end
   end
+
+  describe "Client name collation" do
+    it "distinguishes Ukrainian letters й and и" do
+      connection = ActiveRecord::Base.connection
+
+      result = connection.select_value(<<~SQL)
+        SELECT
+          _utf8mb4'Йосип' COLLATE utf8mb4_0900_as_ci =
+          _utf8mb4'Иосип' COLLATE utf8mb4_0900_as_ci
+      SQL
+
+      expect(result).to eq(0)
+    end
+
+    it "compares names case-insensitively" do
+      connection = ActiveRecord::Base.connection
+
+      result = connection.select_value(<<~SQL)
+        SELECT
+          _utf8mb4'Йосип' COLLATE utf8mb4_0900_as_ci =
+          _utf8mb4'йосип' COLLATE utf8mb4_0900_as_ci
+      SQL
+
+      expect(result).to eq(1)
+    end
+  end
 end
