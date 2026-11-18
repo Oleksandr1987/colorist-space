@@ -206,7 +206,7 @@ RSpec.describe "ServiceNotes" do
     end
 
     it "renders edit when care product quantity exceeds stock" do
-      original_care_products = service_note.care_products.deep_dup
+      original_care_products = service_note.reload.care_products.deep_dup
 
       patch client_service_note_path(client, service_note), params: {
         service_note: { care_products: [ { care_product_id: care_product.id, name: "Mask", price: 100, qty: 21 } ].to_json }

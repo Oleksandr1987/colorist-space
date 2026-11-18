@@ -11,7 +11,7 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
-  create_table "active_storage_attachments", force: :cascade do |t|
+  create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -21,7 +21,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", force: :cascade do |t|
+  create_table "active_storage_blobs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "byte_size", null: false
     t.string "checksum"
     t.string "content_type"
@@ -33,18 +33,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "active_storage_variant_records", force: :cascade do |t|
+  create_table "active_storage_variant_records", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "appointment_services_relations", force: :cascade do |t|
-    t.integer "appointment_id", null: false
+  create_table "appointment_services_relations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "appointment_id", null: false
     t.datetime "created_at", null: false
     t.integer "price", null: false
     t.string "service_category", null: false
-    t.integer "service_id", null: false
+    t.bigint "service_id", null: false
     t.string "service_name", null: false
     t.datetime "updated_at", null: false
     t.index ["appointment_id", "service_id"], name: "appt_serv_in", unique: true
@@ -53,32 +53,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.index ["service_id"], name: "index_appointment_services_relations_on_service_id"
   end
 
-  create_table "appointments", force: :cascade do |t|
+  create_table "appointments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.date "appointment_date"
     t.time "appointment_time"
-    t.integer "client_id", null: false
+    t.bigint "client_id", null: false
     t.datetime "created_at", null: false
     t.time "end_time"
     t.text "notes"
     t.string "service_name"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["client_id"], name: "index_appointments_on_client_id"
     t.index ["user_id"], name: "index_appointments_on_user_id"
   end
 
-  create_table "care_product_sales", force: :cascade do |t|
-    t.integer "appointment_id"
-    t.integer "care_product_id", null: false
+  create_table "care_product_sales", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "appointment_id"
+    t.bigint "care_product_id", null: false
     t.datetime "created_at", null: false
     t.integer "quantity", null: false
-    t.integer "service_note_id"
+    t.bigint "service_note_id"
     t.date "sold_on", null: false
-    t.integer "stock_movement_id"
+    t.bigint "stock_movement_id"
     t.decimal "unit_cost", precision: 10, scale: 2, null: false
     t.decimal "unit_price", precision: 10, scale: 2, null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["appointment_id"], name: "index_care_product_sales_on_appointment_id"
     t.index ["care_product_id"], name: "index_care_product_sales_on_care_product_id"
     t.index ["service_note_id"], name: "index_care_product_sales_on_service_note_id"
@@ -87,21 +87,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.index ["user_id"], name: "index_care_product_sales_on_user_id"
   end
 
-  create_table "care_product_stock_movements", force: :cascade do |t|
+  create_table "care_product_stock_movements", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "adjustment_reason"
-    t.integer "appointment_id"
-    t.integer "care_product_id", null: false
+    t.bigint "appointment_id"
+    t.bigint "care_product_id", null: false
     t.datetime "created_at", null: false
-    t.integer "expense_id"
+    t.bigint "expense_id"
     t.string "movement_type", null: false
     t.text "note"
     t.date "occurred_on", null: false
     t.integer "quantity", null: false
-    t.integer "service_note_id"
+    t.bigint "service_note_id"
     t.integer "stock_after"
     t.decimal "unit_cost", precision: 10, scale: 2
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["appointment_id"], name: "index_care_product_stock_movements_on_appointment_id"
     t.index ["care_product_id"], name: "index_care_product_stock_movements_on_care_product_id"
     t.index ["expense_id"], name: "index_care_product_stock_movements_on_expense_id"
@@ -111,7 +111,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.index ["user_id"], name: "index_care_product_stock_movements_on_user_id"
   end
 
-  create_table "care_products", force: :cascade do |t|
+  create_table "care_products", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.virtual "active_identity", type: :integer, limit: 1, as: "(case when (`deleted_at` is null) then 1 else NULL end)", stored: true
     t.datetime "archived_at"
     t.string "brand"
     t.string "category"
@@ -125,25 +126,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.decimal "sale_price", precision: 10, scale: 2
     t.integer "stock_quantity"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["archived_at"], name: "index_care_products_on_archived_at"
     t.index ["deleted_at"], name: "index_care_products_on_deleted_at"
-    t.index ["user_id", "normalized_brand", "normalized_name", "normalized_category"], name: "index_care_products_on_unique_identity", unique: true, where: "deleted_at IS NULL"
+    t.index ["user_id", "normalized_brand", "normalized_name", "normalized_category", "active_identity"], name: "index_care_products_on_unique_identity", unique: true
     t.index ["user_id"], name: "index_care_products_on_user_id"
   end
 
-  create_table "client_phones", force: :cascade do |t|
-    t.integer "client_id", null: false
+  create_table "client_phones", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "client_id", null: false
     t.datetime "created_at", null: false
     t.string "phone", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id"
+    t.bigint "user_id"
     t.index ["client_id"], name: "index_client_phones_on_client_id"
     t.index ["user_id", "phone"], name: "index_client_phones_on_user_id_and_phone", unique: true
     t.index ["user_id"], name: "index_client_phones_on_user_id"
   end
 
-  create_table "clients", force: :cascade do |t|
+  create_table "clients", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "archived_at"
     t.string "birthday"
     t.datetime "created_at", null: false
@@ -159,39 +160,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.string "phone", null: false
     t.string "scalp_condition"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index "user_id, LOWER(TRIM(first_name)), LOWER(TRIM(COALESCE(last_name, '')))", name: "index_clients_on_unique_name", unique: true
+    t.bigint "user_id", null: false
     t.index ["archived_at"], name: "index_clients_on_archived_at"
     t.index ["user_id", "normalized_name"], name: "index_clients_on_user_id_and_normalized_name", unique: true
     t.index ["user_id", "phone"], name: "index_clients_on_user_id_and_phone", unique: true
     t.index ["user_id"], name: "index_clients_on_user_id"
   end
 
-  create_table "expenses", force: :cascade do |t|
+  create_table "expenses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "amount", null: false
     t.string "category", null: false
     t.datetime "created_at", null: false
     t.string "note"
     t.date "spent_on", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_expenses_on_user_id"
   end
 
-  create_table "formula_charges", force: :cascade do |t|
+  create_table "formula_charges", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.decimal "amount", precision: 12, scale: 3, null: false
-    t.integer "appointment_id", null: false
+    t.bigint "appointment_id", null: false
     t.string "brand"
     t.datetime "created_at", null: false
-    t.integer "formula_product_id"
+    t.bigint "formula_product_id"
     t.string "kind", null: false
     t.string "product_name", null: false
-    t.integer "service_note_id"
+    t.bigint "service_note_id"
     t.decimal "total", precision: 12, scale: 2, null: false
     t.string "unit"
     t.decimal "unit_price", precision: 12, scale: 4, null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["appointment_id"], name: "index_formula_charges_on_appointment_id"
     t.index ["formula_product_id"], name: "index_formula_charges_on_formula_product_id"
     t.index ["kind"], name: "index_formula_charges_on_kind"
@@ -199,12 +199,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.index ["user_id"], name: "index_formula_charges_on_user_id"
   end
 
-  create_table "formula_ingredients", force: :cascade do |t|
+  create_table "formula_ingredients", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "amount", null: false
     t.string "brand"
     t.datetime "created_at", null: false
     t.integer "formula_product_id"
-    t.integer "formula_step_id", null: false
+    t.bigint "formula_step_id", null: false
     t.string "kind", default: "color", null: false
     t.decimal "price", precision: 10, scale: 2, default: "0.0"
     t.string "shade", null: false
@@ -214,7 +214,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.index ["kind"], name: "index_formula_ingredients_on_kind"
   end
 
-  create_table "formula_products", force: :cascade do |t|
+  create_table "formula_products", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "brand"
     t.string "category"
     t.datetime "created_at", null: false
@@ -222,50 +222,50 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.decimal "price_per_unit", precision: 10, scale: 2
     t.string "unit"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_formula_products_on_user_id"
   end
 
-  create_table "formula_steps", force: :cascade do |t|
+  create_table "formula_steps", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "notes"
     t.json "oxidant"
     t.string "section", null: false
-    t.integer "service_note_id", null: false
+    t.bigint "service_note_id", null: false
     t.string "time"
     t.datetime "updated_at", null: false
     t.index ["service_note_id"], name: "index_formula_steps_on_service_note_id"
   end
 
-  create_table "haircut_steps", force: :cascade do |t|
+  create_table "haircut_steps", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "cut_type"
     t.string "elevation"
     t.string "instrument"
     t.text "notes"
     t.string "parting"
-    t.integer "service_note_id", null: false
+    t.bigint "service_note_id", null: false
     t.datetime "updated_at", null: false
     t.string "zone"
     t.index ["service_note_id"], name: "index_haircut_steps_on_service_note_id"
   end
 
-  create_table "service_note_services", force: :cascade do |t|
+  create_table "service_note_services", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "service_id", null: false
-    t.integer "service_note_id", null: false
+    t.bigint "service_id", null: false
+    t.bigint "service_note_id", null: false
     t.datetime "updated_at", null: false
     t.index ["service_id"], name: "index_service_note_services_on_service_id"
     t.index ["service_note_id", "service_id"], name: "index_service_note_services_on_service_note_id_and_service_id", unique: true
     t.index ["service_note_id"], name: "index_service_note_services_on_service_note_id"
   end
 
-  create_table "service_notes", force: :cascade do |t|
-    t.integer "appointment_id"
-    t.json "care_products", default: []
-    t.integer "client_id", null: false
+  create_table "service_notes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "appointment_id"
+    t.json "care_products", default: -> { "(json_array())" }
+    t.bigint "client_id", null: false
     t.datetime "created_at", null: false
-    t.json "data", default: {}, null: false
+    t.json "data", default: -> { "(json_object())" }, null: false
     t.text "formula_notes"
     t.text "haircut_notes"
     t.integer "main_photo_id"
@@ -273,14 +273,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.integer "price"
     t.string "service_type", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["appointment_id"], name: "index_service_notes_on_appointment_id_unique", unique: true
     t.index ["client_id", "created_at"], name: "index_service_notes_on_client_id_and_created_at"
     t.index ["client_id"], name: "index_service_notes_on_client_id"
     t.index ["user_id"], name: "index_service_notes_on_user_id"
   end
 
-  create_table "services", force: :cascade do |t|
+  create_table "services", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "category"
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -289,23 +289,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.string "subtype"
     t.string "unit"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.index ["user_id", "category", "subtype"], name: "index_services_on_user_id_and_category_and_subtype", unique: true
     t.index ["user_id"], name: "index_services_on_user_id"
   end
 
-  create_table "slot_rules", force: :cascade do |t|
+  create_table "slot_rules", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.time "end_time", null: false
     t.text "rule", null: false
     t.time "start_time", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.string "weekdays", null: false
     t.index ["user_id"], name: "index_slot_rules_on_user_id"
   end
 
-  create_table "subscription_payments", force: :cascade do |t|
+  create_table "subscription_payments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "amount_minor", null: false
     t.json "callback_metadata"
     t.json "checkout_data"
@@ -323,15 +323,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.string "reason_code"
     t.string "source", default: "purchase", null: false
     t.string "status", default: "pending", null: false
-    t.integer "subscription_id", null: false
+    t.bigint "subscription_id", null: false
     t.datetime "updated_at", null: false
     t.index ["merchant_account", "order_reference"], name: "index_subscription_payments_on_merchant_and_reference", unique: true
     t.index ["subscription_id"], name: "index_subscription_payments_on_subscription_id"
-    t.check_constraint "amount_minor > 0", name: "subscription_payment_amount_is_positive"
-    t.check_constraint "period_start IS NULL OR period_end IS NULL OR period_end > period_start", name: "subscription_payment_period_is_ordered"
+    t.check_constraint "(`period_start` is null) or (`period_end` is null) or (`period_end` > `period_start`)", name: "subscription_payment_period_is_ordered"
+    t.check_constraint "`amount_minor` > 0", name: "subscription_payment_amount_is_positive"
   end
 
-  create_table "subscriptions", force: :cascade do |t|
+  create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.boolean "auto_renew", default: false, null: false
     t.datetime "cancelled_at"
     t.bigint "checkout_payment_id"
@@ -352,14 +352,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.string "status", default: "pending", null: false
     t.datetime "trial_ends_at"
     t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.string "wayforpay_order_reference"
     t.index ["merchant_account", "wayforpay_order_reference"], name: "index_subscriptions_on_merchant_and_reference", unique: true
     t.index ["user_id"], name: "index_subscriptions_on_user_id", unique: true
-    t.check_constraint "current_period_start IS NULL OR current_period_end IS NULL OR current_period_end > current_period_start", name: "subscription_period_is_ordered"
+    t.check_constraint "(`current_period_start` is null) or (`current_period_end` is null) or (`current_period_end` > `current_period_start`)", name: "subscription_period_is_ordered"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.string "encrypted_password", default: "", null: false
@@ -378,7 +378,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_110239) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  create_table "wayforpay_events", force: :cascade do |t|
+  create_table "wayforpay_events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "fingerprint", null: false
     t.string "merchant_account", null: false

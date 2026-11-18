@@ -8,6 +8,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-24.04
+
     steps:
       - uses: actions/checkout@v4
 
@@ -20,6 +21,7 @@ jobs:
 
   security:
     runs-on: ubuntu-24.04
+
     steps:
       - uses: actions/checkout@v4
 
@@ -33,21 +35,48 @@ jobs:
   test:
     runs-on: ubuntu-24.04
 
+    services:
+      mysql:
+        image: mysql:9.2
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: colorist_test
+          MYSQL_USER: colorist
+          MYSQL_PASSWORD: test_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     env:
       RAILS_ENV: test
       SIMPLECOV: true
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PORT: 3306
+      MYSQL_USERNAME: colorist
+      MYSQL_PASSWORD: test_password
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install MySQL client libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-libmysqlclient-dev
 
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - run: bin/rails db:create db:schema:load
+      - name: Prepare test database
+        run: bin/rails db:prepare
 
-      - run: bundle exec rspec
+      - name: Run RSpec
+        run: bundle exec rspec
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
@@ -55,3 +84,4 @@ jobs:
         with:
           name: coverage-report
           path: coverage/
+          if-no-files-found: ignore

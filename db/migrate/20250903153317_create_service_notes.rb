@@ -7,7 +7,7 @@ class CreateServiceNotes < ActiveRecord::Migration[8.0]
       t.references :appointment, null: true, foreign_key: true
 
       t.string :service_type, null: false
-      t.json :data, null: false, default: {}
+      t.json :data, null: false, default: -> { "(JSON_OBJECT())" }
       t.text :notes
       t.integer :price, null: true
 
