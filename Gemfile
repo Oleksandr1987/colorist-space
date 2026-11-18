@@ -78,4 +78,5 @@ group :test do
   gem "simplecov", require: false
   gem "simplecov-console", require: false
   gem "simplecov_json_formatter", require: false
+  # gem "bullet", ">= 8.3.1"
 end

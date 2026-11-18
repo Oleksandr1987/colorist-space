@@ -50,4 +50,25 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+  # Bullet - test environment only
+  # config.after_initialize do
+  #   Bullet.enable = true
+
+  #   # Detectors
+  #   Bullet.n_plus_one_query_enable = true
+  #   Bullet.unused_eager_loading_enable = true
+  #   Bullet.counter_cache_enable = true
+
+  #   # Write warnings to log/bullet.log
+  #   Bullet.bullet_logger = true
+
+  #   # Disable other notifications
+  #   Bullet.alert = false
+  #   Bullet.console = false
+  #   Bullet.rails_logger = false
+  #   Bullet.add_footer = false
+
+  #   # Collect warnings without failing specs
+  #   Bullet.raise = false
+  # end
 end

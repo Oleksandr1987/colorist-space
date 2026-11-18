@@ -116,6 +116,8 @@ class Appointment < ApplicationRecord
     joins(:services).where(services: { id: ids })
   }
 
+  scope :for_history, -> { includes(:client, :service_note) }
+
   class << self
     def filtered(scope, query: nil, categories: nil, service_ids: nil,
              year: nil, month: nil, from_date: nil, to_date: nil, all_time: false)

@@ -62,8 +62,8 @@ class CareProductsController < ApplicationController
     @stock_movements =
       @care_product
         .stock_movements
-        .includes(:expense, :care_product_sale, :appointment, service_note: %i[client appointment])
-        .order(occurred_on: :desc, created_at: :desc)
+        .includes(:care_product_sale, :appointment, service_note: %i[client appointment])
+        .ordered
   end
 
   def edit
